@@ -29,7 +29,7 @@
             display: none !important;
         }
 
-        /* تصميم الهيدر المتجاوب لمنع أي تداخل على الموبايل */
+        /* تصميم الهيدر الأساسي للكمبيوتر */
         .header--floward-style {
             max-width: 1350px !important;
             margin: 0 auto;
@@ -46,7 +46,7 @@
         body { font-family: 'Tajawal', sans-serif; background-color: #fcfcfc; margin: 0; padding: 0; color: #333; overflow-x: hidden; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        /* حاوية الأقسام المتعددة مع شريط التمرير الأفقي لكل قسم */
+        /* حاوية الأقسام المتعددة مع شريط التمرير الأفقي لكل قسم (الكمبيوتر) */
         .floward-section-box {
             max-width: 1200px;
             margin: 45px auto;
@@ -65,6 +65,7 @@
         .floward-sec-title {
             font-weight: 700;
             margin: 0;
+            font-size: 24px;
         }
         .floward-sec-btn {
             background: transparent;
@@ -83,7 +84,7 @@
             border-color: #9ca3af;
         }
 
-        /* شريط التمرير الأفقي الأنيق (بالشكل الأساسي الواضح) */
+        /* شريط التمرير الأفقي للكمبيوتر */
         .floward-horizontal-track {
             display: flex;
             gap: 25px;
@@ -103,7 +104,7 @@
             border-radius: 10px;
         }
 
-        /* بطاقة المنتج العائمة */
+        /* بطاقة المنتج العائمة (الكمبيوتر) */
         .floward-item-card {
             min-width: 270px;
             max-width: 270px;
@@ -179,8 +180,11 @@
             border-radius: 10px;
         }
 
-        /* تعديلات حاسمة لضبط الهيدر والقياسات على الهواتف المحمولة تماماً */
+        /* --------------------------------------------------------- */
+        /* 📱 إعدادات وتنسيقات الهواتف المحمولة المستقلة (Mobile Only)   */
+        /* --------------------------------------------------------- */
         @media screen and (max-width: 768px) {
+            /* إعدادات الهيدر للموبايل */
             .header--floward-style {
                 padding: 0.8rem 1rem !important;
                 gap: 5px;
@@ -189,12 +193,14 @@
                 gap: 0.8rem !important;
             }
             .floward-btn-link span {
-                display: none; /* إخفاء النصوص بجانب الأيقونات على الموبايل لمنع التداخل وتوفير مساحة */
+                display: none; /* إخفاء النصوص بجانب الأيقونات على الموبايل لتوفير مساحة */
             }
             .floward-svg-icon {
                 width: 22px !important;
                 height: 22px !important;
             }
+
+            /* إعدادات بطاقات المنتجات للموبايل */
             .floward-item-card {
                 min-width: 210px !important;
                 max-width: 210px !important;
@@ -204,6 +210,21 @@
             }
             .section-header-left, .floward-sec-title {
                 font-size: 20px !important;
+            }
+
+            /* إعدادات قسم الفيديو الترويجي للموبايل (تمت تهيئته ليطابق شكل فلاورد الفاخر) */
+            .desktop-video-el {
+                height: 480px !important; /* ارتفاع كبير ومميز للفيديو على الموبايل */
+            }
+            .promo-content-box {
+                padding: 25px !important;
+            }
+            .promo-heading-el {
+                font-size: 26px !important;
+                max-width: 100% !important;
+            }
+            .promo-subtext-el {
+                font-size: 14px !important;
             }
         }
     </style>
@@ -387,7 +408,7 @@
         let buttonHtml = '';
         if (item.button_label) {
           buttonHtml = `
-            <a href="${item.button_link || '#'}" style="display: inline-block; background: #ffffff; color: #00313C; padding: 10px 24px; border-radius: 50px; font-weight: 700; font-size: 14px; text-decoration: none; margin-top: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.2s;">
+            <a href="${item.button_link || '#'}" style="display: inline-block; background: #ffffff; color: #111111; padding: 12px 32px; border-radius: 30px; font-weight: 600; font-size: 14px; text-decoration: none; margin-top: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.2s;">
               ${item.button_label}
             </a>
           `;
@@ -401,14 +422,14 @@
 
         container.innerHTML = `
           <div style="position: relative; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); background: #000;">
-            <video autoplay muted loop playsinline style="width: 100%; height: 350px; object-fit: cover; display: block; opacity: 0.9;">
+            <video autoplay muted loop playsinline class="desktop-video-el" style="width: 100%; height: 380px; object-fit: cover; display: block; opacity: 0.9;">
               <source src="${item.media_url}" type="video/mp4">
             </video>
-            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.75), transparent); padding: 25px; text-align: center; color: #fff;">
-              <h2 style="font-size: 24px; margin: 0 0 8px 0; font-family: 'Tajawal', sans-serif; font-weight: 700;">${item.heading || ''}</h2>
-              <p style="font-size: 15px; margin: 0 0 10px 0; opacity: 0.95; font-family: 'Tajawal', sans-serif;">${item.subheading || ''}</p>
+            <div class="promo-content-box" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.75), transparent); padding: 30px; text-align: left; direction: ltr; color: #fff;">
+              <h2 class="promo-heading-el" style="font-size: 32px; margin: 0 0 8px 0; font-family: 'Poppins', 'Tajawal', sans-serif; font-weight: 700; max-width: 80%;">${item.heading || ''}</h2>
+              <p class="promo-subtext-el" style="font-size: 15px; margin: 0 0 10px 0; opacity: 0.95; font-family: 'Tajawal', sans-serif; max-width: 80%;">${item.subheading || ''}</p>
               ${buttonHtml}
-              <div style="display: flex; gap: 6px; justify-content: center; margin-top: 15px;">
+              <div style="display: flex; gap: 6px; justify-content: flex-start; margin-top: 15px;">
                 ${indicatorsHtml}
               </div>
             </div>
@@ -654,7 +675,7 @@
       <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
         <li><a href="#" style="color: inherit; text-decoration: none;">About Us</a></li>
         <li><a href="#" style="color: inherit; text-decoration: none;">Careers</a></li>
-        <li><a href="#" style="color: inherit; text-decoration: none;"></ahref>Privacy Policy</a></li>
+        <li><a href="#" style="color: inherit; text-decoration: none;">Privacy Policy</a></li>
       </ul>
     </div>
 
