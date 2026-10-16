@@ -83,10 +83,10 @@
             border-color: #9ca3af;
         }
 
-        /* شريط التمرير الأفقي الأنيق تحت كل قسم */
+        /* شريط التمرير الأفقي الأنيق (أعيد لشكله السابق والواضح) */
         .floward-horizontal-track {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             overflow-x: auto;
             scroll-behavior: smooth;
             padding-bottom: 15px;
@@ -105,8 +105,8 @@
 
         /* بطاقة المنتج العائمة */
         .floward-item-card {
-            min-width: 240px;
-            max-width: 240px;
+            min-width: 270px;
+            max-width: 270px;
             text-decoration: none;
             color: inherit;
             display: flex;
@@ -119,7 +119,7 @@
         }
         .floward-item-img {
             width: 100%;
-            height: 280px;
+            height: 320px;
             border-radius: 12px;
             overflow: hidden;
             background-color: #f7f7f7;
@@ -161,7 +161,7 @@
 
         .categories-scroll-container {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             overflow-x: auto;
             scroll-behavior: smooth;
             padding-bottom: 15px;
@@ -196,11 +196,11 @@
                 height: 22px !important;
             }
             .floward-item-card {
-                min-width: 200px;
-                max-width: 200px;
+                min-width: 210px !important;
+                max-width: 210px !important;
             }
             .floward-item-img {
-                height: 230px;
+                height: 240px !important;
             }
             .section-header-left, .floward-sec-title {
                 font-size: 20px !important;
@@ -296,7 +296,7 @@
 
     <div class="floward-center-group">
       <a href="index.html" class="header__heading-link link">
-        <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 40px; object-fit: contain;">
+        <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 45px; object-fit: contain;">
       </a>
     </div>
 
@@ -308,7 +308,7 @@
       <a href="cart.html" class="floward-btn-link relative" style="position: relative; text-decoration: none;">
         <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
         <span>Cart</span>
-        <span id="cart-counter-badge" style="display:none; position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; border-radius: 50%; font-size: 10px; width: 16px; height: 16px; font-weight: bold; align-items: center; justify-content: center;">0</span>
+        <span id="cart-counter-badge" style="display:none; position: absolute; top: -5px; right: 25px; background: #e74c3c; color: white; border-radius: 50%; font-size: 11px; width: 18px; height: 18px; font-weight: bold; align-items: center; justify-content: center;">0</span>
       </a>
     </div>
 
@@ -339,7 +339,7 @@
   </div>
 </div>
 
-<!-- قسم الفيديو الترويجي الديناميكي (مطابق لطراز فلاورد الفاخر) -->
+<!-- قسم الفيديو الترويجي الديناميكي (مطابق تماماً لتصميم الخطوط والأزرار والخطوط الفاخرة لطراز فلاورد) -->
 <div id="custom-media-container" style="max-width: 1200px; margin: 30px auto; padding: 0 20px;"></div>
 
 <!-- القسم الأول: التصنيفات الرئيسية -->
@@ -380,31 +380,39 @@
           container.innerHTML = '';
           return;
         }
-        const item = data[0];
+
+        // حساب عدد الوسائط ديناميكياً لإنشاء الخطوط المتقطعة حسب العدد الفعلي
+        const totalItems = data.length;
+        const item = data[0]; // عرض العنصر الأول (أو يمكن تفعيله كسلايدر مستقبلاً)
+        
         let buttonHtml = '';
         if (item.button_label) {
           buttonHtml = `
-            <a href="${item.button_link || '#'}" style="display: inline-block; background: #ffffff; color: #00313C; padding: 12px 32px; border-radius: 50px; font-weight: 700; font-size: 15px; text-decoration: none; margin-top: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); transition: all 0.2s;">
+            <a href="${item.button_link || '#'}" style="display: inline-flex; align-items: center; justify-content: center; background: #ffffff; color: #111111; padding: 12px 36px; border-radius: 30px; font-weight: 600; font-size: 15px; text-decoration: none; margin-top: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: all 0.2s; width: fit-content; align-self: flex-start;">
               ${item.button_label}
             </a>
           `;
         }
+
+        // توليد الخطوط المتقطعة بناءً على عدد الوسائط الفعلية في جدول custom_media
+        let indicatorsHtml = '';
+        for (let i = 0; i < totalItems; i++) {
+          let bgStyle = (i === 0) ? '#ffffff' : 'rgba(255,255,255,0.4)';
+          indicatorsHtml += `<span style="width: 32px; height: 3px; background: ${bgStyle}; border-radius: 2px; transition: background 0.3s;"></span>`;
+        }
+
         container.innerHTML = `
-          <div style="position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.1); background: #000; margin: 15px auto;">
-            <video autoplay muted loop playsinline style="width: 100%; height: 500px; object-fit: cover; display: block;">
+          <div style="position: relative; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.08); background: #000;">
+            <video autoplay muted loop playsinline style="width: 100%; height: 520px; object-fit: cover; display: block;">
               <source src="${item.media_url}" type="video/mp4">
             </video>
-            <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.65) 10%, rgba(0,0,0,0.1) 60%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 35px 20px; text-align: center; color: #fff;">
-              <h2 style="font-size: 32px; margin: 0 0 10px 0; font-family: 'Tajawal', sans-serif; font-weight: 700; line-height: 1.2;">${item.heading || ''}</h2>
-              <p style="font-size: 16px; margin: 0 0 15px 0; opacity: 0.95; font-family: 'Tajawal', sans-serif;">${item.subheading || ''}</p>
-              ${buttonHtml}
+            <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7) 10%, rgba(0,0,0,0.2) 50%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 40px 30px; text-align: left; direction: ltr;">
+              <h2 style="font-size: 36px; margin: 0 0 10px 0; font-family: 'Poppins', 'Tajawal', sans-serif; font-weight: 700; color: #ffffff; line-height: 1.15; max-width: 80%;">${item.heading || ''}</h2>
+              <p style="font-size: 16px; margin: 0 0 10px 0; font-family: 'Poppins', 'Tajawal', sans-serif; font-weight: 400; color: rgba(255,255,255,0.9); max-width: 80%;">${item.subheading \vert{}\vert{} ''}</p>${buttonHtml}
               
-              <!-- الخطوط المتقطعة (Progress Indicators) مثل فلاورد -->
-              <div style="display: flex; gap: 6px; justify-content: center; margin-top: 25px;">
-                <span style="width: 35px; height: 3px; background: #ffffff; border-radius: 2px;"></span>
-                <span style="width: 35px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px;"></span>
-                <span style="width: 35px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px;"></span>
-                <span style="width: 35px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px;"></span>
+              <!-- الخطوط المتقطعة مبنية حسب عدد الوسائط الفعلية -->
+              <div style="display: flex; gap: 6px; justify-content: flex-start; margin-top: 20px;">
+                ${indicatorsHtml}
               </div>
             </div>
           </div>
@@ -473,7 +481,7 @@
             const itemsHtml = filtered.map(p => `
                 <a href="product.html?id=${p.id}" class="floward-item-card">
                     <div class="floward-item-img">
-                        <img src="${p.image_url || 'placeholder.jpg'}" alt="${p.name}">
+                        <img src="${p.image_url \vert{}\vert{} 'placeholder.jpg'}" alt="${p.name}">
                     </div>
                     <div class="floward-item-price">${p.price} JD</div>
                     <div class="floward-item-name">${p.name}</div>
@@ -483,7 +491,7 @@
             return `
                 <div class="floward-section-box">
                     <div class="floward-section-top">
-                        <h2 class="floward-sec-title" style="color: ${sec.title_color || '#2c3e50'}; font-family: ${sec.title_font || 'Tajawal, sans-serif'}; font-size: ${sec.title_size || '24px'};">${sec.section_title}</h2>
+                        <h2 class="floward-sec-title" style="color: ${sec.title_color \vert{}\vert{} '#2c3e50'}; font-family: ${sec.title_font || 'Tajawal, sans-serif'}; font-size: ${sec.title_size \vert{}\vert{} '24px'};">${sec.section_title}</h2>
                         <a href="category.html?name=${encodeURIComponent(sec.category_filter)}" class="floward-sec-btn">${sec.button_text || 'Choose Gifts Now'}</a>
                     </div>
                     <div class="floward-horizontal-track">
@@ -659,7 +667,7 @@
 
     <div>
       <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 16px;">Customer service</div>
-      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
+      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,25`2,0.7);">
         <li><a href="#" style="color: inherit; text-decoration: none;">Contact Us</a></li>
         <li><a href="#" style="color: inherit; text-decoration: none;">FAQ</a></li>
       </ul>
