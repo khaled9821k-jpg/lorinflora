@@ -1,3 +1,18 @@
+// حماية بسيطة لصفحة الآدمن
+(function() {
+    const adminPassword = "Lorin_Secret_2026"; // ضع كلمة المرور الخاصة بك هنا
+    let enteredPass = sessionStorage.getItem("admin_logged_in");
+    
+    if (enteredPass !== "true") {
+        enteredPass = prompt("الرجاء إدخال كلمة مرور لوحة التحكم:");
+        if (enteredPass === adminPassword) {
+            sessionStorage.setItem("admin_logged_in", "true");
+        } else {
+            alert("كلمة المرور غير صحيحة!");
+            window.location.href = "index.html"; // إعادة توجيه للرئيسية إذا كانت خاطئة
+        }
+    }
+})();
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
