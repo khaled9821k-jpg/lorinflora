@@ -1,22 +1,25 @@
-// حماية بسيطة لصفحة الآدمن
-(function() {
-    const adminPassword = "Khaled187199821$"; // ضع كلمة المرور الخاصة بك هنا
-    let enteredPass = sessionStorage.getItem("admin_logged_in");
-    
-    if (enteredPass !== "true") {
-        enteredPass = prompt("الرجاء إدخال كلمة مرور لوحة التحكم:");
-        if (enteredPass === adminPassword) {
-            sessionStorage.setItem("admin_logged_in", "true");
-        } else {
-            alert("كلمة المرور غير صحيحة!");
-            window.location.href = "index.html"; // إعادة توجيه للرئيسية إذا كانت خاطئة
-        }
-    }
-})();
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
+  <!-- حماية صفحة الآدمن بكلمة مرور -->
+  <script>
+      (function() {
+          const adminPassword = "Khaled187199821$"; 
+          let enteredPass = sessionStorage.getItem("admin_logged_in");
+          
+          if (enteredPass !== "true") {
+              enteredPass = prompt("الرجاء إدخال كلمة مرور لوحة التحكم:");
+              if (enteredPass === adminPassword) {
+                  sessionStorage.setItem("admin_logged_in", "true");
+              } else {
+                  alert("كلمة المرور غير صحيحة!");
+                  window.location.href = "index.html"; 
+              }
+          }
+      })();
+  </script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لوحة تحكم Lorin الاحترافية 🌸</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&family=Amiri:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
@@ -546,7 +549,6 @@
     // دوال القوائم المنسدلة الذكية المشتركة
     function toggleDropdown(menuId, e) {
       e.stopPropagation();
-      // إغلاق أي قوائم أخرى مفتوحة
       document.querySelectorAll('#category-dropdown-menu, #section-dropdown-menu').forEach(m => {
         if(m.id !== menuId) m.classList.add('hidden');
       });
@@ -633,8 +635,6 @@
     // --- نظام تصنيفات الأقسام الرئيسية ---
     function renderSectionCategoryCheckboxes(selectedCategories = []) {
       const container = document.getElementById('sections-checkboxes-container');
-      
-      // دمج خيار 'all' مع التصنيفات المتاحة
       let html = `
         <label class="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg cursor-pointer text-xs font-bold text-[#00313C] border-b pb-2">
           <input type="checkbox" value="all" ${selectedCategories.includes('all') ? 'checked' : ''} onchange="updateSectionSelectedCategories()" class="rounded border-gray-300 text-[#00313C] focus:ring-[#00313C]">
