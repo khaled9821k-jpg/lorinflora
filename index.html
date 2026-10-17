@@ -67,9 +67,12 @@
             gap: 10px;
         }
         .floward-sec-title {
-            font-weight: 700;
+            font-family: "Cormorant Garamond", Georgia, serif !important;
+            font-weight: 600 !important;
             margin: 0;
-            font-size: 24px;
+            font-size: 34px !important;
+            color: #07515b !important;
+            letter-spacing: -.02em !important;
         }
         .floward-sec-btn {
             background: transparent;
@@ -88,23 +91,25 @@
             border-color: #9ca3af;
         }
 
-        /* شريط التمرير الأفقي للكمبيوتر */
+        /* شريط التمرير الأفقي للكمبيوتر (مطابق لشريط تمرير فلاورد تماماً) */
         .floward-horizontal-track {
             display: flex;
-            gap: 25px;
+            gap: 30px;
             overflow-x: auto;
             scroll-behavior: smooth;
-            padding-bottom: 15px;
+            padding-bottom: 20px;
             justify-content: flex-start;
             direction: ltr;
+            scrollbar-width: thin;
+            scrollbar-color: #07515b #f1f1f1;
         }
         .floward-horizontal-track::-webkit-scrollbar {
             height: 4px;
-            background-color: #e5e7eb;
+            background-color: #f1f1f1;
             border-radius: 10px;
         }
         .floward-horizontal-track::-webkit-scrollbar-thumb {
-            background-color: #00313C;
+            background-color: #07515b;
             border-radius: 10px;
         }
 
@@ -156,13 +161,14 @@
             text-align: left;
         }
 
+        /* مطابقة خط، حجم، ولون عناوين أقسام الدوائر تماماً لفلاورد على الديسكتوب */
         .section-header-left {
-            font-family: "Cormorant Garamond", Georgia, serif;
-            font-size: 34px;
-            font-weight: 600;
-            line-height: 1.12;
-            color: #07515b;
-            letter-spacing: -.02em;
+            font-family: "Cormorant Garamond", Georgia, serif !important;
+            font-size: 34px !important;
+            font-weight: 600 !important;
+            line-height: 1.12 !important;
+            color: #07515b !important;
+            letter-spacing: -.02em !important;
             margin-top: 0;
         }
         .scrollable-section-wrapper {
@@ -170,24 +176,60 @@
             margin-bottom: 58px;
         }
 
+        /* شريط التمرير لتصنيفات الدوائر على الكمبيوتر مطابق لفلاورد تماماً */
         .categories-scroll-container {
             display: flex;
-            gap: 25px;
+            gap: 38px;
             overflow-x: auto;
             scroll-behavior: smooth;
-            padding-bottom: 15px;
+            padding-bottom: 20px;
             justify-content: flex-start;
             direction: ltr; 
+            scrollbar-width: thin;
+            scrollbar-color: #07515b #f1f1f1;
         }
 
         .categories-scroll-container::-webkit-scrollbar {
-            height: 6px;
+            height: 4px;
             background-color: #f1f1f1;
             border-radius: 10px;
         }
         .categories-scroll-container::-webkit-scrollbar-thumb {
-            background-color: #00313C;
+            background-color: #07515b;
             border-radius: 10px;
+        }
+
+        /* حجم دوائر التصنيفات على الديسكتوب مطابق لحجم دوائر فلاورد تماماً مع ملء الصورة تماماً داخله */
+        .categories-scroll-container > a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            flex-shrink: 0;
+        }
+        .categories-scroll-container > a > div {
+            width: 155px !important;
+            height: 155px !important;
+            border-radius: 50% !important;
+            overflow: hidden !important;
+            border: none !important;
+            box-shadow: none !important;
+            background-color: #f3efe9 !important;
+        }
+        .categories-scroll-container > a > div > img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            display: block !important;
+        }
+        .categories-scroll-container > a > span {
+            margin-top: 12px !important;
+            font-family: 'Tajawal', sans-serif !important;
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            color: #07515b !important;
+            text-align: center;
         }
 
         /* تحسينات عامة لمنع اهتزاز التخطيط أثناء التمرير */
@@ -326,7 +368,7 @@
                 height: 240px !important;
             }
 
-            /* تصغير عناوين أقسام الدوائر على الموبايل لتشبه فلاورد تماماً وبشكل ناعم */
+            /* عناوين أقسام الدوائر على الموبايل */
             .section-header-left {
                 font-family: 'Tajawal', sans-serif !important;
                 font-size: 20px !important;
@@ -339,7 +381,7 @@
                 font-size: 20px !important;
             }
 
-            /* قسم الفيديو: أبعاد قريبة من Floward مع مساحة ثابتة تمنع قفز الصفحة */
+            /* قسم الفيديو للموبايل */
             #custom-media-container {
                 width: 100%;
                 max-width: none;
@@ -380,7 +422,7 @@
             .promo-indicator { width: 30px; }
             .promo-indicator.is-active { width: 36px; }
 
-            /* التصنيفات: صفّان متناسقان بدل شريط أفقي طويل */
+            /* التصنيفات للموبايل (صفان متناسقان) */
             .scrollable-section-wrapper {
                 padding: 0 20px;
                 margin: 28px auto 40px;
@@ -403,7 +445,7 @@
                 scroll-snap-type: x proximity;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: thin;
-                scrollbar-color: #00313C #f1f1f1;
+                scrollbar-color: #07515b #f1f1f1;
             }
             .categories-scroll-container > a {
                 width: 100%;
@@ -419,20 +461,27 @@
                 border-radius: 10px;
             }
             .categories-scroll-container::-webkit-scrollbar-thumb {
-                background: #00313C;
+                background: #07515b;
                 border-radius: 10px;
             }
             .categories-scroll-container > a > div {
                 width: clamp(58px, 17vw, 76px) !important;
                 height: clamp(58px, 17vw, 76px) !important;
-                border-width: 1px !important;
+                border-radius: 50% !important;
+                border: 1px solid #eaeaea !important;
                 box-shadow: 0 3px 10px rgba(0,0,0,.045) !important;
+                background: #fff !important;
+            }
+            .categories-scroll-container > a > div > img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
             }
             .categories-scroll-container > a > span {
                 display: block;
                 width: 100%;
                 margin-top: 7px !important;
-                font-family: 'Tajawal', sans-serif;
+                font-family: 'Tajawal', sans-serif !important;
                 font-size: 11.5px !important;
                 line-height: 1.3;
                 font-weight: 500 !important;
@@ -733,11 +782,11 @@
       const { data } = await supabaseClient.from('categories').select('*');
       if (!data || data.length === 0) { container.innerHTML = '<p style="color:#888; text-align:center;">لا توجد تصنيفات رئيسية.</p>'; return; }
       container.innerHTML = data.map(cat => `
-        <a href="category.html?name=${encodeURIComponent(cat.title)}" style="display: flex; flex-direction: column; align-items: center; text-decoration: none; color: inherit; flex-shrink: 0;">
-          <div style="width: 82px; height: 82px; border-radius: 50%; overflow: hidden; border: 1.5px solid #eaeaea; box-shadow: 0 4px 12px rgba(0,0,0,0.06); background: #fff;">
-            <img src="${cat.image_url}" style="width: 100%; height: 100%; object-fit: cover;">
+        <a href="category.html?name=${encodeURIComponent(cat.title)}">
+          <div>
+            <img src="${cat.image_url}" alt="${cat.title}">
           </div>
-          <span style="margin-top: 8px; font-size: 13px; font-weight: 600; color: #333;">${cat.title}</span>
+          <span>${cat.title}</span>
         </a>`).join('');
     }
 
@@ -746,11 +795,11 @@
       const { data } = await supabaseClient.from('sub_categories').select('*');
       if (!data || data.length === 0) { container.innerHTML = '<p style="color:#888; text-align:center;">لا توجد تصنيفات إضافية.</p>'; return; }
       container.innerHTML = data.map(sub => `
-        <a href="category.html?name=${encodeURIComponent(sub.title)}" style="display: flex; flex-direction: column; align-items: center; text-decoration: none; color: inherit; flex-shrink: 0;">
-          <div style="width: 82px; height: 82px; border-radius: 50%; overflow: hidden; border: 1.5px solid #eaeaea; box-shadow: 0 4px 12px rgba(0,0,0,0.06); background: #fff;">
-            <img src="${sub.image_url}" style="width: 100%; height: 100%; object-fit: cover;">
+        <a href="category.html?name=${encodeURIComponent(sub.title)}">
+          <div>
+            <img src="${sub.image_url}" alt="${sub.title}">
           </div>
-          <span style="margin-top: 8px; font-size: 13px; font-weight: 600; color: #333;">${sub.title}</span>
+          <span>${sub.title}</span>
         </a>`).join('');
     }
 
@@ -793,7 +842,7 @@
             return `
                 <div class="floward-section-box">
                     <div class="floward-section-top">
-                        <h2 class="floward-sec-title" style="color: ${sec.title_color || '#2c3e50'}; font-family: ${sec.title_font || 'Tajawal, sans-serif'}; font-size: ${sec.title_size || '24px'};">${sec.section_title}</h2>
+                        <h2 class="floward-sec-title" style="color: ${sec.title_color || '#07515b'}; font-family: ${sec.title_font || '"Cormorant Garamond", Georgia, serif'}; font-size: ${sec.title_size || '34px'};">${sec.section_title}</h2>
                         <a href="category.html?name=${encodeURIComponent(sec.category_filter)}" class="floward-sec-btn">${sec.button_text || 'Choose Gifts Now'}</a>
                     </div>
                     <div class="floward-horizontal-track">
