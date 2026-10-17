@@ -91,26 +91,26 @@
             border-color: #9ca3af;
         }
 
-        /* شريط التمرير الأفقي للكمبيوتر (مطابق لشريط تمرير فلاورد تماماً) */
+        /* شريط التمرير الأفقي للكمبيوتر (مطابق لشريط تمرير فلاورد تماماً بفرض الخصائص على مستوى المتصفحات) */
         .floward-horizontal-track {
             display: flex;
             gap: 30px;
-            overflow-x: auto;
+            overflow-x: auto !important;
             scroll-behavior: smooth;
             padding-bottom: 20px;
             justify-content: flex-start;
             direction: ltr;
-            scrollbar-width: thin;
-            scrollbar-color: #07515b #f1f1f1;
+            scrollbar-width: thin !important;
+            scrollbar-color: #07515b #f1f1f1 !important;
         }
         .floward-horizontal-track::-webkit-scrollbar {
-            height: 4px;
-            background-color: #f1f1f1;
-            border-radius: 10px;
+            height: 4px !important;
+            background-color: #f1f1f1 !important;
+            border-radius: 10px !important;
         }
         .floward-horizontal-track::-webkit-scrollbar-thumb {
-            background-color: #07515b;
-            border-radius: 10px;
+            background-color: #07515b !important;
+            border-radius: 10px !important;
         }
 
         /* بطاقة المنتج العائمة (الكمبيوتر) */
@@ -180,23 +180,23 @@
         .categories-scroll-container {
             display: flex;
             gap: 38px;
-            overflow-x: auto;
+            overflow-x: auto !important;
             scroll-behavior: smooth;
             padding-bottom: 20px;
             justify-content: flex-start;
             direction: ltr; 
-            scrollbar-width: thin;
-            scrollbar-color: #07515b #f1f1f1;
+            scrollbar-width: thin !important;
+            scrollbar-color: #07515b #f1f1f1 !important;
         }
 
         .categories-scroll-container::-webkit-scrollbar {
-            height: 4px;
-            background-color: #f1f1f1;
-            border-radius: 10px;
+            height: 4px !important;
+            background-color: #f1f1f1 !important;
+            border-radius: 10px !important;
         }
         .categories-scroll-container::-webkit-scrollbar-thumb {
-            background-color: #07515b;
-            border-radius: 10px;
+            background-color: #07515b !important;
+            border-radius: 10px !important;
         }
 
         /* حجم دوائر التصنيفات على الديسكتوب مطابق لحجم دوائر فلاورد تماماً مع ملء الصورة تماماً داخله */
@@ -444,8 +444,8 @@
                 align-items: start;
                 scroll-snap-type: x proximity;
                 -webkit-overflow-scrolling: touch;
-                scrollbar-width: thin;
-                scrollbar-color: #07515b #f1f1f1;
+                scrollbar-width: thin !important;
+                scrollbar-color: #07515b #f1f1f1 !important;
             }
             .categories-scroll-container > a {
                 width: 100%;
@@ -455,14 +455,14 @@
                 scroll-snap-align: start;
             }
             .categories-scroll-container::-webkit-scrollbar {
-                display: block;
-                height: 4px;
-                background: #f1f1f1;
-                border-radius: 10px;
+                display: block !important;
+                height: 4px !important;
+                background: #f1f1f1 !important;
+                border-radius: 10px !important;
             }
             .categories-scroll-container::-webkit-scrollbar-thumb {
-                background: #07515b;
-                border-radius: 10px;
+                background: #07515b !important;
+                border-radius: 10px !important;
             }
             .categories-scroll-container > a > div {
                 width: clamp(58px, 17vw, 76px) !important;
