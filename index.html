@@ -289,16 +289,17 @@
         .promo-media-frame::after {
             content: "";
             position: absolute;
-            inset: 25% 0 0;
+            inset: 0;
             pointer-events: none;
-            background: linear-gradient(to top, rgba(0,0,0,.65), transparent);
+            background: linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,.15));
         }
         .promo-content-box {
             position: absolute;
-            top: 12% !important; /* رفع النصوص لتكون أعلى قليلاً كما طلبت */
+            top: 50% !important;
             left: 0;
             right: 0;
-            padding: 0 35px !important;
+            transform: translateY(-50%) !important; /* توسيط تام في المنتصف عمودياً وأفقياً */
+            padding: 0 45px !important;
             z-index: 2;
             pointer-events: none;
             text-align: left;
@@ -311,16 +312,16 @@
         .promo-heading-el {
             font-family: "Cormorant Garamond", Georgia, serif !important;
             font-weight: 500 !important;
-            font-size: clamp(44px, 5.5vw, 76px) !important; /* تكبير العنوان ليعطي مظهراً أوسع وأجمل */
+            font-size: clamp(48px, 6vw, 82px) !important; /* تكبير العنوان ليعطي مظهراً عريضاً وجذاباً */
             line-height: .96 !important;
             letter-spacing: -.025em;
-            max-width: 88% !important;
-            margin: 0 0 14px !important;
+            max-width: 90% !important;
+            margin: 0 0 16px !important;
             text-wrap: balance;
         }
         .promo-subtext-el {
-            font-size: 16px !important;
-            margin: 0 0 16px !important;
+            font-size: 17px !important;
+            margin: 0 0 18px !important;
             opacity: .96;
             max-width: 85% !important;
         }
@@ -425,23 +426,24 @@
                 min-height: 500px;
             }
             .promo-content-box {
-                top: 10% !important; /* رفع النصوص أعلى في الموبايل لتشغل المساحة بدقة */
-                padding: 0 22px !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important; /* توسيط تام في منتصف القسم على الموبايل أيضاً */
+                padding: 0 24px !important;
             }
             .promo-heading-el {
-                font-size: clamp(38px, 9.5vw, 54px) !important; /* تكبير العنوان ليكون عريضاً ومناسباً لطراز فلاورد */
+                font-size: clamp(40px, 10vw, 56px) !important; /* تكبير العنوان ليكون عريضاً وواضحاً جداً */
                 max-width: 100% !important;
                 line-height: 1.03 !important;
-                margin-bottom: 10px !important;
+                margin-bottom: 12px !important;
             }
             .promo-subtext-el {
-                font-size: 14.5px !important;
+                font-size: 15px !important;
                 max-width: 100% !important;
             }
             .promo-content-box > a {
-                padding: 12px 30px !important;
-                font-size: 14.5px !important;
-                margin-top: 12px !important;
+                padding: 13px 32px !important;
+                font-size: 15px !important;
+                margin-top: 14px !important;
             }
             .promo-indicators { bottom: 20px; gap: 5px; padding: 0 15px; }
 
