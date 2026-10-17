@@ -13,6 +13,7 @@
             border-bottom: 1px solid rgba(0, 0, 0, 0.06);
             background: #ffffff;
             display: block;
+            transition: opacity .18s ease;
         }
 
         /* الهيدر الرئيسي مثبت في أعلى الصفحة دائماً */
@@ -25,10 +26,6 @@
             transition: none;
         }
 
-        /* لا نُزل الشريط من التخطيط عند التمرير؛ ذلك يسبب قفزة في الصفحة */
-        .custom-pill-utility-bar {
-            transition: opacity .18s ease;
-        }
         body.hide-announcement .custom-pill-utility-bar {
             opacity: 0;
             pointer-events: none;
@@ -42,6 +39,7 @@
             display: grid !important;
             grid-template-columns: 1fr auto 1fr;
             align-items: center !important;
+            position: relative; /* ضروري لضبط أبعاد ومكان صندوق البحث المنَسدل */
         }
 
         .page-width.pill-bar-container {
@@ -158,11 +156,17 @@
         }
 
         .section-header-left {
-            text-align: left;
-            font-size: 24px;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 15px;
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 34px;
+            font-weight: 600;
+            line-height: 1.12;
+            color: #07515b;
+            letter-spacing: -.02em;
+            margin-top: 0;
+        }
+        .scrollable-section-wrapper {
+            margin-top: 42px;
+            margin-bottom: 58px;
         }
 
         .categories-scroll-container {
@@ -184,7 +188,6 @@
             background-color: #00313C;
             border-radius: 10px;
         }
-
 
         /* تحسينات عامة لمنع اهتزاز التخطيط أثناء التمرير */
         html { scroll-behavior: auto; }
@@ -282,21 +285,6 @@
         .promo-indicator.is-active {
             background: #fff;
             width: 38px;
-        }
-
-        /* عناوين أقسام التصنيفات بخط أنيق قريب من المرجع */
-        .section-header-left {
-            font-family: "Cormorant Garamond", Georgia, serif;
-            font-size: 34px;
-            font-weight: 600;
-            line-height: 1.12;
-            color: #07515b;
-            letter-spacing: -.02em;
-            margin-top: 0;
-        }
-        .scrollable-section-wrapper {
-            margin-top: 42px;
-            margin-bottom: 58px;
         }
 
         /* --------------------------------------------------------- */
@@ -500,8 +488,23 @@
   .floward-right-group { display: flex !important; align-items: center !important; gap: 1.8rem !important; justify-self: end; }
   .floward-btn-link { display: inline-flex !important; align-items: center !important; gap: 0.5rem !important; color: var(--floward-main-color) !important; text-decoration: none !important; font-size: var(--floward-font-size) !important; font-weight: 500 !important; background: transparent !important; border: none !important; cursor: pointer !important; padding: 0 !important; }
   .floward-svg-icon { width: var(--floward-icon-size) !important; height: var(--floward-icon-size) !important; }
-  .floward-search-overlay { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.1); z-index: 99999; border-top: 1px solid #eee; }
+  
+  /* تعديل وتصحيح صندوق البحث لمنع تلف الأبعاد */
+  .floward-search-overlay {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      width: 100%;
+      background: #ffffff;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+      z-index: 99999;
+      border-top: 1px solid #eee;
+      box-sizing: border-box;
+  }
   .floward-search-overlay.is-open { display: block !important; }
+
   .floward-menu-drawer { position: fixed !important; top: 0 !important; left: 0 !important; width: 380px; max-width: 85vw; height: 100vh !important; background: #ffffff !important; z-index: 2147483647 !important; box-shadow: 4px 0 25px rgba(0,0,0,0.12); padding: 2rem 1.5rem; box-sizing: border-box; display: flex; flex-direction: column; visibility: hidden; opacity: 0; transform: translateX(-100%); transition: transform 0.5s ease, opacity 0.5s ease, visibility 0.5s ease; }
   .floward-menu-drawer.is-open { visibility: visible !important; opacity: 1 !important; transform: translateX(0) !important; }
   .floward-drawer-backdrop { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0, 0, 0, 0.4) !important; z-index: 2147483646 !important; visibility: hidden; opacity: 0; transition: opacity 0.45s ease, visibility 0.45s ease; }
@@ -556,8 +559,8 @@
 
     <!-- نافذة البحث الفوري -->
     <div id="box-search-overlay" class="floward-search-overlay">
-      <div style="padding: 25px; max-width: 600px; margin: 0 auto;">
-        <input type="text" id="live-search-input" placeholder="ابحث عن الزهور والهدايا (اكتب اسم المنتج)..." oninput="performLiveSearch(this.value)" style="width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <div style="padding: 25px; max-width: 600px; margin: 0 auto; box-sizing: border-box;">
+        <input type="text" id="live-search-input" placeholder="ابحث عن الزهور والهدايا (اكتب اسم المنتج)..." oninput="performLiveSearch(this.value)" style="width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.05); box-sizing: border-box;">
         <div id="live-search-results" style="margin-top: 15px; max-height: 300px; overflow-y: auto; text-align: right; display: flex; flex-direction: column; gap: 10px;"></div>
       </div>
     </div>
