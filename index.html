@@ -289,13 +289,21 @@
         .promo-media-frame::after {
             content: "";
             position: absolute;
-            inset: 35% 0 0;
+            inset: 25% 0 0;
             pointer-events: none;
-            background: linear-gradient(to top, rgba(0,0,0,.68), transparent);
+            background: linear-gradient(to top, rgba(0,0,0,.65), transparent);
         }
         .promo-content-box {
+            position: absolute;
+            top: 12% !important; /* رفع النصوص لتكون أعلى قليلاً كما طلبت */
+            left: 0;
+            right: 0;
+            padding: 0 35px !important;
             z-index: 2;
             pointer-events: none;
+            text-align: left;
+            direction: ltr;
+            color: #fff;
         }
         .promo-content-box a,
         .promo-indicators,
@@ -303,9 +311,18 @@
         .promo-heading-el {
             font-family: "Cormorant Garamond", Georgia, serif !important;
             font-weight: 500 !important;
-            line-height: .98 !important;
+            font-size: clamp(44px, 5.5vw, 76px) !important; /* تكبير العنوان ليعطي مظهراً أوسع وأجمل */
+            line-height: .96 !important;
             letter-spacing: -.025em;
+            max-width: 88% !important;
+            margin: 0 0 14px !important;
             text-wrap: balance;
+        }
+        .promo-subtext-el {
+            font-size: 16px !important;
+            margin: 0 0 16px !important;
+            opacity: .96;
+            max-width: 85% !important;
         }
         .promo-indicators {
             position: absolute;
@@ -316,24 +333,26 @@
             display: flex;
             align-items: center;
             justify-content: center !important;
-            gap: 8px;
+            gap: 6px;
             width: 100%;
             margin: 0 !important;
+            padding: 0 20px;
+            box-sizing: border-box;
         }
         .promo-indicator {
             appearance: none;
             border: 0;
             padding: 0;
-            width: 34px;
+            flex: 1;
+            max-width: 90px;
             height: 3px;
             border-radius: 99px;
-            background: rgba(255,255,255,.48);
+            background: rgba(255,255,255,.45);
             cursor: pointer;
-            transition: background .2s ease, width .2s ease;
+            transition: background .2s ease;
         }
         .promo-indicator.is-active {
             background: #fff;
-            width: 38px;
         }
 
         /* --------------------------------------------------------- */
@@ -387,7 +406,7 @@
                 font-size: 20px !important;
             }
 
-            /* قسم الفيديو للموبايل (تم جعله عمودياً وأطول تماماً مثل فلاورد دون تأثر أبعاد الفيديو) */
+            /* قسم الفيديو للموبايل (عمودي وأطول كفلاورد تماماً) */
             #custom-media-container {
                 width: 100%;
                 max-width: none;
@@ -402,31 +421,29 @@
             }
             .promo-media-frame {
                 width: 100%;
-                height: clamp(480px, 125vw, 640px) !important; /* ارتفاع عمودي فاخر مطابق لفلاورد */
-                min-height: 480px;
+                height: clamp(500px, 130vw, 680px) !important;
+                min-height: 500px;
             }
             .promo-content-box {
-                padding: 32px 24px 28px !important;
-                bottom: 0;
+                top: 10% !important; /* رفع النصوص أعلى في الموبايل لتشغل المساحة بدقة */
+                padding: 0 22px !important;
             }
             .promo-heading-el {
-                font-size: clamp(36px, 9vw, 50px) !important;
-                max-width: 94% !important;
-                line-height: 1.05 !important;
-                margin-bottom: 12px !important;
+                font-size: clamp(38px, 9.5vw, 54px) !important; /* تكبير العنوان ليكون عريضاً ومناسباً لطراز فلاورد */
+                max-width: 100% !important;
+                line-height: 1.03 !important;
+                margin-bottom: 10px !important;
             }
             .promo-subtext-el {
-                font-size: 14px !important;
-                max-width: 95% !important;
+                font-size: 14.5px !important;
+                max-width: 100% !important;
             }
             .promo-content-box > a {
-                padding: 12px 28px !important;
-                font-size: 14px !important;
-                margin-top: 14px !important;
+                padding: 12px 30px !important;
+                font-size: 14.5px !important;
+                margin-top: 12px !important;
             }
-            .promo-indicators { bottom: 22px; gap: 8px; }
-            .promo-indicator { width: 30px; }
-            .promo-indicator.is-active { width: 36px; }
+            .promo-indicators { bottom: 20px; gap: 5px; padding: 0 15px; }
 
             /* التصنيفات للموبايل (صفان متناسقان) */
             .scrollable-section-wrapper {
@@ -710,15 +727,15 @@
           return `
             <div class="promo-slide ${index === 0 ? 'is-active' : ''}" data-slide="${index}" aria-hidden="${index === 0 ? 'false' : 'true'}">
               ${mediaHtml}
-              <div class="promo-content-box" style="position:absolute;inset:auto 0 0;background:linear-gradient(to top,rgba(0,0,0,.22),transparent);padding:34px;text-align:left;direction:ltr;color:#fff;">
-                ${heading ? `<h2 class="promo-heading-el" style="font-size:clamp(42px,5vw,68px);margin:0 0 10px;max-width:78%;">${heading}</h2>` : ''}
-                ${subheading ? `<p class="promo-subtext-el" style="font-size:15px;margin:0 0 10px;opacity:.96;max-width:78%;">${subheading}</p>` : ''}
+              <div class="promo-content-box">
+                ${heading ? `<h2 class="promo-heading-el">${heading}</h2>` : ''}
+                ${subheading ? `<p class="promo-subtext-el">${subheading}</p>` : ''}
                 ${buttonHtml}
               </div>
             </div>`;
         }).join('');
 
-        const indicatorsHtml = mediaItems.length > 1
+        const indicatorsHtml = mediaItems.length > 0
           ? `<div class="promo-indicators" aria-label="اختيار الوسائط">${mediaItems.map((_, i) =>
               `<button type="button" class="promo-indicator ${i === 0 ? 'is-active' : ''}" data-promo-index="${i}" aria-label="عرض الوسيط ${i + 1}" aria-pressed="${i === 0 ? 'true' : 'false'}"></button>`
             ).join('')}</div>`
