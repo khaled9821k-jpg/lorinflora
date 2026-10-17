@@ -91,21 +91,22 @@
             border-color: #9ca3af;
         }
 
-        /* شريط التمرير الأفقي للكمبيوتر (مطابق لشريط تمرير فلاورد تماماً بفرض الخصائص على مستوى المتصفحات) */
+        /* شريط التمرير الأفقي للكمبيوتر مطابقة لفلاورد 100% وإجبار المظهر */
         .floward-horizontal-track {
             display: flex;
             gap: 30px;
             overflow-x: auto !important;
+            overflow-y: hidden !important;
             scroll-behavior: smooth;
             padding-bottom: 20px;
             justify-content: flex-start;
             direction: ltr;
             scrollbar-width: thin !important;
-            scrollbar-color: #07515b #f1f1f1 !important;
+            scrollbar-color: #07515b #eaeaea !important;
         }
         .floward-horizontal-track::-webkit-scrollbar {
-            height: 4px !important;
-            background-color: #f1f1f1 !important;
+            height: 5px !important;
+            background-color: #eaeaea !important;
             border-radius: 10px !important;
         }
         .floward-horizontal-track::-webkit-scrollbar-thumb {
@@ -161,7 +162,7 @@
             text-align: left;
         }
 
-        /* مطابقة خط، حجم، ولون عناوين أقسام الدوائر تماماً لفلاورد على الديسكتوب */
+        /* خط، حجم، ولون عناوين أقسام الدوائر مطابق تماماً لفلاورد */
         .section-header-left {
             font-family: "Cormorant Garamond", Georgia, serif !important;
             font-size: 34px !important;
@@ -176,22 +177,23 @@
             margin-bottom: 58px;
         }
 
-        /* شريط التمرير لتصنيفات الدوائر على الكمبيوتر مطابق لفلاورد تماماً */
+        /* شريط التمرير لتصنيفات الدوائر مطابقة لفلاورد 100% وإجبار المظهر */
         .categories-scroll-container {
             display: flex;
             gap: 38px;
             overflow-x: auto !important;
+            overflow-y: hidden !important;
             scroll-behavior: smooth;
             padding-bottom: 20px;
             justify-content: flex-start;
             direction: ltr; 
             scrollbar-width: thin !important;
-            scrollbar-color: #07515b #f1f1f1 !important;
+            scrollbar-color: #07515b #eaeaea !important;
         }
 
         .categories-scroll-container::-webkit-scrollbar {
-            height: 4px !important;
-            background-color: #f1f1f1 !important;
+            height: 5px !important;
+            background-color: #eaeaea !important;
             border-radius: 10px !important;
         }
         .categories-scroll-container::-webkit-scrollbar-thumb {
@@ -445,7 +447,7 @@
                 scroll-snap-type: x proximity;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: thin !important;
-                scrollbar-color: #07515b #f1f1f1 !important;
+                scrollbar-color: #07515b #eaeaea !important;
             }
             .categories-scroll-container > a {
                 width: 100%;
@@ -456,8 +458,8 @@
             }
             .categories-scroll-container::-webkit-scrollbar {
                 display: block !important;
-                height: 4px !important;
-                background: #f1f1f1 !important;
+                height: 5px !important;
+                background: #eaeaea !important;
                 border-radius: 10px !important;
             }
             .categories-scroll-container::-webkit-scrollbar-thumb {
