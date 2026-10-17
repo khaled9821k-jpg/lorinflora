@@ -387,7 +387,7 @@
                 font-size: 20px !important;
             }
 
-            /* قسم الفيديو للموبايل */
+            /* قسم الفيديو للموبايل (تم جعله عمودياً وأطول تماماً مثل فلاورد دون تأثر أبعاد الفيديو) */
             #custom-media-container {
                 width: 100%;
                 max-width: none;
@@ -402,11 +402,11 @@
             }
             .promo-media-frame {
                 width: 100%;
-                height: clamp(240px, 62vw, 420px);
-                min-height: 240px;
+                height: clamp(480px, 125vw, 640px) !important; /* ارتفاع عمودي فاخر مطابق لفلاورد */
+                min-height: 480px;
             }
             .promo-content-box {
-                padding: 28px 24px 25px !important;
+                padding: 32px 24px 28px !important;
                 bottom: 0;
             }
             .promo-heading-el {
@@ -483,7 +483,6 @@
                 margin: 28px auto;
                 padding: 0 20px;
             }
-            /* إعادة إظهار شريط التمرير على الهواتف ليناسب تطلعاتك */
             .floward-scroll-indicator-bar { display: block !important; }
         }
     </style>
