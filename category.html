@@ -365,12 +365,25 @@
         document.getElementById('breadcrumb-current').textContent = categoryName;
         document.getElementById('page-title').textContent = `${categoryName} - Lorin 🌸`;
 
-        const [{ data: prodData }, { data: catData }] = await Promise.all([
+        // جلب المنتجات، التصنيفات، وجدول صور المنتجات (product_images) في نفس الوقت
+        const [{ data: prodData }, { data: catData }, { data: allImages }] = await Promise.all([
             supabaseClient.from('products').select('*'),
-            supabaseClient.from('categories').select('*')
+            supabaseClient.from('categories').select('*'),
+            supabaseClient.from('product_images').select('*')
         ]);
 
-        allStoreProducts = prodData || [];
+        // دمج الصورة الأولى لكل منتج من جدول product_images حصرياً
+        allStoreProducts = (prodData || []).map(p => {
+            const prodImgs = (allImages || []).filter(img => String(img.product_id) === String(p.id));
+            let firstImg = 'placeholder.jpg';
+            if (prodImgs.length > 0) {
+                firstImg = prodImgs[0].image_url || prodImgs[0].url || 'placeholder.jpg';
+            }
+            return {
+                ...p,
+                image_url: firstImg
+            };
+        });
 
         // تعبئة الشريط الأفقي الصغير أعلى المنتجات
         const track = document.getElementById('sub-categories-track');
@@ -409,7 +422,7 @@
         gridContainer.innerHTML = filteredProducts.map(p => `
             <a href="product.html?id=${p.id}" class="floward-item-card">
                 <div class="floward-item-img">
-                    <img src="${p.image_url || 'placeholder.jpg'}" alt="${p.name}">
+                    <img src="${p.image_url}" alt="${p.name}">
                 </div>
                 <div class="floward-item-price">${p.price} JD</div>
                 <div class="floward-item-name">${p.name}</div>
