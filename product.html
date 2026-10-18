@@ -335,31 +335,31 @@
             document.getElementById('breadcrumb-name').textContent = product.name;
             if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
 
-            // فلترة نهائية تضمن منع التكرار بنسبة 100% عبر Set
-            let uniqueUrls = new Set();
-            
-            // 1. إضافة الصورة الرئيسية أولاً
-            if (product.image_url) {
-                uniqueUrls.add(product.image_url.trim());
-            }
+            // التعديل الجذري والمنطقي للصور:
+            // 1. الصورة الرئيسية حصرياً أولاً
+            let mainImage = product.image_url ? product.image_url.trim() : '';
+            let galleryImages = [];
 
-            // 2. إضافة الصور من الجدول بشرط عدم تكرارها
+            // 2. باقي الصور الفرعية من الجدول بشرط ألا تكون هي نفسها الصورة الرئيسية
             if (imgData && imgData.length > 0) {
                 imgData.forEach(img => {
                     let u = (img.image_url || img.url || '').trim();
-                    if (u) uniqueUrls.add(u);
+                    if (u && u !== mainImage && !galleryImages.includes(u)) {
+                        galleryImages.push(u);
+                    }
                 });
             }
 
-            let images = Array.from(uniqueUrls);
+            // تجميع القائمة النهائية (الرئيسية في البداية، تليها الصور الفرعية المختلفة تماماً)
+            let finalImages = mainImage ? [mainImage, ...galleryImages] : galleryImages;
 
             container.innerHTML = `
                 <div class="product-images-wrapper">
                     <div class="thumbs-col">
-                        ${images.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)">`).join('')}
+                        ${finalImages.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)">`).join('')}
                     </div>
                     <div class="main-img-container">
-                        <img id="main-product-img" src="${images[0] || product.image_url}" alt="${product.name}">
+                        <img id="main-product-img" src="${finalImages[0] || ''}" alt="${product.name}">
                     </div>
                 </div>
 
