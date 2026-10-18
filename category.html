@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">تصنيف المنتجات - Lorin 🌸</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&family=Amiri:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="base.css">
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #fcfcfc; margin: 0; padding: 0; color: #333; }
@@ -20,25 +22,76 @@
 </head>
 <body>
 
-<!-- الهيدر مع شعار Lorin -->
-<header class="header-wrapper color-scheme" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: #fff; border-bottom: 1px solid #eee;">
-  <div>
-    <a href="index.html">
-      <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 40px; object-fit: contain;">
-    </a>
-  </div>
-  <div>
-    <a href="index.html" style="background: #00313C; color: #fff; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px;">الرئيسية 🏠</a>
-  </div>
+<!-- شريط الإعلانات العلوي -->
+<div class="bg-[#00313C] text-white text-xs py-2 px-4 text-center font-medium tracking-wide flex justify-center items-center gap-2">
+    <span>🌸 توصيل سريع ومجاني للطلبات الكبرى داخل عمان | تسوق الآن أجمل الورود والهدايا 🎁</span>
+</div>
+
+<!-- الهيدر الاحترافي -->
+<header class="header-wrapper color-scheme sticky top-0 bg-white/95 backdrop-blur-md z-40 border-b border-gray-100 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        
+        <!-- زر القائمة للجوال والشعار -->
+        <div class="flex items-center gap-4">
+            <button onclick="toggleMobileMenu()" class="md:hidden text-gray-700 hover:text-[#00313C] focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <a href="index.html" class="flex items-center gap-2">
+                <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 40px; object-fit: contain;">
+            </a>
+        </div>
+
+        <!-- روابط التنقل السريع للأجهزة الكبيرة -->
+        <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-700">
+            <a href="index.html" class="hover:text-[#00313C] transition">الرئيسية 🏠</a>
+            <a href="index.html#categories-section" class="hover:text-[#00313C] transition">التصنيفات 🌸</a>
+            <a href="index.html#features-section" class="hover:text-[#00313C] transition">لماذا لورين؟ ✨</a>
+        </nav>
+
+        <!-- أزرار الإجراءات (سلة المشتريات / البحث) -->
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="bg-[#00313C] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-[#00222B] transition flex items-center gap-1.5">
+                <span>الرئيسية</span> 🏠
+            </a>
+        </div>
+    </div>
 </header>
 
 <!-- محتوى التصنيف -->
-<main class="container">
+<main class="container min-h-[60vh]">
     <h2 id="category-heading" class="section-title">جاري تحميل المنتجات... 🌸</h2>
     <div id="category-products-grid" class="products-grid">
         <!-- المنتجات ستظهر هنا ديناميكياً -->
     </div>
 </main>
+
+<!-- الفوتر (Footer) -->
+<footer class="bg-[#00313C] text-white pt-12 pb-8 mt-16 border-t border-[#004D5E]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-center md:text-right">
+        <div>
+            <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 35px; object-fit: contain; filter: brightness(0) invert(1);" class="mx-auto md:mx-0 mb-3">
+            <p class="text-xs text-gray-300 leading-relaxed">متجر لورين للورود والهدايا الفاخرة، نصنع لحظاتكم السعيدة بأرقى التشكيلات وأسرع خدمة توصيل.</p>
+        </div>
+        <div>
+            <h4 class="font-bold text-sm mb-3 text-gray-200">روابط سريعة</h4>
+            <ul class="space-y-2 text-xs text-gray-300">
+                <li><a href="index.html" class="hover:text-white transition">الرئيسية</a></li>
+                <li><a href="index.html" class="hover:text-white transition">التصنيفات المميزة</a></li>
+                <li><a href="admin.html" class="hover:text-white transition">لوحة التحكم</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold text-sm mb-3 text-gray-200">تواصل معنا</h4>
+            <p class="text-xs text-gray-300 mb-1">المملكة الأردنية الهاشمية، عمان</p>
+            <p class="text-xs text-gray-300">خدمة العملاء على مدار الساعة 🌸</p>
+        </div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-[#004D5E] pt-6 text-center text-xs text-gray-400">
+        جميع الحقوق محفوظة © 2026 - Lorin Flora 🌸
+    </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
