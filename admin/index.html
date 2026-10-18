@@ -151,8 +151,8 @@
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">صورة المنتج</label>
-              <input type="file" id="product-image-file" accept="image/*" class="w-full border border-gray-200 rounded-xl p-1.5 text-xs bg-gray-50">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">صور المنتج (يمكنك اختيار أكثر من صورة)</label>
+              <input type="file" id="product-image-file" accept="image/*" multiple class="w-full border border-gray-200 rounded-xl p-1.5 text-xs bg-gray-50">
             </div>
             <div class="md:col-span-2 flex gap-3 mt-2">
               <button type="submit" id="submit-product-btn" class="flex-1 bg-[#00313C] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#00222B] transition shadow-sm">حفظ وإضافة المنتج ✨</button>
@@ -859,6 +859,8 @@
     window.deleteProduct = async function(id) {
       if (!confirm('هل أنت متأكد من الحذف؟')) return;
       await supabaseClient.from('products').delete().eq('id', id);
+      // حذف الصور المرتبطة بجدول product_images أيضاً
+      await supabaseClient.from('product_images').delete().eq('product_id', id);
       showStatus('تم حذف المنتج بنجاح!', 'success'); fetchAdminData();
     };
 
@@ -912,41 +914,98 @@
       showStatus('تم حذف التصنيف الفرعي بنجاح!', 'success'); fetchAdminData();
     };
 
+    // معالج حفظ المنتجات (يدعم صور متعددة ورفعها لجدول product_images)
     document.getElementById('product-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-product-btn');
-      btn.disabled = true; btn.textContent = 'جاري المعالجة... ⏳';
+      btn.disabled = true; 
+      btn.textContent = 'جاري المعالجة ورفع الصور... ⏳';
+      
       try {
         const id = document.getElementById('product-id').value;
         const name = document.getElementById('product-name').value;
         const price = parseFloat(document.getElementById('product-price').value);
         const category = document.getElementById('product-category').value;
-        const fileInput = document.getElementById('product-image-file').files[0];
+        const fileInput = document.getElementById('product-image-file');
+        const files = fileInput.files;
 
-        let imageUrl = null;
-        if (fileInput) {
-          const filePath = `products/${Date.now()}_prod.${fileInput.name.split('.').pop()}`;
-          const { error: upErr } = await supabaseClient.storage.from('store-assets').upload(filePath, fileInput);
-          if (upErr) throw upErr;
-          imageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
-        }
+        let primaryImageUrl = null;
 
         if (id) {
-          const data = { name, price, category };
-          if (imageUrl) data.image_url = imageUrl;
-          const { error } = await supabaseClient.from('products').update(data).eq('id', id);
+          // --- حالة التعديل على منتج قديم ---
+          let updateData = { name, price, category };
+          
+          if (files.length > 0) {
+            // رفع الصورة الأولى لتكون الرئيسية للمنتج
+            const firstFilePath = `products/${Date.now()}_0_prod.${files[0].name.split('.').pop()}`;
+            const { error: upErr } = await supabaseClient.storage.from('store-assets').upload(firstFilePath, files[0]);
+            if (upErr) throw upErr;
+            
+            primaryImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(firstFilePath).data.publicUrl;
+            updateData.image_url = primaryImageUrl;
+
+            // رفع وباقي الصور في جدول product_images المرتبط
+            for (let i = 0; i < files.length; i++) {
+              const filePath = `products/${Date.now()}_${i}_prod.${files[i].name.split('.').pop()}`;
+              const { error: multiUpErr } = await supabaseClient.storage.from('store-assets').upload(filePath, files[i]);
+              if (!multiUpErr) {
+                const multiImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
+                await supabaseClient.from('product_images').insert([
+                  { product_id: id, image_url: multiImageUrl }
+                ]);
+              }
+            }
+          }
+
+          const { error } = await supabaseClient.from('products').update(updateData).eq('id', id);
           if (error) throw error;
-          showStatus('تم تحديث المنتج بنجاح!', 'success');
+          showStatus('تم تحديث المنتج وصوره بنجاح!', 'success');
+
         } else {
-          if (!imageUrl) throw new Error('يرجى اختيار صورة للمنتج.');
-          const { error } = await supabaseClient.from('products').insert([{ name, price, category, image_url: imageUrl }]);
-          if (error) throw error;
-          showStatus('تم إضافة المنتج بنجاح!', 'success');
+          // --- حالة إضافة منتج جديد ---
+          if (files.length === 0) throw new Error('يرجى اختيار صورة واحدة على الأقل للمنتج.');
+
+          // 1. رفع الصورة الأولى لتصبح الصورة الرئيسية في جدول products
+          const firstFilePath = `products/${Date.now()}_0_prod.${files[0].name.split('.').pop()}`;
+          const { error: upErr } = await supabaseClient.storage.from('store-assets').upload(firstFilePath, files[0]);
+          if (upErr) throw upErr;
+          
+          primaryImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(firstFilePath).data.publicUrl;
+
+          // 2. إدخال المنتج وجلب الـ ID الخاص به
+          const { data: newProdData, error: insertErr } = await supabaseClient
+            .from('products')
+            .insert([{ name, price, category, image_url: primaryImageUrl }])
+            .select()
+            .single();
+
+          if (insertErr) throw insertErr;
+          const newProductId = newProdData.id;
+
+          // 3. رفع كافة الصور المحددة وتخزينها في جدول product_images مع ربطها بـ product_id
+          for (let i = 0; i < files.length; i++) {
+            const filePath = `products/${Date.now()}_${i}_prod.${files[i].name.split('.').pop()}`;
+            const { error: multiUpErr } = await supabaseClient.storage.from('store-assets').upload(filePath, files[i]);
+            if (!multiUpErr) {
+              const multiImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
+              await supabaseClient.from('product_images').insert([
+                { product_id: newProductId, image_url: multiImageUrl }
+              ]);
+            }
+          }
+
+          showStatus('تم إضافة المنتج وصوره بنجاح!', 'success');
         }
-        resetProductForm(); fetchAdminData();
+
+        resetProductForm(); 
+        fetchAdminData();
+        
       } catch (err) {
         showStatus('خطأ: ' + err.message, 'error');
-      } finally { btn.disabled = false; btn.textContent = 'حفظ وإضافة المنتج ✨'; }
+      } finally { 
+        btn.disabled = false; 
+        btn.textContent = 'حفظ وإضافة المنتج ✨'; 
+      }
     });
 
     document.getElementById('category-form').addEventListener('submit', async function(e) {
