@@ -335,31 +335,31 @@
             document.getElementById('breadcrumb-name').textContent = product.name;
             if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
 
-            // بناء مصفوفة فريدة ونقية للصور تماماً لتفادي أي تكرار بصري
-            let uniqueImages = [];
+            // فلترة نهائية تضمن منع التكرار بنسبة 100% عبر Set
+            let uniqueUrls = new Set();
             
-            // 1. إضافة الصورة الرئيسية أولاً كأول عنصر أساسي
+            // 1. إضافة الصورة الرئيسية أولاً
             if (product.image_url) {
-                uniqueImages.push(product.image_url.trim());
+                uniqueUrls.add(product.image_url.trim());
             }
 
-            // 2. إضافة الصور القادمة من جدول product_images بشرط ألا تكون مطابقة للصورة الرئيسية أو مكررة ضمنها
+            // 2. إضافة الصور من الجدول بشرط عدم تكرارها
             if (imgData && imgData.length > 0) {
                 imgData.forEach(img => {
-                    let url = (img.image_url || img.url || '').trim();
-                    if (url && !uniqueImages.includes(url)) {
-                        uniqueImages.push(url);
-                    }
+                    let u = (img.image_url || img.url || '').trim();
+                    if (u) uniqueUrls.add(u);
                 });
             }
+
+            let images = Array.from(uniqueUrls);
 
             container.innerHTML = `
                 <div class="product-images-wrapper">
                     <div class="thumbs-col">
-                        ${uniqueImages.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)">`).join('')}
+                        ${images.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)">`).join('')}
                     </div>
                     <div class="main-img-container">
-                        <img id="main-product-img" src="${uniqueImages[0] || product.image_url}" alt="${product.name}">
+                        <img id="main-product-img" src="${images[0] || product.image_url}" alt="${product.name}">
                     </div>
                 </div>
 
