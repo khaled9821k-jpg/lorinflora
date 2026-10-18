@@ -275,7 +275,7 @@
           <div class="fbt-card">
               <div class="fbt-items-row">
                   <div class="fbt-item">
-                      <img id="fbt-item-1" src="" alt="مزرية">
+                      <img id="fbt-item-1" src="" alt="مزهرية">
                       <div class="fbt-item-name" id="fbt-name-1">مزهرية جوري الابتسامة المشرقة</div>
                   </div>
                   <div class="fbt-plus">+</div>
@@ -338,13 +338,16 @@
             document.getElementById('breadcrumb-name').textContent = product.name;
             if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
 
-            let images = [product.image_url];
+            // تجميع الصور الفريدة وعدم تكرار الصورة الرئيسية إذا وجدت في الجدول
+            let imagesSet = new Set();
+            if (product.image_url) imagesSet.add(product.image_url);
             if (imgData && imgData.length > 0) {
                 imgData.forEach(img => {
                     let url = img.image_url || img.url;
-                    if (url && !images.includes(url)) images.push(url);
+                    if (url) imagesSet.add(url);
                 });
             }
+            let images = Array.from(imagesSet);
 
             container.innerHTML = `
                 <div class="product-images-wrapper">
@@ -352,7 +355,7 @@
                         ${images.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)">`).join('')}
                     </div>
                     <div class="main-img-container">
-                        <img id="main-product-img" src="${product.image_url}" alt="${product.name}">
+                        <img id="main-product-img" src="${images[0] || product.image_url}" alt="${product.name}">
                     </div>
                 </div>
 
@@ -396,7 +399,6 @@
                 </div>
             `;
 
-            // تحديث صور قسم "يقوم المستخدمون بشراء هذه المنتجات سوياً" بالمنتج الحالي وباقي المنتجات
             if (products.length >= 2) {
                 document.getElementById('fbt-item-main-1').src = product.image_url;
                 document.getElementById('fbt-main-name-1').textContent = product.name;
