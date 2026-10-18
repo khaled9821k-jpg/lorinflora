@@ -335,23 +335,22 @@
             document.getElementById('breadcrumb-name').textContent = product.name;
             if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
 
-            // التعديل الجذري والمنطقي للصور:
-            // 1. الصورة الرئيسية حصرياً أولاً
+            // الحفاظ على الصورة الرئيسية من جدول products وعمل فلترة صارمة لمنع تكرارها داخل جدول product_images
             let mainImage = product.image_url ? product.image_url.trim() : '';
-            let galleryImages = [];
+            let additionalImages = [];
 
-            // 2. باقي الصور الفرعية من الجدول بشرط ألا تكون هي نفسها الصورة الرئيسية
             if (imgData && imgData.length > 0) {
                 imgData.forEach(img => {
                     let u = (img.image_url || img.url || '').trim();
-                    if (u && u !== mainImage && !galleryImages.includes(u)) {
-                        galleryImages.push(u);
+                    // استبعاد تام لأي صورة في جدول product_images تطابق الصورة الرئيسية للمنتج
+                    if (u && u !== mainImage && !additionalImages.includes(u)) {
+                        additionalImages.push(u);
                     }
                 });
             }
 
-            // تجميع القائمة النهائية (الرئيسية في البداية، تليها الصور الفرعية المختلفة تماماً)
-            let finalImages = mainImage ? [mainImage, ...galleryImages] : galleryImages;
+            // مصفوفة الصور النهائية: الرئيسية أولاً، ثم الصور الإضافية الخالية من التكرار
+            let finalImages = mainImage ? [mainImage, ...additionalImages] : additionalImages;
 
             container.innerHTML = `
                 <div class="product-images-wrapper">
