@@ -72,14 +72,12 @@
         .payment-methods-box { display: flex; gap: 8px; align-items: center; border-top: 1px solid #eee; padding-top: 15px; margin-top: 5px; }
         .payment-methods-box span { font-size: 13px; font-weight: 700; color: #333; margin-left: 10px; }
 
-        /* التبويبات والمواصفات */
         .product-tabs-section { margin-top: 50px; border-top: 1px solid #eee; padding-top: 25px; }
         .tabs-header { display: flex; gap: 40px; border-bottom: 1px solid #eee; margin-bottom: 20px; }
         .tab-btn { font-size: 15px; font-weight: 700; color: #888; background: none; border: none; padding-bottom: 12px; cursor: pointer; position: relative; }
         .tab-btn.active { color: #00313C; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; right: 0; left: 0; height: 2px; background: #00313C; }
 
-        /* قسم يقوم المستخدمون بشراء هذه المنتجات سوياً */
         .fbt-section { background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 16px; padding: 30px; margin-top: 50px; }
         .fbt-title { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 20px; text-align: right; }
         .fbt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
@@ -257,7 +255,6 @@
       <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: #888;">جاري تحميل تفاصيل المنتج...</div>
   </div>
 
-  <!-- التبويبات والمواصفات -->
   <div class="product-tabs-section">
       <div class="tabs-header">
           <button class="tab-btn active">Description</button>
@@ -338,16 +335,32 @@
             document.getElementById('breadcrumb-name').textContent = product.name;
             if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
 
-            // تجميع الصور الفريدة وعدم تكرار الصورة الرئيسية إذا وجدت في الجدول
-            let imagesSet = new Set();
-            if (product.image_url) imagesSet.add(product.image_url);
+            // فلترة الصور بعناية فائقة لمنع أي تكرار نهائياً (تنظيف الروابط ومقارنتها)
+            let uniqueImagesMap = new Map();
+            
+            // إضافة الصور الفرعية أولاً إن وجدت
             if (imgData && imgData.length > 0) {
                 imgData.forEach(img => {
                     let url = img.image_url || img.url;
-                    if (url) imagesSet.add(url);
+                    if (url) {
+                        let cleanUrl = url.trim();
+                        uniqueImagesMap.set(cleanUrl, cleanUrl);
+                    }
                 });
             }
-            let images = Array.from(imagesSet);
+
+            // إضافة الصورة الرئيسية للمنتج (إذا لم تكن موجودة مسبقاً في الصور الفرعية)
+            if (product.image_url) {
+                let mainClean = product.image_url.trim();
+                uniqueImagesMap.set(mainClean, mainClean);
+            }
+
+            let images = Array.from(uniqueImagesMap.values());
+            // جعل الصورة الأساسية للمنتج هي أول صورة دائماً
+            if (product.image_url && images.includes(product.image_url.trim())) {
+                images = images.filter(img => img !== product.image_url.trim());
+                images.unshift(product.image_url.trim());
+            }
 
             container.innerHTML = `
                 <div class="product-images-wrapper">
