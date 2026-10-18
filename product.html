@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&family=Cormorant+Garamond:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        /* شريط الإعلانات العلوي: يظهر ويختفي فوراً بدون تأثيرات بطيئة */
         .custom-pill-utility-bar {
             padding: 8px 0;
             border-bottom: 1px solid rgba(0, 0, 0, 0.06);
@@ -16,7 +15,6 @@
             display: block;
         }
 
-        /* الهيدر الرئيسي مثبت في أعلى الصفحة دائماً */
         header.header-wrapper {
             position: sticky;
             top: 0;
@@ -46,36 +44,53 @@
 
         body { font-family: 'Tajawal', sans-serif; background-color: #ffffff; color: #333; margin: 0; padding: 0; }
 
-        /* تصميم صفحة المنتج على طراز فلاورد الفاخر */
-        .product-page-container { max-width: 1350px; margin: 30px auto; padding: 0 20px; }
-        .breadcrumb-trail { font-size: 12px; color: #666; margin-bottom: 25px; }
+        .product-page-container { max-width: 1350px; margin: 20px auto; padding: 0 20px; }
+        .breadcrumb-trail { font-size: 12px; color: #666; margin-bottom: 20px; }
         .breadcrumb-trail a { color: #666; text-decoration: none; }
 
         .product-main-grid { display: grid; grid-template-columns: 55% 40%; gap: 50px; align-items: start; }
         .product-images-wrapper { display: flex; gap: 20px; }
-        .thumbs-col { display: flex; flex-direction: column; gap: 12px; width: 85px; max-height: 500px; overflow-y: auto; scrollbar-width: none; }
+        .thumbs-col { display: flex; flex-direction: column; gap: 12px; width: 85px; max-height: 520px; overflow-y: auto; scrollbar-width: none; }
         .thumbs-col::-webkit-scrollbar { display: none; }
         .thumb-img { width: 85px; height: 95px; object-fit: cover; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
         .thumb-img.active { border-color: #00313C; }
-        .main-img-container { flex: 1; position: relative; border-radius: 16px; overflow: hidden; background: #f9f9f9; height: 500px; border: 1px solid #eee; }
+        
+        .main-img-container { flex: 1; position: relative; border-radius: 16px; overflow: hidden; background: #f9f9f9; height: 520px; border: 1px solid #eee; }
         .main-img-container img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* تفاصيل المنتج اليمنى */
-        .product-info-col { display: flex; flex-direction: column; gap: 20px; }
-        .product-price-box { font-size: 26px; font-weight: 700; color: #111; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-        .product-title-text { font-size: 24px; font-weight: 700; color: #2c3e50; font-family: 'Tajawal', sans-serif; margin: 0; }
+        .product-info-col { display: flex; flex-direction: column; gap: 16px; }
+        .product-price-box { font-size: 32px; font-weight: 700; color: #111; font-family: 'Tajawal', sans-serif; }
+        .product-tax-note { font-size: 11px; color: #777; margin-top: 2px; }
         
-        .address-box { display: flex; align-items: center; gap: 12px; background: #f8f9fa; border: 1px solid #e9ecef; padding: 14px; border-radius: 12px; font-size: 13px; color: #333; }
+        .product-title-text { font-size: 24px; font-weight: 700; color: #111; font-family: 'Tajawal', sans-serif; margin: 0; }
         
-        .add-to-cart-btn { background: #00313C; color: white; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 15px; border: none; cursor: pointer; text-align: center; transition: background 0.2s; }
-        .add-to-cart-btn:hover { background: #00222B; }
+        .floward-notice-box { display: flex; align-items: center; gap: 12px; background: #f8f9fa; border: 1px solid #e9ecef; padding: 14px 16px; border-radius: 12px; font-size: 13px; color: #333; }
+        
+        .floward-cart-btn { background: #00313C; color: white; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; border: none; cursor: pointer; text-align: center; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+        .floward-cart-btn:hover { background: #00222B; }
+
+        .payment-methods-box { display: flex; gap: 8px; align-items: center; border-top: 1px solid #eee; padding-top: 15px; margin-top: 5px; }
+        .payment-methods-box span { font-size: 13px; font-weight: 700; color: #333; margin-left: 10px; }
 
         /* التبويبات والمواصفات */
-        .product-tabs-section { margin-top: 60px; border-top: 1px solid #eee; padding-top: 30px; }
-        .tabs-header { display: flex; gap: 40px; border-bottom: 1px solid #eee; margin-bottom: 25px; }
-        .tab-btn { font-size: 16px; font-weight: 700; color: #888; background: none; border: none; padding-bottom: 12px; cursor: pointer; position: relative; }
+        .product-tabs-section { margin-top: 50px; border-top: 1px solid #eee; padding-top: 25px; }
+        .tabs-header { display: flex; gap: 40px; border-bottom: 1px solid #eee; margin-bottom: 20px; }
+        .tab-btn { font-size: 15px; font-weight: 700; color: #888; background: none; border: none; padding-bottom: 12px; cursor: pointer; position: relative; }
         .tab-btn.active { color: #00313C; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; right: 0; left: 0; height: 2px; background: #00313C; }
+
+        /* قسم يقوم المستخدمون بشراء هذه المنتجات سوياً */
+        .fbt-section { background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 16px; padding: 30px; margin-top: 50px; }
+        .fbt-title { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 20px; text-align: right; }
+        .fbt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .fbt-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        .fbt-items-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .fbt-item { text-align: center; flex: 1; }
+        .fbt-item img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; }
+        .fbt-item-name { font-size: 12px; font-weight: 600; color: #333; line-height: 1.4; }
+        .fbt-plus { font-size: 20px; font-weight: bold; color: #555; }
+        .fbt-btn { background: #fff; color: #00313C; border: 1px solid #00313C; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .fbt-btn:hover { background: #00313C; color: #fff; }
 
         @media screen and (max-width: 900px) {
             .product-main-grid { grid-template-columns: 1fr; gap: 30px; }
@@ -88,7 +103,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
-<!-- شريط الأدوات العلوي (Utility Bar) -->
+<!-- شريط الأدوات العلوي -->
 <div class="custom-pill-utility-bar">
   <div class="page-width pill-bar-container" style="display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 auto; padding: 0 20px;">
     <div class="pill-dropdown-wrapper" style="position: relative;">
@@ -158,7 +173,7 @@
   });
 </script>
 
-<!-- الهيدر الرئيسي -->
+<!-- الهيدر الرئيسي الأصلي -->
 <header class="header-wrapper color-scheme">
   <div class="header header--floward-style page-width">
     <div class="floward-left-group">
@@ -190,7 +205,6 @@
       </button>
     </div>
 
-    <!-- نافذة البحث الفوري -->
     <div id="box-search-overlay" class="floward-search-overlay">
       <div style="padding: 25px; max-width: 600px; margin: 0 auto;">
         <input type="text" id="live-search-input" placeholder="ابحث عن الزهور والهدايا..." oninput="performLiveSearch(this.value)" style="width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; outline: none;">
@@ -230,28 +244,62 @@
   <div style="padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
     <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الرئيسية</a>
     <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الزهور المنسقة</a>
-    <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">هدايا ورد طبيعي</a>
   </div>
 </div>
 
-<!-- محتوى صفحة المنتج الفاخرة -->
+<!-- المحتوى الرئيسي لصفحة المنتج -->
 <main class="product-page-container">
   <div class="breadcrumb-trail">
-      <a href="index.html">Home</a> / <a href="index.html" id="breadcrumb-cat">التصنيف</a> / <span id="breadcrumb-name">اسم المنتج</span>
+      <a href="index.html">الرئيسية</a> / <span id="breadcrumb-cat">التصنيف</span> / <span id="breadcrumb-name">اسم المنتج</span>
   </div>
 
   <div id="product-details-container" class="product-main-grid">
       <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: #888;">جاري تحميل تفاصيل المنتج...</div>
   </div>
 
-  <!-- التبويبات السفلية للمنتج -->
+  <!-- التبويبات والمواصفات -->
   <div class="product-tabs-section">
       <div class="tabs-header">
           <button class="tab-btn active">Description</button>
           <button class="tab-btn">Care Tips</button>
       </div>
       <div id="product-desc-content" style="font-size: 14px; color: #555; line-height: 1.8; max-width: 900px;">
-          تنسيق فاخر من أجمل الزهور الطبيعية المختارة بعناية فائقة لتلائم جميع المناسبات السعيدة وتضفي لمسة من البهجة والجمال على مكانك. اطلب الآن واستمتع بخدمة التوصيل السريع.
+          تنسيق فاخر من أجمل الزهور الطبيعية والشوكولاتة المختارة بعناية فائقة لتلائم جميع المناسبات السعيدة وتضفي لمسة من البهجة والجمال.
+      </div>
+  </div>
+
+  <!-- قسم يقوم المستخدمون بشراء هذه المنتجات سوياً -->
+  <div class="fbt-section">
+      <div class="fbt-title">يقوم المستخدمون بشراء هذه المنتجات سوياً</div>
+      <div class="fbt-grid">
+          <div class="fbt-card">
+              <div class="fbt-items-row">
+                  <div class="fbt-item">
+                      <img id="fbt-item-1" src="" alt="مزرية">
+                      <div class="fbt-item-name" id="fbt-name-1">مزهرية جوري الابتسامة المشرقة</div>
+                  </div>
+                  <div class="fbt-plus">+</div>
+                  <div class="fbt-item">
+                      <img id="fbt-item-main-1" src="" alt="المنتج">
+                      <div class="fbt-item-name" id="fbt-main-name-1">كيك الشوكولاتة من فلاورد</div>
+                  </div>
+              </div>
+              <button class="fbt-btn" onclick="addBundleToCart(27)">أضف إلى عربة التسوق مقابل 27 JOD</button>
+          </div>
+          <div class="fbt-card">
+              <div class="fbt-items-row">
+                  <div class="fbt-item">
+                      <img id="fbt-item-2" src="" alt="مزهرية">
+                      <div class="fbt-item-name" id="fbt-name-2">مزهرية جوري للتناغم الاحمر</div>
+                  </div>
+                  <div class="fbt-plus">+</div>
+                  <div class="fbt-item">
+                      <img id="fbt-item-main-2" src="" alt="المنتج">
+                      <div class="fbt-item-name" id="fbt-main-name-2">كيك الشوكولاتة من فلاورد</div>
+                  </div>
+              </div>
+              <button class="fbt-btn" onclick="addBundleToCart(27)">أضف إلى عربة التسوق مقابل 27 JOD</button>
+          </div>
       </div>
   </div>
 </main>
@@ -263,6 +311,7 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allStoreProducts = [];
+    let currentProduct = null;
 
     async function loadProductDetails() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -275,20 +324,27 @@
         }
 
         try {
-            const [{ data: product, error }, { data: products }] = await Promise.all([
+            const [{ data: product, error }, { data: imgData }, { data: products }] = await Promise.all([
                 supabaseClient.from('products').select('*').eq('id', productId).single(),
+                supabaseClient.from('product_images').select('*').eq('product_id', productId),
                 supabaseClient.from('products').select('*')
             ]);
 
             if (error || !product) throw new Error('المنتج غير موجود.');
+            currentProduct = product;
             allStoreProducts = products || [];
 
             document.getElementById('page-title').textContent = `${product.name} - Lorin 🌸`;
             document.getElementById('breadcrumb-name').textContent = product.name;
             if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
 
-            // تجهيز صور مصغرة (إذا وجد صور متعددة أو نكرر الصورة الأساسية كمثال)
-            const images = [product.image_url, product.image_url, product.image_url];
+            let images = [product.image_url];
+            if (imgData && imgData.length > 0) {
+                imgData.forEach(img => {
+                    let url = img.image_url || img.url;
+                    if (url && !images.includes(url)) images.push(url);
+                });
+            }
 
             container.innerHTML = `
                 <div class="product-images-wrapper">
@@ -301,30 +357,60 @@
                 </div>
 
                 <div class="product-info-col">
-                    <div class="product-price-box">
-                        <span>JOD ${product.price}</span>
-                        <span style="font-size: 12px; font-weight: normal; color: #27ae60; background: #e8f8f5; padding: 4px 10px; border-radius: 20px;">متوفر للتوصيل الفوري</span>
+                    <div>
+                        <div class="product-price-box">JOD ${product.price}</div>
+                        <div class="product-tax-note">الأسعار شاملة الضرائب</div>
                     </div>
 
                     <h1 class="product-title-text">${product.name}</h1>
                     
-                    <div class="address-box">
+                    <div class="floward-notice-box">
                         <svg style="width:20px; height:20px; color:#00313C; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <span>أدخل عنوان التوصيل لنتمكن من حساب وقت التسليم بدقة.</span>
+                        <span>لست بحاجة لمعرفة العنوان، فريقنا سيفعل ذلك نيابة عنك.</span>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-top: 5px;">
                         <div style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: #fafafa;">
                             <button onclick="adjustQty(-1)" style="padding: 12px 18px; background: transparent; border: none; font-weight: bold; cursor: pointer; color: #555;">-</button>
                             <input type="number" id="product-qty" value="1" min="1" style="width: 45px; text-align: center; border: none; background: transparent; font-weight: bold; outline: none;">
                             <button onclick="adjustQty(1)" style="padding: 12px 18px; background: transparent; border: none; font-weight: bold; cursor: pointer; color: #555;">+</button>
                         </div>
-                        <button onclick='addToCart(${JSON.stringify(product)})' class="add-to-cart-btn" style="flex: 1;">
-                            إضافة إلى السلة 🛍️
+                        <button onclick='addToCart(currentProduct)' class="floward-cart-btn" style="flex: 1;">
+                            <svg style="width:20px; height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            أضف إلى سلة التسوق
                         </button>
+                    </div>
+
+                    <div class="payment-methods-box">
+                        <span>طرق الدفع</span>
+                        <div style="background: #ffffff; padding: 4px 6px; border-radius: 6px; border: 1px solid #eee; display: flex; align-items: center; height: 26px;">
+                            <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/6ee18dc6-5f9f-4183-9f19-4111e4a97a68.png" style="height: 16px; object-fit: contain;">
+                        </div>
+                        <div style="background: #ffffff; padding: 4px 6px; border-radius: 6px; border: 1px solid #eee; display: flex; align-items: center; height: 26px;">
+                            <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/3455cb59-b00c-4dd2-b234-3de86b100338.svg" style="height: 16px; object-fit: contain;">
+                        </div>
+                        <div style="background: #ffffff; padding: 4px 6px; border-radius: 6px; border: 1px solid #eee; display: flex; align-items: center; height: 26px;">
+                            <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/99686f01-5304-498b-9c30-4aca28a11021.svg" style="height: 16px; object-fit: contain;">
+                        </div>
                     </div>
                 </div>
             `;
+
+            // تحديث صور قسم "يقوم المستخدمون بشراء هذه المنتجات سوياً" بالمنتج الحالي وباقي المنتجات
+            if (products.length >= 2) {
+                document.getElementById('fbt-item-main-1').src = product.image_url;
+                document.getElementById('fbt-main-name-1').textContent = product.name;
+                document.getElementById('fbt-item-1').src = products[1].image_url;
+                document.getElementById('fbt-name-1').textContent = products[1].name;
+
+                if (products.length >= 3) {
+                    document.getElementById('fbt-item-main-2').src = product.image_url;
+                    document.getElementById('fbt-main-name-2').textContent = product.name;
+                    document.getElementById('fbt-item-2').src = products[2].image_url;
+                    document.getElementById('fbt-name-2').textContent = products[2].name;
+                }
+            }
+
         } catch (err) {
             container.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">${err.message}</div>`;
         }
@@ -371,6 +457,15 @@
         saveCart(cart);
         renderCartItems();
         alert('تمت إضافة المنتج إلى السلة بنجاح! 🛒');
+    }
+
+    function addBundleToCart(bundlePrice) {
+        if (!currentProduct) return;
+        let cart = getCart();
+        cart.push({ ...currentProduct, price: bundlePrice, name: currentProduct.name + ' (عرض الباقة)' });
+        saveCart(cart);
+        renderCartItems();
+        alert('تمت إضافة عرض الباقة إلى السلة بنجاح! 🎁');
     }
 
     function renderCartItems() {
@@ -420,7 +515,6 @@
             </a>`).join('');
     }
 
-    // إدارة القوائم الجانبية
     (function() {
         var btnMenu = document.getElementById('btn-trigger-menu');
         var btnSearch = document.getElementById('btn-trigger-search');
@@ -451,7 +545,6 @@
         if (boxBackdrop) boxBackdrop.addEventListener('click', closeAllDrawers);
     })();
 
-    // حركة شريط الإعلانات عند التمرير
     let lastScrollTop = 0;
     window.addEventListener('scroll', function() {
         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -471,7 +564,7 @@
 </body>
 </html>
 
-<!-- Footer على طراز فلاورد الفاخر -->
+<!-- Footer الفاخر الأصلي -->
 <footer style="background-color: #00313C; color: #ffffff; padding: 60px 20px 30px 20px; font-family: 'Tajawal', sans-serif; direction: rtl; margin-top: 50px;">
   <div style="max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; padding-bottom: 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
     <div>
@@ -502,10 +595,5 @@
         <li><a href="#" style="color: inherit; text-decoration: none;">FAQ</a></li>
       </ul>
     </div>
-  </div>
-  <div style="display: flex; gap: 8px; align-items: center; margin-top: 20px;">
-    <div style="background: #ffffff; padding: 4px 6px; border-radius: 6px; height: 26px;"><img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/6ee18dc6-5f9f-4183-9f19-4111e4a97a68.png" style="height: 18px; object-fit: contain;"></div>
-    <div style="background: #ffffff; padding: 4px 6px; border-radius: 6px; height: 26px;"><img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/3455cb59-b00c-4dd2-b234-3de86b100338.svg" style="height: 18px; object-fit: contain;"></div>
-    <div style="background: #ffffff; padding: 4px 6px; border-radius: 6px; height: 26px;"><img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/99686f01-5304-498b-9c30-4aca28a11021.svg" style="height: 18px; object-fit: contain;"></div>
   </div>
 </footer>
