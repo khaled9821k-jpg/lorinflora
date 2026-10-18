@@ -298,7 +298,7 @@
             top: 50% !important;
             left: 0;
             right: 0;
-            transform: translateY(-50%) !important; /* توسيط تام في المنتصف عمودياً وأفقياً */
+            transform: translateY(-50%) !important;
             padding: 0 45px !important;
             z-index: 2;
             pointer-events: none;
@@ -312,7 +312,7 @@
         .promo-heading-el {
             font-family: "Cormorant Garamond", Georgia, serif !important;
             font-weight: 500 !important;
-            font-size: clamp(48px, 6vw, 82px) !important; /* تكبير العنوان ليعطي مظهراً عريضاً وجذاباً */
+            font-size: clamp(48px, 6vw, 82px) !important;
             line-height: .96 !important;
             letter-spacing: -.025em;
             max-width: 90% !important;
@@ -360,7 +360,6 @@
         /* 📱 إعدادات وتنسيقات الهواتف المحمولة المستقلة (Mobile Only)   */
         /* --------------------------------------------------------- */
         @media screen and (max-width: 768px) {
-            /* إعدادات الهيدر للموبايل */
             .header--floward-style {
                 padding: 0.8rem 1rem !important;
                 gap: 5px;
@@ -376,7 +375,6 @@
                 height: 22px !important;
             }
 
-            /* ضبط مكان عداد السلة بدقة على شاشات الموبايل */
             #cart-counter-badge {
                 top: -6px !important;
                 right: -4px !important;
@@ -385,7 +383,6 @@
                 font-size: 10px !important;
             }
 
-            /* إعدادات بطاقات المنتجات للموبايل */
             .floward-item-card {
                 min-width: 210px !important;
                 max-width: 210px !important;
@@ -394,7 +391,6 @@
                 height: 240px !important;
             }
 
-            /* عناوين أقسام الدوائر على الموبايل */
             .section-header-left {
                 font-family: 'Tajawal', sans-serif !important;
                 font-size: 20px !important;
@@ -407,7 +403,6 @@
                 font-size: 20px !important;
             }
 
-            /* قسم الفيديو للموبايل (عمودي وأطول كفلاورد تماماً) */
             #custom-media-container {
                 width: 100%;
                 max-width: none;
@@ -427,11 +422,11 @@
             }
             .promo-content-box {
                 top: 50% !important;
-                transform: translateY(-50%) !important; /* توسيط تام في منتصف القسم على الموبايل أيضاً */
+                transform: translateY(-50%) !important;
                 padding: 0 24px !important;
             }
             .promo-heading-el {
-                font-size: clamp(40px, 10vw, 56px) !important; /* تكبير العنوان ليكون عريضاً وواضحاً جداً */
+                font-size: clamp(40px, 10vw, 56px) !important;
                 max-width: 100% !important;
                 line-height: 1.03 !important;
                 margin-bottom: 12px !important;
@@ -447,7 +442,6 @@
             }
             .promo-indicators { bottom: 20px; gap: 5px; padding: 0 15px; }
 
-            /* التصنيفات للموبايل (صفان متناسقان) */
             .scrollable-section-wrapper {
                 padding: 0 20px;
                 margin: 28px auto 40px;
@@ -624,7 +618,7 @@
       </a>
     </div>
 
-    <!-- نافذة البحث الفوري (تم ضبط حجم الخط 16px لمنع الزوم التلقائي) -->
+    <!-- نافذة البحث الفوري -->
     <div id="box-search-overlay" class="floward-search-overlay">
       <div style="padding: 20px; max-width: 600px; margin: 0 auto; box-sizing: border-box;">
         <input type="text" id="live-search-input" placeholder="ابحث عن الزهور والهدايا..." oninput="performLiveSearch(this.value)" style="width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 10px; font-size: 16px; outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.05); box-sizing: border-box;">
@@ -688,7 +682,6 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allStoreProducts = [];
-
     let promoSlideIndex = 0;
     let promoSlideTimer = null;
 
@@ -835,12 +828,27 @@
 
     async function loadFlowardDynamicSections() {
         const container = document.getElementById('floward-dynamic-sections-container');
-        const [{ data: sections }, { data: products }] = await Promise.all([
+        
+        // جلب الأقسام والمنتجات مع صور جدول product_images لربط الصورة الأولى تلقائياً لكل منتج
+        const [{ data: sections }, { data: products }, { data: allImages }] = await Promise.all([
             supabaseClient.from('store_sections').select('*').order('display_order', { ascending: true }),
-            supabaseClient.from('products').select('*')
+            supabaseClient.from('products').select('*'),
+            supabaseClient.from('product_images').select('*')
         ]);
 
-        allStoreProducts = products || [];
+        // دمج الصورة الأولى لكل منتج من جدول product_images لتفادي مشاكل الحذف أو التكرار
+        allStoreProducts = (products || []).map(p => {
+            const prodImgs = (allImages || []).filter(img => String(img.product_id) === String(p.id));
+            let firstImg = 'placeholder.jpg';
+            if (prodImgs.length > 0) {
+                firstImg = prodImgs[0].image_url || prodImgs[0].url || 'placeholder.jpg';
+            }
+            return {
+                ...p,
+                image_url: firstImg
+            };
+        });
+
         if (!sections || sections.length === 0) {
             container.innerHTML = '<p style="text-align:left; padding:30px; color:#888;">لم تقم بإنشاء أي أقسام منتجات من لوحة التحكم بعد.</p>';
             return;
@@ -862,7 +870,7 @@
             const itemsHtml = filtered.map(p => `
                 <a href="product.html?id=${p.id}" class="floward-item-card">
                     <div class="floward-item-img">
-                        <img src="${p.image_url || 'placeholder.jpg'}" alt="${p.name}">
+                        <img src="${p.image_url}" alt="${p.name}">
                     </div>
                     <div class="floward-item-price">${p.price} JD</div>
                     <div class="floward-item-name">${p.name}</div>
@@ -973,7 +981,6 @@
       if (btnCloseMenu) btnCloseMenu.addEventListener('click', closeAllDrawers);
       if (boxBackdrop) boxBackdrop.addEventListener('click', closeAllDrawers);
 
-      // إغلاق خانة البحث فور النقر على أي مكان فارغ بالصفحة
       document.addEventListener('click', function(e) {
         if (boxSearch && boxSearch.classList.contains('is-open')) {
           if (!boxSearch.contains(e.target) && !btnSearch.contains(e.target)) {
