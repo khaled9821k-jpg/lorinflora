@@ -335,40 +335,31 @@
             document.getElementById('breadcrumb-name').textContent = product.name;
             if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
 
-            // فلترة الصور بعناية فائقة لمنع أي تكرار نهائياً (تنظيف الروابط ومقارنتها)
-            let uniqueImagesMap = new Map();
+            // بناء مصفوفة فريدة ونقية للصور تماماً لتفادي أي تكرار بصري
+            let uniqueImages = [];
             
-            // إضافة الصور الفرعية أولاً إن وجدت
+            // 1. إضافة الصورة الرئيسية أولاً كأول عنصر أساسي
+            if (product.image_url) {
+                uniqueImages.push(product.image_url.trim());
+            }
+
+            // 2. إضافة الصور القادمة من جدول product_images بشرط ألا تكون مطابقة للصورة الرئيسية أو مكررة ضمنها
             if (imgData && imgData.length > 0) {
                 imgData.forEach(img => {
-                    let url = img.image_url || img.url;
-                    if (url) {
-                        let cleanUrl = url.trim();
-                        uniqueImagesMap.set(cleanUrl, cleanUrl);
+                    let url = (img.image_url || img.url || '').trim();
+                    if (url && !uniqueImages.includes(url)) {
+                        uniqueImages.push(url);
                     }
                 });
-            }
-
-            // إضافة الصورة الرئيسية للمنتج (إذا لم تكن موجودة مسبقاً في الصور الفرعية)
-            if (product.image_url) {
-                let mainClean = product.image_url.trim();
-                uniqueImagesMap.set(mainClean, mainClean);
-            }
-
-            let images = Array.from(uniqueImagesMap.values());
-            // جعل الصورة الأساسية للمنتج هي أول صورة دائماً
-            if (product.image_url && images.includes(product.image_url.trim())) {
-                images = images.filter(img => img !== product.image_url.trim());
-                images.unshift(product.image_url.trim());
             }
 
             container.innerHTML = `
                 <div class="product-images-wrapper">
                     <div class="thumbs-col">
-                        ${images.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)">`).join('')}
+                        ${uniqueImages.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)">`).join('')}
                     </div>
                     <div class="main-img-container">
-                        <img id="main-product-img" src="${images[0] || product.image_url}" alt="${product.name}">
+                        <img id="main-product-img" src="${uniqueImages[0] || product.image_url}" alt="${product.name}">
                     </div>
                 </div>
 
