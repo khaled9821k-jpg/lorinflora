@@ -331,9 +331,10 @@
         }
 
         try {
+            // جلب المنتج وصوره مرّتبة حسب sort_order تصاعدياً لضمان تطابق الصورة الرئيسية والترتيب مع لوحة التحكم
             const [{ data: product, error }, { data: imgData }, { data: products }] = await Promise.all([
                 supabaseClient.from('products').select('*').eq('id', productId).single(),
-                supabaseClient.from('product_images').select('*').eq('product_id', productId),
+                supabaseClient.from('product_images').select('*').eq('product_id', productId).order('sort_order', { ascending: true }),
                 supabaseClient.from('products').select('*')
             ]);
 
