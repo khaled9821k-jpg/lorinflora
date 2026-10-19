@@ -479,8 +479,25 @@
 
     async function fetchAdminProducts() {
       const tbody = document.getElementById('admin-products-list');
-      const { data } = await supabaseClient.from('products').select('*');
-      currentProducts = data || [];
+      
+      // جلب المنتجات وصور جدول product_images معاً لربط الصورة الأولى بالمنتج في الآدمن
+      const [{ data: prodData }, { data: allImages }] = await Promise.all([
+          supabaseClient.from('products').select('*'),
+          supabaseClient.from('product_images').select('*')
+      ]);
+
+      currentProducts = (prodData || []).map(p => {
+          const prodImgs = (allImages || []).filter(img => String(img.product_id) === String(p.id));
+          let firstImg = 'placeholder.jpg';
+          if (prodImgs.length > 0) {
+              firstImg = prodImgs[0].image_url || prodImgs[0].url || 'placeholder.jpg';
+          }
+          return {
+              ...p,
+              image_url: firstImg
+          };
+      });
+
       if (currentProducts.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-gray-400">لا توجد منتجات مضافة.</td></tr>'; return; }
       tbody.innerHTML = currentProducts.map(p => `
         <tr class="hover:bg-gray-50 transition">
@@ -914,7 +931,7 @@
       showStatus('تم حذف التصنيف الفرعي بنجاح!', 'success'); fetchAdminData();
     };
 
-    // معالج حفظ المنتجات (يدعم صور متعددة ورفعها لجدول product_images)
+    // معالج حفظ المنتجات (يدعم صور متعددة ورفعها لجدول product_images حصرياً وتفادي حقل image_url المحذوف)
     document.getElementById('product-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-product-btn');
@@ -929,22 +946,15 @@
         const fileInput = document.getElementById('product-image-file');
         const files = fileInput.files;
 
-        let primaryImageUrl = null;
-
         if (id) {
           // --- حالة التعديل على منتج قديم ---
           let updateData = { name, price, category };
           
-          if (files.length > 0) {
-            // رفع الصورة الأولى لتكون الرئيسية للمنتج
-            const firstFilePath = `products/${Date.now()}_0_prod.${files[0].name.split('.').pop()}`;
-            const { error: upErr } = await supabaseClient.storage.from('store-assets').upload(firstFilePath, files[0]);
-            if (upErr) throw upErr;
-            
-            primaryImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(firstFilePath).data.publicUrl;
-            updateData.image_url = primaryImageUrl;
+          const { error } = await supabaseClient.from('products').update(updateData).eq('id', id);
+          if (error) throw error;
 
-            // رفع وباقي الصور في جدول product_images المرتبط
+          // إذا تم اختيار صور جديدة، أضفها لجدول product_images
+          if (files.length > 0) {
             for (let i = 0; i < files.length; i++) {
               const filePath = `products/${Date.now()}_${i}_prod.${files[i].name.split('.').pop()}`;
               const { error: multiUpErr } = await supabaseClient.storage.from('store-assets').upload(filePath, files[i]);
@@ -956,33 +966,23 @@
               }
             }
           }
-
-          const { error } = await supabaseClient.from('products').update(updateData).eq('id', id);
-          if (error) throw error;
           showStatus('تم تحديث المنتج وصوره بنجاح!', 'success');
 
         } else {
           // --- حالة إضافة منتج جديد ---
           if (files.length === 0) throw new Error('يرجى اختيار صورة واحدة على الأقل للمنتج.');
 
-          // 1. رفع الصورة الأولى لتصبح الصورة الرئيسية في جدول products
-          const firstFilePath = `products/${Date.now()}_0_prod.${files[0].name.split('.').pop()}`;
-          const { error: upErr } = await supabaseClient.storage.from('store-assets').upload(firstFilePath, files[0]);
-          if (upErr) throw upErr;
-          
-          primaryImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(firstFilePath).data.publicUrl;
-
-          // 2. إدخال المنتج وجلب الـ ID الخاص به
+          // 1. إدخال بيانات المنتج الأساسية في جدول products (بدون حقل image_url القديم) والحصول على الـ ID
           const { data: newProdData, error: insertErr } = await supabaseClient
             .from('products')
-            .insert([{ name, price, category, image_url: primaryImageUrl }])
+            .insert([{ name, price, category }])
             .select()
             .single();
 
           if (insertErr) throw insertErr;
           const newProductId = newProdData.id;
 
-          // 3. رفع كافة الصور المحددة وتخزينها في جدول product_images مع ربطها بـ product_id
+          // 2. رفع كافة الصور المحددة وتخزينها حصرياً في جدول product_images مع ربطها بـ product_id
           for (let i = 0; i < files.length; i++) {
             const filePath = `products/${Date.now()}_${i}_prod.${files[i].name.split('.').pop()}`;
             const { error: multiUpErr } = await supabaseClient.storage.from('store-assets').upload(filePath, files[i]);
@@ -1082,12 +1082,4 @@
 
     function showStatus(text, type) {
       statusMsg.textContent = text;
-      statusMsg.className = `p-4 rounded-xl text-sm text-center font-medium mb-6 shadow-sm ${type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`;
-      statusMsg.classList.remove('hidden');
-      setTimeout(() => { statusMsg.classList.add('hidden'); }, 4000);
-    }
-
-    document.addEventListener('DOMContentLoaded', fetchAdminData);
-  </script>
-</body>
-</html>
+      statusMsg.className = `p-4 rounded-xl text-sm text-center font-medium mb-
