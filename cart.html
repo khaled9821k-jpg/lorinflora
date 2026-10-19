@@ -2,221 +2,251 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>سلة المشتريات - Lorin 🌸</title>
 
-    <link rel="icon" type="image/png" href="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/WhatsApp_Image_nn_2x.png">
+    <link rel="icon" type="image/png" href="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png">
     
     <link rel="stylesheet" href="base.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
+        html {
+            scroll-behavior: smooth;
+            height: 100%;
+        }
+
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background-color: #fcfcfc; 
+            color: #333; 
+            margin: 0; 
+            padding: 0; 
+            overflow-x: hidden;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
         .custom-pill-utility-bar {
             padding: 8px 0;
             border-bottom: 1px solid rgba(0, 0, 0, 0.06);
             background: #ffffff;
             display: block;
         }
+
         header.header-wrapper {
             position: sticky;
             top: 0;
             z-index: 999;
             background: #ffffff;
             width: 100%;
+            border-bottom: 1px solid #f1f1f1;
         }
-        body.hide-announcement .custom-pill-utility-bar {
-            display: none !important;
-        }
+
         .header--floward-style {
             max-width: 1350px !important;
             margin: 0 auto;
-            padding: 1.1rem 2.5rem !important;
+            padding: 1rem 1.5rem !important;
             display: grid !important;
             grid-template-columns: 1fr auto 1fr;
             align-items: center !important;
         }
-        body { font-family: 'Tajawal', sans-serif; background-color: #fcfcfc; color: #333; margin: 0; padding: 0; }
+
+        .page-width.pill-bar-container {
+            max-width: 1350px !important;
+        }
+
+        :root { --floward-main-color: #00313C; --floward-font-size: 14px; --floward-icon-size: 20px; }
+        .floward-left-group { display: flex !important; align-items: center !important; gap: 1.5rem !important; justify-self: start; }
+        .floward-center-group { justify-self: center; text-align: center; }
+        .floward-right-group { display: flex !important; align-items: center !important; gap: 1.5rem !important; justify-self: end; }
+        .floward-btn-link { display: inline-flex !important; align-items: center !important; gap: 0.4rem !important; color: var(--floward-main-color) !important; text-decoration: none !important; font-size: var(--floward-font-size) !important; font-weight: 500 !important; background: transparent !important; border: none !important; cursor: pointer !important; padding: 0 !important; }
+        .floward-svg-icon { width: var(--floward-icon-size) !important; height: var(--floward-icon-size) !important; flex-shrink: 0; }
+        
+        .floward-search-overlay { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.1); z-index: 99999; border-top: 1px solid #eee; }
+        .floward-search-overlay.is-open { display: block !important; }
+        
+        .floward-menu-drawer { position: fixed !important; top: 0 !important; left: 0 !important; width: 380px; max-width: 85vw; height: 100vh !important; background: #ffffff !important; z-index: 2147483647 !important; box-shadow: 4px 0 25px rgba(0,0,0,0.12); padding: 2rem 1.5rem; box-sizing: border-box; display: flex; flex-direction: column; visibility: hidden; opacity: 0; transform: translateX(-100%); transition: transform 0.4s ease, opacity 0.4s ease, visibility 0.4s ease; }
+        .floward-menu-drawer.is-open { visibility: visible !important; opacity: 1 !important; transform: translateX(0) !important; }
+        .floward-drawer-backdrop { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0, 0, 0, 0.4) !important; z-index: 2147483646 !important; visibility: hidden; opacity: 0; transition: opacity 0.35s ease, visibility 0.35s ease; }
+        .floward-drawer-backdrop.is-open { visibility: visible !important; opacity: 1 !important; }
+
+        @media screen and (max-width: 768px) {
+            .header--floward-style { padding: 0.8rem 1rem !important; gap: 10px; }
+            .floward-left-group, .floward-right-group { gap: 0.8rem !important; }
+            .floward-btn-link span { display: none; }
+            .floward-svg-icon { width: 22px !important; height: 22px !important; }
+            .header__heading-link img { height: 38px !important; }
+        }
     </style>
 </head>
-<body class="bg-[#fcfcfc] min-h-screen flex flex-col justify-between">
+<body>
 
-<!-- شريط الأدوات العلوي -->
-<div class="custom-pill-utility-bar">
-  <div class="page-width pill-bar-container" style="display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 auto; padding: 0 20px;">
-    <div class="pill-dropdown-wrapper" style="position: relative;">
-      <button type="button" class="pill-btn" onclick="togglePillDropdown('country-dropdown')">
-        <span>الأردن (Jordan)</span>
-        <span class="pill-arrow">▾</span>
-      </button>
-      <div id="country-dropdown" class="pill-dropdown-menu">
-        <button type="button" class="pill-dropdown-item active"><span>الأردن</span></button>
-      </div>
-    </div>
-    <div class="pill-dropdown-wrapper" style="position: relative;">
-      <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
-        <span>JOD (د.أ)</span>
-        <span class="pill-arrow">▾</span>
-      </button>
-      <div id="currency-dropdown" class="pill-dropdown-menu">
-        <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
-      </div>
-    </div>
-    <div class="pill-language-wrapper">
-      <button type="button" class="pill-btn pill-btn--lang"><span>English</span></button>
-    </div>
-  </div>
-</div>
-
-<style>
-  .pill-btn { display: inline-flex; align-items: center; gap: 6px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 50px; padding: 5px 16px; font-size: 12px; font-weight: 500; color: #333333; cursor: pointer; text-decoration: none; }
-  .pill-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: #ffffff; border: 1px solid #edf2f7; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); min-width: 140px; z-index: 99 !important; padding: 6px; }
-  .pill-dropdown-menu.show { display: block; }
-  .pill-dropdown-item { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border: none; background: transparent; font-size: 12px; color: #495057; text-align: right; cursor: pointer; border-radius: 6px; }
-  :root { --floward-main-color: #00313C; --floward-font-size: 14px; --floward-icon-size: 20px; }
-  .floward-left-group { display: flex !important; align-items: center !important; gap: 1.8rem !important; justify-self: start; }
-  .floward-center-group { justify-self: center; text-align: center; }
-  .floward-right-group { display: flex !important; align-items: center !important; gap: 1.8rem !important; justify-self: end; }
-  .floward-btn-link { display: inline-flex !important; align-items: center !important; gap: 0.5rem !important; color: var(--floward-main-color) !important; text-decoration: none !important; font-size: var(--floward-font-size) !important; font-weight: 500 !important; background: transparent !important; border: none !important; cursor: pointer !important; padding: 0 !important; }
-  .floward-svg-icon { width: var(--floward-icon-size) !important; height: var(--floward-icon-size) !important; }
-  .floward-search-overlay { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.1); z-index: 99999; border-top: 1px solid #eee; }
-  .floward-search-overlay.is-open { display: block !important; }
-  .floward-menu-drawer { position: fixed !important; top: 0 !important; left: 0 !important; width: 380px; max-width: 85vw; height: 100vh !important; background: #ffffff !important; z-index: 2147483647 !important; box-shadow: 4px 0 25px rgba(0,0,0,0.12); padding: 2rem 1.5rem; box-sizing: border-box; display: flex; flex-direction: column; visibility: hidden; opacity: 0; transform: translateX(-100%); transition: transform 0.5s ease, opacity 0.5s ease, visibility 0.5s ease; }
-  .floward-menu-drawer.is-open { visibility: visible !important; opacity: 1 !important; transform: translateX(0) !important; }
-  .floward-drawer-backdrop { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0, 0, 0, 0.4) !important; z-index: 2147483646 !important; visibility: hidden; opacity: 0; transition: opacity 0.45s ease, visibility 0.45s ease; }
-  .floward-drawer-backdrop.is-open { visibility: visible !important; opacity: 1 !important; }
-</style>
-
-<script>
-  function togglePillDropdown(id) {
-    var dropdown = document.getElementById(id);
-    var allDropdowns = document.querySelectorAll('.pill-dropdown-menu');
-    allDropdowns.forEach(function(item) { if (item.id !== id) item.classList.remove('show'); });
-    dropdown.classList.toggle('show');
-  }
-</script>
-
-<!-- الهيدر الرئيسي -->
-<header class="header-wrapper color-scheme">
-  <div class="header header--floward-style page-width">
-    <div class="floward-left-group">
-      <button type="button" class="floward-btn-link" id="btn-trigger-menu">
-        <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        <span>Menu</span>
-      </button>
-      <button type="button" class="floward-btn-link" id="btn-trigger-search">
-        <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <span>Search</span>
-      </button>
-    </div>
-
-    <div class="floward-center-group">
-      <a href="index.html" class="header__heading-link link">
-        <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 45px; object-fit: contain;">
-      </a>
-    </div>
-
-    <div class="floward-right-group">
-      <a href="#" class="floward-btn-link">
-        <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        <span>Account</span>
-      </a>
-      <a href="cart.html" class="floward-btn-link relative" style="position: relative; text-decoration: none;">
-        <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-        <span>Cart</span>
-        <span id="cart-counter-badge" style="display:none; position: absolute; top: -5px; right: 25px; background: #e74c3c; color: white; border-radius: 50%; font-size: 11px; width: 18px; height: 18px; font-weight: bold; align-items: center; justify-content: center;">0</span>
-      </a>
-    </div>
-
-    <!-- نافذة البحث الفوري -->
-    <div id="box-search-overlay" class="floward-search-overlay">
-      <div style="padding: 25px; max-width: 600px; margin: 0 auto;">
-        <input type="text" id="live-search-input" placeholder="ابحث عن الزهور والهدايا (اكتب اسم المنتج)..." oninput="performLiveSearch(this.value)" style="width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-        <div id="live-search-results" style="margin-top: 15px; max-height: 300px; overflow-y: auto; text-align: right; display: flex; flex-direction: column; gap: 10px;"></div>
-      </div>
-    </div>
-  </div>
-</header>
-
-<!-- المنيو الجانبي -->
-<div id="box-menu-backdrop" class="floward-drawer-backdrop"></div>
-<div id="box-menu-drawer" class="floward-menu-drawer">
-  <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" style="height: 30px;">
-      <span style="font-size: 1.5rem; font-weight: 700; color: #00313C;">Lorin</span>
-    </div>
-    <button type="button" id="btn-close-menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
-  </div>
-  <div style="padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
-    <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الرئيسية</a>
-    <a href="#" style="text-decoration: none; color: #333; font-size: 16px;">الزهور المنسقة</a>
-    <a href="#" style="text-decoration: none; color: #333; font-size: 16px;">هدايا ورد طبيعي</a>
-  </div>
-</div>
-
-<!-- المحتوى الرئيسي لصفحة السلة -->
-<main class="max-w-6xl mx-auto px-6 py-10 flex-1 w-full">
-  <h1 class="text-3xl font-bold text-[#00313C] mb-8">Cart</h1>
-
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-    
-    <div class="lg:col-span-2 space-y-6">
-      <div id="cart-page-items" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-        <!-- المنتجات -->
-      </div>
-
-      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <div class="flex justify-between items-center mb-4">
-          <span class="font-bold text-gray-800 text-sm">Gift Card & Message</span>
-          <span class="text-xs text-green-600 bg-green-50 px-2.5 py-1 rounded-full font-bold">Free</span>
+<div>
+  <!-- شريط الأدوات العلوي -->
+  <div class="custom-pill-utility-bar">
+    <div class="page-width pill-bar-container" style="display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 auto; padding: 0 20px;">
+      <div class="pill-dropdown-wrapper" style="position: relative;">
+        <button type="button" class="pill-btn" onclick="togglePillDropdown('country-dropdown')">
+          <span>الأردن (Jordan)</span>
+          <span class="pill-arrow">▾</span>
+        </button>
+        <div id="country-dropdown" class="pill-dropdown-menu">
+          <button type="button" class="pill-dropdown-item active"><span>الأردن</span></button>
         </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="border-2 border-[#00313C] p-4 rounded-xl text-center bg-gray-50">
-            <span class="text-xs font-bold text-[#00313C]">Lorin's Gift Card</span>
+      </div>
+      <div class="pill-dropdown-wrapper" style="position: relative;">
+        <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
+          <span>JOD (د.أ)</span>
+          <span class="pill-arrow">▾</span>
+        </button>
+        <div id="currency-dropdown" class="pill-dropdown-menu">
+          <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
+        </div>
+      </div>
+      <div class="pill-language-wrapper">
+        <button type="button" class="pill-btn pill-btn--lang"><span>English</span></button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .pill-btn { display: inline-flex; align-items: center; gap: 6px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 50px; padding: 5px 16px; font-size: 12px; font-weight: 500; color: #333333; cursor: pointer; text-decoration: none; }
+    .pill-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: #ffffff; border: 1px solid #edf2f7; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); min-width: 140px; z-index: 99 !important; padding: 6px; }
+    .pill-dropdown-menu.show { display: block; }
+    .pill-dropdown-item { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border: none; background: transparent; font-size: 12px; color: #495057; text-align: right; cursor: pointer; border-radius: 6px; }
+  </style>
+
+  <script>
+    function togglePillDropdown(id) {
+      var dropdown = document.getElementById(id);
+      var allDropdowns = document.querySelectorAll('.pill-dropdown-menu');
+      allDropdowns.forEach(function(item) { if (item.id !== id) item.classList.remove('show'); });
+      dropdown.classList.toggle('show');
+    }
+  </script>
+
+  <!-- الهيدر الرئيسي -->
+  <header class="header-wrapper color-scheme">
+    <div class="header header--floward-style page-width">
+      <div class="floward-left-group">
+        <button type="button" class="floward-btn-link" id="btn-trigger-menu">
+          <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <span>Menu</span>
+        </button>
+        <button type="button" class="floward-btn-link" id="btn-trigger-search">
+          <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span>Search</span>
+        </button>
+      </div>
+
+      <div class="floward-center-group">
+        <a href="index.html" class="header__heading-link link">
+          <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 45px; object-fit: contain;">
+        </a>
+      </div>
+
+      <div class="floward-right-group">
+        <a href="#" class="floward-btn-link">
+          <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>Account</span>
+        </a>
+        <a href="cart.html" class="floward-btn-link relative" style="position: relative; text-decoration: none;">
+          <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span>Cart</span>
+          <span id="cart-counter-badge" style="display:none; position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; border-radius: 50%; font-size: 11px; width: 18px; height: 18px; font-weight: bold; align-items: center; justify-content: center;">0</span>
+        </a>
+      </div>
+
+      <!-- نافذة البحث الفوري -->
+      <div id="box-search-overlay" class="floward-search-overlay">
+        <div style="padding: 25px; max-width: 600px; margin: 0 auto;">
+          <input type="text" id="live-search-input" placeholder="ابحث عن الزهور والهدايا (اكتب اسم المنتج)..." oninput="performLiveSearch(this.value)" style="width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+          <div id="live-search-results" style="margin-top: 15px; max-height: 300px; overflow-y: auto; text-align: right; display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- المنيو الجانبي -->
+  <div id="box-menu-backdrop" class="floward-drawer-backdrop"></div>
+  <div id="box-menu-drawer" class="floward-menu-drawer">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" style="height: 30px;">
+        <span style="font-size: 1.5rem; font-weight: 700; color: #00313C;">Lorin</span>
+      </div>
+      <button type="button" id="btn-close-menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
+    </div>
+    <div style="padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+      <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الرئيسية</a>
+      <a href="#" style="text-decoration: none; color: #333; font-size: 16px;">الزهور المنسقة</a>
+      <a href="#" style="text-decoration: none; color: #333; font-size: 16px;">هدايا ورد طبيعي</a>
+    </div>
+  </div>
+
+  <!-- المحتوى الرئيسي لصفحة السلة -->
+  <main class="max-w-6xl mx-auto px-6 py-10 flex-1 w-full">
+    <h1 class="text-3xl font-bold text-[#00313C] mb-8">Cart</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      
+      <div class="lg:col-span-2 space-y-6">
+        <div id="cart-page-items" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+          <!-- المنتجات -->
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div class="flex justify-between items-center mb-4">
+            <span class="font-bold text-gray-800 text-sm">Gift Card & Message</span>
+            <span class="text-xs text-green-600 bg-green-50 px-2.5 py-1 rounded-full font-bold">Free</span>
           </div>
-          <div class="border-2 border-dashed border-gray-300 p-4 rounded-xl text-center cursor-pointer hover:border-[#00313C] transition">
-            <span class="text-xs text-gray-500 font-semibold">Tap to add a message</span>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="border-2 border-[#00313C] p-4 rounded-xl text-center bg-gray-50">
+              <span class="text-xs font-bold text-[#00313C]">Lorin's Gift Card</span>
+            </div>
+            <div class="border-2 border-dashed border-gray-300 p-4 rounded-xl text-center cursor-pointer hover:border-[#00313C] transition">
+              <span class="text-xs text-gray-500 font-semibold">Tap to add a message</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit space-y-6">
-      <div class="border-b pb-3">
-        <span class="text-xs font-bold text-gray-400 block mb-2">Add a promo code</span>
-        <div class="flex gap-2">
-          <input type="text" placeholder="Promo code" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs outline-none bg-gray-50">
-          <button class="bg-gray-100 px-4 py-2 text-xs font-bold rounded-xl text-gray-700 hover:bg-gray-200">Apply</button>
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit space-y-6">
+        <div class="border-b pb-3">
+          <span class="text-xs font-bold text-gray-400 block mb-2">Add a promo code</span>
+          <div class="flex gap-2">
+            <input type="text" placeholder="Promo code" class="w-full border border-gray-200 rounded-xl p-2.5 text-xs outline-none bg-gray-50">
+            <button class="bg-gray-100 px-4 py-2 text-xs font-bold rounded-xl text-gray-700 hover:bg-gray-200">Apply</button>
+          </div>
         </div>
+
+        <div class="space-y-3">
+          <h2 class="text-sm font-bold text-gray-800">Order Summary</h2>
+          <div class="flex justify-between text-xs text-gray-600">
+            <span>Subtotal</span>
+            <span id="cart-subtotal">JOD 0</span>
+          </div>
+          <div class="flex justify-between text-xs text-gray-600">
+            <span>Delivery charges</span>
+            <span>JOD 0</span>
+          </div>
+          <div class="flex justify-between font-bold text-sm text-[#00313C] pt-3 border-t">
+            <span>Total</span>
+            <span id="cart-total" class="text-red-600">JOD 0</span>
+          </div>
+        </div>
+
+        <button onclick="goToCheckout()" class="w-full bg-[#00313C] text-white py-3.5 rounded-xl font-bold text-sm hover:bg-[#00222B] transition shadow-md text-center cursor-pointer">
+          Proceed To Checkout ➔
+        </button>
       </div>
 
-      <div class="space-y-3">
-        <h2 class="text-sm font-bold text-gray-800">Order Summary</h2>
-        <div class="flex justify-between text-xs text-gray-600">
-          <span>Subtotal</span>
-          <span id="cart-subtotal">JOD 0</span>
-        </div>
-        <div class="flex justify-between text-xs text-gray-600">
-          <span>Delivery charges</span>
-          <span>JOD 0</span>
-        </div>
-        <div class="flex justify-between font-bold text-sm text-[#00313C] pt-3 border-t">
-          <span>Total</span>
-          <span id="cart-total" class="text-red-600">JOD 0</span>
-        </div>
-      </div>
-
-      <button onclick="goToCheckout()" class="w-full bg-[#00313C] text-white py-3.5 rounded-xl font-bold text-sm hover:bg-[#00222B] transition shadow-md text-center cursor-pointer">
-        Proceed To Checkout ➔
-      </button>
     </div>
-
-  </div>
-</main>
-
-<footer class="bg-white border-t py-6 text-center text-xs text-gray-500 mt-10">
-  <p>جميع الحقوق محفوظة © 2026 Lorin Store 🌸</p>
-</footer>
+  </main>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -310,7 +340,6 @@
       </a>`).join('');
   }
 
-  // إدارة القوائم الجانبية (المنيو والبحث)
   (function() {
     var btnMenu = document.getElementById('btn-trigger-menu');
     var btnSearch = document.getElementById('btn-trigger-search');
@@ -343,22 +372,45 @@
     if (boxBackdrop) boxBackdrop.addEventListener('click', closeAllDrawers);
   })();
 
-  let lastScrollTop = 0;
-  window.addEventListener('scroll', function() {
-      let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      if (scrollTop > lastScrollTop && scrollTop > 40) {
-          document.body.classList.add('hide-announcement');
-      } else if (scrollTop < lastScrollTop) {
-          document.body.classList.remove('hide-announcement');
-      }
-      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-  });
-
   document.addEventListener('DOMContentLoaded', () => {
     loadProductsForSearch();
     updateCartBadge();
     renderCartPage();
   });
 </script>
+
+<!-- Footer الفاخر المدمج داخل الـ body -->
+<footer style="background-color: #00313C; color: #ffffff; padding: 60px 20px 30px 20px; font-family: 'Tajawal', sans-serif; direction: rtl; margin-top: 50px;">
+  <div style="max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; padding-bottom: 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+    <div>
+      <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 38px; filter: brightness(0) invert(1); object-fit: contain; margin-bottom: 20px;">
+      <div style="font-size: 13px; font-weight: 700; color: rgba(255, 255, 255, 0.7); margin-bottom: 12px;">Social Media</div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <a id="footer-fb" href="#" target="_blank" style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; text-decoration: none;"><svg style="width: 16px; height: 16px; fill: #ffffff;" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12c0-5.523-4.477-10-10-10z"/></svg></a>
+      </div>
+    </div>
+    <div>
+      <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 16px;">Explore Lorin</div>
+      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
+        <li><a href="index.html" style="color: inherit; text-decoration: none;">الزهور المنسقة</a></li>
+        <li><a href="index.html" style="color: inherit; text-decoration: none;">هدايا ورد طبيعي</a></li>
+      </ul>
+    </div>
+    <div>
+      <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 16px;">Get to know us</div>
+      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
+        <li><a href="#" style="color: inherit; text-decoration: none;">About Us</a></li>
+        <li><a href="#" style="color: inherit; text-decoration: none;">Privacy Policy</a></li>
+      </ul>
+    </div>
+    <div>
+      <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 16px;">Customer service</div>
+      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
+        <li><a href="#" style="color: inherit; text-decoration: none;">Contact Us</a></li>
+        <li><a href="#" style="color: inherit; text-decoration: none;">FAQ</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
 </body>
 </html>
