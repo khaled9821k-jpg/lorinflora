@@ -11,12 +11,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&family=Cormorant+Garamond:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
+        html {
+            /* منع القفز والتعليقة أثناء التمرير على الهواتف */
+            scroll-behavior: smooth;
+            height: 100%;
+        }
+
+        body { 
+            font-family: 'Tajawal', sans-serif; 
+            background-color: #ffffff; 
+            color: #333; 
+            margin: 0; 
+            padding: 0; 
+            overflow-x: hidden;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
         .custom-pill-utility-bar {
             padding: 8px 0;
             border-bottom: 1px solid rgba(0, 0, 0, 0.06);
             background: #ffffff;
             display: block;
-            transition: opacity .18s ease;
         }
 
         header.header-wrapper {
@@ -26,15 +44,6 @@
             background: #ffffff;
             width: 100%;
             border-bottom: 1px solid #f1f1f1;
-        }
-
-        body.hide-announcement .custom-pill-utility-bar {
-            opacity: 0;
-            pointer-events: none;
-            height: 0;
-            overflow: hidden;
-            padding: 0;
-            border: none;
         }
 
         .header--floward-style {
@@ -50,9 +59,7 @@
             max-width: 1350px !important;
         }
 
-        body { font-family: 'Tajawal', sans-serif; background-color: #ffffff; color: #333; margin: 0; padding: 0; overflow-x: hidden; }
-
-        .product-page-container { max-width: 1350px; margin: 20px auto; padding: 0 20px; }
+        .product-page-container { max-width: 1350px; margin: 20px auto; padding: 0 20px; width: 100%; box-sizing: border-box; }
         .breadcrumb-trail { font-size: 12px; color: #666; margin-bottom: 20px; }
         .breadcrumb-trail a { color: #666; text-decoration: none; }
 
@@ -130,178 +137,179 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body>
 
-<!-- شريط الأدوات العلوي -->
-<div class="custom-pill-utility-bar">
-  <div class="page-width pill-bar-container" style="display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 auto; padding: 0 20px;">
-    <div class="pill-dropdown-wrapper" style="position: relative;">
-      <button type="button" class="pill-btn" onclick="togglePillDropdown('country-dropdown')">
-        <span>الأردن (Jordan)</span>
-        <span class="pill-arrow">▾</span>
-      </button>
-      <div id="country-dropdown" class="pill-dropdown-menu">
-        <button type="button" class="pill-dropdown-item active"><span>الأردن</span></button>
+<div>
+  <!-- شريط الأدوات العلوي -->
+  <div class="custom-pill-utility-bar">
+    <div class="page-width pill-bar-container" style="display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 auto; padding: 0 20px;">
+      <div class="pill-dropdown-wrapper" style="position: relative;">
+        <button type="button" class="pill-btn" onclick="togglePillDropdown('country-dropdown')">
+          <span>الأردن (Jordan)</span>
+          <span class="pill-arrow">▾</span>
+        </button>
+        <div id="country-dropdown" class="pill-dropdown-menu">
+          <button type="button" class="pill-dropdown-item active"><span>الأردن</span></button>
+        </div>
       </div>
-    </div>
 
-    <div class="pill-dropdown-wrapper" style="position: relative;">
-      <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
-        <span>JOD (د.أ)</span>
-        <span class="pill-arrow">▾</span>
-      </button>
-      <div id="currency-dropdown" class="pill-dropdown-menu">
-        <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
+      <div class="pill-dropdown-wrapper" style="position: relative;">
+        <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
+          <span>JOD (د.أ)</span>
+          <span class="pill-arrow">▾</span>
+        </button>
+        <div id="currency-dropdown" class="pill-dropdown-menu">
+          <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
+        </div>
       </div>
-    </div>
 
-    <div class="pill-language-wrapper">
-      <button type="button" class="pill-btn pill-btn--lang">
-        <span>English</span>
-      </button>
+      <div class="pill-language-wrapper">
+        <button type="button" class="pill-btn pill-btn--lang">
+          <span>English</span>
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<style>
-  .pill-btn { display: inline-flex; align-items: center; gap: 6px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 50px; padding: 5px 16px; font-size: 12px; font-weight: 500; color: #333333; cursor: pointer; text-decoration: none; transition: all 0.2s ease; }
-  .pill-btn:hover { background: #f1f3f5; border-color: #dee2e6; }
-  .pill-arrow { font-size: 9px; color: #6c757d; }
-  .pill-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: #ffffff; border: 1px solid #edf2f7; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); min-width: 140px; z-index: 99 !important; padding: 6px; }
-  .pill-dropdown-menu.show { display: block; }
-  .pill-dropdown-item { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border: none; background: transparent; font-size: 12px; color: #495057; text-align: right; cursor: pointer; border-radius: 6px; }
-  .pill-dropdown-item:hover { background: #f8f9fa; color: #000000; }
-  .pill-dropdown-item.active { font-weight: 700; background: #f1f3f5; }
-  .currency-code { font-size: 11px; color: #868e96; }
-</style>
+  <style>
+    .pill-btn { display: inline-flex; align-items: center; gap: 6px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 50px; padding: 5px 16px; font-size: 12px; font-weight: 500; color: #333333; cursor: pointer; text-decoration: none; transition: all 0.2s ease; }
+    .pill-btn:hover { background: #f1f3f5; border-color: #dee2e6; }
+    .pill-arrow { font-size: 9px; color: #6c757d; }
+    .pill-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: #ffffff; border: 1px solid #edf2f7; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); min-width: 140px; z-index: 99 !important; padding: 6px; }
+    .pill-dropdown-menu.show { display: block; }
+    .pill-dropdown-item { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border: none; background: transparent; font-size: 12px; color: #495057; text-align: right; cursor: pointer; border-radius: 6px; }
+    .pill-dropdown-item:hover { background: #f8f9fa; color: #000000; }
+    .pill-dropdown-item.active { font-weight: 700; background: #f1f3f5; }
+    .currency-code { font-size: 11px; color: #868e96; }
+  </style>
 
-<script>
-  function togglePillDropdown(id) {
-    var dropdown = document.getElementById(id);
-    var allDropdowns = document.querySelectorAll('.pill-dropdown-menu');
-    allDropdowns.forEach(function(item) { if (item.id !== id) item.classList.remove('show'); });
-    dropdown.classList.toggle('show');
-  }
-  document.addEventListener('click', function(event) {
-    if (!event.target.closest('.pill-dropdown-wrapper')) {
-      document.querySelectorAll('.pill-dropdown-menu').forEach(function(item) { item.classList.remove('show'); });
+  <script>
+    function togglePillDropdown(id) {
+      var dropdown = document.getElementById(id);
+      var allDropdowns = document.querySelectorAll('.pill-dropdown-menu');
+      allDropdowns.forEach(function(item) { if (item.id !== id) item.classList.remove('show'); });
+      dropdown.classList.toggle('show');
     }
-  });
-</script>
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.pill-dropdown-wrapper')) {
+        document.querySelectorAll('.pill-dropdown-menu').forEach(function(item) { item.classList.remove('show'); });
+      }
+    });
+  </script>
 
-<!-- الهيدر الرئيسي المحدث -->
-<header class="header-wrapper color-scheme">
-  <div class="header header--floward-style page-width">
-    <div class="floward-left-group">
-      <button type="button" class="floward-btn-link" id="btn-trigger-menu">
-        <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        <span>Menu</span>
-      </button>
-      <button type="button" class="floward-btn-link" id="btn-trigger-search">
-        <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <span>Search</span>
-      </button>
-    </div>
+  <!-- الهيدر الرئيسي -->
+  <header class="header-wrapper color-scheme">
+    <div class="header header--floward-style page-width">
+      <div class="floward-left-group">
+        <button type="button" class="floward-btn-link" id="btn-trigger-menu">
+          <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <span>Menu</span>
+        </button>
+        <button type="button" class="floward-btn-link" id="btn-trigger-search">
+          <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span>Search</span>
+        </button>
+      </div>
 
-    <div class="floward-center-group">
-      <a href="index.html" class="header__heading-link link">
-        <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 45px; object-fit: contain;">
-      </a>
-    </div>
+      <div class="floward-center-group">
+        <a href="index.html" class="header__heading-link link">
+          <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 45px; object-fit: contain;">
+        </a>
+      </div>
 
-    <div class="floward-right-group">
-      <a href="#" class="floward-btn-link">
-        <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        <span>Account</span>
-      </a>
-      <!-- تم توجيه السلة إلى cart.html مباشرة كما طلبت -->
-      <a href="cart.html" class="floward-btn-link" style="position: relative; text-decoration: none;">
-        <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-        <span>Cart</span>
-        <span id="cart-counter-badge" style="display:none; position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; border-radius: 50%; font-size: 11px; width: 18px; height: 18px; font-weight: bold; align-items: center; justify-content: center;">0</span>
-      </a>
-    </div>
+      <div class="floward-right-group">
+        <a href="#" class="floward-btn-link">
+          <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>Account</span>
+        </a>
+        <a href="cart.html" class="floward-btn-link" style="position: relative; text-decoration: none;">
+          <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span>Cart</span>
+          <span id="cart-counter-badge" style="display:none; position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; border-radius: 50%; font-size: 11px; width: 18px; height: 18px; font-weight: bold; align-items: center; justify-content: center;">0</span>
+        </a>
+      </div>
 
-    <div id="box-search-overlay" class="floward-search-overlay">
-      <div style="padding: 25px; max-width: 600px; margin: 0 auto;">
-        <input type="text" id="live-search-input" placeholder="ابحث عن الزهور والهدايا..." oninput="performLiveSearch(this.value)" style="width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; outline: none;">
-        <div id="live-search-results" style="margin-top: 15px; max-height: 300px; overflow-y: auto; text-align: right; display: flex; flex-direction: column; gap: 10px;"></div>
+      <div id="box-search-overlay" class="floward-search-overlay">
+        <div style="padding: 25px; max-width: 600px; margin: 0 auto;">
+          <input type="text" id="live-search-input" placeholder="ابحث عن الزهور والهدايا..." oninput="performLiveSearch(this.value)" style="width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; outline: none;">
+          <div id="live-search-results" style="margin-top: 15px; max-height: 300px; overflow-y: auto; text-align: right; display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
       </div>
     </div>
-  </div>
-</header>
+  </header>
 
-<!-- المنيو الجانبي -->
-<div id="box-menu-backdrop" class="floward-drawer-backdrop"></div>
-<div id="box-menu-drawer" class="floward-menu-drawer">
-  <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" style="height: 30px;">
-      <span style="font-size: 1.5rem; font-weight: 700; color: #00313C;">Lorin</span>
+  <!-- المنيو الجانبي -->
+  <div id="box-menu-backdrop" class="floward-drawer-backdrop"></div>
+  <div id="box-menu-drawer" class="floward-menu-drawer">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" style="height: 30px;">
+        <span style="font-size: 1.5rem; font-weight: 700; color: #00313C;">Lorin</span>
+      </div>
+      <button type="button" id="btn-close-menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
     </div>
-    <button type="button" id="btn-close-menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
+    <div style="padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+      <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الرئيسية</a>
+      <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الزهور المنسقة</a>
+    </div>
   </div>
-  <div style="padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
-    <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الرئيسية</a>
-    <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الزهور المنسقة</a>
-  </div>
+
+  <!-- المحتوى الرئيسي لصفحة المنتج -->
+  <main class="product-page-container">
+    <div class="breadcrumb-trail">
+        <a href="index.html">الرئيسية</a> / <span id="breadcrumb-cat">التصنيف</span> / <span id="breadcrumb-name">اسم المنتج</span>
+    </div>
+
+    <div id="product-details-container" class="product-main-grid">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: #888;">جاري تحميل تفاصيل المنتج...</div>
+    </div>
+
+    <div class="product-tabs-section">
+        <div class="tabs-header">
+            <button class="tab-btn active">Description</button>
+            <button class="tab-btn">Care Tips</button>
+        </div>
+        <div id="product-desc-content" style="font-size: 14px; color: #555; line-height: 1.8; max-width: 900px;">
+            تنسيق فاخر من أجمل الزهور الطبيعية والشوكولاتة المختارة بعناية فائقة لتلائم جميع المناسبات السعيدة وتضفي لمسة من البهجة والجمال.
+        </div>
+    </div>
+
+    <!-- قسم يقوم المستخدمون بشراء هذه المنتجات سوياً -->
+    <div class="fbt-section">
+        <div class="fbt-title">يقوم المستخدمون بشراء هذه المنتجات سوياً</div>
+        <div class="fbt-grid">
+            <div class="fbt-card">
+                <div class="fbt-items-row">
+                    <div class="fbt-item">
+                        <img id="fbt-item-1" src="" alt="مزهرية">
+                        <div class="fbt-item-name" id="fbt-name-1">مزهرية جوري الابتسامة المشرقة</div>
+                    </div>
+                    <div class="fbt-plus">+</div>
+                    <div class="fbt-item">
+                        <img id="fbt-item-main-1" src="" alt="المنتج">
+                        <div class="fbt-item-name" id="fbt-main-name-1">كيك الشوكولاتة من فلاورد</div>
+                    </div>
+                </div>
+                <button class="fbt-btn" onclick="addBundleToCart(27)">أضف إلى عربة التسوق مقابل 27 JOD</button>
+            </div>
+            <div class="fbt-card">
+                <div class="fbt-items-row">
+                    <div class="fbt-item">
+                        <img id="fbt-item-2" src="" alt="مزهرية">
+                        <div class="fbt-item-name" id="fbt-name-2">مزهرية جوري للتناغم الاحمر</div>
+                    </div>
+                    <div class="fbt-plus">+</div>
+                    <div class="fbt-item">
+                        <img id="fbt-item-main-2" src="" alt="المنتج">
+                        <div class="fbt-item-name" id="fbt-main-name-2">كيك الشوكولاتة من فلاورد</div>
+                    </div>
+                </div>
+                <button class="fbt-btn" onclick="addBundleToCart(27)">أضف إلى عربة التسوق مقابل 27 JOD</button>
+            </div>
+        </div>
+    </div>
+  </main>
 </div>
-
-<!-- المحتوى الرئيسي لصفحة المنتج -->
-<main class="product-page-container">
-  <div class="breadcrumb-trail">
-      <a href="index.html">الرئيسية</a> / <span id="breadcrumb-cat">التصنيف</span> / <span id="breadcrumb-name">اسم المنتج</span>
-  </div>
-
-  <div id="product-details-container" class="product-main-grid">
-      <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: #888;">جاري تحميل تفاصيل المنتج...</div>
-  </div>
-
-  <div class="product-tabs-section">
-      <div class="tabs-header">
-          <button class="tab-btn active">Description</button>
-          <button class="tab-btn">Care Tips</button>
-      </div>
-      <div id="product-desc-content" style="font-size: 14px; color: #555; line-height: 1.8; max-width: 900px;">
-          تنسيق فاخر من أجمل الزهور الطبيعية والشوكولاتة المختارة بعناية فائقة لتلائم جميع المناسبات السعيدة وتضفي لمسة من البهجة والجمال.
-      </div>
-  </div>
-
-  <!-- قسم يقوم المستخدمون بشراء هذه المنتجات سوياً -->
-  <div class="fbt-section">
-      <div class="fbt-title">يقوم المستخدمون بشراء هذه المنتجات سوياً</div>
-      <div class="fbt-grid">
-          <div class="fbt-card">
-              <div class="fbt-items-row">
-                  <div class="fbt-item">
-                      <img id="fbt-item-1" src="" alt="مزهرية">
-                      <div class="fbt-item-name" id="fbt-name-1">مزهرية جوري الابتسامة المشرقة</div>
-                  </div>
-                  <div class="fbt-plus">+</div>
-                  <div class="fbt-item">
-                      <img id="fbt-item-main-1" src="" alt="المنتج">
-                      <div class="fbt-item-name" id="fbt-main-name-1">كيك الشوكولاتة من فلاورد</div>
-                  </div>
-              </div>
-              <button class="fbt-btn" onclick="addBundleToCart(27)">أضف إلى عربة التسوق مقابل 27 JOD</button>
-          </div>
-          <div class="fbt-card">
-              <div class="fbt-items-row">
-                  <div class="fbt-item">
-                      <img id="fbt-item-2" src="" alt="مزهرية">
-                      <div class="fbt-item-name" id="fbt-name-2">مزهرية جوري للتناغم الاحمر</div>
-                  </div>
-                  <div class="fbt-plus">+</div>
-                  <div class="fbt-item">
-                      <img id="fbt-item-main-2" src="" alt="المنتج">
-                      <div class="fbt-item-name" id="fbt-main-name-2">كيك الشوكولاتة من فلاورد</div>
-                  </div>
-              </div>
-              <button class="fbt-btn" onclick="addBundleToCart(27)">أضف إلى عربة التسوق مقابل 27 JOD</button>
-          </div>
-      </div>
-  </div>
-</main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -486,34 +494,13 @@
         if (boxBackdrop) boxBackdrop.addEventListener('click', closeMenu);
     })();
 
-    // تم ضبط أداء التمرير لحل التعليقة (Lag) تماماً
-    let lastScrollTop = 0;
-    let ticking = false;
-    window.addEventListener('scroll', function() {
-        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        if (!ticking) {
-            window.requestAnimationFrame(function() {
-                if (scrollTop > lastScrollTop && scrollTop > 40) {
-                    document.body.classList.add('hide-announcement');
-                } else if (scrollTop < lastScrollTop) {
-                    document.body.classList.remove('hide-announcement');
-                }
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-                ticking = false;
-            });
-            ticking = true;
-        }
-    });
-
     document.addEventListener('DOMContentLoaded', () => {
         loadProductDetails();
         updateCartBadge();
     });
 </script>
-</body>
-</html>
 
-<!-- Footer الفاخر -->
+<!-- Footer الفاخر المدمج داخل الـ body في مكانه الصحيح -->
 <footer style="background-color: #00313C; color: #ffffff; padding: 60px 20px 30px 20px; font-family: 'Tajawal', sans-serif; direction: rtl; margin-top: 50px;">
   <div style="max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; padding-bottom: 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
     <div>
@@ -546,3 +533,5 @@
     </div>
   </div>
 </footer>
+</body>
+</html>
