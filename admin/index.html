@@ -28,10 +28,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;700&family=Amiri:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- مكتبة SortableJS للسحب والإفلات الاحترافي للصور -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   <style>
     body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    .image-card { cursor: grab; transition: transform 0.2s, box-shadow 0.2s; }
+    .image-card:active { cursor: grabbing; }
+    .image-card.sortable-ghost { opacity: 0.4; background: #c5d2d5; }
+    .badge-main { background: #00313C; color: white; }
   </style>
 </head>
 <body class="flex h-screen overflow-hidden">
@@ -157,6 +163,14 @@
               <label class="block text-xs font-semibold text-gray-600 mb-1">صور المنتج (يمكنك اختيار أكثر من صورة)</label>
               <input type="file" id="product-image-file" accept="image/*" multiple class="w-full border border-gray-200 rounded-xl p-1.5 text-xs bg-gray-50">
             </div>
+
+            <!-- قسم ترتيب وإدارة صور المنتج الحالي (يظهر عند التعديل) -->
+            <div id="product-images-manager-wrapper" class="md:col-span-2 hidden bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <label class="block text-xs font-bold text-[#00313C] mb-2">ترتيب ومعاينة صور المنتج (اسحب وأفلت لترتيبها، الصورة الأولى هي الرئيسية 🌟)</label>
+              <div id="admin-sortable-images-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3"></div>
+              <button type="button" onclick="saveImagesNewOrder()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 transition cursor-pointer">حفظ ترتيب الصور الجديد ✅</button>
+            </div>
+
             <div class="md:col-span-2 flex gap-3 mt-2">
               <button type="submit" id="submit-product-btn" class="flex-1 bg-[#00313C] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#00222B] transition shadow-sm">حفظ وإضافة المنتج ✨</button>
               <button type="button" id="cancel-product-edit" onclick="resetProductForm()" class="hidden bg-gray-200 text-gray-700 px-6 py-3 rounded-xl font-bold text-sm hover:bg-gray-300 transition">إلغاء</button>
@@ -449,6 +463,7 @@
     const statusMsg = document.getElementById('status-message');
 
     let currentProducts = [], currentCategories = [], currentSubCategories = [], currentSections = [], availableCategories = [];
+    let editingProductImages = []; // مصفوفة لصور المنتج الحالي قيد التعديل
 
     function switchTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -485,7 +500,7 @@
       
       const [{ data: prodData }, { data: allImages }] = await Promise.all([
           supabaseClient.from('products').select('*'),
-          supabaseClient.from('product_images').select('*')
+          supabaseClient.from('product_images').select('*').order('sort_order', { ascending: true })
       ]);
 
       currentProducts = (prodData || []).map(p => {
@@ -841,6 +856,96 @@
         </tr>`).join('');
     }
 
+    // --- دالة تحميل ومعاينة صور المنتج الحالي عند التعديل مع السحب والإفلات ---
+    async function loadAdminProductImagesForProduct(productId) {
+      const wrapper = document.getElementById('product-images-manager-wrapper');
+      const container = document.getElementById('admin-sortable-images-grid');
+      
+      const { data, error } = await supabaseClient
+        .from('product_images')
+        .select('*')
+        .eq('product_id', productId)
+        .order('sort_order', { ascending: true });
+
+      if (error || !data || data.length === 0) {
+        wrapper.classList.add('hidden');
+        return;
+      }
+
+      editingProductImages = data;
+      wrapper.classList.remove('hidden');
+      renderAdminProductImagesGrid();
+    }
+
+    function renderAdminProductImagesGrid() {
+      const container = document.getElementById('admin-sortable-images-grid');
+      container.innerHTML = editingProductImages.map((img, idx) => `
+        <div class="image-card bg-white border border-gray-200 rounded-xl p-2.5 flex flex-col items-center relative group shadow-xs" data-id="${img.id}">
+          ${idx === 0 ? '<span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full badge-main shadow">الرئيسية 🌟</span>' : '<span class="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-700">#' + (idx + 1) + '</span>'}
+          <img src="${img.image_url}" class="w-full h-24 object-cover rounded-lg mb-2">
+          <button type="button" onclick="deleteAdminProductImage('${img.id}')" class="w-full bg-red-50 text-red-600 hover:bg-red-100 py-1 rounded-md text-[11px] font-bold transition">حذف</button>
+        </div>
+      `).join('');
+    }
+
+    // تفعيل السحب والإفلات عبر SortableJS لصور المنتج
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchAdminData();
+      const container = document.getElementById('admin-sortable-images-grid');
+      if (container) {
+        new Sortable(container, {
+          animation: 150,
+          ghostClass: 'sortable-ghost',
+          onEnd: function () {
+            const cards = container.querySelectorAll('.image-card');
+            let newArr = [];
+            cards.forEach((card, newIdx) => {
+              const imgId = card.getAttribute('data-id');
+              const imgObj = editingProductImages.find(i => String(i.id) === String(imgId));
+              if (imgObj) {
+                imgObj.sort_order = newIdx + 1;
+                newArr.push(imgObj);
+              }
+            });
+            editingProductImages = newArr;
+            renderAdminProductImagesGrid();
+          }
+        });
+      }
+    });
+
+    async function saveImagesNewOrder() {
+      try {
+        for (let img of editingProductImages) {
+          await supabaseClient
+            .from('product_images')
+            .update({ sort_order: img.sort_order })
+            .eq('id', img.id);
+        }
+        showStatus('تم حفظ ترتيب الصور بنجاح! 🎉', 'success');
+        const prodId = document.getElementById('product-id').value;
+        if(prodId) loadAdminProductImagesForProduct(prodId);
+        fetchAdminProducts();
+      } catch (err) {
+        showStatus('خطأ أثناء حفظ ترتيب الصور.', 'error');
+      }
+    }
+
+    window.deleteAdminProductImage = async function(imgId) {
+      if(!confirm('هل أنت متأكد من حذف هذه الصورة؟')) return;
+      const { error } = await supabaseClient.from('product_images').delete().eq('id', imgId);
+      if(!error) {
+        editingProductImages = editingProductImages.filter(i => String(i.id) !== String(imgId));
+        renderAdminProductImagesGrid();
+        const prodId = document.getElementById('product-id').value;
+        if(prodId) loadAdminProductImagesForProduct(prodId);
+        fetchAdminProducts();
+        showStatus('تم حذف الصورة بنجاح.', 'success');
+      } else {
+        showStatus('فشل حذف الصورة.', 'error');
+      }
+    };
+
     window.editProduct = function(id) {
       const p = currentProducts.find(x => x.id == id);
       if (!p) return;
@@ -853,7 +958,10 @@
       renderProductCategoryCheckboxes(prodCats);
       updateProductSelectedCategories();
 
-      document.getElementById('product-form-title').textContent = 'تعديل بيانات المنتج ✏️';
+      // تحميل صور المنتج في واجهة السحب والإفلات
+      loadAdminProductImagesForProduct(p.id);
+
+      document.getElementById('product-form-title').textContent = 'تعديل بيانات وترتيب صور المنتج ✏️';
       document.getElementById('submit-product-btn').textContent = 'تحديث المنتج ✨';
       document.getElementById('cancel-product-edit').classList.remove('hidden');
       switchTab('products');
@@ -864,6 +972,8 @@
       document.getElementById('product-form').reset();
       document.getElementById('product-id').value = '';
       document.getElementById('product-category').value = '';
+      document.getElementById('product-images-manager-wrapper').classList.add('hidden');
+      editingProductImages = [];
       renderProductCategoryCheckboxes([]);
       updateProductSelectedCategories();
       document.getElementById('product-form-title').textContent = 'إضافة منتج جديد';
@@ -928,7 +1038,7 @@
       showStatus('تم حذف التصنيف الفرعي بنجاح!', 'success'); fetchAdminData();
     };
 
-    // معالج حفظ المنتجات (تمت إزالة image_url تماماً لتجنب خطأ السكيما)
+    // معالج حفظ المنتجات (مع دعم إعطاء sort_order تلقائي للصور الجديدة)
     document.getElementById('product-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-product-btn');
@@ -953,13 +1063,16 @@
           if (error) throw error;
 
           if (files.length > 0) {
+            // حساب أقصى رقم ترتيب حالي لإضافة الصور الجديدة بعده
+            let maxOrder = editingProductImages.length > 0 ? Math.max(...editingProductImages.map(i => i.sort_order || 0)) : 0;
             for (let i = 0; i < files.length; i++) {
+              maxOrder++;
               const filePath = `products/${Date.now()}_${i}_prod.${files[i].name.split('.').pop()}`;
               const { error: multiUpErr } = await supabaseClient.storage.from('store-assets').upload(filePath, files[i]);
               if (!multiUpErr) {
                 const multiImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
                 await supabaseClient.from('product_images').insert([
-                  { product_id: id, image_url: multiImageUrl }
+                  { product_id: id, image_url: multiImageUrl, sort_order: maxOrder }
                 ]);
               }
             }
@@ -970,7 +1083,6 @@
           // --- إضافة منتج جديد ---
           if (files.length === 0) throw new Error('يرجى اختيار صورة واحدة على الأقل للمنتج.');
 
-          // 1. إدخال السجل في جدول products (فقط الحقول الأساسية بدون image_url)
           const { data: newProdData, error: insertErr } = await supabaseClient
             .from('products')
             .insert([{ name, price, category }])
@@ -980,14 +1092,13 @@
           if (insertErr) throw insertErr;
           const newProductId = newProdData.id;
 
-          // 2. رفع الصور وإدخالها في جدول product_images المخصص للصور
           for (let i = 0; i < files.length; i++) {
             const filePath = `products/${Date.now()}_${i}_prod.${files[i].name.split('.').pop()}`;
             const { error: multiUpErr } = await supabaseClient.storage.from('store-assets').upload(filePath, files[i]);
             if (!multiUpErr) {
               const multiImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
               await supabaseClient.from('product_images').insert([
-                { product_id: newProductId, image_url: multiImageUrl }
+                { product_id: newProductId, image_url: multiImageUrl, sort_order: i + 1 }
               ]);
             }
           }
@@ -1084,8 +1195,6 @@
       statusMsg.classList.remove('hidden');
       setTimeout(() => { statusMsg.classList.add('hidden'); }, 4000);
     }
-
-    document.addEventListener('DOMContentLoaded', fetchAdminData);
   </script>
 </body>
 </html>
