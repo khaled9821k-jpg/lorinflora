@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- وسوم السيو الديناميكية التي يتم تحديثها تلقائياً عبر جافاسكريبت -->
     <title id="page-title">تفاصيل المنتج - Lorin 🌸</title>
+    <meta id="meta-description" name="description" content="متجر مختص بتنسيق الورود والهدايا الفاخرة في الأردن">
+    <link id="canonical-url" rel="canonical" href="">
 
     <link rel="icon" type="image/png" href="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png">
     
@@ -11,88 +15,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&family=Cormorant+Garamond:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        html {
-            /* منع القفز والتعليقة أثناء التمرير على الهواتف */
-            scroll-behavior: smooth;
-            height: 100%;
-        }
-
-        body { 
-            font-family: 'Tajawal', sans-serif; 
-            background-color: #ffffff; 
-            color: #333; 
-            margin: 0; 
-            padding: 0; 
-            overflow-x: hidden;
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .custom-pill-utility-bar {
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-            background: #ffffff;
-            display: block;
-        }
-
-        header.header-wrapper {
-            position: sticky;
-            top: 0;
-            z-index: 999;
-            background: #ffffff;
-            width: 100%;
-            border-bottom: 1px solid #f1f1f1;
-        }
-
-        .header--floward-style {
-            max-width: 1350px !important;
-            margin: 0 auto;
-            padding: 1rem 1.5rem !important;
-            display: grid !important;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center !important;
-        }
-
-        .page-width.pill-bar-container {
-            max-width: 1350px !important;
-        }
-
+        html { scroll-behavior: smooth; height: 100%; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #ffffff; color: #333; margin: 0; padding: 0; overflow-x: hidden; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .custom-pill-utility-bar { padding: 8px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.06); background: #ffffff; display: block; }
+        header.header-wrapper { position: sticky; top: 0; z-index: 999; background: #ffffff; width: 100%; border-bottom: 1px solid #f1f1f1; }
+        .header--floward-style { max-width: 1350px !important; margin: 0 auto; padding: 1rem 1.5rem !important; display: grid !important; grid-template-columns: 1fr auto 1fr; align-items: center !important; }
+        .page-width.pill-bar-container { max-width: 1350px !important; }
         .product-page-container { max-width: 1350px; margin: 20px auto; padding: 0 20px; width: 100%; box-sizing: border-box; }
         .breadcrumb-trail { font-size: 12px; color: #666; margin-bottom: 20px; }
         .breadcrumb-trail a { color: #666; text-decoration: none; }
-
         .product-main-grid { display: grid; grid-template-columns: 55% 40%; gap: 50px; align-items: start; }
         .product-images-wrapper { display: flex; gap: 20px; }
         .thumbs-col { display: flex; flex-direction: column; gap: 12px; width: 85px; max-height: 520px; overflow-y: auto; scrollbar-width: none; }
         .thumbs-col::-webkit-scrollbar { display: none; }
         .thumb-img { width: 85px; height: 95px; object-fit: cover; border-radius: 10px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
         .thumb-img.active { border-color: #00313C; }
-        
         .main-img-container { flex: 1; position: relative; border-radius: 16px; overflow: hidden; background: #f9f9f9; height: 520px; border: 1px solid #eee; }
         .main-img-container img { width: 100%; height: 100%; object-fit: cover; }
-
         .product-info-col { display: flex; flex-direction: column; gap: 16px; }
         .product-price-box { font-size: 32px; font-weight: 700; color: #111; font-family: 'Tajawal', sans-serif; }
         .product-tax-note { font-size: 11px; color: #777; margin-top: 2px; }
-        
         .product-title-text { font-size: 24px; font-weight: 700; color: #111; font-family: 'Tajawal', sans-serif; margin: 0; }
-        
         .floward-notice-box { display: flex; align-items: center; gap: 12px; background: #f8f9fa; border: 1px solid #e9ecef; padding: 14px 16px; border-radius: 12px; font-size: 13px; color: #333; }
-        
         .floward-cart-btn { background: #00313C; color: white; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 15px; border: none; cursor: pointer; text-align: center; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
         .floward-cart-btn:hover { background: #00222B; }
-
         .payment-methods-box { display: flex; gap: 8px; align-items: center; border-top: 1px solid #eee; padding-top: 15px; margin-top: 5px; flex-wrap: wrap; }
         .payment-methods-box span { font-size: 13px; font-weight: 700; color: #333; margin-left: 10px; }
-
         .product-tabs-section { margin-top: 50px; border-top: 1px solid #eee; padding-top: 25px; }
         .tabs-header { display: flex; gap: 40px; border-bottom: 1px solid #eee; margin-bottom: 20px; }
         .tab-btn { font-size: 15px; font-weight: 700; color: #888; background: none; border: none; padding-bottom: 12px; cursor: pointer; position: relative; }
         .tab-btn.active { color: #00313C; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; right: 0; left: 0; height: 2px; background: #00313C; }
-
         .fbt-section { background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 16px; padding: 30px; margin-top: 50px; }
         .fbt-title { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 20px; text-align: right; }
         .fbt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
@@ -104,22 +57,18 @@
         .fbt-plus { font-size: 20px; font-weight: bold; color: #555; }
         .fbt-btn { background: #fff; color: #00313C; border: 1px solid #00313C; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; transition: all 0.2s; }
         .fbt-btn:hover { background: #00313C; color: #fff; }
-
         :root { --floward-main-color: #00313C; --floward-font-size: 14px; --floward-icon-size: 20px; }
         .floward-left-group { display: flex !important; align-items: center !important; gap: 1.5rem !important; justify-self: start; }
         .floward-center-group { justify-self: center; text-align: center; }
         .floward-right-group { display: flex !important; align-items: center !important; gap: 1.5rem !important; justify-self: end; }
         .floward-btn-link { display: inline-flex !important; align-items: center !important; gap: 0.4rem !important; color: var(--floward-main-color) !important; text-decoration: none !important; font-size: var(--floward-font-size) !important; font-weight: 500 !important; background: transparent !important; border: none !important; cursor: pointer !important; padding: 0 !important; }
         .floward-svg-icon { width: var(--floward-icon-size) !important; height: var(--floward-icon-size) !important; flex-shrink: 0; }
-        
         .floward-search-overlay { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.1); z-index: 99999; border-top: 1px solid #eee; }
         .floward-search-overlay.is-open { display: block !important; }
-
         .floward-menu-drawer { position: fixed !important; top: 0 !important; left: 0 !important; width: 380px; max-width: 85vw; height: 100vh !important; background: #ffffff !important; z-index: 2147483647 !important; box-shadow: 4px 0 25px rgba(0,0,0,0.12); padding: 2rem 1.5rem; box-sizing: border-box; display: flex; flex-direction: column; visibility: hidden; opacity: 0; transform: translateX(-100%); transition: transform 0.4s ease, opacity 0.4s ease, visibility 0.4s ease; }
         .floward-menu-drawer.is-open { visibility: visible !important; opacity: 1 !important; transform: translateX(0) !important; }
         .floward-drawer-backdrop { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0, 0, 0, 0.4) !important; z-index: 2147483646 !important; visibility: hidden; opacity: 0; transition: opacity 0.35s ease, visibility 0.35s ease; }
         .floward-drawer-backdrop.is-open { visibility: visible !important; opacity: 1 !important; }
-
         @media screen and (max-width: 900px) {
             .product-main-grid { grid-template-columns: 1fr; gap: 30px; }
             .product-images-wrapper { flex-direction: column-reverse; }
@@ -127,7 +76,6 @@
             .thumb-img { width: 70px; height: 75px; }
             .main-img-container { height: 380px; }
         }
-
         @media screen and (max-width: 768px) {
             .header--floward-style { padding: 0.8rem 1rem !important; gap: 10px; }
             .floward-left-group, .floward-right-group { gap: 0.8rem !important; }
@@ -331,7 +279,6 @@
         }
 
         try {
-            // جلب المنتج وصوره مرّتبة حسب sort_order تصاعدياً لضمان تطابق الصورة الرئيسية والترتيب مع لوحة التحكم
             const [{ data: product, error }, { data: imgData }, { data: products }] = await Promise.all([
                 supabaseClient.from('products').select('*').eq('id', productId).single(),
                 supabaseClient.from('product_images').select('*').eq('product_id', productId).order('sort_order', { ascending: true }),
@@ -342,7 +289,14 @@
             currentProduct = product;
             allStoreProducts = products || [];
 
-            document.getElementById('page-title').textContent = `${product.name} - Lorin 🌸`;
+            // --- تحسينات السيو الديناميكية (Dynamic SEO Meta Tags) ---
+            const pageTitle = `${product.name} | متجر لورين للورود والهدايا في الأردن`;
+            const pageDescription = product.description || `اطلب الآن ${product.name} من متجر لورين للورود والهدايا. توصيل سريع ومضمون في الأردن لتناسب جميع المناسبات السعيدة.`;
+            
+            document.getElementById('page-title').textContent = pageTitle;
+            document.getElementById('meta-description').setAttribute('content', pageDescription);
+            document.getElementById('canonical-url').setAttribute('href', window.location.href);
+            
             document.getElementById('breadcrumb-name').textContent = product.name;
             if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
 
@@ -362,7 +316,7 @@
             container.innerHTML = `
                 <div class="product-images-wrapper">
                     <div class="thumbs-col">
-                        ${images.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)">`).join('')}
+                        ${images.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)" alt="${product.name} - صورة ${idx+1}">`).join('')}
                     </div>
                     <div class="main-img-container">
                         <img id="main-product-img" src="${mainImage}" alt="${product.name}">
@@ -465,7 +419,7 @@
         if (filtered.length === 0) { resultsContainer.innerHTML = '<p style="text-align:center; color:#888; font-size:14px; padding:10px;">عذراً، لم نجد أي منتج يطابق بحثك.</p>'; return; }
         resultsContainer.innerHTML = filtered.map(p => `
             <a href="product.html?id=${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
-              <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
+              <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;" alt="${p.name}">
               <div style="flex: 1; text-align: right;">
                 <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${p.name}</div>
                 <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${p.price} د.أ</div>
@@ -501,7 +455,7 @@
     });
 </script>
 
-<!-- Footer الفاخر المدمج داخل الـ body في مكانه الصحيح -->
+<!-- Footer الفاخر -->
 <footer style="background-color: #00313C; color: #ffffff; padding: 60px 20px 30px 20px; font-family: 'Tajawal', sans-serif; direction: rtl; margin-top: 50px;">
   <div style="max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; padding-bottom: 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
     <div>
