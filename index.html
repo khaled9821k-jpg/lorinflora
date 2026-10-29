@@ -832,14 +832,12 @@
     async function loadFlowardDynamicSections() {
         const container = document.getElementById('floward-dynamic-sections-container');
         
-        // جلب الأقسام والمنتجات مع صور جدول product_images لربط الصورة الأولى تلقائياً لكل منتج
         const [{ data: sections }, { data: products }, { data: allImages }] = await Promise.all([
             supabaseClient.from('store_sections').select('*').order('display_order', { ascending: true }),
             supabaseClient.from('products').select('*'),
             supabaseClient.from('product_images').select('*')
         ]);
 
-        // دمج الصورة الأولى لكل منتج من جدول product_images لتفادي مشاكل الحذف أو التكرار
         allStoreProducts = (products || []).map(p => {
             const prodImgs = (allImages || []).filter(img => String(img.product_id) === String(p.id));
             let firstImg = 'placeholder.jpg';
@@ -870,8 +868,9 @@
 
             if (filtered.length === 0) return '';
 
+            // تم تعديل الرابط هنا ليعتمد على p.slug تلقائياً بدلاً من p.id
             const itemsHtml = filtered.map(p => `
-                <a href="product.html?id=${p.id}" class="floward-item-card">
+                <a href="product.html?slug=${p.slug}" class="floward-item-card">
                     <div class="floward-item-img">
                         <img src="${p.image_url}" alt="${p.name}">
                     </div>
@@ -937,6 +936,7 @@
       }
     }
 
+    // تم تحديث نتائج البحث لتعتمد على slug تلقائياً
     function performLiveSearch(query) {
       const resultsContainer = document.getElementById('live-search-results');
       const q = query.trim().toLowerCase();
@@ -944,8 +944,8 @@
       const filtered = allStoreProducts.filter(p => p.name.toLowerCase().includes(q) || (p.category && p.category.toLowerCase().includes(q)));
       if (filtered.length === 0) { resultsContainer.innerHTML = '<p style="text-align:center; color:#888; font-size:14px; padding:10px;">عذراً، لم نجد أي منتج يطابق بحثك.</p>'; return; }
       resultsContainer.innerHTML = filtered.map(p => `
-        <a href="product.html?id=${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb; transition: background 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
-          <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
+        <a href="product.html?slug=${p.slug}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb; transition: background 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
+          <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;" alt="${p.name}">
           <div style="flex: 1; text-align: right;">
             <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${p.name}</div>
             <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${p.price} د.أ</div>
