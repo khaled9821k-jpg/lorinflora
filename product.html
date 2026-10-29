@@ -270,23 +270,27 @@
 
     async function loadProductDetails() {
         const urlParams = new URLSearchParams(window.location.search);
-        const productId = urlParams.get('id');
+        const productSlug = urlParams.get('slug'); // تم التعديل لقراءة slug بدلاً من id
         const container = document.getElementById('product-details-container');
 
-        if (!productId) {
-            container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">معرّف المنتج غير موجود.</div>';
+        if (!productSlug) {
+            container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">معرّف المنتج (slug) غير موجود في الرابط.</div>';
             return;
         }
 
         try {
-            const [{ data: product, error }, { data: imgData }, { data: products }] = await Promise.all([
-                supabaseClient.from('products').select('*').eq('id', productId).single(),
-                supabaseClient.from('product_images').select('*').eq('product_id', productId).order('sort_order', { ascending: true }),
+            // جلب المنتج بالاعتماد على الـ slug بدلاً من الـ id
+            const { data: product, error } = await supabaseClient.from('products').select('*').eq('slug', productSlug).single();
+
+            if (error || !product) throw new Error('المنتج غير موجود في قاعدة البيانات.');
+            currentProduct = product;
+
+            // جلب صور المنتج وباقي المنتجات
+            const [{ data: imgData }, { data: products }] = await Promise.all([
+                supabaseClient.from('product_images').select('*').eq('product_id', product.id).order('sort_order', { ascending: true }),
                 supabaseClient.from('products').select('*')
             ]);
 
-            if (error || !product) throw new Error('المنتج غير موجود.');
-            currentProduct = product;
             allStoreProducts = products || [];
 
             // --- تحسينات السيو الديناميكية (Dynamic SEO Meta Tags) ---
@@ -417,8 +421,9 @@
         if (!q) { resultsContainer.innerHTML = ''; return; }
         const filtered = allStoreProducts.filter(p => p.name.toLowerCase().includes(q) || (p.category && p.category.toLowerCase().includes(q)));
         if (filtered.length === 0) { resultsContainer.innerHTML = '<p style="text-align:center; color:#888; font-size:14px; padding:10px;">عذراً، لم نجد أي منتج يطابق بحثك.</p>'; return; }
+        // تم تحديث الرابط ليعتمد على slug بدلاً من id
         resultsContainer.innerHTML = filtered.map(p => `
-            <a href="product.html?id=${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
+            <a href="product.html?slug=${p.slug}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
               <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;" alt="${p.name}">
               <div style="flex: 1; text-align: right;">
                 <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${p.name}</div>
