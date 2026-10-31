@@ -270,19 +270,31 @@
 
     async function loadProductDetails() {
         const urlParams = new URLSearchParams(window.location.search);
-        const productSlug = urlParams.get('slug'); // تم التعديل لقراءة slug بدلاً من id
+        const productSlug = urlParams.get('slug');
+        const productId = urlParams.get('id');
         const container = document.getElementById('product-details-container');
 
-        if (!productSlug) {
-            container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">معرّف المنتج (slug) غير موجود في الرابط.</div>';
+        if (!productSlug && !productId) {
+            container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">معرّف المنتج (slug أو id) غير موجود في الرابط.</div>';
             return;
         }
 
         try {
-            // جلب المنتج بالاعتماد على الـ slug بدلاً من الـ id
-            const { data: product, error } = await supabaseClient.from('products').select('*').eq('slug', productSlug).single();
+            let product = null;
 
-            if (error || !product) throw new Error('المنتج غير موجود في قاعدة البيانات.');
+            // محاولة جلب المنتج عبر slug أولاً إذا وجد في الرابط
+            if (productSlug) {
+                const { data } = await supabaseClient.from('products').select('*').eq('slug', productSlug).maybeSingle();
+                product = data;
+            }
+
+            // إذا لم يتم العثور عليه عن طريق الـ slug (أو لم يكن موجوداً في الرابط)، نحاول البحث عبر الـ id كخيار بديل ذكي
+            if (!product && productId) {
+                const { data } = await supabaseClient.from('products').select('*').eq('id', productId).maybeSingle();
+                product = data;
+            }
+
+            if (!product) throw new Error('المنتج غير موجود في قاعدة البيانات.');
             currentProduct = product;
 
             // جلب صور المنتج وباقي المنتجات
@@ -421,9 +433,8 @@
         if (!q) { resultsContainer.innerHTML = ''; return; }
         const filtered = allStoreProducts.filter(p => p.name.toLowerCase().includes(q) || (p.category && p.category.toLowerCase().includes(q)));
         if (filtered.length === 0) { resultsContainer.innerHTML = '<p style="text-align:center; color:#888; font-size:14px; padding:10px;">عذراً، لم نجد أي منتج يطابق بحثك.</p>'; return; }
-        // تم تحديث الرابط ليعتمد على slug بدلاً من id
         resultsContainer.innerHTML = filtered.map(p => `
-            <a href="product.html?slug=${p.slug}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
+            <a href="product.html?slug=${p.slug || ''}&id=${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
               <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;" alt="${p.name}">
               <div style="flex: 1; text-align: right;">
                 <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${p.name}</div>
