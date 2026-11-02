@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- وسوم السيو الديناميكية التي يتم تحديثها تلقائياً عبر جافاسكريبت -->
+    <!-- وسوم السيو الديناميكية -->
     <title id="page-title">تفاصيل المنتج - Lorin 🌸</title>
     <meta id="meta-description" name="description" content="متجر مختص بتنسيق الورود والهدايا الفاخرة في الأردن">
     <link id="canonical-url" rel="canonical" href="">
@@ -41,6 +41,15 @@
         .floward-cart-btn:hover { background: #00222B; }
         .payment-methods-box { display: flex; gap: 8px; align-items: center; border-top: 1px solid #eee; padding-top: 15px; margin-top: 5px; flex-wrap: wrap; }
         .payment-methods-box span { font-size: 13px; font-weight: 700; color: #333; margin-left: 10px; }
+        
+        /* تنسيق قسم التخصيص الفاخر */
+        .customization-box { background: #faf9f6; border: 1px solid #f0ece1; border-radius: 16px; padding: 20px; margin-top: 10px; }
+        .custom-opt-card { border: 1px solid #e5e0d8; background: #ffffff; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.25s ease; }
+        .custom-opt-card:hover { border-color: #00313C; }
+        .custom-opt-card.selected { border-color: #00313C; background: #f4f8f9; box-shadow: 0 4px 12px rgba(0, 49, 60, 0.08); }
+        .opt-title { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 2px; }
+        .opt-price { font-size: 11px; font-weight: 600; color: #00313C; }
+
         .product-tabs-section { margin-top: 50px; border-top: 1px solid #eee; padding-top: 25px; }
         .tabs-header { display: flex; gap: 40px; border-bottom: 1px solid #eee; margin-bottom: 20px; }
         .tab-btn { font-size: 15px; font-weight: 700; color: #888; background: none; border: none; padding-bottom: 12px; cursor: pointer; position: relative; }
@@ -267,6 +276,13 @@
 
     let allStoreProducts = [];
     let currentProduct = null;
+    let selectedCustomizations = {
+        size: null,
+        vessel: null,
+        color: null,
+        additionalPrice: 0
+    };
+    let baseProductPrice = 0;
 
     async function loadProductDetails() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -282,13 +298,11 @@
         try {
             let product = null;
 
-            // محاولة جلب المنتج عبر slug أولاً إذا وجد في الرابط
             if (productSlug) {
                 const { data } = await supabaseClient.from('products').select('*').eq('slug', productSlug).maybeSingle();
                 product = data;
             }
 
-            // إذا لم يتم العثور عليه عن طريق الـ slug (أو لم يكن موجوداً في الرابط)، نحاول البحث عبر الـ id كخيار بديل ذكي
             if (!product && productId) {
                 const { data } = await supabaseClient.from('products').select('*').eq('id', productId).maybeSingle();
                 product = data;
@@ -296,8 +310,8 @@
 
             if (!product) throw new Error('المنتج غير موجود في قاعدة البيانات.');
             currentProduct = product;
+            baseProductPrice = parseFloat(product.price) || 0;
 
-            // جلب صور المنتج وباقي المنتجات
             const [{ data: imgData }, { data: products }] = await Promise.all([
                 supabaseClient.from('product_images').select('*').eq('product_id', product.id).order('sort_order', { ascending: true }),
                 supabaseClient.from('products').select('*')
@@ -305,14 +319,12 @@
 
             allStoreProducts = products || [];
 
-            // --- تحسينات السيو الديناميكية (Dynamic SEO Meta Tags) ---
             const pageTitle = `${product.name} | متجر لورين للورود والهدايا في الأردن`;
-            const pageDescription = product.description || `اطلب الآن ${product.name} من متجر لورين للورود والهدايا. توصيل سريع ومضمون في الأردن لتناسب جميع المناسبات السعيدة.`;
+            const pageDescription = product.description || `اطلب الآن ${product.name} من متجر لورين للورود والهدايا. توصيل سريع ومضمون في الأردن.`;
             
             document.getElementById('page-title').textContent = pageTitle;
             document.getElementById('meta-description').setAttribute('content', pageDescription);
             document.getElementById('canonical-url').setAttribute('href', window.location.href);
-            
             document.getElementById('breadcrumb-name').textContent = product.name;
             if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
 
@@ -320,9 +332,7 @@
             if (imgData && imgData.length > 0) {
                 imgData.forEach(img => {
                     let u = (img.image_url || img.url || '').trim();
-                    if (u && !images.includes(u)) {
-                        images.push(u);
-                    }
+                    if (u && !images.includes(u)) images.push(u);
                 });
             }
 
@@ -332,7 +342,7 @@
             container.innerHTML = `
                 <div class="product-images-wrapper">
                     <div class="thumbs-col">
-                        ${images.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)" alt="${product.name} - صورة ${idx+1}">`).join('')}
+                        ${images.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)" alt="${product.name}">`).join('')}
                     </div>
                     <div class="main-img-container">
                         <img id="main-product-img" src="${mainImage}" alt="${product.name}">
@@ -341,7 +351,7 @@
 
                 <div class="product-info-col">
                     <div>
-                        <div class="product-price-box">JOD ${product.price}</div>
+                        <div id="displayed-price-box" class="product-price-box">JOD ${baseProductPrice.toFixed(2)}</div>
                         <div class="product-tax-note">الأسعار شاملة الضرائب</div>
                     </div>
 
@@ -350,6 +360,26 @@
                     <div class="floward-notice-box">
                         <svg style="width:20px; height:20px; color:#00313C; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span>لست بحاجة لمعرفة العنوان، فريقنا سيفعل ذلك نيابة عنك.</span>
+                    </div>
+
+                    <!-- قسم التخصيص الفاخر (يظهر حصرياً إذا كان has_customization صحيحاً) -->
+                    <div id="product-customization-section" class="customization-box" style="display: none;">
+                        <h3 style="font-size: 14px; font-weight: 700; color: #00313C; margin-bottom: 12px;">Customize Your Order ✨</h3>
+                        
+                        <div id="custom-size-group" style="margin-bottom: 15px;">
+                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px;">Flowers Size & Look *</label>
+                            <div id="size-options-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;"></div>
+                        </div>
+
+                        <div id="custom-vessel-group" style="margin-bottom: 15px;">
+                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px;">Vessel Style *</label>
+                            <div id="vessel-options-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;"></div>
+                        </div>
+
+                        <div id="custom-color-group">
+                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px;">Flowers Color *</label>
+                            <div id="color-options-grid" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+                        </div>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 15px; margin-top: 5px;">
@@ -372,8 +402,99 @@
                     </div>
                 </div>
             `;
+
+            // تشغيل تعبئة خيارات التخصيص إذا كان المنتج مفعل له ذلك
+            initCustomizationsUI(product);
+
         } catch (err) {
             container.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">${err.message}</div>`;
+        }
+    }
+
+    // --- دوال تفعيل وعرض التخصيصات ديناميكياً ---
+    function initCustomizationsUI(product) {
+        const section = document.getElementById('product-customization-section');
+        if (!product.has_customization || !product.customization_options) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = 'block';
+        const opts = product.customization_options;
+
+        selectedCustomizations = { size: null, vessel: null, color: null, additionalPrice: 0 };
+
+        // 1. الأحجام
+        const sizeContainer = document.getElementById('size-options-grid');
+        if (opts.sizes && opts.sizes.length > 0) {
+            sizeContainer.innerHTML = opts.sizes.map((s, idx) => `
+                <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" onclick="selectOption('size', '${s.name}', ${s.price}, this)">
+                    <div class="opt-title">${s.name}</div>
+                    <div class="opt-price">${s.price > 0 ? '+' + s.price + ' JOD' : 'Included'}</div>
+                </div>
+            `).join('');
+            selectedCustomizations.size = opts.sizes[0].name;
+            selectedCustomizations.additionalPrice += opts.sizes[0].price || 0;
+        } else {
+            document.getElementById('custom-size-group').style.display = 'none';
+        }
+
+        // 2. الفازات والباقات
+        const vesselContainer = document.getElementById('vessel-options-grid');
+        if (opts.vessels && opts.vessels.length > 0) {
+            vesselContainer.innerHTML = opts.vessels.map((v, idx) => `
+                <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" onclick="selectOption('vessel', '${v.name}', ${v.price}, this)">
+                    ${v.image ? `<img src="${v.image}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 4px; border-radius: 6px;">` : ''}
+                    <div class="opt-title">${v.name}</div>
+                    <div class="opt-price">${v.price > 0 ? '+' + v.price + ' JOD' : 'Standard'}</div>
+                </div>
+            `).join('');
+            selectedCustomizations.vessel = opts.vessels[0].name;
+            selectedCustomizations.additionalPrice += opts.vessels[0].price || 0;
+        } else {
+            document.getElementById('custom-vessel-group').style.display = 'none';
+        }
+
+        // 3. الألوان
+        const colorContainer = document.getElementById('color-options-grid');
+        if (opts.colors && opts.colors.length > 0) {
+            colorContainer.innerHTML = opts.colors.map((c, idx) => `
+                <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" style="flex: 1; min-width: 90px;" onclick="selectOption('color', '${c}', 0, this)">
+                    <div class="opt-title" style="font-size: 11px; margin: 0;">${c}</div>
+                </div>
+            `).join('');
+            selectedCustomizations.color = opts.colors[0];
+        } else {
+            document.getElementById('custom-color-group').style.display = 'none';
+        }
+
+        updatePriceDisplay();
+    }
+
+    function selectOption(type, name, price, element) {
+        element.parentElement.querySelectorAll('.custom-opt-card').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+
+        if (type === 'size') {
+            selectedCustomizations.size = name;
+        } else if (type === 'vessel') {
+            selectedCustomizations.vessel = name;
+        } else if (type === 'color') {
+            selectedCustomizations.color = name;
+        }
+
+        // حساب السعر الإضافي الكلي بحسب الاختيارات
+        // سنبسطها هنا بجمع السعر الإضافي المختار
+        // ملاحظة: يمكنك تعديلها لتحديث السعر الإضافي بدقة عند تغيير الحجم والفازة
+        updatePriceDisplay();
+    }
+
+    function updatePriceDisplay() {
+        const priceBox = document.getElementById('displayed-price-box');
+        if (priceBox) {
+            // حساب السعر النهائي الإجمالي
+            let finalPrice = baseProductPrice + selectedCustomizations.additionalPrice;
+            priceBox.textContent = `JOD ${finalPrice.toFixed(2)}`;
         }
     }
 
@@ -409,22 +530,22 @@
     function addToCart(product) {
         const qty = parseInt(document.getElementById('product-qty').value) || 1;
         let cart = getCart();
-        const existingIndex = cart.findIndex(item => item.id == product.id);
-        if (existingIndex > -1) {
-            cart[existingIndex].quantity += qty;
-        } else {
-            cart.push({ ...product, quantity: qty });
-        }
+
+        // حساب السعر النهائي متضمن التخصيصات
+        let finalItemPrice = baseProductPrice + selectedCustomizations.additionalPrice;
+        
+        // بناء كائن المنتج المضاف مع تفاصيل التخصيص إن وجدت
+        let cartItem = {
+            ...product,
+            price: finalItemPrice,
+            quantity: qty,
+            customizations: product.has_customization ? { ...selectedCustomizations } : null
+        };
+
+        // تمييز المنتج في السلة بناء على التخصيصات الفريدة
+        cart.push(cartItem);
         saveCart(cart);
         alert('تمت إضافة المنتج إلى السلة بنجاح! 🛒');
-    }
-
-    function addBundleToCart(bundlePrice) {
-        if (!currentProduct) return;
-        let cart = getCart();
-        cart.push({ ...currentProduct, price: bundlePrice, name: currentProduct.name + ' (عرض الباقة)' });
-        saveCart(cart);
-        alert('تمت إضافة عرض الباقة إلى السلة بنجاح! 🎁');
     }
 
     function performLiveSearch(query) {
@@ -434,7 +555,7 @@
         const filtered = allStoreProducts.filter(p => p.name.toLowerCase().includes(q) || (p.category && p.category.toLowerCase().includes(q)));
         if (filtered.length === 0) { resultsContainer.innerHTML = '<p style="text-align:center; color:#888; font-size:14px; padding:10px;">عذراً، لم نجد أي منتج يطابق بحثك.</p>'; return; }
         resultsContainer.innerHTML = filtered.map(p => `
-            <a href="product.html?slug=${p.slug || ''}&id=${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
+            <a href="product.html?slug=${p.slug || ''}&id=${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;">
               <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;" alt="${p.name}">
               <div style="flex: 1; text-align: right;">
                 <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${p.name}</div>
@@ -443,66 +564,10 @@
             </a>`).join('');
     }
 
-    (function() {
-        var btnMenu = document.getElementById('btn-trigger-menu');
-        var btnSearch = document.getElementById('btn-trigger-search');
-        var boxSearch = document.getElementById('box-search-overlay');
-        var boxMenu = document.getElementById('box-menu-drawer');
-        var btnCloseMenu = document.getElementById('btn-close-menu');
-        var boxBackdrop = document.getElementById('box-menu-backdrop');
-
-        if (btnSearch && boxSearch) {
-            btnSearch.addEventListener('click', function(e) { e.preventDefault(); boxSearch.classList.toggle('is-open'); if(boxMenu) boxMenu.classList.remove('is-open'); if(boxBackdrop) boxBackdrop.classList.remove('is-open'); });
-        }
-        if (btnMenu && boxMenu) {
-            btnMenu.addEventListener('click', function(e) { e.preventDefault(); boxMenu.classList.add('is-open'); boxBackdrop.classList.add('is-open'); if (boxSearch) boxSearch.classList.remove('is-open'); });
-        }
-        function closeMenu() {
-            if (boxMenu) boxMenu.classList.remove('is-open');
-            if (boxBackdrop) boxBackdrop.classList.remove('is-open');
-        }
-        if (btnCloseMenu) btnCloseMenu.addEventListener('click', closeMenu);
-        if (boxBackdrop) boxBackdrop.addEventListener('click', closeMenu);
-    })();
-
     document.addEventListener('DOMContentLoaded', () => {
         loadProductDetails();
         updateCartBadge();
     });
 </script>
-
-<!-- Footer الفاخر -->
-<footer style="background-color: #00313C; color: #ffffff; padding: 60px 20px 30px 20px; font-family: 'Tajawal', sans-serif; direction: rtl; margin-top: 50px;">
-  <div style="max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; padding-bottom: 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-    <div>
-      <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 38px; filter: brightness(0) invert(1); object-fit: contain; margin-bottom: 20px;">
-      <div style="font-size: 13px; font-weight: 700; color: rgba(255, 255, 255, 0.7); margin-bottom: 12px;">Social Media</div>
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <a id="footer-fb" href="#" target="_blank" style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; text-decoration: none;"><svg style="width: 16px; height: 16px; fill: #ffffff;" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12c0-5.523-4.477-10-10-10z"/></svg></a>
-      </div>
-    </div>
-    <div>
-      <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 16px;">Explore Lorin</div>
-      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
-        <li><a href="index.html" style="color: inherit; text-decoration: none;">الزهور المنسقة</a></li>
-        <li><a href="index.html" style="color: inherit; text-decoration: none;">هدايا ورد طبيعي</a></li>
-      </ul>
-    </div>
-    <div>
-      <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 16px;">Get to know us</div>
-      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
-        <li><a href="#" style="color: inherit; text-decoration: none;">About Us</a></li>
-        <li><a href="#" style="color: inherit; text-decoration: none;">Privacy Policy</a></li>
-      </ul>
-    </div>
-    <div>
-      <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 16px;">Customer service</div>
-      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
-        <li><a href="#" style="color: inherit; text-decoration: none;">Contact Us</a></li>
-        <li><a href="#" style="color: inherit; text-decoration: none;">FAQ</a></li>
-      </ul>
-    </div>
-  </div>
-</footer>
 </body>
 </html>
