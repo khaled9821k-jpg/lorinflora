@@ -56,6 +56,9 @@
         <button onclick="switchTab('products')" id="nav-products" class="w-full text-right px-4 py-3 rounded-lg text-sm font-medium transition hover:bg-[#004D5E] text-gray-200 flex items-center gap-3">
           <span>📦</span> إدارة المنتجات
         </button>
+        <button onclick="switchTab('orders')" id="nav-orders" class="w-full text-right px-4 py-3 rounded-lg text-sm font-medium transition hover:bg-[#004D5E] text-gray-200 flex items-center gap-3">
+          <span>🛍️</span> إدارة الطلبات
+        </button>
         <button onclick="switchTab('categories')" id="nav-categories" class="w-full text-right px-4 py-3 rounded-lg text-sm font-medium transition hover:bg-[#004D5E] text-gray-200 flex items-center gap-3">
           <span>⚪</span> التصنيفات الرئيسية
         </button>
@@ -231,6 +234,35 @@
               </thead>
               <tbody id="admin-products-list" class="divide-y divide-gray-100 text-sm text-gray-700">
                 <tr><td colspan="6" class="p-6 text-center text-gray-400">جاري التحميل...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- تبويب إدارة الطلبات -->
+      <div id="tab-orders" class="tab-content space-y-6">
+        <h2 class="text-2xl font-bold text-gray-800">إدارة الطلبات الواردة 🛍️</h2>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+            <h3 class="font-bold text-gray-700 text-sm">سجل الطلبات والزبائن</h3>
+            <button onclick="fetchAdminOrders()" class="bg-[#00313C] text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#00222B] transition">تحديث القائمة 🔄</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-right border-collapse">
+              <thead>
+                <tr class="bg-gray-50 text-gray-500 text-xs uppercase border-b">
+                  <th class="p-4">رقم الطلب</th>
+                  <th class="p-4">المستلم ورقم الهاتف</th>
+                  <th class="p-4">العنوان</th>
+                  <th class="p-4">ملاحظة الكرت</th>
+                  <th class="p-4">المجموع</th>
+                  <th class="p-4">المنتجات والتفاصيل</th>
+                  <th class="p-4 text-center">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="admin-orders-list" class="divide-y divide-gray-100 text-sm text-gray-700">
+                <tr><td colspan="7" class="p-6 text-center text-gray-400">جاري تحميل الطلبات...</td></tr>
               </tbody>
             </table>
           </div>
@@ -497,7 +529,7 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const statusMsg = document.getElementById('status-message');
 
-    let currentProducts = [], currentCategories = [], currentSubCategories = [], currentSections = [], availableCategories = [];
+    let currentProducts = [], currentCategories = [], currentSubCategories = [], currentSections = [], currentOrders = [], availableCategories = [];
     let editingProductImages = []; // مصفوفة لصور المنتج الحالي قيد التعديل
 
     function switchTab(tabId) {
@@ -519,6 +551,7 @@
       await fetchAdminCategories();
       await fetchAdminSubCategories();
       await fetchAdminSections();
+      await fetchAdminOrders();
       await loadCategoriesIntoDropdowns();
       await loadSiteSettingsInAdmin();
       updateStats();
@@ -566,6 +599,71 @@
           </td>
         </tr>`).join('');
     }
+
+    async function fetchAdminOrders() {
+      const tbody = document.getElementById('admin-orders-list');
+      if (!tbody) return;
+
+      const { data, error } = await supabaseClient
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-red-500">خطأ في جلب الطلبات.</td></tr>';
+        return;
+      }
+
+      currentOrders = data || [];
+
+      if (currentOrders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-gray-400">لا توجد طلبات واردة حتى الآن.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = currentOrders.map(o => {
+        let itemsHtml = '<ul class="text-xs space-y-1">';
+        if (Array.isArray(o.items)) {
+          o.items.forEach(item => {
+            itemsHtml += `<li>• <strong>${item.name}</strong> (الكمية: ${item.quantity}) - ${item.price} د.أ</li>`;
+            if (item.customizations) {
+              for (let key in item.customizations) {
+                itemsHtml += `<li class="text-gray-400 text-[11px] pr-3">- ${key}: ${item.customizations[key]}</li>`;
+              }
+            }
+          });
+        }
+        itemsHtml += '</ul>';
+
+        return `
+          <tr class="hover:bg-gray-50 transition align-top">
+            <td class="p-4 font-bold text-[#00313C]">#${o.id.slice(0, 8)}</td>
+            <td class="p-4">
+              <div class="font-semibold text-gray-800">${o.customer_name || 'غير متوفر'}</div>
+              <div class="text-xs text-gray-500 dir-ltr text-right">${o.customer_phone || '-'}</div>
+            </td>
+            <td class="p-4 text-xs text-gray-600 max-w-xs">${o.shipping_address || '-'}</td>
+            <td class="p-4 text-xs text-amber-700 font-medium">${o.gift_card_message || 'لا توجد ملاحظة'}</td>
+            <td class="p-4 text-red-600 font-bold whitespace-nowrap">${o.total_price} د.أ</td>
+            <td class="p-4">${itemsHtml}</td>
+            <td class="p-4 text-center">
+              <button onclick="deleteOrder('${o.id}')" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition">حذف 🗑️</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    window.deleteOrder = async function(id) {
+      if (!confirm('هل أنت متأكد من حذف هذا الطلب من السجل؟')) return;
+      const { error } = await supabaseClient.from('orders').delete().eq('id', id);
+      if (!error) {
+        showStatus('تم حذف الطلب بنجاح.', 'success');
+        fetchAdminOrders();
+      } else {
+        showStatus('فشل حذف الطلب.', 'error');
+      }
+    };
 
     async function fetchAdminCategories() {
       const tbody = document.getElementById('admin-categories-list');
@@ -1013,7 +1111,6 @@
 
       if (p.customization_options) {
         try {
-          // إذا كان مخزناً كـ Object نحوله لـ JSON String منسق
           let jsonStr = typeof p.customization_options === 'string' ? p.customization_options : JSON.stringify(p.customization_options, null, 2);
           document.getElementById('product-customization-json').value = jsonStr;
         } catch(e) {
@@ -1102,7 +1199,7 @@
       showStatus('تم حذف التصنيف الفرعي بنجاح!', 'success'); fetchAdminData();
     };
 
-    // معالج حفظ المنتجات (مع دعم حفظ has_customization و customization_options كـ JSON)
+    // معالج حفظ المنتجات
     document.getElementById('product-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-product-btn');
@@ -1133,7 +1230,6 @@
         let productPayload = { name, price, category, has_customization, customization_options };
 
         if (id) {
-          // --- التعديل على منتج موجود ---
           const { error } = await supabaseClient
             .from('products')
             .update(productPayload)
@@ -1158,7 +1254,6 @@
           showStatus('تم تحديث بيانات المنتج وخيارات التخصيص بنجاح!', 'success');
 
         } else {
-          // --- إضافة منتج جديد ---
           if (files.length === 0) throw new Error('يرجى اختيار صورة واحدة على الأقل للمنتج.');
 
           const { data: newProdData, error: insertErr } = await supabaseClient
