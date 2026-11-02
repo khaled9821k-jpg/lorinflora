@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- وسوم السيو الديناميكية -->
     <title id="page-title">تفاصيل المنتج - Lorin 🌸</title>
     <meta id="meta-description" name="description" content="متجر مختص بتنسيق الورود والهدايا الفاخرة في الأردن">
     <link id="canonical-url" rel="canonical" href="">
@@ -42,13 +41,13 @@
         .payment-methods-box { display: flex; gap: 8px; align-items: center; border-top: 1px solid #eee; padding-top: 15px; margin-top: 5px; flex-wrap: wrap; }
         .payment-methods-box span { font-size: 13px; font-weight: 700; color: #333; margin-left: 10px; }
         
-        /* تنسيق قسم التخصيص الفاخر */
-        .customization-box { background: #faf9f6; border: 1px solid #f0ece1; border-radius: 16px; padding: 20px; margin-top: 10px; }
-        .custom-opt-card { border: 1px solid #e5e0d8; background: #ffffff; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.25s ease; }
+        /* تنسيق قسم التخصيص الراقي */
+        .customization-box { background: #faf9f6; border: 1px solid #f0ece1; border-radius: 16px; padding: 16px; margin-top: 5px; }
+        .custom-opt-card { border: 1px solid #e5e0d8; background: #ffffff; border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.25s ease; }
         .custom-opt-card:hover { border-color: #00313C; }
         .custom-opt-card.selected { border-color: #00313C; background: #f4f8f9; box-shadow: 0 4px 12px rgba(0, 49, 60, 0.08); }
-        .opt-title { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 2px; }
-        .opt-price { font-size: 11px; font-weight: 600; color: #00313C; }
+        .opt-title { font-size: 12px; font-weight: 700; color: #111; margin-bottom: 2px; }
+        .opt-price { font-size: 10px; font-weight: 600; color: #00313C; }
 
         .product-tabs-section { margin-top: 50px; border-top: 1px solid #eee; padding-top: 25px; }
         .tabs-header { display: flex; gap: 40px; border-bottom: 1px solid #eee; margin-bottom: 20px; }
@@ -339,6 +338,7 @@
             let mainImage = images.length > 0 ? images[0] : '';
             currentProduct.image_url = mainImage;
 
+            // بناء واجهة المنتج مع دمج قسم التخصيص بشكل مباشر ومرتب تحت اسم المنتج وقبل زر الأضف إلى السلة
             container.innerHTML = `
                 <div class="product-images-wrapper">
                     <div class="thumbs-col">
@@ -362,22 +362,22 @@
                         <span>لست بحاجة لمعرفة العنوان، فريقنا سيفعل ذلك نيابة عنك.</span>
                     </div>
 
-                    <!-- قسم التخصيص الفاخر (يظهر حصرياً إذا كان has_customization صحيحاً) -->
+                    <!-- قسم التخصيص الفاخر (يظهر حصرياً إذا كان has_customization صحيحاً في قاعدة البيانات) -->
                     <div id="product-customization-section" class="customization-box" style="display: none;">
-                        <h3 style="font-size: 14px; font-weight: 700; color: #00313C; margin-bottom: 12px;">Customize Your Order ✨</h3>
+                        <h3 style="font-size: 13px; font-weight: 700; color: #00313C; margin-bottom: 10px;">Customize Your Order ✨</h3>
                         
-                        <div id="custom-size-group" style="margin-bottom: 15px;">
-                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px;">Flowers Size & Look *</label>
+                        <div id="custom-size-group" style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">Flowers Size & Look *</label>
                             <div id="size-options-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;"></div>
                         </div>
 
-                        <div id="custom-vessel-group" style="margin-bottom: 15px;">
-                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px;">Vessel Style *</label>
+                        <div id="custom-vessel-group" style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">Vessel Style *</label>
                             <div id="vessel-options-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;"></div>
                         </div>
 
                         <div id="custom-color-group">
-                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px;">Flowers Color *</label>
+                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">Flowers Color *</label>
                             <div id="color-options-grid" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
                         </div>
                     </div>
@@ -403,7 +403,7 @@
                 </div>
             `;
 
-            // تشغيل تعبئة خيارات التخصيص إذا كان المنتج مفعل له ذلك
+            // استدعاء دالة بناء التخصيصات بعد تحميل المنتج
             initCustomizationsUI(product);
 
         } catch (err) {
@@ -411,7 +411,7 @@
         }
     }
 
-    // --- دوال تفعيل وعرض التخصيصات ديناميكياً ---
+    // --- دوال تفعيل وعرض خيارات التخصيص الديناميكية ---
     function initCustomizationsUI(product) {
         const section = document.getElementById('product-customization-section');
         if (!product.has_customization || !product.customization_options) {
@@ -424,7 +424,7 @@
 
         selectedCustomizations = { size: null, vessel: null, color: null, additionalPrice: 0 };
 
-        // 1. الأحجام
+        // 1. تعبئة الأحجام
         const sizeContainer = document.getElementById('size-options-grid');
         if (opts.sizes && opts.sizes.length > 0) {
             sizeContainer.innerHTML = opts.sizes.map((s, idx) => `
@@ -439,12 +439,12 @@
             document.getElementById('custom-size-group').style.display = 'none';
         }
 
-        // 2. الفازات والباقات
+        // 2. تعبئة الفازات
         const vesselContainer = document.getElementById('vessel-options-grid');
         if (opts.vessels && opts.vessels.length > 0) {
             vesselContainer.innerHTML = opts.vessels.map((v, idx) => `
                 <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" onclick="selectOption('vessel', '${v.name}', ${v.price}, this)">
-                    ${v.image ? `<img src="${v.image}" style="width: 100%; height: 60px; object-fit: contain; margin-bottom: 4px; border-radius: 6px;">` : ''}
+                    ${v.image ? `<img src="${v.image}" style="width: 100%; height: 50px; object-fit: contain; margin-bottom: 4px; border-radius: 4px;">` : ''}
                     <div class="opt-title">${v.name}</div>
                     <div class="opt-price">${v.price > 0 ? '+' + v.price + ' JOD' : 'Standard'}</div>
                 </div>
@@ -455,11 +455,11 @@
             document.getElementById('custom-vessel-group').style.display = 'none';
         }
 
-        // 3. الألوان
+        // 3. تعبئة الألوان
         const colorContainer = document.getElementById('color-options-grid');
         if (opts.colors && opts.colors.length > 0) {
             colorContainer.innerHTML = opts.colors.map((c, idx) => `
-                <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" style="flex: 1; min-width: 90px;" onclick="selectOption('color', '${c}', 0, this)">
+                <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" style="flex: 1; min-width: 80px;" onclick="selectOption('color', '${c}', 0, this)">
                     <div class="opt-title" style="font-size: 11px; margin: 0;">${c}</div>
                 </div>
             `).join('');
@@ -477,22 +477,41 @@
 
         if (type === 'size') {
             selectedCustomizations.size = name;
+            // حساب السعر الإضافي للحجم الجديد
+            let opts = currentProduct.customization_options.sizes;
+            let found = opts.find(s => s.name === name);
+            if(found) {
+                // إعادة ضبط الحساب أو تحديثه بدقة
+                recalculateAdditionalPrice();
+            }
         } else if (type === 'vessel') {
             selectedCustomizations.vessel = name;
+            recalculateAdditionalPrice();
         } else if (type === 'color') {
             selectedCustomizations.color = name;
         }
 
-        // حساب السعر الإضافي الكلي بحسب الاختيارات
-        // سنبسطها هنا بجمع السعر الإضافي المختار
-        // ملاحظة: يمكنك تعديلها لتحديث السعر الإضافي بدقة عند تغيير الحجم والفازة
         updatePriceDisplay();
+    }
+
+    function recalculateAdditionalPrice() {
+        let totalAdd = 0;
+        const opts = currentProduct.customization_options;
+        
+        if(opts.sizes) {
+            let sObj = opts.sizes.find(s => s.name === selectedCustomizations.size);
+            if(sObj) totalAdd += (sObj.price || 0);
+        }
+        if(opts.vessels) {
+            let vObj = opts.vessels.find(v => v.name === selectedCustomizations.vessel);
+            if(vObj) totalAdd += (vObj.price || 0);
+        }
+        selectedCustomizations.additionalPrice = totalAdd;
     }
 
     function updatePriceDisplay() {
         const priceBox = document.getElementById('displayed-price-box');
         if (priceBox) {
-            // حساب السعر النهائي الإجمالي
             let finalPrice = baseProductPrice + selectedCustomizations.additionalPrice;
             priceBox.textContent = `JOD ${finalPrice.toFixed(2)}`;
         }
@@ -531,10 +550,8 @@
         const qty = parseInt(document.getElementById('product-qty').value) || 1;
         let cart = getCart();
 
-        // حساب السعر النهائي متضمن التخصيصات
         let finalItemPrice = baseProductPrice + selectedCustomizations.additionalPrice;
         
-        // بناء كائن المنتج المضاف مع تفاصيل التخصيص إن وجدت
         let cartItem = {
             ...product,
             price: finalItemPrice,
@@ -542,7 +559,6 @@
             customizations: product.has_customization ? { ...selectedCustomizations } : null
         };
 
-        // تمييز المنتج في السلة بناء على التخصيصات الفريدة
         cart.push(cartItem);
         saveCart(cart);
         alert('تمت إضافة المنتج إلى السلة بنجاح! 🛒');
