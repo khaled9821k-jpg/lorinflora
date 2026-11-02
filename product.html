@@ -361,7 +361,7 @@
 
                     <!-- قسم التخصيص الفاخر المحدث -->
                     <div id="product-customization-section" class="customization-box" style="display: none;">
-                        <h3 style="font-size: 13px; font-weight: 700; color: #00313C; margin-bottom: 10px;">Customize Your Order </h3>
+                        <h3 style="font-size: 13px; font-weight: 700; color: #00313C; margin-bottom: 10px;">Customize Your Order ✨</h3>
                         
                         <div id="custom-size-group" style="margin-bottom: 12px;">
                             <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">Flowers Size & Look *</label>
@@ -554,9 +554,51 @@
             </a>`).join('');
     }
 
+    // تفعيل تفاعل أزرار البحث والقائمة الجانبية (Menu & Search Toggles)
     document.addEventListener('DOMContentLoaded', () => {
         loadProductDetails();
         updateCartBadge();
+
+        const btnMenu = document.getElementById('btn-trigger-menu');
+        const btnCloseMenu = document.getElementById('btn-close-menu');
+        const menuDrawer = document.getElementById('box-menu-drawer');
+        const menuBackdrop = document.getElementById('box-menu-backdrop');
+        
+        const btnSearch = document.getElementById('btn-trigger-search');
+        const searchOverlay = document.getElementById('box-search-overlay');
+
+        // فتح وإغلاق القائمة الجانبية
+        function openMenu() {
+            if (menuDrawer) menuDrawer.classList.add('is-open');
+            if (menuBackdrop) menuBackdrop.classList.add('is-open');
+        }
+        function closeMenu() {
+            if (menuDrawer) menuDrawer.classList.remove('is-open');
+            if (menuBackdrop) menuBackdrop.classList.remove('is-open');
+        }
+
+        if (btnMenu) btnMenu.addEventListener('click', openMenu);
+        if (btnCloseMenu) btnCloseMenu.addEventListener('click', closeMenu);
+        if (menuBackdrop) menuBackdrop.addEventListener('click', closeMenu);
+
+        // فتح وإغلاق شريط البحث
+        if (btnSearch && searchOverlay) {
+            btnSearch.addEventListener('click', (e) => {
+                e.stopPropagation();
+                searchOverlay.classList.toggle('is-open');
+                if (searchOverlay.classList.contains('is-open')) {
+                    const searchInput = document.getElementById('live-search-input');
+                    if (searchInput) searchInput.focus();
+                }
+            });
+
+            // إغلاق البحث عند النقر في أي مكان خارج نافذة البحث
+            document.addEventListener('click', (e) => {
+                if (!searchOverlay.contains(e.target) && !btnSearch.contains(e.target)) {
+                    searchOverlay.classList.remove('is-open');
+                }
+            });
+        }
     });
 </script>
 </body>
