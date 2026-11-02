@@ -41,7 +41,6 @@
         .payment-methods-box { display: flex; gap: 8px; align-items: center; border-top: 1px solid #eee; padding-top: 15px; margin-top: 5px; flex-wrap: wrap; }
         .payment-methods-box span { font-size: 13px; font-weight: 700; color: #333; margin-left: 10px; }
         
-        /* تنسيق قسم التخصيص الراقي */
         .customization-box { background: #faf9f6; border: 1px solid #f0ece1; border-radius: 16px; padding: 16px; margin-top: 5px; }
         .custom-opt-card { border: 1px solid #e5e0d8; background: #ffffff; border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.25s ease; }
         .custom-opt-card:hover { border-color: #00313C; }
@@ -278,7 +277,6 @@
     let selectedCustomizations = {
         size: null,
         vessel: null,
-        color: null,
         additionalPrice: 0
     };
     let baseProductPrice = 0;
@@ -338,7 +336,6 @@
             let mainImage = images.length > 0 ? images[0] : '';
             currentProduct.image_url = mainImage;
 
-            // بناء واجهة المنتج مع دمج قسم التخصيص بشكل مباشر ومرتب تحت اسم المنتج وقبل زر الأضف إلى السلة
             container.innerHTML = `
                 <div class="product-images-wrapper">
                     <div class="thumbs-col">
@@ -362,7 +359,7 @@
                         <span>لست بحاجة لمعرفة العنوان، فريقنا سيفعل ذلك نيابة عنك.</span>
                     </div>
 
-                    <!-- قسم التخصيص الفاخر (يظهر حصرياً إذا كان has_customization صحيحاً في قاعدة البيانات) -->
+                    <!-- قسم التخصيص الفاخر المحدث -->
                     <div id="product-customization-section" class="customization-box" style="display: none;">
                         <h3 style="font-size: 13px; font-weight: 700; color: #00313C; margin-bottom: 10px;">Customize Your Order ✨</h3>
                         
@@ -371,14 +368,9 @@
                             <div id="size-options-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;"></div>
                         </div>
 
-                        <div id="custom-vessel-group" style="margin-bottom: 12px;">
-                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">Vessel Style *</label>
+                        <div id="custom-vessel-group">
+                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">Vase or Bouquet for flowers *</label>
                             <div id="vessel-options-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;"></div>
-                        </div>
-
-                        <div id="custom-color-group">
-                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">Flowers Color *</label>
-                            <div id="color-options-grid" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
                         </div>
                     </div>
 
@@ -403,7 +395,6 @@
                 </div>
             `;
 
-            // استدعاء دالة بناء التخصيصات بعد تحميل المنتج
             initCustomizationsUI(product);
 
         } catch (err) {
@@ -411,7 +402,6 @@
         }
     }
 
-    // --- دوال تفعيل وعرض خيارات التخصيص الديناميكية ---
     function initCustomizationsUI(product) {
         const section = document.getElementById('product-customization-section');
         if (!product.has_customization || !product.customization_options) {
@@ -422,50 +412,38 @@
         section.style.display = 'block';
         const opts = product.customization_options;
 
-        selectedCustomizations = { size: null, vessel: null, color: null, additionalPrice: 0 };
+        selectedCustomizations = { size: null, vessel: null, additionalPrice: 0 };
 
-        // 1. تعبئة الأحجام
+        // 1. Flowers Size & Look
         const sizeContainer = document.getElementById('size-options-grid');
-        if (opts.sizes && opts.sizes.length > 0) {
-            sizeContainer.innerHTML = opts.sizes.map((s, idx) => `
+        const sizeData = opts["Flowers Size & Look"];
+        if (sizeData && sizeData.length > 0) {
+            sizeContainer.innerHTML = sizeData.map((s, idx) => `
                 <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" onclick="selectOption('size', '${s.name}', ${s.price}, this)">
                     <div class="opt-title">${s.name}</div>
                     <div class="opt-price">${s.price > 0 ? '+' + s.price + ' JOD' : 'Included'}</div>
                 </div>
             `).join('');
-            selectedCustomizations.size = opts.sizes[0].name;
-            selectedCustomizations.additionalPrice += opts.sizes[0].price || 0;
+            selectedCustomizations.size = sizeData[0].name;
+            selectedCustomizations.additionalPrice += sizeData[0].price || 0;
         } else {
             document.getElementById('custom-size-group').style.display = 'none';
         }
 
-        // 2. تعبئة الفازات
+        // 2. Vase or Bouquet for flowers
         const vesselContainer = document.getElementById('vessel-options-grid');
-        if (opts.vessels && opts.vessels.length > 0) {
-            vesselContainer.innerHTML = opts.vessels.map((v, idx) => `
+        const vesselData = opts["Vase or Bouquet for flowers"];
+        if (vesselData && vesselData.length > 0) {
+            vesselContainer.innerHTML = vesselData.map((v, idx) => `
                 <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" onclick="selectOption('vessel', '${v.name}', ${v.price}, this)">
-                    ${v.image ? `<img src="${v.image}" style="width: 100%; height: 50px; object-fit: contain; margin-bottom: 4px; border-radius: 4px;">` : ''}
                     <div class="opt-title">${v.name}</div>
                     <div class="opt-price">${v.price > 0 ? '+' + v.price + ' JOD' : 'Standard'}</div>
                 </div>
             `).join('');
-            selectedCustomizations.vessel = opts.vessels[0].name;
-            selectedCustomizations.additionalPrice += opts.vessels[0].price || 0;
+            selectedCustomizations.vessel = vesselData[0].name;
+            selectedCustomizations.additionalPrice += vesselData[0].price || 0;
         } else {
             document.getElementById('custom-vessel-group').style.display = 'none';
-        }
-
-        // 3. تعبئة الألوان
-        const colorContainer = document.getElementById('color-options-grid');
-        if (opts.colors && opts.colors.length > 0) {
-            colorContainer.innerHTML = opts.colors.map((c, idx) => `
-                <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" style="flex: 1; min-width: 80px;" onclick="selectOption('color', '${c}', 0, this)">
-                    <div class="opt-title" style="font-size: 11px; margin: 0;">${c}</div>
-                </div>
-            `).join('');
-            selectedCustomizations.color = opts.colors[0];
-        } else {
-            document.getElementById('custom-color-group').style.display = 'none';
         }
 
         updatePriceDisplay();
@@ -477,18 +455,10 @@
 
         if (type === 'size') {
             selectedCustomizations.size = name;
-            // حساب السعر الإضافي للحجم الجديد
-            let opts = currentProduct.customization_options.sizes;
-            let found = opts.find(s => s.name === name);
-            if(found) {
-                // إعادة ضبط الحساب أو تحديثه بدقة
-                recalculateAdditionalPrice();
-            }
+            recalculateAdditionalPrice();
         } else if (type === 'vessel') {
             selectedCustomizations.vessel = name;
             recalculateAdditionalPrice();
-        } else if (type === 'color') {
-            selectedCustomizations.color = name;
         }
 
         updatePriceDisplay();
@@ -498,14 +468,18 @@
         let totalAdd = 0;
         const opts = currentProduct.customization_options;
         
-        if(opts.sizes) {
-            let sObj = opts.sizes.find(s => s.name === selectedCustomizations.size);
+        const sizeData = opts["Flowers Size & Look"];
+        if(sizeData) {
+            let sObj = sizeData.find(s => s.name === selectedCustomizations.size);
             if(sObj) totalAdd += (sObj.price || 0);
         }
-        if(opts.vessels) {
-            let vObj = opts.vessels.find(v => v.name === selectedCustomizations.vessel);
+        
+        const vesselData = opts["Vase or Bouquet for flowers"];
+        if(vesselData) {
+            let vObj = vesselData.find(v => v.name === selectedCustomizations.vessel);
             if(vObj) totalAdd += (vObj.price || 0);
         }
+        
         selectedCustomizations.additionalPrice = totalAdd;
     }
 
