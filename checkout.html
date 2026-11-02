@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="base.css">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- مكتبة Supabase للاتصال بقاعدة البيانات -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     html {
         scroll-behavior: smooth;
@@ -260,7 +262,7 @@
             <textarea id="gift-note" rows="2" placeholder="اكتب عبارة الهدية إذا كنت تريد إرفاقها مع الزهور..." class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#00313C] outline-none bg-gray-50"></textarea>
           </div>
 
-          <button type="submit" class="w-full bg-[#00313C] text-white py-3.5 rounded-xl font-bold text-sm hover:bg-[#00222B] transition shadow-md mt-4 cursor-pointer">
+          <button type="submit" id="submit-order-btn" class="w-full bg-[#00313C] text-white py-3.5 rounded-xl font-bold text-sm hover:bg-[#00222B] transition shadow-md mt-4 cursor-pointer">
             تأكيد وإرسال الطلب عبر واتساب 📲
           </button>
         </form>
@@ -290,6 +292,11 @@
 </div>
 
 <script>
+  // تعريف عميل Supabase
+  const SUPABASE_URL = 'https://dptincirgzfwrlrpxajl.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_DbYCExpNFypVQARATbdeVw_hipYS1Oa';
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
   function getCart() {
     return JSON.parse(localStorage.getItem('lorin_cart')) || [];
   }
@@ -421,7 +428,8 @@
     if (boxBackdrop) boxBackdrop.addEventListener('click', closeAllDrawers);
   })();
 
-  function submitCheckout(e) {
+  // تعديل دالة إتمام الطلب لتخزين البيانات في Supabase وإرسال الواتساب
+  async function submitCheckout(e) {
     e.preventDefault();
     const cart = getCart();
     if (cart.length === 0) {
@@ -429,24 +437,60 @@
       return;
     }
 
+    const submitBtn = document.getElementById('submit-order-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'جاري إرسال الطلب وحفظه... ⏳';
+
     const name = document.getElementById('receiver-name').value;
     const phone = document.getElementById('receiver-phone').value;
     const city = document.getElementById('receiver-city').value;
-    const address = document.getElementById('receiver-address').value;
+    const addressInput = document.getElementById('receiver-address').value;
     const note = document.getElementById('gift-note').value;
 
+    const fullAddress = `المدينة: ${city} - العنوان: ${addressInput}`;
     let total = 0;
+
+    cart.forEach(item => {
+      total += item.price * item.quantity;
+    });
+
+    try {
+      // إرسال البيانات إلى جدول orders في Supabase
+      const { error: dbError } = await supabaseClient
+        .from('orders')
+        .insert([{
+          customer_name: name,
+          customer_phone: phone,
+          shipping_address: fullAddress,
+          total_price: total,
+          items: cart,
+          recipient_phone: phone,          // رقم المستلم
+          gift_card_message: note || ''    // العبارة على الكرت
+        }]);
+
+      if (dbError) {
+        console.error('Database Error:', dbError);
+        alert('حدث خطأ أثناء حفظ الطلب في قاعدة البيانات، ولكن سيتم توجيهك للواتساب.');
+      }
+
+    } catch (err) {
+      console.error('Error:', err);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'تأكيد وإرسال الطلب عبر واتساب 📲';
+    }
+
+    // تجهيز رسالة الواتساب وفتحها كما كانت تماماً
     let message = `🌸 *طلب جديد من متجر Lorin* 🌸%0A%0A`;
     message += `👤 *اسم المستلم:* ${name}%0A`;
     message += `📞 *رقم الهاتف:* ${phone}%0A`;
     message += `📍 *المدينة:* ${city}%0A`;
-    message += `🏠 *العنوان:* ${address}%0A`;
+    message += `🏠 *العنوان:* ${addressInput}%0A`;
     if (note) message += `💌 *ملاحظة الهدية:* ${note}%0A`;
     message += `%0A------------------------%0A📦 *المنتجات المطلوبة:*%0A`;
 
     cart.forEach((item, index) => {
       message += `${index + 1}. ${item.name} (الكمية: ${item.quantity}) - ${(item.price * item.quantity).toFixed(2)} د.أ%0A`;
-      total += item.price * item.quantity;
     });
 
     message += `------------------------%0A💰 *المجموع الكلي:* *${total.toFixed(2)} د.أ*`;
