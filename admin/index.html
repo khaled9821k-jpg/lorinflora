@@ -601,58 +601,62 @@
     }
 
     async function fetchAdminOrders() {
-      const tbody = document.getElementById('admin-orders-list');
-      if (!tbody) return;
+     const tbody = document.getElementById('admin-orders-list');
+     if (!tbody) return;
 
-      const { data, error } = await supabaseClient
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false });
+     const { data, error } = await supabaseClient
+       .from('orders')
+       .select('*')
+       .order('created_at', { ascending: false });
 
-      if (error) {
-        tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-red-500">خطأ في جلب الطلبات.</td></tr>';
-        return;
-      }
+     if (error) {
+       tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-red-500">خطأ في جلب الطلبات.</td></tr>';
+       return;
+     }
 
-      currentOrders = data || [];
+     currentOrders = data || [];
 
-      if (currentOrders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-gray-400">لا توجد طلبات واردة حتى الآن.</td></tr>';
-        return;
-      }
+     if (currentOrders.length === 0) {
+       tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-gray-400">لا توجد طلبات واردة حتى الآن.</td></tr>';
+       return;
+     }
 
-      tbody.innerHTML = currentOrders.map(o => {
-        let itemsHtml = '<ul class="text-xs space-y-1">';
-        if (Array.isArray(o.items)) {
-          o.items.forEach(item => {
-            itemsHtml += `<li>• <strong>${item.name}</strong> (الكمية: ${item.quantity}) - ${item.price} د.أ</li>`;
-            if (item.customizations) {
-              for (let key in item.customizations) {
-                itemsHtml += `<li class="text-gray-400 text-[11px] pr-3">- ${key}: ${item.customizations[key]}</li>`;
-              }
-            }
-          });
-        }
-        itemsHtml += '</ul>';
+     tbody.innerHTML = currentOrders.map(o => {
+       let itemsHtml = '<ul class="text-xs space-y-1">';
+       if (Array.isArray(o.items)) {
+         o.items.forEach(item => {
+           itemsHtml += `<li>• <strong>${item.name}</strong> (الكمية: ${item.quantity}) - ${item.price} د.أ</li>`;
+           if (item.customizations) {
+             for (let key in item.customizations) {
+               itemsHtml += `<li class="text-gray-400 text-[11px] pr-3">- ${key}: ${item.customizations[key]}</li>`;
+             }
+           }
+         });
+       }
+       itemsHtml += '</ul>';
 
-        return `
-          <tr class="hover:bg-gray-50 transition align-top">
-            <td class="p-4 font-bold text-[#00313C]">#${o.id.slice(0, 8)}</td>
-            <td class="p-4">
-              <div class="font-semibold text-gray-800">${o.customer_name || 'غير متوفر'}</div>
-              <div class="text-xs text-gray-500 dir-ltr text-right">${o.customer_phone || '-'}</div>
-            </td>
-            <td class="p-4 text-xs text-gray-600 max-w-xs">${o.shipping_address || '-'}</td>
-            <td class="p-4 text-xs text-amber-700 font-medium">${o.gift_card_message || 'لا توجد ملاحظة'}</td>
-            <td class="p-4 text-red-600 font-bold whitespace-nowrap">${o.total_price} د.أ</td>
-            <td class="p-4">${itemsHtml}</td>
-            <td class="p-4 text-center">
-              <button onclick="deleteOrder('${o.id}')" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition">حذف 🗑️</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
+       // تحويل الـ id إلى نص وضمان عدم حدوث خطأ إذا كان رقماً
+       const orderIdStr = String(o.id || '');
+       const displayId = orderIdStr.length > 8 ? orderIdStr.slice(0, 8) : orderIdStr;
+
+       return `
+         <tr class="hover:bg-gray-50 transition align-top">
+           <td class="p-4 font-bold text-[#00313C]">#${displayId}</td>
+           <td class="p-4">
+             <div class="font-semibold text-gray-800">${o.customer_name || 'غير متوفر'}</div>
+             <div class="text-xs text-gray-500 dir-ltr text-right">${o.customer_phone || '-'}</div>
+           </td>
+           <td class="p-4 text-xs text-gray-600 max-w-xs">${o.shipping_address || '-'}</td>
+           <td class="p-4 text-xs text-amber-700 font-medium">${o.gift_card_message || 'لا توجد ملاحظة'}</td>
+           <td class="p-4 text-red-600 font-bold whitespace-nowrap">${o.total_price} د.أ</td>
+           <td class="p-4">${itemsHtml}</td>
+           <td class="p-4 text-center">
+             <button onclick="deleteOrder('${o.id}')" class="bg-red-50 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition">حذف 🗑️</button>
+           </td>
+         </tr>
+       `;
+     }).join('');
+   }
 
     window.deleteOrder = async function(id) {
       if (!confirm('هل أنت متأكد من حذف هذا الطلب من السجل؟')) return;
