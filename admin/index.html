@@ -68,6 +68,9 @@
         <button onclick="switchTab('sections')" id="nav-sections" class="w-full text-right px-4 py-3 rounded-lg text-sm font-medium transition hover:bg-[#004D5E] text-gray-200 flex items-center gap-3">
           <span>📑</span> أقسام الصفحة الرئيسية
         </button>
+        <button onclick="switchTab('upsell')" id="nav-upsell" class="w-full text-right px-4 py-3 rounded-lg text-sm font-medium transition hover:bg-[#004D5E] text-gray-200 flex items-center gap-3">
+          <span>🎁</span> إدارة منتجات الـ Upsell
+        </button>
         <button onclick="switchTab('settings')" id="nav-settings" class="w-full text-right px-4 py-3 rounded-lg text-sm font-medium transition hover:bg-[#004D5E] text-gray-200 flex items-center gap-3">
           <span>⚙️</span> إعدادات النصوص والتصميم
         </button>
@@ -446,6 +449,18 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <!-- تبويب إدارة منتجات الـ Upsell المضاف حديثاً -->
+      <div id="tab-upsell" class="tab-content space-y-6">
+        <h2 class="text-2xl font-bold text-gray-800">إدارة منتجات الـ Upsell 🎁</h2>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+          <h3 class="text-base font-bold text-gray-800 pb-2 border-b">دليل إعداد منتجات الـ Upsell</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            تم تخصيص هذا القسم لتوضيح آلية عمل الـ Upsell. يتم ربط منتجات النافذة المنبثقة مباشرة من خلال قسم <strong>(إدارة المنتجات 📦 -> تعديل المنتج ✏️)</strong>.
+            عند تعديل أي منتج، ستجد أسفل النموذج مربعات اختيار تمكنك من تحديد المنتجات التي تريد إظهارها كـ مقترحات عندما يقوم العميل بإضافة هذا المنتج إلى السلة.
+          </p>
         </div>
       </div>
 
