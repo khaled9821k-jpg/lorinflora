@@ -388,7 +388,18 @@
         if (boxBackdrop) boxBackdrop.addEventListener('click', closeAllDrawers);
     })();
 
-    function getCart() { return JSON.parse(localStorage.getItem('lorin_cart')) || []; }
+    // دالة جلب السلة
+    function getCart() { 
+        return JSON.parse(localStorage.getItem('lorin_cart')) || []; 
+    }
+
+    // دالة حفظ السلة وتحديث العداد فوراً
+    function saveCart(cart) { 
+        localStorage.setItem('lorin_cart', JSON.stringify(cart)); 
+        updateCartBadge(); 
+    }
+
+    // دالة تحديث عداد السلة في الهيدر
     function updateCartBadge() {
         const cart = getCart();
         const badge = document.getElementById('cart-counter-badge');
@@ -401,6 +412,20 @@
             badge.style.display = 'none'; 
         }
     }
+
+    // الاستماع لأي تغير يحدث في السلة حتى لو تم الحذف من صفحة أخرى (مثل صفحة السلة)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'lorin_cart') {
+            updateCartBadge();
+        }
+    });
+
+    // تحديث العداد فور تحميل الصفحة وتفعيل المراقبة
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCartBadge();
+        
+        // كود فتح وإغلاق القائمة والبحث...
+    });
 
     document.addEventListener('DOMContentLoaded', initCategoryPage);
 </script>
