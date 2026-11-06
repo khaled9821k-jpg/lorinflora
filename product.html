@@ -64,6 +64,13 @@
         .fbt-plus { font-size: 20px; font-weight: bold; color: #555; }
         .fbt-btn { background: #fff; color: #00313C; border: 1px solid #00313C; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; transition: all 0.2s; }
         .fbt-btn:hover { background: #00313C; color: #fff; }
+
+        /* ستايل نافذة الـ Upsell Modal المنبثقة المشابهة لفلاورد */
+        .upsell-modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 999999; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .upsell-modal-backdrop.is-open { opacity: 1; visibility: visible; }
+        .upsell-modal-box { background: #ffffff; width: 100%; max-width: 680px; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; padding: 25px; box-sizing: border-box; max-height: 90vh; display: flex; flex-direction: column; }
+        .upsell-modal-backdrop.is-open .upsell-modal-box { transform: translateY(0); }
+        
         :root { --floward-main-color: #00313C; --floward-font-size: 14px; --floward-icon-size: 20px; }
         .floward-left-group { display: flex !important; align-items: center !important; gap: 1.5rem !important; justify-self: start; }
         .floward-center-group { justify-self: center; text-align: center; }
@@ -266,6 +273,31 @@
   </main>
 </div>
 
+<!-- نافذة الـ Upsell Modal المنبثقة عند الإضافة إلى السلة -->
+<div id="upsell-modal-backdrop" class="upsell-modal-backdrop">
+    <div class="upsell-modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
+            <div>
+                <h3 style="font-size: 20px; font-weight: 700; color: #111; margin: 0 0 4px 0;">You’ve added items to your cart</h3>
+                <div id="modal-subtotal-text" style="font-size: 13px; color: #666;">Cart Subtotal: JOD 0</div>
+            </div>
+            <button onclick="closeUpsellModal()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666;">✕</button>
+        </div>
+
+        <div style="font-size: 15px; font-weight: 700; color: #111; margin-bottom: 12px;">Make it perfect ✨</div>
+        
+        <!-- قائمة المنتجات المقترحة (Upsells) -->
+        <div id="upsell-products-container" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none;">
+            <p style="color: #888; font-size: 13px;">جاري تحميل الهدايا المقترحة...</p>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+            <button onclick="closeUpsellModal()" style="flex: 1; padding: 12px; border: 1px solid #ccc; background: #fff; border-radius: 10px; font-weight: 700; cursor: pointer; color: #333;">Continue Shopping</button>
+            <a href="cart.html" style="flex: 1; padding: 12px; background: #00313C; color: #fff; border-radius: 10px; font-weight: 700; text-align: center; text-decoration: none;">View Cart</a>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     const SUPABASE_URL = 'https://dptincirgzfwrlrpxajl.supabase.co';
@@ -396,6 +428,7 @@
             `;
 
             initCustomizationsUI(product);
+            loadUpsellsForModal(product.id);
 
         } catch (err) {
             container.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">${err.message}</div>`;
@@ -414,7 +447,6 @@
 
         selectedCustomizations = { size: null, vessel: null, additionalPrice: 0 };
 
-        // 1. Flowers Size & Look
         const sizeContainer = document.getElementById('size-options-grid');
         const sizeData = opts["Flowers Size & Look"];
         if (sizeData && sizeData.length > 0) {
@@ -430,7 +462,6 @@
             document.getElementById('custom-size-group').style.display = 'none';
         }
 
-        // 2. Vase or Bouquet for flowers
         const vesselContainer = document.getElementById('vessel-options-grid');
         const vesselData = opts["Vase or Bouquet for flowers"];
         if (vesselData && vesselData.length > 0) {
@@ -535,6 +566,75 @@
 
         cart.push(cartItem);
         saveCart(cart);
+
+        // فتح نافذة الـ Upsell Modal بعد الإضافة بنجاح وتحديث إجمالي السلة
+        openUpsellModal();
+    }
+
+    async function loadUpsellsForModal(productId) {
+        const container = document.getElementById('upsell-products-container');
+        if (!container) return;
+
+        try {
+            // جلب منتجات الـ upsell أو منتجات عامة من المتجر
+            const { data: upsells } = await supabaseClient.from('product_upsells').select('*').eq('product_id', productId);
+            
+            let displayList = [];
+            if (upsells && upsells.length > 0) {
+                displayList = upsells;
+            } else {
+                // إذا لم توجد تخصيصات، نعرض عينات عشوائية من المنتجات الأخرى
+                displayList = allStoreProducts.filter(p => String(p.id) !== String(productId)).slice(0, 4);
+            }
+
+            if (displayList.length === 0) {
+                container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد هدايا مقترحة حالياً.</p>';
+                return;
+            }
+
+            container.innerHTML = displayList.map(item => `
+                <div style="min-width: 160px; max-width: 160px; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; background: #fff; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <img src="${item.image_url || 'placeholder.jpg'}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" alt="${item.name || item.title}">
+                        <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px; line-height: 1.3;">${item.name || item.title}</div>
+                        <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">JOD ${item.price || 15}</div>
+                    </div>
+                    <button onclick='addUpsellItemToCart(${JSON.stringify(item)})' style="width: 100%; padding: 8px; background: #fff; color: #00313C; border: 1px solid #00313C; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">ADD</button>
+                </div>
+            `).join('');
+
+        } catch (err) {
+            container.innerHTML = '<p style="color:#888; font-size:13px;">عذراً، حدث خطأ أثناء تحميل الهدايا.</p>';
+        }
+    }
+
+    function openUpsellModal() {
+        const modal = document.getElementById('upsell-modal-backdrop');
+        const cart = getCart();
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        
+        const subtotalText = document.getElementById('modal-subtotal-text');
+        if (subtotalText) subtotalText.textContent = `Cart Subtotal: JOD ${subtotal.toFixed(2)}`;
+
+        if (modal) modal.classList.add('is-open');
+    }
+
+    function closeUpsellModal() {
+        const modal = document.getElementById('upsell-modal-backdrop');
+        if (modal) modal.classList.remove('is-open');
+    }
+
+    function addUpsellItemToCart(item) {
+        let cart = getCart();
+        cart.push({
+            id: item.id || Date.now(),
+            name: item.name || item.title,
+            price: parseFloat(item.price) || 15,
+            image_url: item.image_url || 'placeholder.jpg',
+            quantity: 1
+        });
+        saveCart(cart);
+        openUpsellModal(); // تحديث المجموع في النافذة
     }
 
     function performLiveSearch(query) {
@@ -553,7 +653,6 @@
             </a>`).join('');
     }
 
-    // تفعيل تفاعل أزرار البحث والقائمة الجانبية (Menu & Search Toggles)
     document.addEventListener('DOMContentLoaded', () => {
         loadProductDetails();
         updateCartBadge();
@@ -566,7 +665,6 @@
         const btnSearch = document.getElementById('btn-trigger-search');
         const searchOverlay = document.getElementById('box-search-overlay');
 
-        // فتح وإغلاق القائمة الجانبية
         function openMenu() {
             if (menuDrawer) menuDrawer.classList.add('is-open');
             if (menuBackdrop) menuBackdrop.classList.add('is-open');
@@ -580,7 +678,6 @@
         if (btnCloseMenu) btnCloseMenu.addEventListener('click', closeMenu);
         if (menuBackdrop) menuBackdrop.addEventListener('click', closeMenu);
 
-        // فتح وإغلاق شريط البحث
         if (btnSearch && searchOverlay) {
             btnSearch.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -591,7 +688,6 @@
                 }
             });
 
-            // إغلاق البحث عند النقر في أي مكان خارج نافذة البحث
             document.addEventListener('click', (e) => {
                 if (!searchOverlay.contains(e.target) && !btnSearch.contains(e.target)) {
                     searchOverlay.classList.remove('is-open');
