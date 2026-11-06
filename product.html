@@ -523,7 +523,24 @@
     }
 
     function changeMainImage(src, thumbElement) {
-        document.getElementById('main-product-img').src = src;
+        const mainImg = document.getElementById('main-product-img');
+        if (!mainImg) return;
+
+        // تطبيق تأثير السحب الجانبي والانيميشن الفاخر
+        mainImg.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+        mainImg.style.transform = 'translateX(30px)';
+        mainImg.style.opacity = '0';
+
+        setTimeout(() => {
+            mainImg.src = src;
+            mainImg.style.transform = 'translateX(-30px)';
+            
+            setTimeout(() => {
+                mainImg.style.transform = 'translateX(0)';
+                mainImg.style.opacity = '1';
+            }, 50);
+        }, 200);
+
         document.querySelectorAll('.thumb-img').forEach(el => el.classList.remove('active'));
         thumbElement.classList.add('active');
     }
@@ -535,7 +552,7 @@
         input.value = val;
     }
 
-   function getCart() { return JSON.parse(localStorage.getItem('lorin_cart')) || []; }
+    function getCart() { return JSON.parse(localStorage.getItem('lorin_cart')) || []; }
     
     function saveCart(cart) { 
         localStorage.setItem('lorin_cart', JSON.stringify(cart)); 
