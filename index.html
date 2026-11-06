@@ -832,9 +832,10 @@
     async function loadFlowardDynamicSections() {
         const container = document.getElementById('floward-dynamic-sections-container');
         
+        // تم إضافة شرط .eq('is_hidden', false) لجلب المنتجات المرئية فقط واستبعاد الـ Ghost Products من العرض العام
         const [{ data: sections }, { data: products }, { data: allImages }] = await Promise.all([
             supabaseClient.from('store_sections').select('*').order('display_order', { ascending: true }),
-            supabaseClient.from('products').select('*'),
+            supabaseClient.from('products').select('*').eq('is_hidden', false), // <-- استبعاد المنتجات المخفية من المتجر
             supabaseClient.from('product_images').select('*')
         ]);
 
@@ -868,7 +869,6 @@
 
             if (filtered.length === 0) return '';
 
-            // تم تعديل الرابط هنا ليعتمد على p.slug تلقائياً بدلاً من p.id
             const itemsHtml = filtered.map(p => `
                 <a href="product.html?slug=${p.slug}" class="floward-item-card">
                     <div class="floward-item-img">
@@ -936,7 +936,6 @@
       }
     }
 
-    // تم تحديث نتائج البحث لتعتمد على slug تلقائياً
     function performLiveSearch(query) {
       const resultsContainer = document.getElementById('live-search-results');
       const q = query.trim().toLowerCase();
@@ -1018,18 +1017,14 @@
         }
     }
 
-    // الاستماع لأي تغير يحدث في السلة حتى لو تم الحذف من صفحة أخرى (مثل صفحة السلة)
     window.addEventListener('storage', function(e) {
         if (e.key === 'lorin_cart') {
             updateCartBadge();
         }
     });
 
-    // تحديث العداد فور تحميل الصفحة وتفعيل المراقبة
     document.addEventListener('DOMContentLoaded', () => {
         updateCartBadge();
-        
-        // كود فتح وإغلاق القائمة والبحث...
     });
 
     window.onload = function() {
