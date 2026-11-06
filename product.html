@@ -576,35 +576,39 @@
         if (!container) return;
 
         try {
-            // جلب منتجات الـ upsell أو منتجات عامة من المتجر
-            const { data: upsells } = await supabaseClient.from('product_upsells').select('*').eq('product_id', productId);
-            
-            let displayList = [];
-            if (upsells && upsells.length > 0) {
-                displayList = upsells;
-            } else {
-                // إذا لم توجد تخصيصات، نعرض عينات عشوائية من المنتجات الأخرى
-                displayList = allStoreProducts.filter(p => String(p.id) !== String(productId)).slice(0, 4);
-            }
+            // جلب منتجات الـ upsell المرطبة حصرياً لهذا المنتج من جدول product_upsells في قاعدة البيانات
+            const { data: upsells, error } = await supabaseClient
+                .from('product_upsells')
+                .select('*')
+                .eq('product_id', productId);
 
-            if (displayList.length === 0) {
-                container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد هدايا مقترحة حالياً.</p>';
+            if (error || !upsells || upsells.length === 0) {
+                container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد منتجات مقترحة (Upsell) مربوطة بهذا المنتج حالياً من لوحة التحكم.</p>';
                 return;
             }
 
-            container.innerHTML = displayList.map(item => `
-                <div style="min-width: 160px; max-width: 160px; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; background: #fff; display: flex; flex-direction: column; justify-content: space-between;">
-                    <div>
-                        <img src="${item.image_url || 'placeholder.jpg'}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" alt="${item.name || item.title}">
-                        <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px; line-height: 1.3;">${item.name || item.title}</div>
-                        <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">JOD ${item.price || 15}</div>
+            // عرض المنتجات الحقيقية المضافة من لوحة التحكم
+            container.innerHTML = upsells.map(item => {
+                // استخراج بيانات المنتج المقترح سواء كانت مخزنة مباشرة أو كمعرف منتج
+                const itemName = item.upsell_title || item.name || item.title || 'هدية مقترحة';
+                const itemPrice = parseFloat(item.upsell_price || item.price || 15);
+                const itemImage = item.upsell_image || item.image_url || 'placeholder.jpg';
+
+                return `
+                    <div style="min-width: 160px; max-width: 160px; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; background: #fff; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <img src="${itemImage}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" alt="${itemName}">
+                            <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px; line-height: 1.3;">${itemName}</div>
+                            <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">JOD ${itemPrice.toFixed(2)}</div>
+                        </div>
+                        <button onclick='addUpsellItemToCart(${JSON.stringify({name: itemName, price: itemPrice, image_url: itemImage})})' style="width: 100%; padding: 8px; background: #fff; color: #00313C; border: 1px solid #00313C; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">ADD</button>
                     </div>
-                    <button onclick='addUpsellItemToCart(${JSON.stringify(item)})' style="width: 100%; padding: 8px; background: #fff; color: #00313C; border: 1px solid #00313C; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">ADD</button>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
         } catch (err) {
-            container.innerHTML = '<p style="color:#888; font-size:13px;">عذراً، حدث خطأ أثناء تحميل الهدايا.</p>';
+            console.error("Error loading upsells:", err);
+            container.innerHTML = '<p style="color:#888; font-size:13px;">عذراً، حدث خطأ أثناء تحميل الهدايا المقترحة.</p>';
         }
     }
 
