@@ -667,12 +667,17 @@
         `;
     }
 
-    function renderQuantityControls(itemId, qty) {
+   function renderQuantityControls(itemId, qty) {
+        // إذا كانت الكمية 1، نعرض أيقونة سلة المهملات، وإذا كانت أكثر من 1 نعرض علامة الناقص (-)
+        const minusOrTrashIcon = qty === 1 
+            ? `<svg style="width:14px; height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`
+            : `-`;
+
         return `
-            <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #00313C; border-radius: 6px; background: #f4f8f9; overflow: hidden; padding: 2px;">
-                <button onclick="updateUpsellQuantity('${itemId}', -1)" style="background: transparent; border: none; padding: 4px 10px; font-weight: bold; cursor: pointer; color: #00313C;">-</button>
+            <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #00313C; border-radius: 6px; background: #f4f8f9; overflow: hidden; padding: 2px 6px;">
+                <button onclick="updateUpsellQuantity('${itemId}', -1)" style="background: transparent; border: none; padding: 4px 6px; font-weight: bold; cursor: pointer; color: #00313C; display: flex; align-items: center; justify-content: center;">${minusOrTrashIcon}</button>
                 <span id="upsell-qty-${itemId}" style="font-size: 13px; font-weight: 700; color: #00313C;">${qty}</span>
-                <button onclick="updateUpsellQuantity('${itemId}', 1)" style="background: transparent; border: none; padding: 4px 10px; font-weight: bold; cursor: pointer; color: #00313C;">+</button>
+                <button onclick="updateUpsellQuantity('${itemId}', 1)" style="background: transparent; border: none; padding: 4px 6px; font-weight: bold; cursor: pointer; color: #00313C;">+</button>
             </div>
         `;
     }
