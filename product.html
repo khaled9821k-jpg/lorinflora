@@ -716,24 +716,30 @@
 
         if (index !== -1) {
             cart[index].quantity += change;
-            if (cart[index].quantity <= 0) {
-                cart.splice(index, 1);
-            }
-            saveCart(cart);
-            updateCartBadge();
-
+            
             const actionArea = document.getElementById(`upsell-action-area-${itemId}`);
-            if (actionArea) {
-                const updatedItem = cart.find(c => String(c.id) === String(itemId));
-                if (updatedItem) {
-                    actionArea.innerHTML = renderQuantityControls(itemId, updatedItem.quantity);
-                } else {
-                    // إذا أصبحت الكمية صفر، نعيد زر الـ ADD الأصلي
-                    // نحتاج هنا لإعادة تحميل الـ upsells أو استعادة الزر
-                    const card = document.getElementById(`upsell-card-${itemId}`);
-                    if (card) {
-                        // استخراج البيانات الأساسية وإعادة بناء زر الـ Add
-                        location.reload(); 
+            
+            if (cart[index].quantity <= 0) {
+                // إذا أصبحت الكمية صفر أو أقل، نحذف المنتج من السلة ونستعيد زر ADD الأصلي فوراً
+                const removedItemName = cart[index].name;
+                const removedItemPrice = cart[index].price;
+                const removedItemImg = cart[index].image_url;
+
+                cart.splice(index, 1);
+                saveCart(cart);
+                updateCartBadge();
+
+                if (actionArea) {
+                    actionArea.innerHTML = renderAddButton(itemId, removedItemName, removedItemPrice, removedItemImg);
+                }
+            } else {
+                saveCart(cart);
+                updateCartBadge();
+
+                if (actionArea) {
+                    const updatedItem = cart.find(c => String(c.id) === String(itemId));
+                    if (updatedItem) {
+                        actionArea.innerHTML = renderQuantityControls(itemId, updatedItem.quantity);
                     }
                 }
             }
