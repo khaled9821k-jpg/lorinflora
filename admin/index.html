@@ -207,13 +207,38 @@
               </div>
             </div>
 
-            <!-- ===== قسم ربط منتجات الـ Upsell المقترحة لهذا المنتج حصرياً ===== -->
+            <!-- ===== قسم إدارة منتجات الـ Upsell (ستارة منسدلة مع بحث فوري) الاحترافي ===== -->
             <div class="md:col-span-2 bg-[#faf9f6] border border-[#f0ece1] p-4 rounded-2xl space-y-3">
               <h4 class="font-bold text-sm text-[#00313C]">إدارة منتجات النافذة المنبثقة (Upsell المقترحة لهذا المنتج) 🎁</h4>
-              <p class="text-[11px] text-gray-500">اختر المنتجات التي تريد أن تظهر كـ Upsell عندما يضيف العميل هذا المنتج إلى السلة:</p>
-              <div id="admin-product-upsells-checkboxes" class="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto p-2 bg-white rounded-xl border">
-                <!-- يتم تعبئتها تلقائياً بناءً على المنتجات المتاحة -->
+              <p class="text-[11px] text-gray-500">ابحث واختر المنتجات التي ستظهر كـ Upsell عندما يضيف العميل هذا المنتج إلى السلة:</p>
+              
+              <div class="relative">
+                <button type="button" onclick="toggleDropdown('upsell-dropdown-menu', event)" class="w-full border border-gray-200 rounded-xl p-2.5 text-sm bg-white text-right flex justify-between items-center outline-none cursor-pointer shadow-xs">
+                  <span id="selected-upsells-label" class="text-gray-500 text-xs">🔍 ابحث واختر منتجات الـ Upsell...</span>
+                  <span class="text-xs text-gray-400">▼</span>
+                </button>
+                
+                <!-- الستارة المنسدلة للبحث واختيار المنتجات -->
+                <div id="upsell-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-3 space-y-2">
+                  <div class="pb-2 border-b border-gray-100">
+                    <input type="text" id="upsell-search-input" placeholder="اكتب للبحث عن اسم المنتج..." oninput="filterUpsellDropdownList()" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none bg-gray-50 focus:ring-2 focus:ring-[#00313C]">
+                  </div>
+                  <div id="upsell-checkboxes-container" class="space-y-1 max-h-48 overflow-y-auto">
+                    <!-- يتم تعبئتها ديناميكياً -->
+                  </div>
+                </div>
               </div>
+
+              <!-- صندوق عرض المنتجات المختارة حالياً بشكل أنيق -->
+              <div class="mt-2">
+                <label class="block text-[11px] font-bold text-gray-600 mb-1.5">المنتجات المقترحة المحددة حالياً لهذا المنتج:</label>
+                <div id="selected-upsells-pills-container" class="flex flex-wrap gap-1.5 min-h-[38px] p-2 bg-white rounded-xl border border-gray-200">
+                  <span class="text-xs text-gray-400 self-center">لم يتم اختيار أي منتجات بعد.</span>
+                </div>
+              </div>
+
+              <!-- تخزين الـ IDs المختارة مخفية لإرسالها مع النموذج -->
+              <div id="hidden-upsell-inputs-container"></div>
             </div>
             <!-- ==================================================================== -->
 
@@ -513,7 +538,7 @@
       await fetchAdminOrders();
       await loadCategoriesIntoDropdowns();
       await loadSiteSettingsInAdmin();
-      await loadUpsellCheckboxesForProduct();
+      await initUpsellDropdownSelector();
       updateStats();
     }
 
@@ -642,53 +667,121 @@
         </tr>`).join('');
     }
 
-    // ===== دوال إدارة ربط منتجات الـ Upsell لكل منتج =====
-    async function loadUpsellCheckboxesForProduct(currentProdId = null) {
-      const container = document.getElementById('admin-product-upsells-checkboxes');
-      if(!container) return;
+    // ===== النظام الذكي الجديد لإدارة الـ Upsell (ستارة منسدلة مع بحث فوري) =====
+    let selectedUpsellIds = [];
 
-      const { data: allProds } = await supabaseClient.from('products').select('id, name, price');
-      let linkedIds = [];
-
+    async function initUpsellDropdownSelector(currentProdId = null) {
+      selectedUpsellIds = [];
       if (currentProdId) {
         const { data: existingUpsells } = await supabaseClient.from('product_upsells').select('upsell_product_id').eq('product_id', currentProdId);
         if (existingUpsells) {
-          linkedIds = existingUpsells.map(u => String(u.upsell_product_id));
+          selectedUpsellIds = existingUpsells.map(u => String(u.upsell_product_id));
         }
       }
+      renderUpsellCheckboxesList('');
+      renderSelectedUpsellsPills();
+    }
 
-      if (!allProds || allProds.length === 0) {
-        container.innerHTML = '<span class="text-xs text-gray-400">لا توجد منتجات متاحة للربط.</span>';
+    function renderUpsellCheckboxesList(searchQuery = '') {
+      const container = document.getElementById('upsell-checkboxes-container');
+      if (!container) return;
+
+      const currentProdId = document.getElementById('product-id').value;
+      const filtered = currentProducts.filter(p => {
+        if (currentProdId && String(p.id) === String(currentProdId)) return false;
+        if (searchQuery && !p.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-xs text-gray-400 text-center py-3">لا توجد منتجات مطابقة للبحث.</div>';
         return;
       }
 
-      container.innerHTML = allProds.map(p => {
-        // استبعاد المنتج الحالي من قائمة المقترحات لنفسه
-        if (currentProdId && String(p.id) === String(currentProdId)) return '';
-        const isChecked = linkedIds.includes(String(p.id)) ? 'checked' : '';
+      container.innerHTML = filtered.map(p => {
+        const isChecked = selectedUpsellIds.includes(String(p.id)) ? 'checked' : '';
         return `
-          <label class="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg cursor-pointer text-xs font-medium text-gray-700">
-            <input type="checkbox" name="upsell_item_checkbox" value="${p.id}" ${isChecked} class="rounded border-gray-300 text-[#00313C] focus:ring-[#00313C]">
-            <span class="truncate">${p.name} (${p.price} د.أ)</span>
+          <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer text-xs font-medium text-gray-700 transition">
+            <div class="flex items-center gap-2 truncate">
+              <input type="checkbox" value="${p.id}" ${isChecked} onchange="toggleUpsellProductSelection('${p.id}', '${p.name.replace(/'/g, "")}', ${p.price})" class="rounded border-gray-300 text-[#00313C] focus:ring-[#00313C]">
+              <span class="truncate">${p.name}</span>
+            </div>
+            <span class="text-red-600 font-bold whitespace-nowrap mr-2">${p.price} د.أ</span>
           </label>`;
       }).join('');
     }
 
-    async function saveProductUpsells(productId) {
-      // حذف الـ Upsells القديمة لهذا المنتج ثم إدخال المحددة حديثاً
-      await supabaseClient.from('product_upsells').delete().eq('product_id', productId);
-      
-      const checkedBoxes = document.querySelectorAll('input[name="upsell_item_checkbox"]:checked');
-      let inserts = [];
-      checkedBoxes.forEach((cb, index) => {
-        inserts.push({
-          product_id: productId,
-          upsell_product_id: cb.value, // متطابق مع نوع int8 أو نص في جدول Supabase
-          display_order: index + 1
-        });
+    function filterUpsellDropdownList() {
+      const query = document.getElementById('upsell-search-input').value;
+      renderUpsellCheckboxesList(query);
+    }
+
+    function toggleUpsellProductSelection(prodId, prodName, prodPrice) {
+      prodId = String(prodId);
+      if (selectedUpsellIds.includes(prodId)) {
+        selectedUpsellIds = selectedUpsellIds.filter(id => id !== prodId);
+      } else {
+        selectedUpsellIds.push(prodId);
+      }
+      renderSelectedUpsellsPills();
+      // تحديث حالة الـ checkboxes في القائمة المنسدلة الحالية بدون إعادة تحميل القائمة بالكامل
+      const searchVal = document.getElementById('upsell-search-input').value;
+      renderUpsellCheckboxesList(searchVal);
+    }
+
+    function removeUpsellPill(prodId) {
+      selectedUpsellIds = selectedUpsellIds.filter(id => String(id) !== String(prodId));
+      renderSelectedUpsellsPills();
+      const searchVal = document.getElementById('upsell-search-input').value;
+      renderUpsellCheckboxesList(searchVal);
+    }
+
+    function renderSelectedUpsellsPills() {
+      const pillsContainer = document.getElementById('selected-upsells-pills-container');
+      const hiddenInputsContainer = document.getElementById('hidden-upsell-inputs-container');
+      const label = document.getElementById('selected-upsells-label');
+
+      if (!pillsContainer) return;
+
+      if (selectedUpsellIds.length === 0) {
+        label.textContent = '🔍 ابحث واختر منتجات الـ Upsell...';
+        label.className = 'text-gray-500 text-xs';
+        pillsContainer.innerHTML = '<span class="text-xs text-gray-400 self-center">لم يتم اختيار أي منتجات بعد.</span>';
+        hiddenInputsContainer.innerHTML = '';
+        return;
+      }
+
+      label.textContent = `✅ تم اختيار (${selectedUpsellIds.length}) منتجات كـ Upsell`;
+      label.className = 'text-[#00313C] font-semibold text-xs';
+
+      let pillsHtml = '';
+      let hiddenHtml = '';
+
+      selectedUpsellIds.forEach(id => {
+        const prod = currentProducts.find(p => String(p.id) === String(id));
+        if (prod) {
+          pillsHtml += `
+            <span class="inline-flex items-center gap-1.5 bg-[#00313C] text-white px-2.5 py-1 rounded-lg text-xs font-medium shadow-xs">
+              <span>${prod.name} (${prod.price} د.أ)</span>
+              <button type="button" onclick="removeUpsellPill('${prod.id}')" class="text-gray-300 hover:text-white font-bold ml-1 cursor-pointer">×</button>
+            </span>`;
+          hiddenHtml += `<input type="hidden" name="upsell_item_hidden" value="${prod.id}">`;
+        }
       });
 
-      if (inserts.length > 0) {
+      pillsContainer.innerHTML = pillsHtml;
+      hiddenInputsContainer.innerHTML = hiddenHtml;
+    }
+
+    async function saveProductUpsells(productId) {
+      await supabaseClient.from('product_upsells').delete().eq('product_id', productId);
+      
+      if (selectedUpsellIds.length > 0) {
+        let inserts = selectedUpsellIds.map((id, index) => ({
+          product_id: productId,
+          upsell_product_id: id,
+          display_order: index + 1
+        }));
         await supabaseClient.from('product_upsells').insert(inserts);
       }
     }
@@ -696,7 +789,7 @@
 
     function toggleDropdown(menuId, e) {
       e.stopPropagation();
-      document.querySelectorAll('#category-dropdown-menu, #section-dropdown-menu').forEach(m => {
+      document.querySelectorAll('#category-dropdown-menu, #section-dropdown-menu, #upsell-dropdown-menu').forEach(m => {
         if(m.id !== menuId) m.classList.add('hidden');
       });
       document.getElementById(menuId).classList.toggle('hidden');
@@ -709,6 +802,10 @@
       }
       if (!e.target.closest('#section-dropdown-menu') && !e.target.closest('button[onclick*="section-dropdown-menu"]')) {
         const menu = document.getElementById('section-dropdown-menu');
+        if(menu) menu.classList.add('hidden');
+      }
+      if (!e.target.closest('#upsell-dropdown-menu') && !e.target.closest('button[onclick*="upsell-dropdown-menu"]')) {
+        const menu = document.getElementById('upsell-dropdown-menu');
         if(menu) menu.classList.add('hidden');
       }
     });
@@ -1023,7 +1120,7 @@
         } catch(e) { console.error(e); }
       }
 
-      await loadUpsellCheckboxesForProduct(p.id);
+      await initUpsellDropdownSelector(p.id);
       loadAdminProductImagesForProduct(p.id);
 
       document.getElementById('product-form-title').textContent = 'تعديل بيانات المنتج والـ Upsell ✏️';
@@ -1043,7 +1140,7 @@
       editingProductImages = [];
       renderProductCategoryCheckboxes([]);
       updateProductSelectedCategories();
-      loadUpsellCheckboxesForProduct(); // إعادة تحميل خيارات الـ Upsell فارغة للإضافة الجديدة
+      initUpsellDropdownSelector(); // تهيئة القائمة فارغة للإضافة الجديدة
       document.getElementById('product-form-title').textContent = 'إضافة منتج جديد';
       document.getElementById('submit-product-btn').textContent = 'حفظ وإضافة المنتج ✨';
       document.getElementById('cancel-product-edit').classList.add('hidden');
@@ -1108,7 +1205,7 @@
       showStatus('تم حذف التصنيف الفرعي بنجاح!', 'success'); fetchAdminData();
     };
 
-    // معالج حفظ المنتجات والـ Upsells المرتبطة بها
+    // معالج حفظ المنتجات والـ Upsells المختارة
     document.getElementById('product-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-product-btn');
@@ -1118,152 +1215,3 @@
       try {
         const id = document.getElementById('product-id').value;
         const name = document.getElementById('product-name').value;
-        const price = parseFloat(document.getElementById('product-price').value);
-        const category = document.getElementById('product-category').value;
-        
-        const has_customization = document.getElementById('product-has-customization').checked;
-        let customization_options = null;
-
-        if (has_customization) {
-          const jsonText = document.getElementById('product-customization-json').value.trim();
-          try {
-            customization_options = JSON.parse(jsonText);
-          } catch(err) {
-            throw new Error('صيغة الـ JSON المدخلة غير صحيحة.');
-          }
-        }
-
-        const fileInput = document.getElementById('product-image-file');
-        const files = fileInput.files;
-        let productPayload = { name, price, category, has_customization, customization_options };
-
-        if (id) {
-          const { error } = await supabaseClient.from('products').update(productPayload).eq('id', id);
-          if (error) throw error;
-
-          // حفظ وترتيب صور الـ Upsell المقترحة لهذا المنتج
-          await saveProductUpsells(id);
-
-          if (files.length > 0) {
-            let maxOrder = editingProductImages.length > 0 ? Math.max(...editingProductImages.map(i => i.sort_order || 0)) : 0;
-            for (let i = 0; i < files.length; i++) {
-              maxOrder++;
-              const filePath = `products/${Date.now()}_${i}_prod.${files[i].name.split('.').pop()}`;
-              const { error: multiUpErr } = await supabaseClient.storage.from('store-assets').upload(filePath, files[i]);
-              if (!multiUpErr) {
-                const multiImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
-                await supabaseClient.from('product_images').insert([{ product_id: id, image_url: multiImageUrl, sort_order: maxOrder }]);
-              }
-            }
-          }
-          showStatus('تم تحديث المنتج ومنتجات الـ Upsell المقترحة بنجاح!', 'success');
-
-        } else {
-          if (files.length === 0) throw new Error('يرجى اختيار صورة واحدة على الأقل للمنتج.');
-
-          const { data: newProdData, error: insertErr } = await supabaseClient.from('products').insert([productPayload]).select().single();
-          if (insertErr) throw insertErr;
-          const newProductId = newProdData.id;
-
-          // حفظ الـ Upsells للمنتج الجديد
-          await saveProductUpsells(newProductId);
-
-          for (let i = 0; i < files.length; i++) {
-            const filePath = `products/${Date.now()}_${i}_prod.${files[i].name.split('.').pop()}`;
-            const { error: multiUpErr } = await supabaseClient.storage.from('store-assets').upload(filePath, files[i]);
-            if (!multiUpErr) {
-              const multiImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
-              await supabaseClient.from('product_images').insert([{ product_id: newProductId, image_url: multiImageUrl, sort_order: i + 1 }]);
-            }
-          }
-          showStatus('تم إضافة المنتج ومنتجات الـ Upsell المقترحة بنجاح!', 'success');
-        }
-
-        resetProductForm(); 
-        fetchAdminData();
-        
-      } catch (err) {
-        showStatus('خطأ: ' + err.message, 'error');
-      } finally { 
-        btn.disabled = false; 
-        btn.textContent = 'حفظ وإضافة المنتج ✨'; 
-      }
-    });
-
-    document.getElementById('category-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const btn = document.getElementById('submit-cat-btn');
-      btn.disabled = true; btn.textContent = 'جاري المعالجة... ⏳';
-      try {
-        const id = document.getElementById('category-id').value;
-        const title = document.getElementById('cat-title').value;
-        const link_url = document.getElementById('cat-link').value || '#';
-        const fileInput = document.getElementById('cat-image-file').files[0];
-
-        let imageUrl = null;
-        if (fileInput) {
-          const filePath = `categories/${Date.now()}_cat.${fileInput.name.split('.').pop()}`;
-          const { error: upErr } = await supabaseClient.storage.from('store-assets').upload(filePath, fileInput);
-          if (upErr) throw upErr;
-          imageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
-        }
-
-        if (id) {
-          const data = { title, link_url };
-          if (imageUrl) data.image_url = imageUrl;
-          await supabaseClient.from('categories').update(data).eq('id', id);
-          showStatus('تم تحديث التصنيف الرئيسي بنجاح!', 'success');
-        } else {
-          if (!imageUrl) throw new Error('يرجى اختيار صورة للتصنيف.');
-          await supabaseClient.from('categories').insert([{ title, image_url: imageUrl, link_url }]);
-          showStatus('تم إضافة التصنيف الرئيسي بنجاح!', 'success');
-        }
-        resetCategoryForm(); fetchAdminData();
-      } catch (err) {
-        showStatus('خطأ: ' + err.message, 'error');
-      } finally { btn.disabled = false; btn.textContent = 'حفظ وإضافة التصنيف الرئيسي 🌸'; }
-    });
-
-    document.getElementById('subcat-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const btn = document.getElementById('submit-subcat-btn');
-      btn.disabled = true; btn.textContent = 'جاري المعالجة... ⏳';
-      try {
-        const id = document.getElementById('subcat-id').value;
-        const title = document.getElementById('subcat-title').value;
-        const link_url = document.getElementById('subcat-link').value || '#';
-        const fileInput = document.getElementById('subcat-image-file').files[0];
-
-        let imageUrl = null;
-        if (fileInput) {
-          const filePath = `sub_categories/${Date.now()}_subcat.${fileInput.name.split('.').pop()}`;
-          const { error: upErr } = await supabaseClient.storage.from('store-assets').upload(filePath, fileInput);
-          if (upErr) throw upErr;
-          imageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
-        }
-
-        if (id) {
-          const data = { title, link_url };
-          if (imageUrl) data.image_url = imageUrl;
-          await supabaseClient.from('sub_categories').update(data).eq('id', id);
-          showStatus('تم تحديث التصنيف الفرعي بنجاح!', 'success');
-        } else {
-          if (!imageUrl) throw new Error('يرجى اختيار صورة للتصنيف.');
-          await supabaseClient.from('sub_categories').insert([{ title, image_url: imageUrl, link_url }]);
-          showStatus('تم إضافة التصنيف الفرعي بنجاح!', 'success');
-        }
-        resetSubCatForm(); fetchAdminData();
-      } catch (err) {
-        showStatus('خطأ: ' + err.message, 'error');
-      } finally { btn.disabled = false; btn.textContent = 'حفظ وإضافة التصنيف الفرعي 🌿'; }
-    });
-
-    function showStatus(text, type) {
-      statusMsg.textContent = text;
-      statusMsg.className = `p-4 rounded-xl text-sm text-center font-medium mb-6 shadow-sm ${type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`;
-      statusMsg.classList.remove('hidden');
-      setTimeout(() => { statusMsg.classList.add('hidden'); }, 4000);
-    }
-  </script>
-</body>
-</html>
