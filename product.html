@@ -576,20 +576,26 @@
         if (!container) return;
 
         try {
-            // جلب منتجات الـ upsell المرطبة حصرياً لهذا المنتج من جدول product_upsells في قاعدة البيانات
-            const { data: upsells, error } = await supabaseClient
+            // جلب كافة السجلات من جدول product_upsells لمطابقة المعرف بدقة بغض النظر عن نوع البيانات (نص أو رقم)
+            const { data: allUpsells, error } = await supabaseClient
                 .from('product_upsells')
-                .select('*')
-                .eq('product_id', productId);
+                .select('*');
 
-            if (error || !upsells || upsells.length === 0) {
-                container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد منتجات مقترحة (Upsell) مربوطة بهذا المنتج حالياً من لوحة التحكم.</p>';
+            if (error || !allUpsells) {
+                container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد منتجات مقترحة حالياً.</p>';
                 return;
             }
 
-            // عرض المنتجات الحقيقية المضافة من لوحة التحكم
-            container.innerHTML = upsells.map(item => {
-                // استخراج بيانات المنتج المقترح سواء كانت مخزنة مباشرة أو كمعرف منتج
+            // تصفية المنتجات المقترحة بناءً على مطابقة معرّف المنتج (سواء كان مطابقاً تماماً أو بنوع البيانات)
+            const matchedUpsells = allUpsells.filter(item => String(item.product_id) === String(productId));
+
+            if (matchedUpsells.length === 0) {
+                container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد منتجات مقترحة (Upsell) مربوطة بهذا المنتج من لوحة التحكم بعد.</p>';
+                return;
+            }
+
+            // عرض المنتجات الحقيقية المضافة من لوحة التحكم حصرياً
+            container.innerHTML = matchedUpsells.map(item => {
                 const itemName = item.upsell_title || item.name || item.title || 'هدية مقترحة';
                 const itemPrice = parseFloat(item.upsell_price || item.price || 15);
                 const itemImage = item.upsell_image || item.image_url || 'placeholder.jpg';
@@ -611,7 +617,6 @@
             container.innerHTML = '<p style="color:#888; font-size:13px;">عذراً، حدث خطأ أثناء تحميل الهدايا المقترحة.</p>';
         }
     }
-
     function openUpsellModal() {
         const modal = document.getElementById('upsell-modal-backdrop');
         const cart = getCart();
