@@ -576,7 +576,7 @@
         if (!container) return;
 
         try {
-            // 1. جلب سجلات الـ upsell الخاصة بالمنتج الحالي من جدول product_upsells
+            // 1. جلب علاقات الـ upsell الخاصة بالمنتج الحالي
             const { data: upsellRelations, error } = await supabaseClient
                 .from('product_upsells')
                 .select('*');
@@ -586,7 +586,6 @@
                 return;
             }
 
-            // تصفية السجلات بناءً على مطابقة product_id (مع دعم اختلاف أنواع البيانات نص/رقم)
             const matchedRelations = upsellRelations.filter(item => String(item.product_id) === String(currentProductId));
 
             if (matchedRelations.length === 0) {
@@ -594,13 +593,11 @@
                 return;
             }
 
-            // 2. استخراج معرفات المنتجات المقترحة (upsell_product_id)
             const upsellProductIds = matchedRelations.map(r => String(r.upsell_product_id));
 
-            // 3. جلب تفاصيل هذه المنتجات الحقيقية من مصفوفة allStoreProducts أو من جدول products مباشرة
+            // 2. جلب المنتجات المقترحة من جدول products
             let upsellProductsList = allStoreProducts.filter(p => upsellProductIds.includes(String(p.id)));
 
-            // إذا لم تكن مخزنة مسبقاً في المصفوفة، نقوم بجلبها مباشرة من قاعدة البيانات
             if (upsellProductsList.length === 0) {
                 const { data: fetchedProds } = await supabaseClient
                     .from('products')
@@ -612,16 +609,29 @@
                 }
             }
 
-            if (upsellProductsList.length === 0) {
-                container.innerHTML = '<p style="color:#888; font-size:13px;">لم يتم العثور على تفاصيل المنتجات المقترحة.</p>';
-                return;
-            }
+            // 3. جلب الصور من جدول product_images احتياطياً لضمان ظهور الصور بنسبة 100%
+            const { data: allProductImages } = await supabaseClient
+                .from('product_images')
+                .select('*');
 
-            // 4. عرض المنتجات المقترحة بأسمائها، صورها، وأسعارها الحقيقية
+            // 4. عرض المنتجات مع فحص كافة الاحتمالات لحقول الصور
             container.innerHTML = upsellProductsList.map(item => {
-                const itemName = item.name || 'هدية مقترحة';
-                const itemPrice = parseFloat(item.price) || 15;
-                const itemImage = item.image_url || 'placeholder.jpg';
+                const itemName = item.name || item.title || 'هدية مقترحة';
+                const itemPrice = parseFloat(item.price || item.upsell_price) || 15;
+                
+                // البحث عن الصورة بكل الطرق المتاحة
+                let itemImage = item.image_url || item.image || item.img || item.url || '';
+                
+                if (!itemImage && allProductImages) {
+                    const foundImg = allProductImages.find(img => String(img.product_id) === String(item.id));
+                    if (foundImg) {
+                        itemImage = foundImg.image_url || foundImg.url || '';
+                    }
+                }
+
+                if (!itemImage) {
+                    itemImage = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
+                }
 
                 return `
                     <div style="min-width: 160px; max-width: 160px; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; background: #fff; display: flex; flex-direction: column; justify-content: space-between;">
