@@ -162,11 +162,11 @@
               <input type="hidden" id="product-category">
             </div>
 
-            <!-- زر تفعيل المنتج المخفي (Ghost Product) الجديد -->
+            <!-- زر تفعيل المنتج المخفي (Ghost Product) -->
             <div class="md:col-span-2 bg-[#f8fafc] border border-slate-200 p-4 rounded-2xl flex items-center justify-between">
               <div>
                 <h4 class="font-bold text-sm text-[#00313C]">إخفاء المنتج من التصفح العام (Ghost Product) 👻</h4>
-                <p class="text-[11px] text-gray-500">عند تفعيل هذا الخيار، لن يظهر المنتج في المتجر الرئيسي أو التصنيفات أو البحث، وسيظهر فقط كمقترح (Upsell أو FBT).</p>
+                <p class="text-[11px] text-gray-500">عند تفعيل هذا الخيار، لن يظهر المنتج في المتجر الرئيسي أو التصنيفات، وسيظهر فقط كمقترح.</p>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" id="product-is-hidden" class="sr-only peer">
@@ -180,9 +180,9 @@
               <input type="file" id="product-image-file" accept="image/*" multiple class="w-full border border-gray-200 rounded-xl p-1.5 text-xs bg-gray-50">
             </div>
 
-            <!-- قسم ترتيب وإدارة صور المنتج الحالي (يظهر عند التعديل) -->
+            <!-- قسم ترتيب وإدارة صور المنتج الحالي -->
             <div id="product-images-manager-wrapper" class="md:col-span-2 hidden bg-gray-50 p-4 rounded-xl border border-gray-200">
-              <label class="block text-xs font-bold text-[#00313C] mb-2">ترتيب ومعاينة صور المنتج (اسحب وأفلت لترتيبها، الصورة الأولى هي الرئيسية 🌟)</label>
+              <label class="block text-xs font-bold text-[#00313C] mb-2">ترتيب ومعاينة صور المنتج (الصورة الأولى هي الرئيسية 🌟)</label>
               <div id="admin-sortable-images-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3"></div>
               <button type="button" onclick="saveImagesNewOrder()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 transition cursor-pointer">حفظ ترتيب الصور الجديد ✅</button>
             </div>
@@ -223,24 +223,19 @@
             <!-- ===== قسم إدارة منتجات الـ Upsell المقترحة ===== -->
             <div class="md:col-span-2 bg-[#faf9f6] border border-[#f0ece1] p-4 rounded-2xl space-y-3">
               <h4 class="font-bold text-sm text-[#00313C]">إدارة منتجات النافذة المنبثقة (Upsell المقترحة لهذا المنتج) 🎁</h4>
-              <p class="text-[11px] text-gray-500">ابحث واختر المنتجات التي ستظهر كـ Upsell عندما يضيف العميل هذا المنتج إلى السلة:</p>
-              
               <div class="relative">
                 <button type="button" onclick="toggleDropdown('upsell-dropdown-menu', event)" class="w-full border border-gray-200 rounded-xl p-2.5 text-sm bg-white text-right flex justify-between items-center outline-none cursor-pointer shadow-xs">
                   <span id="selected-upsells-label" class="text-gray-500 text-xs">🔍 ابحث واختر منتجات الـ Upsell...</span>
                   <span class="text-xs text-gray-400">▼</span>
                 </button>
-                
                 <div id="upsell-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-3 space-y-2">
                   <div class="pb-2 border-b border-gray-100">
-                    <input type="text" id="upsell-search-input" placeholder="اكتب للبحث عن اسم المنتج..." oninput="filterUpsellDropdownList()" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none bg-gray-50 focus:ring-2 focus:ring-[#00313C]">
+                    <input type="text" id="upsell-search-input" placeholder="اكتب للبحث عن اسم المنتج..." oninput="filterUpsellDropdownList()" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none bg-gray-50">
                   </div>
                   <div id="upsell-checkboxes-container" class="space-y-1 max-h-48 overflow-y-auto"></div>
                 </div>
               </div>
-
               <div class="mt-2">
-                <label class="block text-[11px] font-bold text-gray-600 mb-1.5">المنتجات المقترحة المحددة حالياً لهذا المنتج:</label>
                 <div id="selected-upsells-pills-container" class="flex flex-wrap gap-1.5 min-h-[38px] p-2 bg-white rounded-xl border border-gray-200">
                   <span class="text-xs text-gray-400 self-center">لم يتم اختيار أي منتجات بعد.</span>
                 </div>
@@ -248,7 +243,7 @@
               <div id="hidden-upsell-inputs-container"></div>
             </div>
 
-            <!-- ===== قسم إدارة منتجات الشراء المشترك (FBT) مع زر التشغيل والإطفاء المعدل ===== -->
+            <!-- ===== قسم إدارة منتجات الشراء المشترك (FBT) المحدث ===== -->
             <div class="md:col-span-2 bg-[#faf9f6] border border-[#f0ece1] p-4 rounded-2xl space-y-3">
               <div class="flex items-center justify-between border-b pb-2">
                 <div>
@@ -268,17 +263,15 @@
                   <span id="selected-fbts-label" class="text-gray-500 text-xs">🔍 ابحث واختر منتجات الشراء المشترك (FBT)...</span>
                   <span class="text-xs text-gray-400">▼</span>
                 </button>
-                
                 <div id="fbt-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-3 space-y-2">
                   <div class="pb-2 border-b border-gray-100">
-                    <input type="text" id="fbt-search-input" placeholder="اكتب للبحث عن اسم المنتج..." oninput="filterFbtDropdownList()" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none bg-gray-50 focus:ring-2 focus:ring-[#00313C]">
+                    <input type="text" id="fbt-search-input" placeholder="اكتب للبحث عن اسم المنتج..." oninput="filterFbtDropdownList()" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none bg-gray-50">
                   </div>
                   <div id="fbt-checkboxes-container" class="space-y-1 max-h-48 overflow-y-auto"></div>
                 </div>
               </div>
 
               <div class="mt-2">
-                <label class="block text-[11px] font-bold text-gray-600 mb-1.5">منتجات الشراء المشترك المحددة حالياً:</label>
                 <div id="selected-fbts-pills-container" class="flex flex-wrap gap-1.5 min-h-[38px] p-2 bg-white rounded-xl border border-gray-200">
                   <span class="text-xs text-gray-400 self-center">لم يتم اختيار أي منتجات بعد.</span>
                 </div>
@@ -830,7 +823,7 @@
       }
     }
 
-    // ===== النظام الذكي لإدارة قسم الشراء المشترك (FBT - product_fbt_bundles) مع الحفظ الصحيح =====
+    // ===== النظام الذكي لإدارة قسم الشراء المشترك (FBT - product_fbt_bundles) مع الحفظ الصحيح والمطابق =====
     let selectedFbtIds = [];
 
     async function initFbtDropdownSelector(currentProdId = null) {
@@ -934,11 +927,11 @@
     }
 
     async function saveProductFbt(productId) {
-      // إزالة القديم أولاً
+      // حذف الروابط القديمة أولاً لتجنب التكرار
       await supabaseClient.from('product_fbt_bundles').delete().eq('product_id', productId);
       const hasFbtChecked = document.getElementById('product-has-fbt').checked;
       
-      // إذا كان المفتاح مفعلاً وتم اختيار منتجات، نقوم بإدخالها للجدول بالشكل الصحيح
+      // إذا كان المفتاح مفعلاً وتم اختيار منتجات، نقوم بإدراجها بالأسماء الصحيحة للأعمدة
       if (hasFbtChecked && selectedFbtIds.length > 0) {
         let inserts = selectedFbtIds.map((id, index) => ({
           product_id: productId,
@@ -1346,7 +1339,6 @@
       renderProductCategoryCheckboxes(prodCats);
       updateProductSelectedCategories();
 
-      // تعيين حالة الحفظ للمنتج المخفى
       document.getElementById('product-is-hidden').checked = !!p.is_hidden;
 
       const hasCustToggle = document.getElementById('product-has-customization');
@@ -1362,7 +1354,7 @@
         loadCustomizationUIFromJson(null);
       }
 
-      // جلب حالة زر تفعيل FBT
+      // تفعيل حالة FBT الحالية للمنتج
       document.getElementById('product-has-fbt').checked = !!p.has_fbt;
 
       await initUpsellDropdownSelector(p.id);
