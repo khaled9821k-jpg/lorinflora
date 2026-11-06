@@ -174,12 +174,12 @@
               <button type="button" onclick="saveImagesNewOrder()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 transition cursor-pointer">حفظ ترتيب الصور الجديد ✅</button>
             </div>
 
-            <!-- ===== قسم خيارات التخصيص (Customization Options) المدمج في تعديل وإضافة المنتج ===== -->
-            <div class="md:col-span-2 bg-[#faf9f6] border border-[#f0ece1] p-4 rounded-2xl space-y-3">
+            <!-- ===== قسم إعدادات خيارات التخصيص البديل (خيارات واضحة مع إمكانية التفعيل والتعطيل) ===== -->
+            <div class="md:col-span-2 bg-[#faf9f6] border border-[#f0ece1] p-4 rounded-2xl space-y-4">
               <div class="flex items-center justify-between border-b pb-2">
                 <div>
                   <h4 class="font-bold text-sm text-[#00313C]">إعدادات خيارات التخصيص (Customization Options) ✨</h4>
-                  <p class="text-[11px] text-gray-500">تمكين التخصيص يتيح للعميل اختيار الحجم وفازة الزهور بأسعار إضافية حسب الرغبة.</p>
+                  <p class="text-[11px] text-gray-500">تمكين التخصيص يتيح للعميل اختيار الأحجام والفازات بأسعار إضافية.</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="product-has-customization" class="sr-only peer" onchange="toggleCustomizationFields(this.checked)">
@@ -188,26 +188,32 @@
                 </label>
               </div>
 
-              <div id="customization-json-container" class="hidden space-y-3 pt-2">
-                <div>
-                  <label class="block text-xs font-semibold text-gray-700 mb-1">صيغة الـ JSON المخصصة (يمكنك تعديل الأسعار والخيارات بحرية)</label>
-                  <textarea id="product-customization-json" rows="8" class="w-full border border-gray-300 rounded-xl p-3 text-xs font-mono bg-white outline-none focus:ring-2 focus:ring-[#00313C]" dir="ltr">{
-  "Flowers Size & Look": [
-    { "name": "Standard", "price": 0 },
-    { "name": "Deluxe", "price": 18 },
-    { "name": "Premium", "price": 29 }
-  ],
-  "Vase or Bouquet for flowers": [
-    { "name": "Bouquet", "price": 0 },
-    { "name": "Vase", "price": 8 }
-  ]
-}</textarea>
-                  <p class="text-[10px] text-gray-400 mt-1">تأكد من صحة بنية الـ JSON (استخدم علامات التنصيص المزدوجة والأقواس بدقة).</p>
+              <div id="customization-options-container" class="hidden space-y-4 pt-2">
+                <!-- خيارات الحجم والمظهر -->
+                <div class="bg-white p-3 rounded-xl border border-gray-200 space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-700">مجموعة الأحجام (Flowers Size & Look)</span>
+                    <button type="button" onclick="addCustomOptionRow('size')" class="text-xs bg-[#00313C] text-white px-2.5 py-1 rounded-md font-bold">إضافة خيار حجم ➕</button>
+                  </div>
+                  <div id="size-options-rows" class="space-y-2">
+                    <!-- سيتم تعبئتها ديناميكياً -->
+                  </div>
+                </div>
+
+                <!-- خيارات الفازة أو التغليف -->
+                <div class="bg-white p-3 rounded-xl border border-gray-200 space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-700">مجموعة الفازات / التغليف (Vase or Bouquet)</span>
+                    <button type="button" onclick="addCustomOptionRow('vessel')" class="text-xs bg-[#00313C] text-white px-2.5 py-1 rounded-md font-bold">إضافة خيار فازة ➕</button>
+                  </div>
+                  <div id="vessel-options-rows" class="space-y-2">
+                    <!-- سيتم تعبئتها ديناميكياً -->
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- ===== قسم إدارة منتجات الـ Upsell (ستارة منسدلة مع بحث فوري) الاحترافي ===== -->
+            <!-- ===== قسم إدارة منتجات الـ Upsell المقترحة ===== -->
             <div class="md:col-span-2 bg-[#faf9f6] border border-[#f0ece1] p-4 rounded-2xl space-y-3">
               <h4 class="font-bold text-sm text-[#00313C]">إدارة منتجات النافذة المنبثقة (Upsell المقترحة لهذا المنتج) 🎁</h4>
               <p class="text-[11px] text-gray-500">ابحث واختر المنتجات التي ستظهر كـ Upsell عندما يضيف العميل هذا المنتج إلى السلة:</p>
@@ -218,27 +224,49 @@
                   <span class="text-xs text-gray-400">▼</span>
                 </button>
                 
-                <!-- الستارة المنسدلة للبحث واختيار المنتجات -->
                 <div id="upsell-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-3 space-y-2">
                   <div class="pb-2 border-b border-gray-100">
                     <input type="text" id="upsell-search-input" placeholder="اكتب للبحث عن اسم المنتج..." oninput="filterUpsellDropdownList()" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none bg-gray-50 focus:ring-2 focus:ring-[#00313C]">
                   </div>
-                  <div id="upsell-checkboxes-container" class="space-y-1 max-h-48 overflow-y-auto">
-                    <!-- يتم تعبئتها ديناميكياً -->
-                  </div>
+                  <div id="upsell-checkboxes-container" class="space-y-1 max-h-48 overflow-y-auto"></div>
                 </div>
               </div>
 
-              <!-- صندوق عرض المنتجات المختارة حالياً بشكل أنيق -->
               <div class="mt-2">
                 <label class="block text-[11px] font-bold text-gray-600 mb-1.5">المنتجات المقترحة المحددة حالياً لهذا المنتج:</label>
                 <div id="selected-upsells-pills-container" class="flex flex-wrap gap-1.5 min-h-[38px] p-2 bg-white rounded-xl border border-gray-200">
                   <span class="text-xs text-gray-400 self-center">لم يتم اختيار أي منتجات بعد.</span>
                 </div>
               </div>
-
-              <!-- تخزين الـ IDs المختارة مخفية لإرسالها مع النموذج -->
               <div id="hidden-upsell-inputs-container"></div>
+            </div>
+
+            <!-- ===== قسم إدارة منتجات الشراء المشترك (FBT - يقوم المستخدمون بشراء هذه المنتجات سوياً) ===== -->
+            <div class="md:col-span-2 bg-[#faf9f6] border border-[#f0ece1] p-4 rounded-2xl space-y-3">
+              <h4 class="font-bold text-sm text-[#00313C]">إدارة قسم (يقوم المستخدمون بشراء هذه المنتجات سوياً - FBT) 🔗</h4>
+              <p class="text-[11px] text-gray-500">اختر المنتج الإضافي الذي سيظهر بجانب هذا المنتج في أسفل صفحة المنتج:</p>
+              
+              <div class="relative">
+                <button type="button" onclick="toggleDropdown('fbt-dropdown-menu', event)" class="w-full border border-gray-200 rounded-xl p-2.5 text-sm bg-white text-right flex justify-between items-center outline-none cursor-pointer shadow-xs">
+                  <span id="selected-fbts-label" class="text-gray-500 text-xs">🔍 ابحث واختر منتجات الشراء المشترك (FBT)...</span>
+                  <span class="text-xs text-gray-400">▼</span>
+                </button>
+                
+                <div id="fbt-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-3 space-y-2">
+                  <div class="pb-2 border-b border-gray-100">
+                    <input type="text" id="fbt-search-input" placeholder="اكتب للبحث عن اسم المنتج..." oninput="filterFbtDropdownList()" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs outline-none bg-gray-50 focus:ring-2 focus:ring-[#00313C]">
+                  </div>
+                  <div id="fbt-checkboxes-container" class="space-y-1 max-h-48 overflow-y-auto"></div>
+                </div>
+              </div>
+
+              <div class="mt-2">
+                <label class="block text-[11px] font-bold text-gray-600 mb-1.5">منتجات الشراء المشترك المحددة حالياً:</label>
+                <div id="selected-fbts-pills-container" class="flex flex-wrap gap-1.5 min-h-[38px] p-2 bg-white rounded-xl border border-gray-200">
+                  <span class="text-xs text-gray-400 self-center">لم يتم اختيار أي منتجات بعد.</span>
+                </div>
+              </div>
+              <div id="hidden-fbt-inputs-container"></div>
             </div>
             <!-- ==================================================================== -->
 
@@ -539,6 +567,7 @@
       await loadCategoriesIntoDropdowns();
       await loadSiteSettingsInAdmin();
       await initUpsellDropdownSelector();
+      await initFbtDropdownSelector();
       updateStats();
     }
 
@@ -667,7 +696,7 @@
         </tr>`).join('');
     }
 
-    // ===== النظام الذكي الجديد لإدارة الـ Upsell (ستارة منسدلة مع بحث فوري) =====
+    // ===== النظام الذكي لإدارة الـ Upsell =====
     let selectedUpsellIds = [];
 
     async function initUpsellDropdownSelector(currentProdId = null) {
@@ -703,7 +732,7 @@
         return `
           <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer text-xs font-medium text-gray-700 transition">
             <div class="flex items-center gap-2 truncate">
-              <input type="checkbox" value="${p.id}" ${isChecked} onchange="toggleUpsellProductSelection('${p.id}', '${p.name.replace(/'/g, "")}', ${p.price})" class="rounded border-gray-300 text-[#00313C] focus:ring-[#00313C]">
+              <input type="checkbox" value="${p.id}" ${isChecked} onchange="toggleUpsellProductSelection('${p.id}')" class="rounded border-gray-300 text-[#00313C] focus:ring-[#00313C]">
               <span class="truncate">${p.name}</span>
             </div>
             <span class="text-red-600 font-bold whitespace-nowrap mr-2">${p.price} د.أ</span>
@@ -716,7 +745,7 @@
       renderUpsellCheckboxesList(query);
     }
 
-    function toggleUpsellProductSelection(prodId, prodName, prodPrice) {
+    function toggleUpsellProductSelection(prodId) {
       prodId = String(prodId);
       if (selectedUpsellIds.includes(prodId)) {
         selectedUpsellIds = selectedUpsellIds.filter(id => id !== prodId);
@@ -724,16 +753,13 @@
         selectedUpsellIds.push(prodId);
       }
       renderSelectedUpsellsPills();
-      // تحديث حالة الـ checkboxes في القائمة المنسدلة الحالية بدون إعادة تحميل القائمة بالكامل
-      const searchVal = document.getElementById('upsell-search-input').value;
-      renderUpsellCheckboxesList(searchVal);
+      renderUpsellCheckboxesList(document.getElementById('upsell-search-input').value);
     }
 
     function removeUpsellPill(prodId) {
       selectedUpsellIds = selectedUpsellIds.filter(id => String(id) !== String(prodId));
       renderSelectedUpsellsPills();
-      const searchVal = document.getElementById('upsell-search-input').value;
-      renderUpsellCheckboxesList(searchVal);
+      renderUpsellCheckboxesList(document.getElementById('upsell-search-input').value);
     }
 
     function renderSelectedUpsellsPills() {
@@ -775,7 +801,6 @@
 
     async function saveProductUpsells(productId) {
       await supabaseClient.from('product_upsells').delete().eq('product_id', productId);
-      
       if (selectedUpsellIds.length > 0) {
         let inserts = selectedUpsellIds.map((id, index) => ({
           product_id: productId,
@@ -785,29 +810,217 @@
         await supabaseClient.from('product_upsells').insert(inserts);
       }
     }
+
+    // ===== النظام الذكي لإدارة قسم الشراء المشترك (FBT - product_fbt_bundles) =====
+    let selectedFbtIds = [];
+
+    async function initFbtDropdownSelector(currentProdId = null) {
+      selectedFbtIds = [];
+      if (currentProdId) {
+        const { data: existingFbts } = await supabaseClient.from('product_fbt_bundles').select('fbt_product_id').eq('product_id', currentProdId);
+        if (existingFbts) {
+          selectedFbtIds = existingFbts.map(f => String(f.fbt_product_id));
+        }
+      }
+      renderFbtCheckboxesList('');
+      renderSelectedFbtsPills();
+    }
+
+    function renderFbtCheckboxesList(searchQuery = '') {
+      const container = document.getElementById('fbt-checkboxes-container');
+      if (!container) return;
+
+      const currentProdId = document.getElementById('product-id').value;
+      const filtered = currentProducts.filter(p => {
+        if (currentProdId && String(p.id) === String(currentProdId)) return false;
+        if (searchQuery && !p.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-xs text-gray-400 text-center py-3">لا توجد منتجات مطابقة للبحث.</div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(p => {
+        const isChecked = selectedFbtIds.includes(String(p.id)) ? 'checked' : '';
+        return `
+          <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer text-xs font-medium text-gray-700 transition">
+            <div class="flex items-center gap-2 truncate">
+              <input type="checkbox" value="${p.id}" ${isChecked} onchange="toggleFbtProductSelection('${p.id}')" class="rounded border-gray-300 text-[#00313C] focus:ring-[#00313C]">
+              <span class="truncate">${p.name}</span>
+            </div>
+            <span class="text-red-600 font-bold whitespace-nowrap mr-2">${p.price} د.أ</span>
+          </label>`;
+      }).join('');
+    }
+
+    function filterFbtDropdownList() {
+      const query = document.getElementById('fbt-search-input').value;
+      renderFbtCheckboxesList(query);
+    }
+
+    function toggleFbtProductSelection(prodId) {
+      prodId = String(prodId);
+      if (selectedFbtIds.includes(prodId)) {
+        selectedFbtIds = selectedFbtIds.filter(id => id !== prodId);
+      } else {
+        selectedFbtIds.push(prodId);
+      }
+      renderSelectedFbtsPills();
+      renderFbtCheckboxesList(document.getElementById('fbt-search-input').value);
+    }
+
+    function removeFbtPill(prodId) {
+      selectedFbtIds = selectedFbtIds.filter(id => String(id) !== String(prodId));
+      renderSelectedFbtsPills();
+      renderFbtCheckboxesList(document.getElementById('fbt-search-input').value);
+    }
+
+    function renderSelectedFbtsPills() {
+      const pillsContainer = document.getElementById('selected-fbts-pills-container');
+      const hiddenInputsContainer = document.getElementById('hidden-fbt-inputs-container');
+      const label = document.getElementById('selected-fbts-label');
+
+      if (!pillsContainer) return;
+
+      if (selectedFbtIds.length === 0) {
+        label.textContent = '🔍 ابحث واختر منتجات الشراء المشترك (FBT)...';
+        label.className = 'text-gray-500 text-xs';
+        pillsContainer.innerHTML = '<span class="text-xs text-gray-400 self-center">لم يتم اختيار أي منتجات بعد.</span>';
+        hiddenInputsContainer.innerHTML = '';
+        return;
+      }
+
+      label.textContent = `✅ تم اختيار (${selectedFbtIds.length}) منتجات للشراء المشترك`;
+      label.className = 'text-[#00313C] font-semibold text-xs';
+
+      let pillsHtml = '';
+      let hiddenHtml = '';
+
+      selectedFbtIds.forEach(id => {
+        const prod = currentProducts.find(p => String(p.id) === String(id));
+        if (prod) {
+          pillsHtml += `
+            <span class="inline-flex items-center gap-1.5 bg-[#00313C] text-white px-2.5 py-1 rounded-lg text-xs font-medium shadow-xs">
+              <span>${prod.name} (${prod.price} د.أ)</span>
+              <button type="button" onclick="removeFbtPill('${prod.id}')" class="text-gray-300 hover:text-white font-bold ml-1 cursor-pointer">×</button>
+            </span>`;
+          hiddenHtml += `<input type="hidden" name="fbt_item_hidden" value="${prod.id}">`;
+        }
+      });
+
+      pillsContainer.innerHTML = pillsHtml;
+      hiddenInputsContainer.innerHTML = hiddenHtml;
+    }
+
+    async function saveProductFbt(productId) {
+      await supabaseClient.from('product_fbt_bundles').delete().eq('product_id', productId);
+      if (selectedFbtIds.length > 0) {
+        let inserts = selectedFbtIds.map(id => ({
+          product_id: productId,
+          fbt_product_id: id
+        }));
+        await supabaseClient.from('product_fbt_bundles').insert(inserts);
+      }
+    }
+    // ====================================================================
+
+    // ===== إدارة خيارات التخصيص المرئية بدلاً من JSON =====
+    function toggleCustomizationFields(isChecked) {
+      const container = document.getElementById('customization-options-container');
+      if (isChecked) {
+        container.classList.remove('hidden');
+        if (document.getElementById('size-options-rows').children.length === 0) {
+          addCustomOptionRow('size', 'Standard', 0);
+          addCustomOptionRow('size', 'Deluxe', 18);
+          addCustomOptionRow('size', 'Premium', 29);
+        }
+        if (document.getElementById('vessel-options-rows').children.length === 0) {
+          addCustomOptionRow('vessel', 'Bouquet', 0);
+          addCustomOptionRow('vessel', 'Vase', 8);
+        }
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
+    function addCustomOptionRow(type, name = '', price = 0) {
+      const containerId = type === 'size' ? 'size-options-rows' : 'vessel-options-rows';
+      const container = document.getElementById(containerId);
+      const rowId = 'opt_' + Math.random().toString(36).substr(2, 9);
+      
+      const div = document.createElement('div');
+      div.className = 'flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200';
+      div.id = rowId;
+      div.innerHTML = `
+        <input type="text" placeholder="اسم الخيار (مثال: Deluxe)" value="${name}" class="opt-name-input flex-1 border rounded-lg px-2.5 py-1 text-xs bg-white outline-none">
+        <input type="number" step="0.01" placeholder="السعر الإضافي" value="${price}" class="opt-price-input w-28 border rounded-lg px-2.5 py-1 text-xs bg-white outline-none">
+        <span class="text-xs text-gray-500">د.أ</span>
+        <button type="button" onclick="document.getElementById('${rowId}').remove()" class="bg-red-50 text-red-600 hover:bg-red-100 px-2.5 py-1 rounded-md text-xs font-bold">حذف</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function buildCustomizationJsonFromUI() {
+      const isChecked = document.getElementById('product-has-customization').checked;
+      if (!isChecked) return null;
+
+      let sizeList = [];
+      document.querySelectorAll('#size-options-rows > div').forEach(row => {
+        const name = row.querySelector('.opt-name-input').value.trim();
+        const price = parseFloat(row.querySelector('.opt-price-input').value) || 0;
+        if (name) sizeList.push({ name, price });
+      });
+
+      let vesselList = [];
+      document.querySelectorAll('#vessel-options-rows > div').forEach(row => {
+        const name = row.querySelector('.opt-name-input').value.trim();
+        const price = parseFloat(row.querySelector('.opt-price-input').value) || 0;
+        if (name) vesselList.push({ name, price });
+      });
+
+      let result = {};
+      if (sizeList.length > 0) result["Flowers Size & Look"] = sizeList;
+      if (vesselList.length > 0) result["Vase or Bouquet for flowers"] = vesselList;
+
+      return Object.keys(result).length > 0 ? result : null;
+    }
+
+    function loadCustomizationUIFromJson(optionsObj) {
+      document.getElementById('size-options-rows').innerHTML = '';
+      document.getElementById('vessel-options-rows').innerHTML = '';
+
+      if (!optionsObj) return;
+
+      if (optionsObj["Flowers Size & Look"]) {
+        optionsObj["Flowers Size & Look"].forEach(opt => {
+          addCustomOptionRow('size', opt.name, opt.price);
+        });
+      }
+      if (optionsObj["Vase or Bouquet for flowers"]) {
+        optionsObj["Vase or Bouquet for flowers"].forEach(opt => {
+          addCustomOptionRow('vessel', opt.name, opt.price);
+        });
+      }
+    }
     // ====================================================================
 
     function toggleDropdown(menuId, e) {
       e.stopPropagation();
-      document.querySelectorAll('#category-dropdown-menu, #section-dropdown-menu, #upsell-dropdown-menu').forEach(m => {
+      document.querySelectorAll('#category-dropdown-menu, #section-dropdown-menu, #upsell-dropdown-menu, #fbt-dropdown-menu').forEach(m => {
         if(m.id !== menuId) m.classList.add('hidden');
       });
       document.getElementById(menuId).classList.toggle('hidden');
     }
 
     document.addEventListener('click', function(e) {
-      if (!e.target.closest('#category-dropdown-menu') && !e.target.closest('button[onclick*="category-dropdown-menu"]')) {
-        const menu = document.getElementById('category-dropdown-menu');
-        if(menu) menu.classList.add('hidden');
-      }
-      if (!e.target.closest('#section-dropdown-menu') && !e.target.closest('button[onclick*="section-dropdown-menu"]')) {
-        const menu = document.getElementById('section-dropdown-menu');
-        if(menu) menu.classList.add('hidden');
-      }
-      if (!e.target.closest('#upsell-dropdown-menu') && !e.target.closest('button[onclick*="upsell-dropdown-menu"]')) {
-        const menu = document.getElementById('upsell-dropdown-menu');
-        if(menu) menu.classList.add('hidden');
-      }
+      ['category-dropdown-menu', 'section-dropdown-menu', 'upsell-dropdown-menu', 'fbt-dropdown-menu'].forEach(id => {
+        if (!e.target.closest('#' + id) && !e.target.closest(`button[onclick*="${id}"]`)) {
+          const menu = document.getElementById(id);
+          if(menu) menu.classList.add('hidden');
+        }
+      });
     });
 
     async function loadCategoriesIntoDropdowns() {
@@ -909,11 +1122,6 @@
         label.className = 'text-gray-500 text-xs';
         hiddenInput.value = '';
       }
-    }
-
-    function toggleCustomizationFields(isChecked) {
-      const jsonContainer = document.getElementById('customization-json-container');
-      if (isChecked) { jsonContainer.classList.remove('hidden'); } else { jsonContainer.classList.add('hidden'); }
     }
 
     async function loadSiteSettingsInAdmin() {
@@ -1115,15 +1323,18 @@
 
       if (p.customization_options) {
         try {
-          let jsonStr = typeof p.customization_options === 'string' ? p.customization_options : JSON.stringify(p.customization_options, null, 2);
-          document.getElementById('product-customization-json').value = jsonStr;
+          let opts = typeof p.customization_options === 'string' ? JSON.parse(p.customization_options) : p.customization_options;
+          loadCustomizationUIFromJson(opts);
         } catch(e) { console.error(e); }
+      } else {
+        loadCustomizationUIFromJson(null);
       }
 
       await initUpsellDropdownSelector(p.id);
+      await initFbtDropdownSelector(p.id);
       loadAdminProductImagesForProduct(p.id);
 
-      document.getElementById('product-form-title').textContent = 'تعديل بيانات المنتج والـ Upsell ✏️';
+      document.getElementById('product-form-title').textContent = 'تعديل بيانات المنتج والمقترحات ✏️';
       document.getElementById('submit-product-btn').textContent = 'تحديث المنتج ✨';
       document.getElementById('cancel-product-edit').classList.remove('hidden');
       switchTab('products');
@@ -1140,7 +1351,8 @@
       editingProductImages = [];
       renderProductCategoryCheckboxes([]);
       updateProductSelectedCategories();
-      initUpsellDropdownSelector(); // تهيئة القائمة فارغة للإضافة الجديدة
+      initUpsellDropdownSelector();
+      initFbtDropdownSelector();
       document.getElementById('product-form-title').textContent = 'إضافة منتج جديد';
       document.getElementById('submit-product-btn').textContent = 'حفظ وإضافة المنتج ✨';
       document.getElementById('cancel-product-edit').classList.add('hidden');
@@ -1151,6 +1363,7 @@
       await supabaseClient.from('products').delete().eq('id', id);
       await supabaseClient.from('product_images').delete().eq('product_id', id);
       await supabaseClient.from('product_upsells').delete().eq('product_id', id);
+      await supabaseClient.from('product_fbt_bundles').delete().eq('product_id', id);
       showStatus('تم حذف المنتج بنجاح!', 'success');
       fetchAdminData();
     };
@@ -1205,7 +1418,7 @@
       showStatus('تم حذف التصنيف الفرعي بنجاح!', 'success'); fetchAdminData();
     };
 
-    // معالج حفظ المنتجات والـ Upsells المختارة
+    // معالج حفظ المنتجات والـ Upsells والـ FBT وخيارات التخصيص
     document.getElementById('product-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-product-btn');
@@ -1219,16 +1432,7 @@
         const category = document.getElementById('product-category').value;
         
         const has_customization = document.getElementById('product-has-customization').checked;
-        let customization_options = null;
-
-        if (has_customization) {
-          const jsonText = document.getElementById('product-customization-json').value.trim();
-          try {
-            customization_options = JSON.parse(jsonText);
-          } catch(err) {
-            throw new Error('صيغة الـ JSON المدخلة غير صحيحة.');
-          }
-        }
+        const customization_options = buildCustomizationJsonFromUI();
 
         const fileInput = document.getElementById('product-image-file');
         const files = fileInput.files;
@@ -1239,6 +1443,7 @@
           if (error) throw error;
 
           await saveProductUpsells(id);
+          await saveProductFbt(id);
 
           if (files.length > 0) {
             let maxOrder = editingProductImages.length > 0 ? Math.max(...editingProductImages.map(i => i.sort_order || 0)) : 0;
@@ -1252,7 +1457,7 @@
               }
             }
           }
-          showStatus('تم تحديث المنتج ومنتجات الـ Upsell المقترحة بنجاح!', 'success');
+          showStatus('تم تحديث المنتج ومنتجات المقترحات والشراء المشترك بنجاح!', 'success');
 
         } else {
           if (files.length === 0) throw new Error('يرجى اختيار صورة واحدة على الأقل للمنتج.');
@@ -1262,6 +1467,7 @@
           const newProductId = newProdData.id;
 
           await saveProductUpsells(newProductId);
+          await saveProductFbt(newProductId);
 
           for (let i = 0; i < files.length; i++) {
             const filePath = `products/${Date.now()}_${i}_prod.${files[i].name.split('.').pop()}`;
@@ -1271,7 +1477,7 @@
               await supabaseClient.from('product_images').insert([{ product_id: newProductId, image_url: multiImageUrl, sort_order: i + 1 }]);
             }
           }
-          showStatus('تم إضافة المنتج ومنتجات الـ Upsell المقترحة بنجاح!', 'success');
+          showStatus('تم إضافة المنتج ومنتجات المقترحات والشراء المشترك بنجاح!', 'success');
         }
 
         resetProductForm(); 
@@ -1325,7 +1531,7 @@
       btn.disabled = true; btn.textContent = 'جاري المعالجة... ⏳';
       try {
         const id = document.getElementById('subcat-id').value;
-        const title = document.getElementById('subcat-title-input') ? document.getElementById('subcat-title-input').value : document.getElementById('subcat-title').value;
+        const title = document.getElementById('subcat-title').value;
         const link_url = document.getElementById('subcat-link').value || '#';
         const fileInput = document.getElementById('subcat-image-file').files[0];
 
