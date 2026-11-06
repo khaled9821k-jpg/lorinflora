@@ -535,21 +535,32 @@
         input.value = val;
     }
 
-    function getCart() { return JSON.parse(localStorage.getItem('lorin_cart')) || []; }
-    function saveCart(cart) { localStorage.setItem('lorin_cart', JSON.stringify(cart)); updateCartBadge(); }
+   function getCart() { return JSON.parse(localStorage.getItem('lorin_cart')) || []; }
+    
+    function saveCart(cart) { 
+        localStorage.setItem('lorin_cart', JSON.stringify(cart)); 
+        updateCartBadge(); 
+    }
 
     function updateCartBadge() {
         const cart = getCart();
         const badge = document.getElementById('cart-counter-badge');
         if (!badge) return;
         const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-        if (totalCount > 0) { 
-            badge.textContent = totalCount; 
-            badge.style.display = 'flex'; 
-        } else { 
-            badge.style.display = 'none'; 
+        if (totalCount > 0) {  
+            badge.textContent = totalCount;  
+            badge.style.display = 'flex';  
+        } else {  
+            badge.style.display = 'none';  
         }
     }
+
+    // الاستماع لأي تغير يحدث في السلة من صفحات أخرى (مثل صفحة السلة) لتحديث العداد فوراً
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'lorin_cart') {
+            updateCartBadge();
+        }
+    });
 
     function addToCart(product) {
         const qty = parseInt(document.getElementById('product-qty').value) || 1;
@@ -720,7 +731,7 @@
             const actionArea = document.getElementById(`upsell-action-area-${itemId}`);
             
             if (cart[index].quantity <= 0) {
-                // إذا أصبحت الكمية صفر أو أقل، نحذف المنتج من السلة ونستعيد زر ADD الأصلي فوراً
+                // إذا أصبحت الكمية صفر أو أقل، نحذف المنتج من السلة ونستعيد زر ADD الأصلي فوراً بدون مغادرة النافذة
                 const removedItemName = cart[index].name;
                 const removedItemPrice = cart[index].price;
                 const removedItemImg = cart[index].image_url;
