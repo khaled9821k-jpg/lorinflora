@@ -571,34 +571,57 @@
         openUpsellModal();
     }
 
-    async function loadUpsellsForModal(productId) {
+    async function loadUpsellsForModal(currentProductId) {
         const container = document.getElementById('upsell-products-container');
         if (!container) return;
 
         try {
-            // جلب كافة السجلات من جدول product_upsells لمطابقة المعرف بدقة بغض النظر عن نوع البيانات (نص أو رقم)
-            const { data: allUpsells, error } = await supabaseClient
+            // 1. جلب سجلات الـ upsell الخاصة بالمنتج الحالي من جدول product_upsells
+            const { data: upsellRelations, error } = await supabaseClient
                 .from('product_upsells')
                 .select('*');
 
-            if (error || !allUpsells) {
+            if (error || !upsellRelations) {
                 container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد منتجات مقترحة حالياً.</p>';
                 return;
             }
 
-            // تصفية المنتجات المقترحة بناءً على مطابقة معرّف المنتج (سواء كان مطابقاً تماماً أو بنوع البيانات)
-            const matchedUpsells = allUpsells.filter(item => String(item.product_id) === String(productId));
+            // تصفية السجلات بناءً على مطابقة product_id (مع دعم اختلاف أنواع البيانات نص/رقم)
+            const matchedRelations = upsellRelations.filter(item => String(item.product_id) === String(currentProductId));
 
-            if (matchedUpsells.length === 0) {
-                container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد منتجات مقترحة (Upsell) مربوطة بهذا المنتج من لوحة التحكم بعد.</p>';
+            if (matchedRelations.length === 0) {
+                container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد منتجات مقترحة (Upsell) مربوطة بهذا المنتج.</p>';
                 return;
             }
 
-            // عرض المنتجات الحقيقية المضافة من لوحة التحكم حصرياً
-            container.innerHTML = matchedUpsells.map(item => {
-                const itemName = item.upsell_title || item.name || item.title || 'هدية مقترحة';
-                const itemPrice = parseFloat(item.upsell_price || item.price || 15);
-                const itemImage = item.upsell_image || item.image_url || 'placeholder.jpg';
+            // 2. استخراج معرفات المنتجات المقترحة (upsell_product_id)
+            const upsellProductIds = matchedRelations.map(r => String(r.upsell_product_id));
+
+            // 3. جلب تفاصيل هذه المنتجات الحقيقية من مصفوفة allStoreProducts أو من جدول products مباشرة
+            let upsellProductsList = allStoreProducts.filter(p => upsellProductIds.includes(String(p.id)));
+
+            // إذا لم تكن مخزنة مسبقاً في المصفوفة، نقوم بجلبها مباشرة من قاعدة البيانات
+            if (upsellProductsList.length === 0) {
+                const { data: fetchedProds } = await supabaseClient
+                    .from('products')
+                    .select('*')
+                    .in('id', upsellProductIds);
+                
+                if (fetchedProds) {
+                    upsellProductsList = fetchedProds;
+                }
+            }
+
+            if (upsellProductsList.length === 0) {
+                container.innerHTML = '<p style="color:#888; font-size:13px;">لم يتم العثور على تفاصيل المنتجات المقترحة.</p>';
+                return;
+            }
+
+            // 4. عرض المنتجات المقترحة بأسمائها، صورها، وأسعارها الحقيقية
+            container.innerHTML = upsellProductsList.map(item => {
+                const itemName = item.name || 'هدية مقترحة';
+                const itemPrice = parseFloat(item.price) || 15;
+                const itemImage = item.image_url || 'placeholder.jpg';
 
                 return `
                     <div style="min-width: 160px; max-width: 160px; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; background: #fff; display: flex; flex-direction: column; justify-content: space-between;">
@@ -607,7 +630,7 @@
                             <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px; line-height: 1.3;">${itemName}</div>
                             <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">JOD ${itemPrice.toFixed(2)}</div>
                         </div>
-                        <button onclick='addUpsellItemToCart(${JSON.stringify({name: itemName, price: itemPrice, image_url: itemImage})})' style="width: 100%; padding: 8px; background: #fff; color: #00313C; border: 1px solid #00313C; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">ADD</button>
+                        <button onclick='addUpsellItemToCart(${JSON.stringify({id: item.id, name: itemName, price: itemPrice, image_url: itemImage})})' style="width: 100%; padding: 8px; background: #fff; color: #00313C; border: 1px solid #00313C; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">ADD</button>
                     </div>
                 `;
             }).join('');
