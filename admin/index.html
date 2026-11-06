@@ -1215,3 +1215,150 @@
       try {
         const id = document.getElementById('product-id').value;
         const name = document.getElementById('product-name').value;
+        const price = parseFloat(document.getElementById('product-price').value);
+        const category = document.getElementById('product-category').value;
+        
+        const has_customization = document.getElementById('product-has-customization').checked;
+        let customization_options = null;
+
+        if (has_customization) {
+          const jsonText = document.getElementById('product-customization-json').value.trim();
+          try {
+            customization_options = JSON.parse(jsonText);
+          } catch(err) {
+            throw new Error('صيغة الـ JSON المدخلة غير صحيحة.');
+          }
+        }
+
+        const fileInput = document.getElementById('product-image-file');
+        const files = fileInput.files;
+        let productPayload = { name, price, category, has_customization, customization_options };
+
+        if (id) {
+          const { error } = await supabaseClient.from('products').update(productPayload).eq('id', id);
+          if (error) throw error;
+
+          await saveProductUpsells(id);
+
+          if (files.length > 0) {
+            let maxOrder = editingProductImages.length > 0 ? Math.max(...editingProductImages.map(i => i.sort_order || 0)) : 0;
+            for (let i = 0; i < files.length; i++) {
+              maxOrder++;
+              const filePath = `products/${Date.now()}_${i}_prod.${files[i].name.split('.').pop()}`;
+              const { error: multiUpErr } = await supabaseClient.storage.from('store-assets').upload(filePath, files[i]);
+              if (!multiUpErr) {
+                const multiImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
+                await supabaseClient.from('product_images').insert([{ product_id: id, image_url: multiImageUrl, sort_order: maxOrder }]);
+              }
+            }
+          }
+          showStatus('تم تحديث المنتج ومنتجات الـ Upsell المقترحة بنجاح!', 'success');
+
+        } else {
+          if (files.length === 0) throw new Error('يرجى اختيار صورة واحدة على الأقل للمنتج.');
+
+          const { data: newProdData, error: insertErr } = await supabaseClient.from('products').insert([productPayload]).select().single();
+          if (insertErr) throw insertErr;
+          const newProductId = newProdData.id;
+
+          await saveProductUpsells(newProductId);
+
+          for (let i = 0; i < files.length; i++) {
+            const filePath = `products/${Date.now()}_${i}_prod.${files[i].name.split('.').pop()}`;
+            const { error: multiUpErr } = await supabaseClient.storage.from('store-assets').upload(filePath, files[i]);
+            if (!multiUpErr) {
+              const multiImageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
+              await supabaseClient.from('product_images').insert([{ product_id: newProductId, image_url: multiImageUrl, sort_order: i + 1 }]);
+            }
+          }
+          showStatus('تم إضافة المنتج ومنتجات الـ Upsell المقترحة بنجاح!', 'success');
+        }
+
+        resetProductForm(); 
+        fetchAdminData();
+        
+      } catch (err) {
+        showStatus('خطأ: ' + err.message, 'error');
+      } finally { 
+        btn.disabled = false; 
+        btn.textContent = 'حفظ وإضافة المنتج ✨'; 
+      }
+    });
+
+    document.getElementById('category-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submit-cat-btn');
+      btn.disabled = true; btn.textContent = 'جاري المعالجة... ⏳';
+      try {
+        const id = document.getElementById('category-id').value;
+        const title = document.getElementById('cat-title').value;
+        const link_url = document.getElementById('cat-link').value || '#';
+        const fileInput = document.getElementById('cat-image-file').files[0];
+
+        let imageUrl = null;
+        if (fileInput) {
+          const filePath = `categories/${Date.now()}_cat.${fileInput.name.split('.').pop()}`;
+          const { error: upErr } = await supabaseClient.storage.from('store-assets').upload(filePath, fileInput);
+          if (upErr) throw upErr;
+          imageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
+        }
+
+        if (id) {
+          const data = { title, link_url };
+          if (imageUrl) data.image_url = imageUrl;
+          await supabaseClient.from('categories').update(data).eq('id', id);
+          showStatus('تم تحديث التصنيف الرئيسي بنجاح!', 'success');
+        } else {
+          if (!imageUrl) throw new Error('يرجى اختيار صورة للتصنيف.');
+          await supabaseClient.from('categories').insert([{ title, image_url: imageUrl, link_url }]);
+          showStatus('تم إضافة التصنيف الرئيسي بنجاح!', 'success');
+        }
+        resetCategoryForm(); fetchAdminData();
+      } catch (err) {
+        showStatus('خطأ: ' + err.message, 'error');
+      } finally { btn.disabled = false; btn.textContent = 'حفظ وإضافة التصنيف الرئيسي 🌸'; }
+    });
+
+    document.getElementById('subcat-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submit-subcat-btn');
+      btn.disabled = true; btn.textContent = 'جاري المعالجة... ⏳';
+      try {
+        const id = document.getElementById('subcat-id').value;
+        const title = document.getElementById('subcat-title-input') ? document.getElementById('subcat-title-input').value : document.getElementById('subcat-title').value;
+        const link_url = document.getElementById('subcat-link').value || '#';
+        const fileInput = document.getElementById('subcat-image-file').files[0];
+
+        let imageUrl = null;
+        if (fileInput) {
+          const filePath = `sub_categories/${Date.now()}_subcat.${fileInput.name.split('.').pop()}`;
+          const { error: upErr } = await supabaseClient.storage.from('store-assets').upload(filePath, fileInput);
+          if (upErr) throw upErr;
+          imageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(filePath).data.publicUrl;
+        }
+
+        if (id) {
+          const data = { title, link_url };
+          if (imageUrl) data.image_url = imageUrl;
+          await supabaseClient.from('sub_categories').update(data).eq('id', id);
+          showStatus('تم تحديث التصنيف الفرعي بنجاح!', 'success');
+        } else {
+          if (!imageUrl) throw new Error('يرجى اختيار صورة للتصنيف.');
+          await supabaseClient.from('sub_categories').insert([{ title, image_url: imageUrl, link_url }]);
+          showStatus('تم إضافة التصنيف الفرعي بنجاح!', 'success');
+        }
+        resetSubCatForm(); fetchAdminData();
+      } catch (err) {
+        showStatus('خطأ: ' + err.message, 'error');
+      } finally { btn.disabled = false; btn.textContent = 'حفظ وإضافة التصنيف الفرعي 🌿'; }
+    });
+
+    function showStatus(text, type) {
+      statusMsg.textContent = text;
+      statusMsg.className = `p-4 rounded-xl text-sm text-center font-medium mb-6 shadow-sm ${type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`;
+      statusMsg.classList.remove('hidden');
+      setTimeout(() => { statusMsg.classList.add('hidden'); }, 4000);
+    }
+  </script>
+</body>
+</html>
