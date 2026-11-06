@@ -71,6 +71,18 @@
         .upsell-modal-box { background: #ffffff; width: 100%; max-width: 680px; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; padding: 25px; box-sizing: border-box; max-height: 90vh; display: flex; flex-direction: column; }
         .upsell-modal-backdrop.is-open .upsell-modal-box { transform: translateY(0); }
         
+        /* ستايل الهياكل المتحركة (Skeleton Loaders) الفاخرة */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .skeleton-box {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+        
         :root { --floward-main-color: #00313C; --floward-font-size: 14px; --floward-icon-size: 20px; }
         .floward-left-group { display: flex !important; align-items: center !important; gap: 1.5rem !important; justify-self: start; }
         .floward-center-group { justify-self: center; text-align: center; }
@@ -324,6 +336,20 @@
             return;
         }
 
+        // عرض الـ Skeleton Loader الفاخر بدلاً من النص التقليدي
+        container.innerHTML = `
+            <div style="display: flex; gap: 20px;">
+                <div class="skeleton-box" style="width: 85px; height: 520px;"></div>
+                <div class="skeleton-box" style="flex: 1; height: 520px; border-radius: 16px;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px; padding-top: 20px;">
+                <div class="skeleton-box" style="width: 150px; height: 35px;"></div>
+                <div class="skeleton-box" style="width: 80%; height: 25px;"></div>
+                <div class="skeleton-box" style="width: 100%; height: 50px; border-radius: 12px;"></div>
+                <div class="skeleton-box" style="width: 100%; height: 50px; border-radius: 12px;"></div>
+            </div>
+        `;
+
         try {
             let product = null;
 
@@ -572,7 +598,6 @@
         }
     }
 
-    // الاستماع لأي تغير يحدث في السلة من صفحات أخرى (مثل صفحة السلة) لتحديث العداد فوراً
     window.addEventListener('storage', function(e) {
         if (e.key === 'lorin_cart') {
             updateCartBadge();
@@ -595,7 +620,6 @@
         cart.push(cartItem);
         saveCart(cart);
 
-        // فتح نافذة الـ Upsell Modal بعد الإضافة بنجاح وتحديث إجمالي السلة
         openUpsellModal();
     }
 
@@ -604,7 +628,6 @@
         if (!container) return;
 
         try {
-            // 1. جلب علاقات الـ upsell الخاصة بالمنتج الحالي
             const { data: upsellRelations, error } = await supabaseClient
                 .from('product_upsells')
                 .select('*');
@@ -623,7 +646,6 @@
 
             const upsellProductIds = matchedRelations.map(r => String(r.upsell_product_id));
 
-            // 2. جلب المنتجات المقترحة من جدول products
             let upsellProductsList = allStoreProducts.filter(p => upsellProductIds.includes(String(p.id)));
 
             if (upsellProductsList.length === 0) {
@@ -637,20 +659,17 @@
                 }
             }
 
-            // 3. جلب الصور من جدول product_images احتياطياً لضمان ظهور الصور بنسبة 100%
             const { data: allProductImages } = await supabaseClient
                 .from('product_images')
                 .select('*');
 
             const currentCart = getCart();
 
-            // 4. عرض المنتجات مع فحص كافة الاحتمالات لحقول الصور
             container.innerHTML = upsellProductsList.map(item => {
                 const itemName = item.name || item.title || 'هدية مقترحة';
                 const itemPrice = parseFloat(item.price || item.upsell_price) || 15;
                 const itemId = String(item.id);
                 
-                // البحث عن الصورة بكل الطرق المتاحة
                 let itemImage = item.image_url || item.image || item.img || item.url || '';
                 
                 if (!itemImage && allProductImages) {
@@ -664,7 +683,6 @@
                     itemImage = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
                 }
 
-                // التحقق هل المنتج موجود مسبقاً في السلة لعرض العداد مباشرة إذا كان مضافاً
                 const existingCartItem = currentCart.find(cartItem => String(cartItem.id) === itemId);
                 const qty = existingCartItem ? existingCartItem.quantity : 0;
 
@@ -696,7 +714,6 @@
     }
 
    function renderQuantityControls(itemId, qty) {
-        // إذا كانت الكمية 1، نعرض أيقونة سلة المهملات، وإذا كانت أكثر من 1 نعرض علامة الناقص (-)
         const minusOrTrashIcon = qty === 1 
             ? `<svg style="width:14px; height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`
             : `-`;
@@ -748,7 +765,6 @@
             const actionArea = document.getElementById(`upsell-action-area-${itemId}`);
             
             if (cart[index].quantity <= 0) {
-                // إذا أصبحت الكمية صفر أو أقل، نحذف المنتج من السلة ونستعيد زر ADD الأصلي فوراً بدون مغادرة النافذة
                 const removedItemName = cart[index].name;
                 const removedItemPrice = cart[index].price;
                 const removedItemImg = cart[index].image_url;
