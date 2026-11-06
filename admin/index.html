@@ -174,7 +174,7 @@
               <button type="button" onclick="saveImagesNewOrder()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 transition cursor-pointer">حفظ ترتيب الصور الجديد ✅</button>
             </div>
 
-            <!-- ===== قسم إعدادات خيارات التخصيص البديل (خيارات واضحة مع إمكانية التفعيل والتعطيل) ===== -->
+            <!-- ===== إعدادات خيارات التخصيص البديل ===== -->
             <div class="md:col-span-2 bg-[#faf9f6] border border-[#f0ece1] p-4 rounded-2xl space-y-4">
               <div class="flex items-center justify-between border-b pb-2">
                 <div>
@@ -189,26 +189,20 @@
               </div>
 
               <div id="customization-options-container" class="hidden space-y-4 pt-2">
-                <!-- خيارات الحجم والمظهر -->
                 <div class="bg-white p-3 rounded-xl border border-gray-200 space-y-2">
                   <div class="flex justify-between items-center">
                     <span class="text-xs font-bold text-gray-700">مجموعة الأحجام (Flowers Size & Look)</span>
                     <button type="button" onclick="addCustomOptionRow('size')" class="text-xs bg-[#00313C] text-white px-2.5 py-1 rounded-md font-bold">إضافة خيار حجم ➕</button>
                   </div>
-                  <div id="size-options-rows" class="space-y-2">
-                    <!-- سيتم تعبئتها ديناميكياً -->
-                  </div>
+                  <div id="size-options-rows" class="space-y-2"></div>
                 </div>
 
-                <!-- خيارات الفازة أو التغليف -->
                 <div class="bg-white p-3 rounded-xl border border-gray-200 space-y-2">
                   <div class="flex justify-between items-center">
                     <span class="text-xs font-bold text-gray-700">مجموعة الفازات / التغليف (Vase or Bouquet)</span>
                     <button type="button" onclick="addCustomOptionRow('vessel')" class="text-xs bg-[#00313C] text-white px-2.5 py-1 rounded-md font-bold">إضافة خيار فازة ➕</button>
                   </div>
-                  <div id="vessel-options-rows" class="space-y-2">
-                    <!-- سيتم تعبئتها ديناميكياً -->
-                  </div>
+                  <div id="vessel-options-rows" class="space-y-2"></div>
                 </div>
               </div>
             </div>
@@ -241,12 +235,22 @@
               <div id="hidden-upsell-inputs-container"></div>
             </div>
 
-            <!-- ===== قسم إدارة منتجات الشراء المشترك (FBT - يقوم المستخدمون بشراء هذه المنتجات سوياً) ===== -->
+            <!-- ===== قسم إدارة منتجات الشراء المشترك (FBT) مع زر التشغيل والإطفاء الجديد ===== -->
             <div class="md:col-span-2 bg-[#faf9f6] border border-[#f0ece1] p-4 rounded-2xl space-y-3">
-              <h4 class="font-bold text-sm text-[#00313C]">إدارة قسم (يقوم المستخدمون بشراء هذه المنتجات سوياً - FBT) 🔗</h4>
-              <p class="text-[11px] text-gray-500">اختر المنتج الإضافي الذي سيظهر بجانب هذا المنتج في أسفل صفحة المنتج:</p>
+              <div class="flex items-center justify-between border-b pb-2">
+                <div>
+                  <h4 class="font-bold text-sm text-[#00313C]">إدارة قسم (يقوم المستخدمون بشراء هذه المنتجات سوياً - FBT) 🔗</h4>
+                  <p class="text-[11px] text-gray-500">اختر المنتجات الإضافية التي ستظهر بجانب هذا المنتج في أسفل صفحة المنتج.</p>
+                </div>
+                <!-- زر تشغيل وإطفاء قسم FBT لهذا المنتج -->
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="product-has-fbt" class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00313C]"></div>
+                  <span class="mr-2 text-xs font-bold text-gray-700">تفعيل قسم FBT</span>
+                </label>
+              </div>
               
-              <div class="relative">
+              <div class="relative pt-2">
                 <button type="button" onclick="toggleDropdown('fbt-dropdown-menu', event)" class="w-full border border-gray-200 rounded-xl p-2.5 text-sm bg-white text-right flex justify-between items-center outline-none cursor-pointer shadow-xs">
                   <span id="selected-fbts-label" class="text-gray-500 text-xs">🔍 ابحث واختر منتجات الشراء المشترك (FBT)...</span>
                   <span class="text-xs text-gray-400">▼</span>
@@ -811,7 +815,7 @@
       }
     }
 
-    // ===== النظام الذكي لإدارة قسم الشراء المشترك (FBT - product_fbt_bundles) =====
+    // ===== النظام الذكي لإدارة قسم الشراء المشترك (FBT - product_fbt_bundles) مع زر التفعيل =====
     let selectedFbtIds = [];
 
     async function initFbtDropdownSelector(currentProdId = null) {
@@ -916,7 +920,8 @@
 
     async function saveProductFbt(productId) {
       await supabaseClient.from('product_fbt_bundles').delete().eq('product_id', productId);
-      if (selectedFbtIds.length > 0) {
+      const hasFbtChecked = document.getElementById('product-has-fbt').checked;
+      if (hasFbtChecked && selectedFbtIds.length > 0) {
         let inserts = selectedFbtIds.map(id => ({
           product_id: productId,
           fbt_product_id: id
@@ -926,7 +931,7 @@
     }
     // ====================================================================
 
-    // ===== إدارة خيارات التخصيص المرئية بدلاً من JSON =====
+    // ===== إدارة خيارات التخصيص المرئية =====
     function toggleCustomizationFields(isChecked) {
       const container = document.getElementById('customization-options-container');
       if (isChecked) {
@@ -1330,6 +1335,9 @@
         loadCustomizationUIFromJson(null);
       }
 
+      // جلب حالة زر تفعيل FBT
+      document.getElementById('product-has-fbt').checked = !!p.has_fbt;
+
       await initUpsellDropdownSelector(p.id);
       await initFbtDropdownSelector(p.id);
       loadAdminProductImagesForProduct(p.id);
@@ -1347,6 +1355,7 @@
       document.getElementById('product-category').value = '';
       document.getElementById('product-images-manager-wrapper').classList.add('hidden');
       document.getElementById('product-has-customization').checked = false;
+      document.getElementById('product-has-fbt').checked = false;
       toggleCustomizationFields(false);
       editingProductImages = [];
       renderProductCategoryCheckboxes([]);
@@ -1433,10 +1442,11 @@
         
         const has_customization = document.getElementById('product-has-customization').checked;
         const customization_options = buildCustomizationJsonFromUI();
+        const has_fbt = document.getElementById('product-has-fbt').checked;
 
         const fileInput = document.getElementById('product-image-file');
         const files = fileInput.files;
-        let productPayload = { name, price, category, has_customization, customization_options };
+        let productPayload = { name, price, category, has_customization, customization_options, has_fbt };
 
         if (id) {
           const { error } = await supabaseClient.from('products').update(productPayload).eq('id', id);
