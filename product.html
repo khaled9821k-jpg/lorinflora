@@ -53,6 +53,8 @@
         .tab-btn { font-size: 15px; font-weight: 700; color: #888; background: none; border: none; padding-bottom: 12px; cursor: pointer; position: relative; }
         .tab-btn.active { color: #00313C; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; right: 0; left: 0; height: 2px; background: #00313C; }
+        
+        /* قسم (يقوم المستخدمون بشراء هذه المنتجات سوياً) المنفصل */
         .fbt-section { background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 16px; padding: 30px; margin-top: 50px; }
         .fbt-title { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 20px; text-align: right; }
         .fbt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
@@ -65,7 +67,7 @@
         .fbt-btn { background: #fff; color: #00313C; border: 1px solid #00313C; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; transition: all 0.2s; }
         .fbt-btn:hover { background: #00313C; color: #fff; }
 
-        /* ستايل نافذة الـ Upsell Modal المنبثقة المشابهة لفلاورد */
+        /* ستايل نافذة الـ Upsell Modal المنبثقة */
         .upsell-modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 999999; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .upsell-modal-backdrop.is-open { opacity: 1; visibility: visible; }
         .upsell-modal-box { background: #ffffff; width: 100%; max-width: 680px; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; padding: 25px; box-sizing: border-box; max-height: 90vh; display: flex; flex-direction: column; }
@@ -248,44 +250,17 @@
         </div>
     </div>
 
-    <!-- قسم يقوم المستخدمون بشراء هذه المنتجات سوياً -->
-    <div class="fbt-section">
+    <!-- قسم (يقوم المستخدمون بشراء هذه المنتجات سوياً) المستقل تماماً -->
+    <div id="fbt-section-wrapper" class="fbt-section" style="display: none;">
         <div class="fbt-title">يقوم المستخدمون بشراء هذه المنتجات سوياً</div>
-        <div class="fbt-grid">
-            <div class="fbt-card">
-                <div class="fbt-items-row">
-                    <div class="fbt-item">
-                        <img id="fbt-item-1" src="" alt="مزهرية">
-                        <div class="fbt-item-name" id="fbt-name-1">مزهرية جوري الابتسامة المشرقة</div>
-                    </div>
-                    <div class="fbt-plus">+</div>
-                    <div class="fbt-item">
-                        <img id="fbt-item-main-1" src="" alt="المنتج">
-                        <div class="fbt-item-name" id="fbt-main-name-1">كيك الشوكولاتة من فلاورد</div>
-                    </div>
-                </div>
-                <button class="fbt-btn" onclick="addBundleToCart(27)">أضف إلى عربة التسوق مقابل 27 JOD</button>
-            </div>
-            <div class="fbt-card">
-                <div class="fbt-items-row">
-                    <div class="fbt-item">
-                        <img id="fbt-item-2" src="" alt="مزهرية">
-                        <div class="fbt-item-name" id="fbt-name-2">مزهرية جوري للتناغم الاحمر</div>
-                    </div>
-                    <div class="fbt-plus">+</div>
-                    <div class="fbt-item">
-                        <img id="fbt-item-main-2" src="" alt="المنتج">
-                        <div class="fbt-item-name" id="fbt-main-name-2">كيك الشوكولاتة من فلاورد</div>
-                    </div>
-                </div>
-                <button class="fbt-btn" onclick="addBundleToCart(27)">أضف إلى عربة التسوق مقابل 27 JOD</button>
-            </div>
+        <div id="fbt-grid-container" class="fbt-grid">
+            <!-- سيتم التعبئة من جدول product_fbt_bundles تلقائياً -->
         </div>
     </div>
   </main>
 </div>
 
-<!-- نافذة الـ Upsell Modal المنبثقة عند الإضافة إلى السلة -->
+<!-- نافذة الـ Upsell Modal المنبثقة -->
 <div id="upsell-modal-backdrop" class="upsell-modal-backdrop">
     <div class="upsell-modal-box">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
@@ -298,7 +273,7 @@
 
         <div style="font-size: 15px; font-weight: 700; color: #111; margin-bottom: 12px;">Make it perfect ✨</div>
         
-        <!-- قائمة المنتجات المقترحة (Upsells) -->
+        <!-- قائمة الـ Upsell تعتمد على جدول product_upsells الخاص بها -->
         <div id="upsell-products-container" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none;">
             <p style="color: #888; font-size: 13px;">جاري تحميل الهدايا المقترحة...</p>
         </div>
@@ -336,7 +311,6 @@
             return;
         }
 
-        // عرض الـ Skeleton Loader الفاخر بدلاً من النص التقليدي
         container.innerHTML = `
             <div style="display: flex; gap: 20px;">
                 <div class="skeleton-box" style="width: 85px; height: 520px;"></div>
@@ -417,7 +391,6 @@
                         <span>لست بحاجة لمعرفة العنوان، فريقنا سيفعل ذلك نيابة عنك.</span>
                     </div>
 
-                    <!-- قسم التخصيص الفاخر المحدث -->
                     <div id="product-customization-section" class="customization-box" style="display: none;">
                         <h3 style="font-size: 13px; font-weight: 700; color: #00313C; margin-bottom: 10px;">Customize Your Order ✨</h3>
                         
@@ -454,11 +427,128 @@
             `;
 
             initCustomizationsUI(product);
-            loadUpsellsForModal(product.id);
+            loadUpsellsForModal(product.id);          // جلب منتجات الـ Upsell المنبثقة من جدول product_upsells
+            loadFrequentBoughtTogether(product);      // جلب منتجات الـ FBT السفلية من جدول product_fbt_bundles المنفصل
 
         } catch (err) {
             container.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">${err.message}</div>`;
         }
+    }
+
+    // دالة تحميل قسم (يقوم المستخدمون بشراء هذه المنتجات سوياً) من جدول مستقل تماماً
+    async function loadFrequentBoughtTogether(currentProd) {
+        const sectionWrapper = document.getElementById('fbt-section-wrapper');
+        const gridContainer = document.getElementById('fbt-grid-container');
+        if (!sectionWrapper || !gridContainer) return;
+
+        try {
+            // الاستعلام من الجدول المستقل الخاص بالـ FBT فقط
+            const { data: relations } = await supabaseClient
+                .from('product_fbt_bundles')
+                .select('*');
+
+            if (!relations) return;
+
+            const matched = relations.filter(r => String(r.product_id) === String(currentProd.id));
+            if (matched.length === 0) {
+                sectionWrapper.style.display = 'none';
+                return;
+            }
+
+            const fbtProductIds = matched.map(m => String(m.fbt_product_id));
+            let fbtProds = allStoreProducts.filter(p => fbtProductIds.includes(String(p.id)));
+
+            if (fbtProds.length === 0) {
+                const { data: fetched } = await supabaseClient
+                    .from('products')
+                    .select('*')
+                    .in('id', fbtProductIds);
+                if (fetched) fbtProds = fetched;
+            }
+
+            if (fbtProds.length === 0) {
+                sectionWrapper.style.display = 'none';
+                return;
+            }
+
+            const { data: allProductImages } = await supabaseClient
+                .from('product_images')
+                .select('*');
+
+            sectionWrapper.style.display = 'block';
+
+            gridContainer.innerHTML = fbtProds.map(addon => {
+                let addonImg = addon.image_url || addon.image || addon.img || '';
+                if (!addonImg && allProductImages) {
+                    const fImg = allProductImages.find(img => String(img.product_id) === String(addon.id));
+                    if (fImg) addonImg = fImg.image_url || fImg.url || '';
+                }
+                if (!addonImg) addonImg = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
+
+                const addonPrice = parseFloat(addon.price) || 15;
+                const bundlePrice = (baseProductPrice + addonPrice).toFixed(2);
+
+                const mainImgEsc = currentProd.image_url || '';
+                const mainNameEsc = currentProd.name || '';
+                const addonImgEsc = addonImg;
+                const addonNameEsc = addon.name || '';
+
+                const bundleObj = JSON.stringify({
+                    main: { id: currentProd.id, name: mainNameEsc, price: baseProductPrice, image_url: mainImgEsc },
+                    addon: { id: addon.id, name: addonNameEsc, price: addonPrice, image_url: addonImgEsc }
+                }).replace(/"/g, '&quot;');
+
+                return `
+                    <div class="fbt-card">
+                        <div class="fbt-items-row">
+                            <div class="fbt-item">
+                                <img src="${mainImgEsc}" alt="${mainNameEsc}">
+                                <div class="fbt-item-name">${mainNameEsc}</div>
+                            </div>
+                            <div class="fbt-plus">+</div>
+                            <div class="fbt-item">
+                                <img src="${addonImgEsc}" alt="${addonNameEsc}">
+                                <div class="fbt-item-name">${addonNameEsc}</div>
+                            </div>
+                        </div>
+                        <button class="fbt-btn" onclick='addBundleToCart(${bundleObj})'>أضف إلى عربة التسوق مقابل ${bundlePrice} JOD</button>
+                    </div>
+                `;
+            }).join('');
+
+        } catch (e) {
+            console.error("FBT Error:", e);
+            sectionWrapper.style.display = 'none';
+        }
+    }
+
+    // دالة إضافة العرض الثنائي المشترك للسلة
+    function addBundleToCart(bundleData) {
+        let cart = getCart();
+
+        let mainItem = {
+            id: bundleData.main.id,
+            name: bundleData.main.name,
+            price: baseProductPrice + selectedCustomizations.additionalPrice,
+            image_url: bundleData.main.image_url,
+            quantity: parseInt(document.getElementById('product-qty').value) || 1,
+            customizations: currentProduct.has_customization ? { ...selectedCustomizations } : null
+        };
+        cart.push(mainItem);
+
+        let addonItem = {
+            id: bundleData.addon.id,
+            name: bundleData.addon.name,
+            price: bundleData.addon.price,
+            image_url: bundleData.addon.image_url,
+            quantity: 1,
+            customizations: null
+        };
+        cart.push(addonItem);
+
+        saveCart(cart);
+        updateCartBadge();
+        openUpsellModal();
     }
 
     function initCustomizationsUI(product) {
@@ -552,7 +642,6 @@
         const mainImg = document.getElementById('main-product-img');
         if (!mainImg) return;
 
-        // تطبيق تأثير السحب الجانبي والانيميشن الفاخر
         mainImg.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
         mainImg.style.transform = 'translateX(30px)';
         mainImg.style.opacity = '0';
