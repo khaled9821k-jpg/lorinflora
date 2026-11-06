@@ -297,28 +297,44 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_DbYCExpNFypVQARATbdeVw_hipYS1Oa';
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  function getCart() {
-    return JSON.parse(localStorage.getItem('lorin_cart')) || [];
-  }
-
-  function saveCart(cart) { 
-    localStorage.setItem('lorin_cart', JSON.stringify(cart)); 
-    updateCartBadge(); 
-  }
-
-  function updateCartBadge() {
-    const cart = getCart();
-    const badge = document.getElementById('cart-counter-badge');
-    if (!badge) return;
-    const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-    if (totalCount > 0) { 
-      badge.textContent = totalCount; 
-      badge.style.display = 'flex'; 
-    } else { 
-      badge.style.display = 'none'; 
+  // دالة جلب السلة
+    function getCart() { 
+        return JSON.parse(localStorage.getItem('lorin_cart')) || []; 
     }
-  }
 
+    // دالة حفظ السلة وتحديث العداد فوراً
+    function saveCart(cart) { 
+        localStorage.setItem('lorin_cart', JSON.stringify(cart)); 
+        updateCartBadge(); 
+    }
+
+    // دالة تحديث عداد السلة في الهيدر
+    function updateCartBadge() {
+        const cart = getCart();
+        const badge = document.getElementById('cart-counter-badge');
+        if (!badge) return;
+        const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+        if (totalCount > 0) { 
+            badge.textContent = totalCount; 
+            badge.style.display = 'flex'; 
+        } else { 
+            badge.style.display = 'none'; 
+        }
+    }
+
+    // الاستماع لأي تغير يحدث في السلة حتى لو تم الحذف من صفحة أخرى (مثل صفحة السلة)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'lorin_cart') {
+            updateCartBadge();
+        }
+    });
+
+    // تحديث العداد فور تحميل الصفحة وتفعيل المراقبة
+    document.addEventListener('DOMContentLoaded', () => {
+        updateCartBadge();
+        
+        // كود فتح وإغلاق القائمة والبحث...
+    });
   function renderCheckoutSummary() {
     const cart = getCart();
     const container = document.getElementById('checkout-items-list');
