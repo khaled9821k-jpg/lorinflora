@@ -201,7 +201,8 @@
         <a href="cart.html" class="floward-btn-link" style="position: relative; text-decoration: none;">
           <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
           <span>Cart</span>
-          <span id="cart-counter-badge" style="display:none; position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; border-radius: 50%; font-size: 11px; width: 18px; height: 18px; font-weight: bold; align-items: center; justify-content: center;">0</span>
+          <!-- عداد السلة الموحد والشامل للهواتف والكمبيوتر -->
+          <span id="cart-counter-badge" class="cart-counter-badge mobile-cart-count" style="display:none; position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; border-radius: 50%; font-size: 11px; width: 18px; height: 18px; font-weight: bold; align-items: center; justify-content: center;">0</span>
         </a>
       </div>
 
@@ -427,22 +428,20 @@
             `;
 
             initCustomizationsUI(product);
-            loadUpsellsForModal(product.id);          // جلب منتجات الـ Upsell المنبثقة من جدول product_upsells
-            loadFrequentBoughtTogether(product);      // جلب منتجات الـ FBT السفلية من جدول product_fbt_bundles المنفصل
+            loadUpsellsForModal(product.id);         
+            loadFrequentBoughtTogether(product);     
 
         } catch (err) {
             container.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">${err.message}</div>`;
         }
     }
 
-    // دالة تحميل قسم (يقوم المستخدمون بشراء هذه المنتجات سوياً) من جدول مستقل تماماً
     async function loadFrequentBoughtTogether(currentProd) {
         const sectionWrapper = document.getElementById('fbt-section-wrapper');
         const gridContainer = document.getElementById('fbt-grid-container');
         if (!sectionWrapper || !gridContainer) return;
 
         try {
-            // الاستعلام من الجدول المستقل الخاص بالـ FBT فقط
             const { data: relations } = await supabaseClient
                 .from('product_fbt_bundles')
                 .select('*');
@@ -522,7 +521,6 @@
         }
     }
 
-    // دالة إضافة العرض الثنائي المشترك للسلة
     function addBundleToCart(bundleData) {
         let cart = getCart();
 
@@ -547,7 +545,6 @@
         cart.push(addonItem);
 
         saveCart(cart);
-        updateCartBadge();
         openUpsellModal();
     }
 
@@ -674,17 +671,22 @@
         updateCartBadge(); 
     }
 
+    // دالة تحديث عداد السلة الموحدة والشاملة للهواتف والكمبيوتر
     function updateCartBadge() {
         const cart = getCart();
-        const badge = document.getElementById('cart-counter-badge');
-        if (!badge) return;
         const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-        if (totalCount > 0) {  
-            badge.textContent = totalCount;  
-            badge.style.display = 'flex';  
-        } else {  
-            badge.style.display = 'none';  
-        }
+        
+        const badges = document.querySelectorAll('#cart-counter-badge, .cart-counter-badge, .mobile-cart-count');
+        
+        badges.forEach(badge => {
+            if (!badge) return;
+            if (totalCount > 0) { 
+                badge.textContent = totalCount; 
+                badge.style.display = 'flex'; 
+            } else { 
+                badge.style.display = 'none'; 
+            }
+        });
     }
 
     window.addEventListener('storage', function(e) {
@@ -802,7 +804,7 @@
         `;
     }
 
-   function renderQuantityControls(itemId, qty) {
+    function renderQuantityControls(itemId, qty) {
         const minusOrTrashIcon = qty === 1 
             ? `<svg style="width:14px; height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`
             : `-`;
@@ -833,7 +835,6 @@
         }
         
         saveCart(cart);
-        updateCartBadge();
         
         const actionArea = document.getElementById(`upsell-action-area-${item.id}`);
         if (actionArea) {
@@ -860,14 +861,12 @@
 
                 cart.splice(index, 1);
                 saveCart(cart);
-                updateCartBadge();
 
                 if (actionArea) {
                     actionArea.innerHTML = renderAddButton(itemId, removedItemName, removedItemPrice, removedItemImg);
                 }
             } else {
                 saveCart(cart);
-                updateCartBadge();
 
                 if (actionArea) {
                     const updatedItem = cart.find(c => String(c.id) === String(itemId));
