@@ -73,7 +73,6 @@
         .upsell-modal-box { background: #ffffff; width: 100%; max-width: 680px; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; padding: 25px; box-sizing: border-box; max-height: 90vh; display: flex; flex-direction: column; }
         .upsell-modal-backdrop.is-open .upsell-modal-box { transform: translateY(0); }
         
-        /* ستايل الهياكل المتحركة (Skeleton Loaders) الفاخرة */
         @keyframes shimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
@@ -201,7 +200,6 @@
         <a href="cart.html" class="floward-btn-link" style="position: relative; text-decoration: none;">
           <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
           <span>Cart</span>
-          <!-- عداد السلة الموحد والشامل للهواتف والكمبيوتر -->
           <span id="cart-counter-badge" class="cart-counter-badge mobile-cart-count" style="display:none; position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; border-radius: 50%; font-size: 11px; width: 18px; height: 18px; font-weight: bold; align-items: center; justify-content: center;">0</span>
         </a>
       </div>
@@ -255,7 +253,7 @@
     <div id="fbt-section-wrapper" class="fbt-section" style="display: none;">
         <div class="fbt-title">يقوم المستخدمون بشراء هذه المنتجات سوياً</div>
         <div id="fbt-grid-container" class="fbt-grid">
-            <!-- سيتم التعبئة من جدول product_fbt_bundles تلقائياً -->
+            <!-- سيتم التعبئة تلقائياً -->
         </div>
     </div>
   </main>
@@ -274,7 +272,6 @@
 
         <div style="font-size: 15px; font-weight: 700; color: #111; margin-bottom: 12px;">Make it perfect ✨</div>
         
-        <!-- قائمة الـ Upsell تعتمد على جدول product_upsells الخاص بها -->
         <div id="upsell-products-container" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none;">
             <p style="color: #888; font-size: 13px;">جاري تحميل الهدايا المقترحة...</p>
         </div>
@@ -294,11 +291,7 @@
 
     let allStoreProducts = [];
     let currentProduct = null;
-    let selectedCustomizations = {
-        size: null,
-        vessel: null,
-        additionalPrice: 0
-    };
+    let selectedCustomizations = {};
     let baseProductPrice = 0;
 
     async function loadProductDetails() {
@@ -308,31 +301,16 @@
         const container = document.getElementById('product-details-container');
 
         if (!productSlug && !productId) {
-            container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">معرّف المنتج (slug أو id) غير موجود في الرابط.</div>';
+            container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">معرّف المنتج غير موجود في الرابط.</div>';
             return;
         }
 
-        container.innerHTML = `
-            <div style="display: flex; gap: 20px;">
-                <div class="skeleton-box" style="width: 85px; height: 520px;"></div>
-                <div class="skeleton-box" style="flex: 1; height: 520px; border-radius: 16px;"></div>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 15px; padding-top: 20px;">
-                <div class="skeleton-box" style="width: 150px; height: 35px;"></div>
-                <div class="skeleton-box" style="width: 80%; height: 25px;"></div>
-                <div class="skeleton-box" style="width: 100%; height: 50px; border-radius: 12px;"></div>
-                <div class="skeleton-box" style="width: 100%; height: 50px; border-radius: 12px;"></div>
-            </div>
-        `;
-
         try {
             let product = null;
-
             if (productSlug) {
                 const { data } = await supabaseClient.from('products').select('*').eq('slug', productSlug).maybeSingle();
                 product = data;
             }
-
             if (!product && productId) {
                 const { data } = await supabaseClient.from('products').select('*').eq('id', productId).maybeSingle();
                 product = data;
@@ -349,12 +327,7 @@
 
             allStoreProducts = products || [];
 
-            const pageTitle = `${product.name} | متجر لورين للورود والهدايا في الأردن`;
-            const pageDescription = product.description || `اطلب الآن ${product.name} من متجر لورين للورود والهدايا. توصيل سريع ومضمون في الأردن.`;
-            
-            document.getElementById('page-title').textContent = pageTitle;
-            document.getElementById('meta-description').setAttribute('content', pageDescription);
-            document.getElementById('canonical-url').setAttribute('href', window.location.href);
+            document.getElementById('page-title').textContent = `${product.name} | متجر لورين`;
             document.getElementById('breadcrumb-name').textContent = product.name;
             if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
 
@@ -365,7 +338,6 @@
                     if (u && !images.includes(u)) images.push(u);
                 });
             }
-
             let mainImage = images.length > 0 ? images[0] : '';
             currentProduct.image_url = mainImage;
 
@@ -392,18 +364,10 @@
                         <span>لست بحاجة لمعرفة العنوان، فريقنا سيفعل ذلك نيابة عنك.</span>
                     </div>
 
+                    <!-- حاوية التخصيصات الديناميكية المتعددة -->
                     <div id="product-customization-section" class="customization-box" style="display: none;">
-                        <h3 style="font-size: 13px; font-weight: 700; color: #00313C; margin-bottom: 10px;">Customize Your Order ✨</h3>
-                        
-                        <div id="custom-size-group" style="margin-bottom: 12px;">
-                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">Flowers Size & Look *</label>
-                            <div id="size-options-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;"></div>
-                        </div>
-
-                        <div id="custom-vessel-group">
-                            <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">Vase or Bouquet for flowers *</label>
-                            <div id="vessel-options-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;"></div>
-                        </div>
+                        <h3 style="font-size: 13px; font-weight: 700; color: #00313C; margin-bottom: 12px;">Customize Your Order ✨</h3>
+                        <div id="dynamic-customization-groups" class="space-y-4"></div>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 15px; margin-top: 5px;">
@@ -436,48 +400,108 @@
         }
     }
 
+    // بناء واجهة التخصيصات ديناميكياً لتشمل أي مجموعة (الأحجام، الفازات، أو أي مجموعة مخصصة جديدة)
+    function initCustomizationsUI(product) {
+        const section = document.getElementById('product-customization-section');
+        const container = document.getElementById('dynamic-customization-groups');
+        
+        if (!product.has_customization || !product.customization_options) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = 'block';
+        container.innerHTML = '';
+        selectedCustomizations = { additionalPrice: 0 };
+
+        const opts = product.customization_options;
+
+        Object.keys(opts).forEach((groupName) => {
+            const optionsList = opts[groupName];
+            if (!optionsList || optionsList.length === 0) return;
+
+            // تعيين القيمة الافتراضية لأول خيار في المجموعة
+            selectedCustomizations[groupName] = optionsList[0].name;
+            selectedCustomizations.additionalPrice += optionsList[0].price || 0;
+
+            const groupDiv = document.createElement('div');
+            groupDiv.style.marginBottom = '12px';
+            groupDiv.innerHTML = `
+                <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">${groupName} *</label>
+                <div style="display: grid; grid-template-columns: repeat(${Math.min(optionsList.length, 3)}, 1fr); gap: 8px;">
+                    ${optionsList.map((opt, idx) => `
+                        <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" onclick="selectCustomOption('${groupName}', '${opt.name}', ${opt.price}, this)">
+                            <div class="opt-title">${opt.name}</div>
+                            <div class="opt-price">${opt.price > 0 ? '+' + opt.price + ' JOD' : 'Included'}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(groupDiv);
+        });
+
+        updatePriceDisplay();
+    }
+
+    function selectCustomOption(groupName, optionName, price, element) {
+        element.parentElement.querySelectorAll('.custom-opt-card').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+
+        selectedCustomizations[groupName] = optionName;
+        recalculateAdditionalPrice();
+        updatePriceDisplay();
+    }
+
+    function recalculateAdditionalPrice() {
+        let totalAdd = 0;
+        const opts = currentProduct.customization_options;
+
+        Object.keys(opts).forEach(groupName => {
+            const selectedOptName = selectedCustomizations[groupName];
+            const found = opts[groupName].find(o => o.name === selectedOptName);
+            if (found) {
+                totalAdd += (found.price || 0);
+            }
+        });
+
+        selectedCustomizations.additionalPrice = totalAdd;
+    }
+
+    function updatePriceDisplay() {
+        const priceBox = document.getElementById('displayed-price-box');
+        if (priceBox) {
+            let finalPrice = baseProductPrice + selectedCustomizations.additionalPrice;
+            priceBox.textContent = `JOD ${finalPrice.toFixed(2)}`;
+        }
+    }
+
     async function loadFrequentBoughtTogether(currentProd) {
         const sectionWrapper = document.getElementById('fbt-section-wrapper');
         const gridContainer = document.getElementById('fbt-grid-container');
         if (!sectionWrapper || !gridContainer) return;
 
         try {
-            const { data: relations } = await supabaseClient
-                .from('product_fbt_bundles')
-                .select('*');
-
+            const { data: relations } = await supabaseClient.from('product_fbt_bundles').select('*');
             if (!relations) return;
 
             const matched = relations.filter(r => String(r.product_id) === String(currentProd.id));
-            if (matched.length === 0) {
-                sectionWrapper.style.display = 'none';
-                return;
-            }
+            if (matched.length === 0) { sectionWrapper.style.display = 'none'; return; }
 
             const fbtProductIds = matched.map(m => String(m.fbt_product_id));
             let fbtProds = allStoreProducts.filter(p => fbtProductIds.includes(String(p.id)));
 
             if (fbtProds.length === 0) {
-                const { data: fetched } = await supabaseClient
-                    .from('products')
-                    .select('*')
-                    .in('id', fbtProductIds);
+                const { data: fetched } = await supabaseClient.from('products').select('*').in('id', fbtProductIds);
                 if (fetched) fbtProds = fetched;
             }
 
-            if (fbtProds.length === 0) {
-                sectionWrapper.style.display = 'none';
-                return;
-            }
+            if (fbtProds.length === 0) { sectionWrapper.style.display = 'none'; return; }
 
-            const { data: allProductImages } = await supabaseClient
-                .from('product_images')
-                .select('*');
-
+            const { data: allProductImages } = await supabaseClient.from('product_images').select('*');
             sectionWrapper.style.display = 'block';
 
             gridContainer.innerHTML = fbtProds.map(addon => {
-                let addonImg = addon.image_url || addon.image || addon.img || '';
+                let addonImg = addon.image_url || '';
                 if (!addonImg && allProductImages) {
                     const fImg = allProductImages.find(img => String(img.product_id) === String(addon.id));
                     if (fImg) addonImg = fImg.image_url || fImg.url || '';
@@ -487,43 +511,35 @@
                 const addonPrice = parseFloat(addon.price) || 15;
                 const bundlePrice = (baseProductPrice + addonPrice).toFixed(2);
 
-                const mainImgEsc = currentProd.image_url || '';
-                const mainNameEsc = currentProd.name || '';
-                const addonImgEsc = addonImg;
-                const addonNameEsc = addon.name || '';
-
                 const bundleObj = JSON.stringify({
-                    main: { id: currentProd.id, name: mainNameEsc, price: baseProductPrice, image_url: mainImgEsc },
-                    addon: { id: addon.id, name: addonNameEsc, price: addonPrice, image_url: addonImgEsc }
+                    main: { id: currentProd.id, name: currentProd.name, price: baseProductPrice, image_url: currentProd.image_url },
+                    addon: { id: addon.id, name: addon.name, price: addonPrice, image_url: addonImg }
                 }).replace(/"/g, '&quot;');
 
                 return `
                     <div class="fbt-card">
                         <div class="fbt-items-row">
                             <div class="fbt-item">
-                                <img src="${mainImgEsc}" alt="${mainNameEsc}">
-                                <div class="fbt-item-name">${mainNameEsc}</div>
+                                <img src="${currentProd.image_url}" alt="${currentProd.name}">
+                                <div class="fbt-item-name">${currentProd.name}</div>
                             </div>
                             <div class="fbt-plus">+</div>
                             <div class="fbt-item">
-                                <img src="${addonImgEsc}" alt="${addonNameEsc}">
-                                <div class="fbt-item-name">${addonNameEsc}</div>
+                                <img src="${addonImg}" alt="${addon.name}">
+                                <div class="fbt-item-name">${addon.name}</div>
                             </div>
                         </div>
                         <button class="fbt-btn" onclick='addBundleToCart(${bundleObj})'>أضف إلى عربة التسوق مقابل ${bundlePrice} JOD</button>
                     </div>
                 `;
             }).join('');
-
         } catch (e) {
-            console.error("FBT Error:", e);
             sectionWrapper.style.display = 'none';
         }
     }
 
     function addBundleToCart(bundleData) {
         let cart = getCart();
-
         let mainItem = {
             id: bundleData.main.id,
             name: bundleData.main.name,
@@ -548,111 +564,10 @@
         openUpsellModal();
     }
 
-    function initCustomizationsUI(product) {
-        const section = document.getElementById('product-customization-section');
-        if (!product.has_customization || !product.customization_options) {
-            section.style.display = 'none';
-            return;
-        }
-
-        section.style.display = 'block';
-        const opts = product.customization_options;
-
-        selectedCustomizations = { size: null, vessel: null, additionalPrice: 0 };
-
-        const sizeContainer = document.getElementById('size-options-grid');
-        const sizeData = opts["Flowers Size & Look"];
-        if (sizeData && sizeData.length > 0) {
-            sizeContainer.innerHTML = sizeData.map((s, idx) => `
-                <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" onclick="selectOption('size', '${s.name}', ${s.price}, this)">
-                    <div class="opt-title">${s.name}</div>
-                    <div class="opt-price">${s.price > 0 ? '+' + s.price + ' JOD' : 'Included'}</div>
-                </div>
-            `).join('');
-            selectedCustomizations.size = sizeData[0].name;
-            selectedCustomizations.additionalPrice += sizeData[0].price || 0;
-        } else {
-            document.getElementById('custom-size-group').style.display = 'none';
-        }
-
-        const vesselContainer = document.getElementById('vessel-options-grid');
-        const vesselData = opts["Vase or Bouquet for flowers"];
-        if (vesselData && vesselData.length > 0) {
-            vesselContainer.innerHTML = vesselData.map((v, idx) => `
-                <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" onclick="selectOption('vessel', '${v.name}', ${v.price}, this)">
-                    <div class="opt-title">${v.name}</div>
-                    <div class="opt-price">${v.price > 0 ? '+' + v.price + ' JOD' : 'Standard'}</div>
-                </div>
-            `).join('');
-            selectedCustomizations.vessel = vesselData[0].name;
-            selectedCustomizations.additionalPrice += vesselData[0].price || 0;
-        } else {
-            document.getElementById('custom-vessel-group').style.display = 'none';
-        }
-
-        updatePriceDisplay();
-    }
-
-    function selectOption(type, name, price, element) {
-        element.parentElement.querySelectorAll('.custom-opt-card').forEach(el => el.classList.remove('selected'));
-        element.classList.add('selected');
-
-        if (type === 'size') {
-            selectedCustomizations.size = name;
-            recalculateAdditionalPrice();
-        } else if (type === 'vessel') {
-            selectedCustomizations.vessel = name;
-            recalculateAdditionalPrice();
-        }
-
-        updatePriceDisplay();
-    }
-
-    function recalculateAdditionalPrice() {
-        let totalAdd = 0;
-        const opts = currentProduct.customization_options;
-        
-        const sizeData = opts["Flowers Size & Look"];
-        if(sizeData) {
-            let sObj = sizeData.find(s => s.name === selectedCustomizations.size);
-            if(sObj) totalAdd += (sObj.price || 0);
-        }
-        
-        const vesselData = opts["Vase or Bouquet for flowers"];
-        if(vesselData) {
-            let vObj = vesselData.find(v => v.name === selectedCustomizations.vessel);
-            if(vObj) totalAdd += (vObj.price || 0);
-        }
-        
-        selectedCustomizations.additionalPrice = totalAdd;
-    }
-
-    function updatePriceDisplay() {
-        const priceBox = document.getElementById('displayed-price-box');
-        if (priceBox) {
-            let finalPrice = baseProductPrice + selectedCustomizations.additionalPrice;
-            priceBox.textContent = `JOD ${finalPrice.toFixed(2)}`;
-        }
-    }
-
     function changeMainImage(src, thumbElement) {
         const mainImg = document.getElementById('main-product-img');
         if (!mainImg) return;
-
-        mainImg.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-        mainImg.style.transform = 'translateX(30px)';
-        mainImg.style.opacity = '0';
-
-        setTimeout(() => {
-            mainImg.src = src;
-            mainImg.style.transform = 'translateX(-30px)';
-            
-            setTimeout(() => {
-                mainImg.style.transform = 'translateX(0)';
-                mainImg.style.opacity = '1';
-            }, 50);
-        }, 200);
-
+        mainImg.src = src;
         document.querySelectorAll('.thumb-img').forEach(el => el.classList.remove('active'));
         thumbElement.classList.add('active');
     }
@@ -665,40 +580,20 @@
     }
 
     function getCart() { return JSON.parse(localStorage.getItem('lorin_cart')) || []; }
-    
-    function saveCart(cart) { 
-        localStorage.setItem('lorin_cart', JSON.stringify(cart)); 
-        updateCartBadge(); 
-    }
+    function saveCart(cart) { localStorage.setItem('lorin_cart', JSON.stringify(cart)); updateCartBadge(); }
 
-    // دالة تحديث عداد السلة الموحدة والشاملة للهواتف والكمبيوتر
     function updateCartBadge() {
         const cart = getCart();
         const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-        
-        const badges = document.querySelectorAll('#cart-counter-badge, .cart-counter-badge, .mobile-cart-count');
-        
-        badges.forEach(badge => {
-            if (!badge) return;
-            if (totalCount > 0) { 
-                badge.textContent = totalCount; 
-                badge.style.display = 'flex'; 
-            } else { 
-                badge.style.display = 'none'; 
-            }
+        document.querySelectorAll('#cart-counter-badge, .cart-counter-badge, .mobile-cart-count').forEach(badge => {
+            if (totalCount > 0) { badge.textContent = totalCount; badge.style.display = 'flex'; }
+            else { badge.style.display = 'none'; }
         });
     }
-
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'lorin_cart') {
-            updateCartBadge();
-        }
-    });
 
     function addToCart(product) {
         const qty = parseInt(document.getElementById('product-qty').value) || 1;
         let cart = getCart();
-
         let finalItemPrice = baseProductPrice + selectedCustomizations.additionalPrice;
         
         let cartItem = {
@@ -710,7 +605,6 @@
 
         cart.push(cartItem);
         saveCart(cart);
-
         openUpsellModal();
     }
 
@@ -719,100 +613,62 @@
         if (!container) return;
 
         try {
-            const { data: upsellRelations, error } = await supabaseClient
-                .from('product_upsells')
-                .select('*');
-
-            if (error || !upsellRelations) {
-                container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد منتجات مقترحة حالياً.</p>';
-                return;
-            }
+            const { data: upsellRelations } = await supabaseClient.from('product_upsells').select('*');
+            if (!upsellRelations) return;
 
             const matchedRelations = upsellRelations.filter(item => String(item.product_id) === String(currentProductId));
-
-            if (matchedRelations.length === 0) {
-                container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد منتجات مقترحة (Upsell) مربوطة بهذا المنتج.</p>';
-                return;
-            }
+            if (matchedRelations.length === 0) { container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد منتجات مقترحة.</p>'; return; }
 
             const upsellProductIds = matchedRelations.map(r => String(r.upsell_product_id));
-
             let upsellProductsList = allStoreProducts.filter(p => upsellProductIds.includes(String(p.id)));
 
             if (upsellProductsList.length === 0) {
-                const { data: fetchedProds } = await supabaseClient
-                    .from('products')
-                    .select('*')
-                    .in('id', upsellProductIds);
-                
-                if (fetchedProds) {
-                    upsellProductsList = fetchedProds;
-                }
+                const { data: fetchedProds } = await supabaseClient.from('products').select('*').in('id', upsellProductIds);
+                if (fetchedProds) upsellProductsList = fetchedProds;
             }
 
-            const { data: allProductImages } = await supabaseClient
-                .from('product_images')
-                .select('*');
-
+            const { data: allProductImages } = await supabaseClient.from('product_images').select('*');
             const currentCart = getCart();
 
             container.innerHTML = upsellProductsList.map(item => {
-                const itemName = item.name || item.title || 'هدية مقترحة';
-                const itemPrice = parseFloat(item.price || item.upsell_price) || 15;
-                const itemId = String(item.id);
-                
-                let itemImage = item.image_url || item.image || item.img || item.url || '';
-                
+                let itemImage = item.image_url || '';
                 if (!itemImage && allProductImages) {
-                    const foundImg = allProductImages.find(img => String(img.product_id) === itemId);
-                    if (foundImg) {
-                        itemImage = foundImg.image_url || foundImg.url || '';
-                    }
+                    const foundImg = allProductImages.find(img => String(img.product_id) === String(item.id));
+                    if (foundImg) itemImage = foundImg.image_url || foundImg.url || '';
                 }
+                if (!itemImage) itemImage = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
 
-                if (!itemImage) {
-                    itemImage = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
-                }
-
-                const existingCartItem = currentCart.find(cartItem => String(cartItem.id) === itemId);
+                const existingCartItem = currentCart.find(cartItem => String(cartItem.id) === String(item.id));
                 const qty = existingCartItem ? existingCartItem.quantity : 0;
 
                 return `
-                    <div id="upsell-card-${itemId}" style="min-width: 160px; max-width: 160px; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; background: #fff; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="min-width: 160px; max-width: 160px; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; background: #fff; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
-                            <img src="${itemImage}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" alt="${itemName}">
-                            <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px; line-height: 1.3;">${itemName}</div>
-                            <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">JOD ${itemPrice.toFixed(2)}</div>
+                            <img src="${itemImage}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" alt="${item.name}">
+                            <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px;">${item.name}</div>
+                            <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">JOD ${parseFloat(item.price).toFixed(2)}</div>
                         </div>
-                        <div id="upsell-action-area-${itemId}">
-                            ${qty > 0 ? renderQuantityControls(itemId, qty) : renderAddButton(itemId, itemName, itemPrice, itemImage)}
+                        <div id="upsell-action-area-${item.id}">
+                            ${qty > 0 ? renderQuantityControls(item.id, qty) : renderAddButton(item.id, item.name, item.price, itemImage)}
                         </div>
                     </div>
                 `;
             }).join('');
-
         } catch (err) {
-            console.error("Error loading upsells:", err);
-            container.innerHTML = '<p style="color:#888; font-size:13px;">عذراً، حدث خطأ أثناء تحميل الهدايا المقترحة.</p>';
+            container.innerHTML = '<p style="color:#888; font-size:13px;">عذراً، حدث خطأ.</p>';
         }
     }
 
     function renderAddButton(itemId, name, price, image_url) {
         const itemObj = JSON.stringify({id: itemId, name: name, price: price, image_url: image_url}).replace(/"/g, '&quot;');
-        return `
-            <button onclick='handleInitialUpsellAdd(${itemObj})' style="width: 100%; padding: 8px; background: #fff; color: #00313C; border: 1px solid #00313C; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;">ADD</button>
-        `;
+        return `<button onclick='handleInitialUpsellAdd(${itemObj})' style="width: 100%; padding: 8px; background: #fff; color: #00313C; border: 1px solid #00313C; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">ADD</button>`;
     }
 
     function renderQuantityControls(itemId, qty) {
-        const minusOrTrashIcon = qty === 1 
-            ? `<svg style="width:14px; height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`
-            : `-`;
-
         return `
-            <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #00313C; border-radius: 6px; background: #f4f8f9; overflow: hidden; padding: 2px 6px;">
-                <button onclick="updateUpsellQuantity('${itemId}', -1)" style="background: transparent; border: none; padding: 4px 6px; font-weight: bold; cursor: pointer; color: #00313C; display: flex; align-items: center; justify-content: center;">${minusOrTrashIcon}</button>
-                <span id="upsell-qty-${itemId}" style="font-size: 13px; font-weight: 700; color: #00313C;">${qty}</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #00313C; border-radius: 6px; background: #f4f8f9; padding: 2px 6px;">
+                <button onclick="updateUpsellQuantity('${itemId}', -1)" style="background: transparent; border: none; padding: 4px 6px; font-weight: bold; cursor: pointer; color: #00313C;">-</button>
+                <span style="font-size: 13px; font-weight: 700; color: #00313C;">${qty}</span>
                 <button onclick="updateUpsellQuantity('${itemId}', 1)" style="background: transparent; border: none; padding: 4px 6px; font-weight: bold; cursor: pointer; color: #00313C;">+</button>
             </div>
         `;
@@ -821,96 +677,39 @@
     function handleInitialUpsellAdd(item) {
         let cart = getCart();
         let existing = cart.find(c => String(c.id) === String(item.id));
-        
-        if (existing) {
-            existing.quantity += 1;
-        } else {
-            cart.push({
-                id: item.id,
-                name: item.name,
-                price: parseFloat(item.price),
-                image_url: item.image_url,
-                quantity: 1
-            });
-        }
-        
+        if (existing) { existing.quantity += 1; }
+        else { cart.push({ id: item.id, name: item.name, price: parseFloat(item.price), image_url: item.image_url, quantity: 1 }); }
         saveCart(cart);
-        
-        const actionArea = document.getElementById(`upsell-action-area-${item.id}`);
-        if (actionArea) {
-            const currentItem = cart.find(c => String(c.id) === String(item.id));
-            actionArea.innerHTML = renderQuantityControls(item.id, currentItem ? currentItem.quantity : 1);
-        }
-
-        updateModalSubtotal();
+        loadUpsellsForModal(currentProduct.id);
     }
 
     function updateUpsellQuantity(itemId, change) {
         let cart = getCart();
         let index = cart.findIndex(c => String(c.id) === String(itemId));
-
         if (index !== -1) {
             cart[index].quantity += change;
-            
-            const actionArea = document.getElementById(`upsell-action-area-${itemId}`);
-            
-            if (cart[index].quantity <= 0) {
-                const removedItemName = cart[index].name;
-                const removedItemPrice = cart[index].price;
-                const removedItemImg = cart[index].image_url;
-
-                cart.splice(index, 1);
-                saveCart(cart);
-
-                if (actionArea) {
-                    actionArea.innerHTML = renderAddButton(itemId, removedItemName, removedItemPrice, removedItemImg);
-                }
-            } else {
-                saveCart(cart);
-
-                if (actionArea) {
-                    const updatedItem = cart.find(c => String(c.id) === String(itemId));
-                    if (updatedItem) {
-                        actionArea.innerHTML = renderQuantityControls(itemId, updatedItem.quantity);
-                    }
-                }
-            }
-            updateModalSubtotal();
+            if (cart[index].quantity <= 0) cart.splice(index, 1);
+            saveCart(cart);
+            loadUpsellsForModal(currentProduct.id);
         }
     }
 
-    function updateModalSubtotal() {
-        const cart = getCart();
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const subtotalText = document.getElementById('modal-subtotal-text');
-        if (subtotalText) subtotalText.textContent = `Cart Subtotal: JOD ${subtotal.toFixed(2)}`;
-    }
-
     function openUpsellModal() {
-        const modal = document.getElementById('upsell-modal-backdrop');
-        const cart = getCart();
-        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        
-        const subtotalText = document.getElementById('modal-subtotal-text');
-        if (subtotalText) subtotalText.textContent = `Cart Subtotal: JOD ${subtotal.toFixed(2)}`;
-
-        if (modal) modal.classList.add('is-open');
+        document.getElementById('upsell-modal-backdrop').classList.add('is-open');
     }
 
     function closeUpsellModal() {
-        const modal = document.getElementById('upsell-modal-backdrop');
-        if (modal) modal.classList.remove('is-open');
+        document.getElementById('upsell-modal-backdrop').classList.remove('is-open');
     }
 
     function performLiveSearch(query) {
         const resultsContainer = document.getElementById('live-search-results');
         const q = query.trim().toLowerCase();
         if (!q) { resultsContainer.innerHTML = ''; return; }
-        const filtered = allStoreProducts.filter(p => p.name.toLowerCase().includes(q) || (p.category && p.category.toLowerCase().includes(q)));
-        if (filtered.length === 0) { resultsContainer.innerHTML = '<p style="text-align:center; color:#888; font-size:14px; padding:10px;">عذراً، لم نجد أي منتج يطابق بحثك.</p>'; return; }
+        const filtered = allStoreProducts.filter(p => p.name.toLowerCase().includes(q));
         resultsContainer.innerHTML = filtered.map(p => `
-            <a href="product.html?slug=${p.slug || ''}&id=${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;">
-              <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;" alt="${p.name}">
+            <a href="product.html?id=${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;">
+              <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
               <div style="flex: 1; text-align: right;">
                 <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${p.name}</div>
                 <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${p.price} د.أ</div>
@@ -921,44 +720,16 @@
     document.addEventListener('DOMContentLoaded', () => {
         loadProductDetails();
         updateCartBadge();
-
+        
         const btnMenu = document.getElementById('btn-trigger-menu');
-        const btnCloseMenu = document.getElementById('btn-close-menu');
         const menuDrawer = document.getElementById('box-menu-drawer');
         const menuBackdrop = document.getElementById('box-menu-backdrop');
-        
         const btnSearch = document.getElementById('btn-trigger-search');
         const searchOverlay = document.getElementById('box-search-overlay');
 
-        function openMenu() {
-            if (menuDrawer) menuDrawer.classList.add('is-open');
-            if (menuBackdrop) menuBackdrop.classList.add('is-open');
-        }
-        function closeMenu() {
-            if (menuDrawer) menuDrawer.classList.remove('is-open');
-            if (menuBackdrop) menuBackdrop.classList.remove('is-open');
-        }
-
-        if (btnMenu) btnMenu.addEventListener('click', openMenu);
-        if (btnCloseMenu) btnCloseMenu.addEventListener('click', closeMenu);
-        if (menuBackdrop) menuBackdrop.addEventListener('click', closeMenu);
-
-        if (btnSearch && searchOverlay) {
-            btnSearch.addEventListener('click', (e) => {
-                e.stopPropagation();
-                searchOverlay.classList.toggle('is-open');
-                if (searchOverlay.classList.contains('is-open')) {
-                    const searchInput = document.getElementById('live-search-input');
-                    if (searchInput) searchInput.focus();
-                }
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!searchOverlay.contains(e.target) && !btnSearch.contains(e.target)) {
-                    searchOverlay.classList.remove('is-open');
-                }
-            });
-        }
+        if (btnMenu) btnMenu.addEventListener('click', () => { menuDrawer.classList.add('is-open'); menuBackdrop.classList.add('is-open'); });
+        if (menuBackdrop) menuBackdrop.addEventListener('click', () => { menuDrawer.classList.remove('is-open'); menuBackdrop.classList.remove('is-open'); });
+        if (btnSearch) btnSearch.addEventListener('click', () => searchOverlay.classList.toggle('is-open'));
     });
 </script>
 </body>
