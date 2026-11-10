@@ -138,6 +138,12 @@
               <input type="number" step="0.01" id="product-price" required class="w-full border border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#00313C] outline-none bg-gray-50">
             </div>
             
+            <!-- حقل وصف المنتج الجديد -->
+            <div class="md:col-span-2">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">وصف المنتج (Description)</label>
+              <textarea id="product-desc" rows="3" placeholder="اكتب وصف المنتج التفصيلي هنا..." class="w-full border border-gray-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#00313C] outline-none bg-gray-50"></textarea>
+            </div>
+
             <!-- التصنيفات -->
             <div class="md:col-span-2 relative">
               <label class="block text-xs font-semibold text-gray-600 mb-1">التصنيفات (اختر تصنيفاً أو أكثر)</label>
@@ -687,7 +693,7 @@
       }
     }
 
-    // ===== خيارات التخصيص البديل المحدثة (مع دعم المجموعات المرنة والتشغيل/الإطفاء) =====
+    // ===== خيارات التخصيص البديل المحدثة =====
     function toggleCustomizationFields(isChecked) {
       const container = document.getElementById('customization-options-container');
       if (isChecked) {
@@ -719,7 +725,6 @@
       } else if (groupKey === 'Vase or Bouquet for flowers') {
         containerId = 'group_Vase_or_Bouquet_for_flowers_rows';
       } else {
-        // مجموعة تخصيص مخصصة جديدة
         containerId = 'dyn_group_' + groupKey.replace(/[^a-zA-Z0-9]/g, '_') + '_rows';
       }
       
@@ -775,7 +780,6 @@
       if (!document.getElementById('product-has-customization').checked) return null;
       let res = {};
 
-      // 1. الأحجام
       let sizeList = [];
       document.querySelectorAll('#group_Flowers_Size_Look_rows > div').forEach(row => {
         let name = row.querySelector('.opt-name-input').value.trim();
@@ -784,7 +788,6 @@
       });
       if (sizeList.length) res["Flowers Size & Look"] = sizeList;
 
-      // 2. الفازات (فقط إذا كان زر التفعيل مفعل)
       if (document.getElementById('enable-vessel-group').checked) {
         let vesselList = [];
         document.querySelectorAll('#group_Vase_or_Bouquet_for_flowers_rows > div').forEach(row => {
@@ -795,7 +798,6 @@
         if (vesselList.length) res["Vase or Bouquet for flowers"] = vesselList;
       }
 
-      // 3. المجموعات المخصصة الإضافية
       document.querySelectorAll('#dynamic-custom-groups-container > div').forEach(box => {
         let groupTitle = box.getAttribute('data-group-title');
         let optionsList = [];
@@ -821,19 +823,16 @@
 
       if (!jsonObj) return;
 
-      // الأحجام
       if (jsonObj["Flowers Size & Look"]) {
         jsonObj["Flowers Size & Look"].forEach(o => addCustomOptionRow('Flowers Size & Look', o.name, o.price));
       }
 
-      // الفازات
       if (jsonObj["Vase or Bouquet for flowers"]) {
         document.getElementById('enable-vessel-group').checked = true;
         toggleVesselGroup(true);
         jsonObj["Vase or Bouquet for flowers"].forEach(o => addCustomOptionRow('Vase or Bouquet for flowers', o.name, o.price));
       }
 
-      // المجموعات الأخرى
       Object.keys(jsonObj).forEach(key => {
         if (key !== "Flowers Size & Look" && key !== "Vase or Bouquet for flowers") {
           addNewCustomGroup(key, jsonObj[key]);
@@ -979,6 +978,7 @@
       document.getElementById('product-id').value = p.id;
       document.getElementById('product-name').value = p.name;
       document.getElementById('product-price').value = p.price;
+      document.getElementById('product-desc').value = p.description || ''; // تعبئة حقل الوصف عند التعديل
       document.getElementById('product-category').value = p.category || '';
       renderProductCategoryCheckboxes(p.category ? p.category.split(',').map(c => c.trim()) : []);
       updateProductSelectedCategories();
@@ -1003,6 +1003,7 @@
     window.resetProductForm = function() {
       document.getElementById('product-form').reset();
       document.getElementById('product-id').value = '';
+      document.getElementById('product-desc').value = '';
       document.getElementById('product-images-manager-wrapper').classList.add('hidden');
       toggleCustomizationFields(false);
       document.getElementById('dynamic-custom-groups-container').innerHTML = '';
@@ -1032,13 +1033,14 @@
         const id = document.getElementById('product-id').value;
         const name = document.getElementById('product-name').value;
         const price = parseFloat(document.getElementById('product-price').value);
+        const description = document.getElementById('product-desc').value; // جلب قيمة الوصف
         const category = document.getElementById('product-category').value;
         const is_hidden = document.getElementById('product-is-hidden').checked;
         const has_customization = document.getElementById('product-has-customization').checked;
         const customization_options = buildCustomizationJsonFromUI();
         const has_fbt = document.getElementById('product-has-fbt').checked;
 
-        const productPayload = { name, price, category, is_hidden, has_customization, customization_options, has_fbt };
+        const productPayload = { name, price, description, category, is_hidden, has_customization, customization_options, has_fbt };
         let productId = id;
 
         if (id) {
