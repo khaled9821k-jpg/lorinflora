@@ -54,7 +54,6 @@
         .tab-btn.active { color: #00313C; }
         .tab-btn.active::after { content: ''; position: absolute; bottom: -1px; right: 0; left: 0; height: 2px; background: #00313C; }
         
-        /* قسم (يقوم المستخدمون بشراء هذه المنتجات سوياً) المنفصل */
         .fbt-section { background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 16px; padding: 30px; margin-top: 50px; }
         .fbt-title { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 20px; text-align: right; }
         .fbt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
@@ -67,7 +66,6 @@
         .fbt-btn { background: #fff; color: #00313C; border: 1px solid #00313C; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; transition: all 0.2s; }
         .fbt-btn:hover { background: #00313C; color: #fff; }
 
-        /* ستايل نافذة الـ Upsell Modal المنبثقة */
         .upsell-modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 999999; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .upsell-modal-backdrop.is-open { opacity: 1; visibility: visible; }
         .upsell-modal-box { background: #ffffff; width: 100%; max-width: 680px; border-radius: 16px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; padding: 25px; box-sizing: border-box; max-height: 90vh; display: flex; flex-direction: column; }
@@ -236,7 +234,9 @@
     </div>
 
     <div id="product-details-container" class="product-main-grid">
-        <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: #888;">جاري تحميل تفاصيل المنتج...</div>
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: #888; font-size: 15px; font-weight: 600;">
+            جاري تحميل تفاصيل المنتج... 🌸
+        </div>
     </div>
 
     <div class="product-tabs-section">
@@ -304,6 +304,17 @@
             container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">معرّف المنتج غير موجود في الرابط.</div>';
             return;
         }
+
+        // عرض رسالة وشكل التحميل المؤقت كما طلبت
+        container.innerHTML = `
+            <div style="display: flex; gap: 20px; grid-column: 1 / -1;">
+                <div class="skeleton-box" style="width: 85px; height: 520px;"></div>
+                <div class="skeleton-box" style="flex: 1; height: 520px; border-radius: 16px;"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px; padding-top: 20px; grid-column: 1 / -1;">
+                <div style="font-size: 15px; color: #666; font-weight: 600; text-align: center; padding: 20px;">جاري تحميل تفاصيل المنتج... 🌸</div>
+            </div>
+        `;
 
         try {
             let product = null;
@@ -420,7 +431,6 @@
             const optionsList = opts[groupName];
             if (!optionsList || optionsList.length === 0) return;
 
-            // تعيين القيمة الافتراضية لأول خيار في المجموعة
             selectedCustomizations[groupName] = optionsList[0].name;
             selectedCustomizations.additionalPrice += optionsList[0].price || 0;
 
