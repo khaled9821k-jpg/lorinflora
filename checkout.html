@@ -298,48 +298,49 @@
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // دالة جلب السلة
-    function getCart() { 
-        return JSON.parse(localStorage.getItem('lorin_cart')) || []; 
-    }
+  function getCart() { 
+      return JSON.parse(localStorage.getItem('lorin_cart')) || []; 
+  }
 
-    // دالة حفظ السلة وتحديث العداد فوراً
-    function saveCart(cart) { 
-        localStorage.setItem('lorin_cart', JSON.stringify(cart)); 
-        updateCartBadge(); 
-    }
+  // دالة حفظ السلة وتحديث جميع عدادات السلة في الصفحة (هاتف وكمبيوتر)
+  function saveCart(cart) { 
+      localStorage.setItem('lorin_cart', JSON.stringify(cart)); 
+      updateCartBadge(); 
+  }
 
-    // دالة تحديث عداد السلة في الهيدر
-    function updateCartBadge() {
-        const cart = getCart();
-        const badge = document.getElementById('cart-counter-badge');
-        if (!badge) return;
-        const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-        if (totalCount > 0) { 
-            badge.textContent = totalCount; 
-            badge.style.display = 'flex'; 
-        } else { 
-            badge.style.display = 'none'; 
-        }
-    }
+  // دالة تحديث عداد السلة - محدثة لتشمل الهواتف والكمبيوتر وتستهدف الـ ID والـ Classes معاً
+  function updateCartBadge() {
+      const cart = getCart();
+      const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      
+      // تحديث كل العدادات المحتملة في الصفحة (سواء هاتف أو كمبيوتر)
+      const badges = document.querySelectorAll('#cart-counter-badge, .cart-counter-badge, .mobile-cart-count');
+      
+      badges.forEach(badge => {
+          if (!badge) return;
+          if (totalCount > 0) { 
+              badge.textContent = totalCount; 
+              badge.style.display = 'flex'; 
+          } else { 
+              badge.style.display = 'none'; 
+          }
+      });
+  }
 
-    // الاستماع لأي تغير يحدث في السلة حتى لو تم الحذف من صفحة أخرى (مثل صفحة السلة)
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'lorin_cart') {
-            updateCartBadge();
-        }
-    });
+  // الاستماع لتغيرات التخزين المحلي لتحديث العداد فوراً
+  window.addEventListener('storage', function(e) {
+      if (e.key === 'lorin_cart') {
+          updateCartBadge();
+      }
+  });
 
-    // تحديث العداد فور تحميل الصفحة وتفعيل المراقبة
-    document.addEventListener('DOMContentLoaded', () => {
-        updateCartBadge();
-        
-        // كود فتح وإغلاق القائمة والبحث...
-    });
   function renderCheckoutSummary() {
     const cart = getCart();
     const container = document.getElementById('checkout-items-list');
     const subtotalEl = document.getElementById('subtotal-price');
     const finalTotalEl = document.getElementById('final-total-price');
+
+    if (!container) return;
 
     if (cart.length === 0) {
       container.innerHTML = '<p class="text-center text-gray-400 text-xs py-4">سلة المشتريات فارغة!</p>';
@@ -349,7 +350,7 @@
     }
 
     let total = 0;
-    container.innerHTML = cart.map((item, index) => {
+    container.innerHTML = cart.map((item) => {
       total += item.price * item.quantity;
       return `
         <div class="flex items-center gap-3 text-xs border-b pb-2">
@@ -367,47 +368,16 @@
     finalTotalEl.textContent = total.toFixed(2) + ' د.أ';
   }
 
-  function renderCartItems() {
-    const cart = getCart();
-    const container = document.getElementById('cart-items-container');
-    const totalPriceEl = document.getElementById('cart-total-price');
-    if (!container) return;
-    if (cart.length === 0) { container.innerHTML = '<p style="text-align:center; color:#888; margin-top:40px;">سلة المشتريات فارغة تماماً 🛒</p>'; totalPriceEl.textContent = '0 د.أ'; return; }
-    let total = 0;
-    container.innerHTML = cart.map((item, index) => {
-      total += item.price * item.quantity;
-      return `<div style="display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #f1f1f1; padding-bottom: 12px;">
-        <img src="${item.image_url}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 8px;">
-        <div style="flex: 1;"><h4 style="margin: 0; font-size: 14px; font-weight: bold; color: #2c3e50;">${item.name}</h4><div style="font-size: 13px; color: #e74c3c; font-weight: bold; margin-top: 4px;">${item.price} د.أ × ${item.quantity}</div></div>
-        <button onclick="removeFromCart(${index})" style="background: #fee2e2; color: #dc2626; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px;">حذف</button>
-      </div>`;
-    }).join('');
-    totalPriceEl.textContent = total.toFixed(2) + ' د.أ';
-  }
-
-  function removeFromCart(index) { 
-    let cart = getCart(); 
-    cart.splice(index, 1); 
-    saveCart(cart); 
-    renderCartItems(); 
+  // إدارة القوائم الجانبية (المنيو والبحث) بأمان لتجنب أخطاء الهواتف
+  document.addEventListener('DOMContentLoaded', () => {
+    updateCartBadge();
     renderCheckoutSummary();
-  }
 
-  function goToCheckout() {
-    const cart = getCart();
-    if (cart.length === 0) { alert('السلة فارغة!'); return; }
-    window.location.href = 'checkout.html';
-  }
-
-  (function() {
     var btnMenu = document.getElementById('btn-trigger-menu');
     var btnSearch = document.getElementById('btn-trigger-search');
-    var btnCart = document.getElementById('btn-trigger-cart');
     var btnCloseMenu = document.getElementById('btn-close-menu');
-    var btnCloseCart = document.getElementById('btn-close-cart');
     var boxSearch = document.getElementById('box-search-overlay');
     var boxMenu = document.getElementById('box-menu-drawer');
-    var cartDrawer = document.getElementById('cart-drawer');
     var boxBackdrop = document.getElementById('box-menu-backdrop');
 
     if (btnSearch && boxSearch) {
@@ -421,30 +391,19 @@
       btnMenu.addEventListener('click', function(e) {
         e.preventDefault();
         boxMenu.classList.add('is-open');
-        boxBackdrop.classList.add('is-open');
-        if (boxSearch) boxSearch.classList.remove('is-open');
-      });
-    }
-    if (btnCart && cartDrawer) {
-      btnCart.addEventListener('click', function(e) {
-        e.preventDefault();
-        renderCartItems();
-        cartDrawer.classList.add('is-open');
-        boxBackdrop.classList.add('is-open');
+        if(boxBackdrop) boxBackdrop.classList.add('is-open');
         if (boxSearch) boxSearch.classList.remove('is-open');
       });
     }
     function closeAllDrawers() {
       if (boxMenu) boxMenu.classList.remove('is-open');
-      if (cartDrawer) cartDrawer.classList.remove('is-open');
       if (boxBackdrop) boxBackdrop.classList.remove('is-open');
     }
     if (btnCloseMenu) btnCloseMenu.addEventListener('click', closeAllDrawers);
-    if (btnCloseCart) btnCloseCart.addEventListener('click', closeAllDrawers);
     if (boxBackdrop) boxBackdrop.addEventListener('click', closeAllDrawers);
-  })();
+  });
 
-  // تعديل دالة إتمام الطلب لتخزين البيانات في Supabase وإرسال الواتساب
+  // دالة إتمام الطلب وتخزين البيانات في Supabase وإرسال الواتساب
   async function submitCheckout(e) {
     e.preventDefault();
     const cart = getCart();
@@ -471,7 +430,6 @@
     });
 
     try {
-      // إرسال البيانات إلى جدول orders في Supabase
       const { error: dbError } = await supabaseClient
         .from('orders')
         .insert([{
@@ -480,15 +438,13 @@
           shipping_address: fullAddress,
           total_price: total,
           items: cart,
-          recipient_phone: phone,          // رقم المستلم
-          gift_card_message: note || ''    // العبارة على الكرت
+          recipient_phone: phone,
+          gift_card_message: note || ''
         }]);
 
       if (dbError) {
         console.error('Database Error:', dbError);
-        alert('حدث خطأ أثناء حفظ الطلب في قاعدة البيانات، ولكن سيتم توجيهك للواتساب.');
       }
-
     } catch (err) {
       console.error('Error:', err);
     } finally {
@@ -496,7 +452,6 @@
       submitBtn.textContent = 'تأكيد وإرسال الطلب عبر واتساب 📲';
     }
 
-    // تجهيز رسالة الواتساب وفتحها كما كانت تماماً
     let message = `🌸 *طلب جديد من متجر Lorin* 🌸%0A%0A`;
     message += `👤 *اسم المستلم:* ${name}%0A`;
     message += `📞 *رقم الهاتف:* ${phone}%0A`;
@@ -514,11 +469,6 @@
     const whatsappNumber = '962700000000'; 
     window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
   }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    updateCartBadge();
-    renderCheckoutSummary();
-  });
 </script>
 
 <!-- Footer الفاخر المدمج داخل الـ body في مكانه الصحيح -->
