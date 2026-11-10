@@ -181,12 +181,12 @@
               <button type="button" onclick="saveImagesNewOrder()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 transition cursor-pointer">حفظ ترتيب الصور الجديد ✅</button>
             </div>
 
-            <!-- خيارات التخصيص البديل -->
+            <!-- خيارات التخصيص البديل المحدثة -->
             <div class="md:col-span-2 bg-[#faf9f6] border border-[#f0ece1] p-4 rounded-2xl space-y-4">
               <div class="flex items-center justify-between border-b pb-2">
                 <div>
                   <h4 class="font-bold text-sm text-[#00313C]">إعدادات خيارات التخصيص (Customization Options) ✨</h4>
-                  <p class="text-[11px] text-gray-500">تمكين التخصيص يتيح للعميل اختيار الأحجام والفازات.</p>
+                  <p class="text-[11px] text-gray-500">تمكين التخصيص يتيح للعميل اختيار الأحجام، الفازات، أو أي خيارات أخرى.</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" id="product-has-customization" class="sr-only peer" onchange="toggleCustomizationFields(this.checked)">
@@ -196,20 +196,33 @@
               </div>
 
               <div id="customization-options-container" class="hidden space-y-4 pt-2">
+                <!-- مجموعة الأحجام الأساسية (مع Standard, Deluxe, Premium) -->
                 <div class="bg-white p-3 rounded-xl border border-gray-200 space-y-2">
                   <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-gray-700">مجموعة الأحجام (Flowers Size & Look)</span>
-                    <button type="button" onclick="addCustomOptionRow('size')" class="text-xs bg-[#00313C] text-white px-2.5 py-1 rounded-md font-bold">إضافة ➕</button>
+                    <span class="text-xs font-bold text-gray-700">مجموعة الأحجام والمظهر (Flowers Size & Look)</span>
+                    <button type="button" onclick="addCustomOptionRow('Flowers Size & Look')" class="text-xs bg-[#00313C] text-white px-2.5 py-1 rounded-md font-bold">إضافة خيار ➕</button>
                   </div>
-                  <div id="size-options-rows" class="space-y-2"></div>
+                  <div id="group_Flowers_Size_Look_rows" class="space-y-2"></div>
                 </div>
 
-                <div class="bg-white p-3 rounded-xl border border-gray-200 space-y-2">
-                  <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-gray-700">مجموعة الفازات / التغليف (Vase or Bouquet)</span>
-                    <button type="button" onclick="addCustomOptionRow('vessel')" class="text-xs bg-[#00313C] text-white px-2.5 py-1 rounded-md font-bold">إضافة ➕</button>
+                <!-- مجموعة الفازات أو الباقات (مع زر تفعيل وتشغيل خاص بها) -->
+                <div class="bg-white p-3 rounded-xl border border-gray-200 space-y-3">
+                  <div class="flex justify-between items-center border-b pb-2">
+                    <div class="flex items-center gap-2">
+                      <input type="checkbox" id="enable-vessel-group" onchange="toggleVesselGroup(this.checked)" class="w-4 h-4 accent-[#00313C]">
+                      <span class="text-xs font-bold text-gray-700">تفعيل مجموعة الفازات أو التغليف (Vase or Bouquet)</span>
+                    </div>
+                    <button type="button" onclick="addCustomOptionRow('Vase or Bouquet for flowers')" class="text-xs bg-[#00313C] text-white px-2.5 py-1 rounded-md font-bold">إضافة خيار ➕</button>
                   </div>
-                  <div id="vessel-options-rows" class="space-y-2"></div>
+                  <div id="group_Vase_or_Bouquet_for_flowers_rows" class="space-y-2"></div>
+                </div>
+
+                <!-- حاوية المجموعات المخصصة الجديدة الإضافية -->
+                <div id="dynamic-custom-groups-container" class="space-y-4"></div>
+
+                <!-- زر إضافة مجموعة تخصيص جديدة كلياً -->
+                <div class="pt-2 border-t flex justify-center">
+                  <button type="button" onclick="addNewCustomGroup()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition shadow-xs">➕ إضافة مجموعة تخصيص جديدة (مثلاً: العطور، نوع الورق..)</button>
                 </div>
               </div>
             </div>
@@ -674,62 +687,158 @@
       }
     }
 
-    // ===== خيارات التخصيص البديل =====
+    // ===== خيارات التخصيص البديل المحدثة (مع دعم المجموعات المرنة والتشغيل/الإطفاء) =====
     function toggleCustomizationFields(isChecked) {
       const container = document.getElementById('customization-options-container');
       if (isChecked) {
         container.classList.remove('hidden');
-        if (document.getElementById('size-options-rows').children.length === 0) {
-          addCustomOptionRow('size', 'Standard', 0);
-          addCustomOptionRow('size', 'Deluxe', 18);
+        if (document.getElementById('group_Flowers_Size_Look_rows').children.length === 0) {
+          addCustomOptionRow('Flowers Size & Look', 'Standard', 0);
+          addCustomOptionRow('Flowers Size & Look', 'Deluxe', 18);
+          addCustomOptionRow('Flowers Size & Look', 'Premium', 35);
         }
-        if (document.getElementById('vessel-options-rows').children.length === 0) {
-          addCustomOptionRow('vessel', 'Bouquet', 0);
-          addCustomOptionRow('vessel', 'Vase', 8);
+        if (document.getElementById('group_Vase_or_Bouquet_for_flowers_rows').children.length === 0) {
+          addCustomOptionRow('Vase or Bouquet for flowers', 'Bouquet', 0);
+          addCustomOptionRow('Vase or Bouquet for flowers', 'Vase', 8);
         }
       } else {
         container.classList.add('hidden');
       }
     }
 
-    function addCustomOptionRow(type, name = '', price = 0) {
-      const container = document.getElementById(type === 'size' ? 'size-options-rows' : 'vessel-options-rows');
+    function toggleVesselGroup(isChecked) {
+      const rowsContainer = document.getElementById('group_Vase_or_Bouquet_for_flowers_rows');
+      rowsContainer.style.opacity = isChecked ? '1' : '0.4';
+      rowsContainer.style.pointerEvents = isChecked ? 'auto' : 'none';
+    }
+
+    function addCustomOptionRow(groupKey, name = '', price = 0) {
+      let containerId;
+      if (groupKey === 'Flowers Size & Look') {
+        containerId = 'group_Flowers_Size_Look_rows';
+      } else if (groupKey === 'Vase or Bouquet for flowers') {
+        containerId = 'group_Vase_or_Bouquet_for_flowers_rows';
+      } else {
+        // مجموعة تخصيص مخصصة جديدة
+        containerId = 'dyn_group_' + groupKey.replace(/[^a-zA-Z0-9]/g, '_') + '_rows';
+      }
+      
+      let container = document.getElementById(containerId);
+      if (!container) return;
+
       const rowId = 'opt_' + Math.random().toString(36).substr(2, 6);
       const div = document.createElement('div');
       div.className = 'flex items-center gap-2 bg-gray-50 p-2 rounded-lg border';
       div.id = rowId;
       div.innerHTML = `
-        <input type="text" placeholder="الاسم" value="${name}" class="opt-name-input flex-1 border rounded px-2 py-1 text-xs bg-white">
-        <input type="number" step="0.01" placeholder="السعر" value="${price}" class="opt-price-input w-24 border rounded px-2 py-1 text-xs bg-white">
+        <input type="text" placeholder="اسم الخيار (مثال: Standard)" value="${name}" class="opt-name-input flex-1 border rounded px-2 py-1 text-xs bg-white">
+        <input type="number" step="0.01" placeholder="السعر الإضافي" value="${price}" class="opt-price-input w-28 border rounded px-2 py-1 text-xs bg-white">
         <button type="button" onclick="document.getElementById('${rowId}').remove()" class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs font-bold">حذف</button>`;
       container.appendChild(div);
     }
 
+    function addNewCustomGroup(groupTitle = '', items = []) {
+      const title = groupTitle || prompt("أدخل عنوان مجموعة التخصيص الجديدة (مثال: نوع العطر، لون الغلاف..):");
+      if (!title || !title.trim()) return;
+
+      const cleanKey = title.trim();
+      const containerId = 'dyn_group_' + cleanKey.replace(/[^a-zA-Z0-9]/g, '_') + '_rows';
+      
+      const mainContainer = document.getElementById('dynamic-custom-groups-container');
+      const boxId = 'box_' + Math.random().toString(36).substr(2, 6);
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'bg-white p-3 rounded-xl border border-gray-200 space-y-2 relative';
+      wrapper.id = boxId;
+      wrapper.setAttribute('data-group-title', cleanKey);
+      
+      wrapper.innerHTML = `
+        <div class="flex justify-between items-center border-b pb-2">
+          <span class="text-xs font-bold text-[#00313C]">📁 ${cleanKey}</span>
+          <div class="flex gap-2">
+            <button type="button" onclick="addCustomOptionRow('${cleanKey}')" class="text-xs bg-[#00313C] text-white px-2 py-1 rounded font-bold">إضافة خيار ➕</button>
+            <button type="button" onclick="document.getElementById('${boxId}').remove()" class="text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-bold">حذف المجموعة 🗑️</button>
+          </div>
+        </div>
+        <div id="${containerId}" class="space-y-2"></div>
+      `;
+      mainContainer.appendChild(wrapper);
+
+      if (items && items.length > 0) {
+        items.forEach(o => addCustomOptionRow(cleanKey, o.name, o.price));
+      } else {
+        addCustomOptionRow(cleanKey, '', 0);
+      }
+    }
+
     function buildCustomizationJsonFromUI() {
       if (!document.getElementById('product-has-customization').checked) return null;
-      let sizeList = [], vesselList = [];
-      document.querySelectorAll('#size-options-rows > div').forEach(row => {
+      let res = {};
+
+      // 1. الأحجام
+      let sizeList = [];
+      document.querySelectorAll('#group_Flowers_Size_Look_rows > div').forEach(row => {
         let name = row.querySelector('.opt-name-input').value.trim();
         let price = parseFloat(row.querySelector('.opt-price-input').value) || 0;
         if (name) sizeList.push({ name, price });
       });
-      document.querySelectorAll('#vessel-options-rows > div').forEach(row => {
-        let name = row.querySelector('.opt-name-input').value.trim();
-        let price = parseFloat(row.querySelector('.opt-price-input').value) || 0;
-        if (name) vesselList.push({ name, price });
-      });
-      let res = {};
       if (sizeList.length) res["Flowers Size & Look"] = sizeList;
-      if (vesselList.length) res["Vase or Bouquet for flowers"] = vesselList;
+
+      // 2. الفازات (فقط إذا كان زر التفعيل مفعل)
+      if (document.getElementById('enable-vessel-group').checked) {
+        let vesselList = [];
+        document.querySelectorAll('#group_Vase_or_Bouquet_for_flowers_rows > div').forEach(row => {
+          let name = row.querySelector('.opt-name-input').value.trim();
+          let price = parseFloat(row.querySelector('.opt-price-input').value) || 0;
+          if (name) vesselList.push({ name, price });
+        });
+        if (vesselList.length) res["Vase or Bouquet for flowers"] = vesselList;
+      }
+
+      // 3. المجموعات المخصصة الإضافية
+      document.querySelectorAll('#dynamic-custom-groups-container > div').forEach(box => {
+        let groupTitle = box.getAttribute('data-group-title');
+        let optionsList = [];
+        box.querySelectorAll('.flex.items-center.gap-2.bg-gray-50').forEach(row => {
+          let name = row.querySelector('.opt-name-input').value.trim();
+          let price = parseFloat(row.querySelector('.opt-price-input').value) || 0;
+          if (name) optionsList.push({ name, price });
+        });
+        if (groupTitle && optionsList.length) {
+          res[groupTitle] = optionsList;
+        }
+      });
+
       return Object.keys(res).length ? res : null;
     }
 
     function loadCustomizationUIFromJson(jsonObj) {
-      document.getElementById('size-options-rows').innerHTML = '';
-      document.getElementById('vessel-options-rows').innerHTML = '';
+      document.getElementById('group_Flowers_Size_Look_rows').innerHTML = '';
+      document.getElementById('group_Vase_or_Bouquet_for_flowers_rows').innerHTML = '';
+      document.getElementById('dynamic-custom-groups-container').innerHTML = '';
+      document.getElementById('enable-vessel-group').checked = false;
+      toggleVesselGroup(false);
+
       if (!jsonObj) return;
-      if (jsonObj["Flowers Size & Look"]) jsonObj["Flowers Size & Look"].forEach(o => addCustomOptionRow('size', o.name, o.price));
-      if (jsonObj["Vase or Bouquet for flowers"]) jsonObj["Vase or Bouquet for flowers"].forEach(o => addCustomOptionRow('vessel', o.name, o.price));
+
+      // الأحجام
+      if (jsonObj["Flowers Size & Look"]) {
+        jsonObj["Flowers Size & Look"].forEach(o => addCustomOptionRow('Flowers Size & Look', o.name, o.price));
+      }
+
+      // الفازات
+      if (jsonObj["Vase or Bouquet for flowers"]) {
+        document.getElementById('enable-vessel-group').checked = true;
+        toggleVesselGroup(true);
+        jsonObj["Vase or Bouquet for flowers"].forEach(o => addCustomOptionRow('Vase or Bouquet for flowers', o.name, o.price));
+      }
+
+      // المجموعات الأخرى
+      Object.keys(jsonObj).forEach(key => {
+        if (key !== "Flowers Size & Look" && key !== "Vase or Bouquet for flowers") {
+          addNewCustomGroup(key, jsonObj[key]);
+        }
+      });
     }
 
     function toggleDropdown(menuId, e) {
@@ -740,9 +849,7 @@
       document.getElementById(menuId).classList.toggle('hidden');
     }
 
-    // [إصلاح مشكلة إغلاق خانة البحث والتصنيفات عند النقر في الداخل]
     document.addEventListener('click', (e) => {
-      // إذا كان النقر داخل أي قائمة منسوحة أو داخل زر تشغيلها، فلا تقم بإغلاقها
       if (e.target.closest('#category-dropdown-menu') || 
           e.target.closest('#upsell-dropdown-menu') || 
           e.target.closest('#fbt-dropdown-menu') ||
@@ -898,6 +1005,9 @@
       document.getElementById('product-id').value = '';
       document.getElementById('product-images-manager-wrapper').classList.add('hidden');
       toggleCustomizationFields(false);
+      document.getElementById('dynamic-custom-groups-container').innerHTML = '';
+      document.getElementById('enable-vessel-group').checked = false;
+      toggleVesselGroup(false);
       selectedUpsellIds = [];
       selectedFbtIds = [];
       initUpsellDropdownSelector();
@@ -956,7 +1066,7 @@
           }
         }
 
-        showStatus('تم حفظ المنتج وتحديث أقسام الشراء المشترك بنجاح!', 'success');
+        showStatus('تم حفظ المنتج وتحديث خيارات التخصيص بنجاح!', 'success');
         resetProductForm();
         fetchAdminData();
       } catch (err) {
