@@ -612,7 +612,7 @@
       }
     }
 
-    // ===== FBT الشراء المشترك (الإصلاح الجذري هنا) =====
+    // ===== FBT الشراء المشترك =====
     let selectedFbtIds = [];
     async function initFbtDropdownSelector(currentProdId = null) {
       selectedFbtIds = [];
@@ -660,11 +660,9 @@
     }
 
     async function saveProductFbt(productId) {
-      // تفريغ الجدول لهذا المنتج أولاً لتجنب التكرار
       await supabaseClient.from('product_fbt_bundles').delete().eq('product_id', productId);
       const hasFbtChecked = document.getElementById('product-has-fbt').checked;
 
-      // إدخال العناصر الجديدة فقط إذا كان الزر مفعل وتم اختيار منتجات
       if (hasFbtChecked && selectedFbtIds.length > 0) {
         const rowsToInsert = selectedFbtIds.map((id, idx) => ({
           product_id: productId,
@@ -742,7 +740,15 @@
       document.getElementById(menuId).classList.toggle('hidden');
     }
 
-    document.addEventListener('click', () => {
+    // [إصلاح مشكلة إغلاق خانة البحث والتصنيفات عند النقر في الداخل]
+    document.addEventListener('click', (e) => {
+      // إذا كان النقر داخل أي قائمة منسوحة أو داخل زر تشغيلها، فلا تقم بإغلاقها
+      if (e.target.closest('#category-dropdown-menu') || 
+          e.target.closest('#upsell-dropdown-menu') || 
+          e.target.closest('#fbt-dropdown-menu') ||
+          e.target.closest('button[onclick*="toggleDropdown"]')) {
+        return;
+      }
       document.querySelectorAll('#category-dropdown-menu, #upsell-dropdown-menu, #fbt-dropdown-menu').forEach(m => m.classList.add('hidden'));
     });
 
@@ -875,7 +881,6 @@
       toggleCustomizationFields(p.has_customization);
       loadCustomizationUIFromJson(p.customization_options);
 
-      // تحميل حالة FBT الصحيحة والزر
       document.getElementById('product-has-fbt').checked = !!p.has_fbt;
 
       await initUpsellDropdownSelector(p.id);
@@ -908,7 +913,6 @@
       fetchAdminData();
     };
 
-    // معالج إرسال المنتج وحفظ الروابط في product_fbt_bundles
     document.getElementById('product-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-product-btn');
@@ -922,7 +926,7 @@
         const is_hidden = document.getElementById('product-is-hidden').checked;
         const has_customization = document.getElementById('product-has-customization').checked;
         const customization_options = buildCustomizationJsonFromUI();
-        const has_fbt = document.getElementById('product-has-fbt').checked; // حفظ قيمة التفعيل للقسم
+        const has_fbt = document.getElementById('product-has-fbt').checked;
 
         const productPayload = { name, price, category, is_hidden, has_customization, customization_options, has_fbt };
         let productId = id;
@@ -935,11 +939,9 @@
           productId = data.id;
         }
 
-        // حفظ بيانات الـ Upsell والـ FBT بشكل مؤكد
         await saveProductUpsells(productId);
         await saveProductFbt(productId);
 
-        // رفع الصور الجديدة إن وجدت
         const files = document.getElementById('product-image-file').files;
         if (files.length > 0) {
           let maxOrd = editingProductImages.length ? Math.max(...editingProductImages.map(i => i.sort_order || 0)) : 0;
