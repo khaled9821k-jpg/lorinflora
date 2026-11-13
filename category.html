@@ -81,7 +81,6 @@
         .filter-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #444; cursor: pointer; }
         .filter-label input { accent-color: #00313C; }
 
-        /* إصلاح مظهر المنتجات لتصبح بداخل مربعات وبحدود واضحة غير عائمة */
         .products-grid-area { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
         .floward-item-card { text-decoration: none; color: inherit; display: flex; flex-direction: column; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 12px; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .floward-item-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); border-color: #00313C; }
@@ -284,13 +283,15 @@
         const [{ data: prodData }, { data: catData }, { data: allImages }] = await Promise.all([
             supabaseClient.from('products').select('*'),
             supabaseClient.from('categories').select('*'),
-            supabaseClient.from('product_images').select('*')
+            // تعديل جلب الصور لترتيبها تصاعدياً حسب sort_order تماماً مثل صفحة المنتج
+            supabaseClient.from('product_images').select('*').order('sort_order', { ascending: true })
         ]);
 
         allStoreProducts = (prodData || []).map(p => {
             const prodImgs = (allImages || []).filter(img => String(img.product_id) === String(p.id));
             let firstImg = 'placeholder.jpg';
             if (prodImgs.length > 0) {
+                // اختيار الصورة التي في المرتبة الأولى (sort_order = 1) بناءً على الترتيب الجديد
                 firstImg = prodImgs[0].image_url || prodImgs[0].url || 'placeholder.jpg';
             }
             return { ...p, image_url: firstImg };
@@ -388,18 +389,15 @@
         if (boxBackdrop) boxBackdrop.addEventListener('click', closeAllDrawers);
     })();
 
-    // دالة جلب السلة
     function getCart() { 
         return JSON.parse(localStorage.getItem('lorin_cart')) || []; 
     }
 
-    // دالة حفظ السلة وتحديث العداد فوراً
     function saveCart(cart) { 
         localStorage.setItem('lorin_cart', JSON.stringify(cart)); 
         updateCartBadge(); 
     }
 
-    // دالة تحديث عداد السلة في الهيدر
     function updateCartBadge() {
         const cart = getCart();
         const badge = document.getElementById('cart-counter-badge');
@@ -413,18 +411,14 @@
         }
     }
 
-    // الاستماع لأي تغير يحدث في السلة حتى لو تم الحذف من صفحة أخرى (مثل صفحة السلة)
     window.addEventListener('storage', function(e) {
         if (e.key === 'lorin_cart') {
             updateCartBadge();
         }
     });
 
-    // تحديث العداد فور تحميل الصفحة وتفعيل المراقبة
     document.addEventListener('DOMContentLoaded', () => {
         updateCartBadge();
-        
-        // كود فتح وإغلاق القائمة والبحث...
     });
 
     document.addEventListener('DOMContentLoaded', initCategoryPage);
@@ -463,5 +457,4 @@
     </div>
   </div>
 </footer>
-</body>
 </html>
