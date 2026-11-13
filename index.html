@@ -832,11 +832,11 @@
     async function loadFlowardDynamicSections() {
         const container = document.getElementById('floward-dynamic-sections-container');
         
-        // تم إضافة شرط .eq('is_hidden', false) لجلب المنتجات المرئية فقط واستبعاد الـ Ghost Products من العرض العام
+        // جلب أقسام المنتجات، المنتجات غير المخفية، وصور المنتجات مرتبة تصاعدياً حسب sort_order لتوحيد الصورة الرئيسية تماماً
         const [{ data: sections }, { data: products }, { data: allImages }] = await Promise.all([
             supabaseClient.from('store_sections').select('*').order('display_order', { ascending: true }),
-            supabaseClient.from('products').select('*').eq('is_hidden', false), // <-- استبعاد المنتجات المخفية من المتجر
-            supabaseClient.from('product_images').select('*')
+            supabaseClient.from('products').select('*').eq('is_hidden', false), 
+            supabaseClient.from('product_images').select('*').order('sort_order', { ascending: true })
         ]);
 
         allStoreProducts = (products || []).map(p => {
@@ -1086,7 +1086,7 @@
     <div style="background: #ffffff; padding: 4px 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; height: 26px;">
       <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/6ee18dc6-5f9f-4183-9f19-4111e4a97a68.png" alt="Apple Pay" style="height: 18px; object-fit: contain;">
     </div>
-    <div style="background: #ffffff; padding: 4px 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; height: 26px;">
+    <div style="background: and #ffffff; padding: 4px 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; height: 26px;">
       <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/3455cb59-b00c-4dd2-b234-3de86b100338.svg" alt="Visa" style="height: 18px; object-fit: contain;">
     </div>
     <div style="background: #ffffff; padding: 4px 6px; border-radius: 6px; display: flex; align-items: center; justify-content: center; height: 26px;">
