@@ -560,6 +560,12 @@
         <tr class="hover:bg-gray-50"><td class="p-4"><img src="${c.image_url}" class="w-10 h-10 rounded-full"></td><td class="p-4 font-semibold">${c.title}</td><td class="p-4 text-center"><button onclick="deleteCategory('${c.id}')" class="bg-red-50 text-red-600 px-3 py-1 rounded text-xs font-bold">حذف</button></td></tr>`).join('');
     }
 
+    window.deleteCategory = async function(id) {
+      if (!confirm('هل أنت متأكد من حذف التصنيف الرئيسي؟')) return;
+      await supabaseClient.from('categories').delete().eq('id', id);
+      fetchAdminData();
+    };
+
     async function fetchAdminSubCategories() {
       const tbody = document.getElementById('admin-subcategories-list');
       const { data } = await supabaseClient.from('sub_categories').select('*');
@@ -569,6 +575,12 @@
         <tr class="hover:bg-gray-50"><td class="p-4"><img src="${s.image_url}" class="w-10 h-10 rounded-full"></td><td class="p-4 font-semibold">${s.title}</td><td class="p-4 text-center"><button onclick="deleteSubCategory('${s.id}')" class="bg-red-50 text-red-600 px-3 py-1 rounded text-xs font-bold">حذف</button></td></tr>`).join('');
     }
 
+    window.deleteSubCategory = async function(id) {
+      if (!confirm('هل أنت متأكد من حذف التصنيف الفرعي؟')) return;
+      await supabaseClient.from('sub_categories').delete().eq('id', id);
+      fetchAdminData();
+    };
+
     async function fetchAdminSections() {
       const tbody = document.getElementById('admin-sections-list');
       const { data } = await supabaseClient.from('store_sections').select('*');
@@ -577,6 +589,40 @@
       tbody.innerHTML = currentSections.map(s => `
         <tr class="hover:bg-gray-50"><td class="p-4 font-semibold">${s.section_title}</td><td class="p-4 text-gray-500">${s.category_filter}</td><td class="p-4 text-center"><button onclick="deleteSection('${s.id}')" class="bg-red-50 text-red-600 px-3 py-1 rounded text-xs font-bold">حذف</button></td></tr>`).join('');
     }
+
+    window.deleteSection = async function(id) {
+      if (!confirm('هل أنت متأكد من حذف القسم؟')) return;
+      await supabaseClient.from('store_sections').delete().eq('id', id);
+      fetchAdminData();
+    };
+
+    // معالجة نموذج إضافة تصنيف رئيسي جديد لضمان حفظه بشكل دائم
+    document.getElementById('category-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const title = document.getElementById('cat-title').value.trim();
+      const link = document.getElementById('cat-link').value.trim();
+      const fileInput = document.getElementById('cat-image-file');
+      if(!title) return;
+
+      let imageUrl = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
+      if(fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const path = `categories/${Date.now()}.${file.name.split('.').pop()}`;
+        const { error: upErr } = await supabaseClient.storage.from('store-assets').upload(path, file);
+        if(!upErr) {
+          imageUrl = supabaseClient.storage.from('store-assets').getPublicUrl(path).data.publicUrl;
+        }
+      }
+
+      const { error } = await supabaseClient.from('categories').insert([{ title, link: link || '#', image_url: imageUrl }]);
+      if(error) {
+        showStatus('خطأ أثناء حفظ التصنيف: ' + error.message, 'error');
+      } else {
+        showStatus('تم إضافة التصنيف الرئيسي بنجاح!', 'success');
+        document.getElementById('category-form').reset();
+        fetchAdminData();
+      }
+    });
 
     // ===== Upsell selector =====
     let selectedUpsellIds = [];
@@ -858,10 +904,22 @@
       document.querySelectorAll('#category-dropdown-menu, #upsell-dropdown-menu, #fbt-dropdown-menu').forEach(m => m.classList.add('hidden'));
     });
 
+    // دالة تم التعديل عليها لجلب التصنيفات من جدول categories بالأساس ومن ثم دمجها مع تصنيفات المنتجات لضمان عدم اختفائها
     async function loadCategoriesIntoDropdowns() {
-      const { data } = await supabaseClient.from('products').select('category');
       let set = new Set();
-      if (data) data.forEach(p => p.category && p.category.split(',').forEach(c => c.trim() && set.add(c.trim())));
+      
+      // 1. جلب التصنيفات الدائمة من جدول categories في قاعدة البيانات
+      const { data: catData } = await supabaseClient.from('categories').select('title');
+      if (catData) {
+        catData.forEach(c => c.title && set.add(c.title.trim()));
+      }
+
+      // 2. جلب التصنيفات الموجودة في جدول المنتجات كدعم إضافي
+      const { data: prodData } = await supabaseClient.from('products').select('category');
+      if (prodData) {
+        prodData.forEach(p => p.category && p.category.split(',').forEach(c => c.trim() && set.add(c.trim())));
+      }
+
       availableCategories = Array.from(set);
       renderProductCategoryCheckboxes([]);
     }
@@ -978,7 +1036,7 @@
       document.getElementById('product-id').value = p.id;
       document.getElementById('product-name').value = p.name;
       document.getElementById('product-price').value = p.price;
-      document.getElementById('product-desc').value = p.description || ''; // تعبئة حقل الوصف عند التعديل
+      document.getElementById('product-desc').value = p.description || '';
       document.getElementById('product-category').value = p.category || '';
       renderProductCategoryCheckboxes(p.category ? p.category.split(',').map(c => c.trim()) : []);
       updateProductSelectedCategories();
@@ -1033,7 +1091,7 @@
         const id = document.getElementById('product-id').value;
         const name = document.getElementById('product-name').value;
         const price = parseFloat(document.getElementById('product-price').value);
-        const description = document.getElementById('product-desc').value; // جلب قيمة الوصف
+        const description = document.getElementById('product-desc').value;
         const category = document.getElementById('product-category').value;
         const is_hidden = document.getElementById('product-is-hidden').checked;
         const has_customization = document.getElementById('product-has-customization').checked;
