@@ -243,18 +243,14 @@
         <div class="tabs-header">
             <button class="tab-btn active">Description</button>
         </div>
-        <!-- تم ربط هذا القسم بحقل الوصف القادم من قاعدة البيانات والآدمن -->
         <div id="product-desc-content" style="font-size: 14px; color: #555; line-height: 1.8; max-width: 900px;">
             تنسيق فاخر من أجمل الزهور الطبيعية والشوكولاتة المختارة بعناية فائقة لتلائم جميع المناسبات السعيدة وتضفي لمسة من البهجة والجمال.
         </div>
     </div>
 
-    <!-- قسم (يقوم المستخدمون بشراء هذه المنتجات سوياً) المستقل تماماً -->
     <div id="fbt-section-wrapper" class="fbt-section" style="display: none;">
         <div class="fbt-title">يقوم المستخدمون بشراء هذه المنتجات سوياً</div>
-        <div id="fbt-grid-container" class="fbt-grid">
-            <!-- سيتم التعبئة تلقائياً -->
-        </div>
+        <div id="fbt-grid-container" class="fbt-grid"></div>
     </div>
   </main>
 </div>
@@ -328,6 +324,7 @@
 
             if (!product) throw new Error('المنتج غير موجود في قاعدة البيانات.');
             currentProduct = product;
+            // إصلاح قراءة السعر والتأكد من تحويله لرقم بشكل صحيح
             baseProductPrice = parseFloat(product.price) || 0;
 
             const [{ data: imgData }, { data: products }] = await Promise.all([
@@ -341,7 +338,6 @@
             document.getElementById('breadcrumb-name').textContent = product.name;
             if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
 
-            // تحديث وصف المنتج في القسم المخصص له تلقائياً من قاعدة البيانات
             const descContainer = document.getElementById('product-desc-content');
             if (descContainer) {
                 if (product.description && product.description.trim() !== '') {
@@ -557,10 +553,11 @@
 
     function addBundleToCart(bundleData) {
         let cart = getCart();
+        let finalItemPrice = baseProductPrice + (selectedCustomizations.additionalPrice || 0);
         let mainItem = {
             id: bundleData.main.id,
             name: bundleData.main.name,
-            price: baseProductPrice + selectedCustomizations.additionalPrice,
+            price: finalItemPrice, // ضمان إرسال السعر المحسوب بشكل صحيح
             image_url: bundleData.main.image_url,
             quantity: parseInt(document.getElementById('product-qty').value) || 1,
             customizations: currentProduct.has_customization ? { ...selectedCustomizations } : null
@@ -570,7 +567,7 @@
         let addonItem = {
             id: bundleData.addon.id,
             name: bundleData.addon.name,
-            price: bundleData.addon.price,
+            price: parseFloat(bundleData.addon.price) || 0,
             image_url: bundleData.addon.image_url,
             quantity: 1,
             customizations: null
@@ -601,7 +598,7 @@
 
     function updateCartBadge() {
         const cart = getCart();
-        const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const totalCount = cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
         document.querySelectorAll('#cart-counter-badge, .cart-counter-badge, .mobile-cart-count').forEach(badge => {
             if (totalCount > 0) { badge.textContent = totalCount; badge.style.display = 'flex'; }
             else { badge.style.display = 'none'; }
@@ -611,11 +608,14 @@
     function addToCart(product) {
         const qty = parseInt(document.getElementById('product-qty').value) || 1;
         let cart = getCart();
-        let finalItemPrice = baseProductPrice + selectedCustomizations.additionalPrice;
+        // التأكد من حساب السعر النهائي بدقة وتمريره كرقم
+        let finalItemPrice = baseProductPrice + (selectedCustomizations.additionalPrice || 0);
         
         let cartItem = {
-            ...product,
-            price: finalItemPrice,
+            id: product.id,
+            name: product.name,
+            price: finalItemPrice, // تمرير السعر الرقمي الصحيح هنا
+            image_url: product.image_url,
             quantity: qty,
             customizations: product.has_customization ? { ...selectedCustomizations } : null
         };
@@ -657,16 +657,17 @@
 
                 const existingCartItem = currentCart.find(cartItem => String(cartItem.id) === String(item.id));
                 const qty = existingCartItem ? existingCartItem.quantity : 0;
+                const itemPriceNum = parseFloat(item.price) || 0;
 
                 return `
                     <div style="min-width: 160px; max-width: 160px; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; background: #fff; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
                             <img src="${itemImage}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" alt="${item.name}">
                             <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px;">${item.name}</div>
-                            <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">JOD ${parseFloat(item.price).toFixed(2)}</div>
+                            <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">JOD ${itemPriceNum.toFixed(2)}</div>
                         </div>
                         <div id="upsell-action-area-${item.id}">
-                            ${qty > 0 ? renderQuantityControls(item.id, qty) : renderAddButton(item.id, item.name, item.price, itemImage)}
+                            ${qty > 0 ? renderQuantityControls(item.id, qty) : renderAddButton(item.id, item.name, itemPriceNum, itemImage)}
                         </div>
                     </div>
                 `;
@@ -695,7 +696,7 @@
         let cart = getCart();
         let existing = cart.find(c => String(c.id) === String(item.id));
         if (existing) { existing.quantity += 1; }
-        else { cart.push({ id: item.id, name: item.name, price: parseFloat(item.price), image_url: item.image_url, quantity: 1 }); }
+        else { cart.push({ id: item.id, name: item.name, price: parseFloat(item.price) || 0, image_url: item.image_url, quantity: 1 }); }
         saveCart(cart);
         loadUpsellsForModal(currentProduct.id);
     }
