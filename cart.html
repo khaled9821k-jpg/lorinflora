@@ -92,7 +92,7 @@
         .lc-section.no-border { border-top: none; padding-top: 0; }
         .lc-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; gap: 10px; }
         .lc-h { font-size: 15px; font-weight: 700; color: #1f292e; margin: 0; }
-        .lc-free { font-size: 12px; font-weight: 600; color: #5b6b70; }
+        .lc-free { font-size: 12px; font-weight: 600; color: #00313C; }
         .lc-note { font-size: 12px; color: var(--lorin-muted); margin: 12px 0 0; }
 
         /* Cart items card */
@@ -151,17 +151,20 @@
         .lc-tile-msg { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 100%; }
         .lc-tile-msg .txt { color: #1f292e; font-size: 13px; line-height: 1.6; max-height: 80px; overflow: hidden; word-break: break-word; white-space: pre-wrap; }
         .lc-tile-msg .edit { font-size: 11px; font-weight: 700; color: var(--lorin); letter-spacing: .08em; text-transform: uppercase; }
-        .lc-swatches { display: flex; gap: 10px; margin: 12px 0 14px; }
-        .lc-sw { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; border: 1px solid #e3e3e3; padding: 5px; background: #fff; cursor: pointer; border-radius: 3px; text-align: left; font-family: inherit; }
-        .lc-sw img { width: 38px; height: 28px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
-        .lc-sw span { font-size: 11px; font-weight: 500; color: #333; line-height: 1.25; }
+        .lc-swatches { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 14px; }
+        .lc-sw { flex: 1 1 calc(33.333% - 8px); min-width: 120px; display: flex; align-items: center; gap: 8px; border: 1px solid #e3e3e3; padding: 6px; background: #fff; cursor: pointer; border-radius: 6px; text-align: left; font-family: inherit; transition: border-color .15s, box-shadow .15s; }
+        .lc-sw img { width: 42px; height: 32px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: #f8fafc; }
+        .lc-sw .sw-meta { display: flex; flex-direction: column; min-width: 0; }
+        .lc-sw .sw-name { font-size: 11px; font-weight: 600; color: #333; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .lc-sw .sw-price { font-size: 10px; font-weight: 700; color: #0f766e; margin-top: 2px; }
+        .lc-sw .sw-price.is-free { color: #6b7280; font-weight: 500; }
         .lc-sw.is-selected { border-color: var(--lorin); box-shadow: 0 0 0 2px rgba(0,49,60,.14); }
-        .lc-sw.is-selected span { color: var(--lorin); font-weight: 700; }
+        .lc-sw.is-selected .sw-name { color: var(--lorin); font-weight: 700; }
 
-        .design-opt { border: 2px solid #e5e7eb; border-radius: 12px; padding: 6px; background: #fff; cursor: pointer; text-align: center; transition: border-color .15s, box-shadow .15s; }
+        .design-opt { border: 2px solid #e5e7eb; border-radius: 12px; padding: 6px; background: #fff; cursor: pointer; text-align: center; transition: border-color .15s, box-shadow .15s; display: flex; flex-direction: column; justify-content: space-between; }
         .design-opt:hover { border-color: #9fb4ba; }
         .design-opt.is-selected { border-color: var(--lorin); box-shadow: 0 0 0 3px rgba(0,49,60,.12); }
-        .design-opt img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px; display: block; }
+        .design-opt img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px; display: block; background: #f8fafc; }
 
         .card-preview { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 4/3; background-size: cover; background-position: center; box-shadow: 0 6px 18px rgba(0,0,0,.08); border: 1px solid #ece7da; }
         .card-preview .card-text { position: absolute; inset: 14% 12%; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--lorin); font-weight: 500; line-height: 1.7; word-break: break-word; overflow: hidden; white-space: pre-wrap; }
@@ -395,6 +398,7 @@
             <span id="summary-discount">- JOD 0.00</span>
           </div>
           <div id="summary-photo-row" class="sum-row hidden"><span>Photo Stick-In</span><span id="summary-photo">JOD 2.50</span></div>
+          <div id="summary-card-row" class="sum-row hidden"><span>Gift Card (<span id="summary-card-name"></span>)</span><span id="summary-card-price">JOD 0.00</span></div>
           <div class="sum-row"><span>Delivery charges</span><span class="muted" id="summary-delivery-label">JOD 0.00</span></div>
           <p class="sum-note">Please note that specific regions and express delivery may incur extra delivery fees.</p>
           <div class="sum-row sum-total"><span>Total</span><span id="cart-total">JOD 0.00</span></div>
@@ -449,7 +453,7 @@
     <div class="flex justify-between items-start mb-4">
       <div>
         <h3 id="card-modal-title" class="text-lg font-bold text-[#00313C]">Personalize Your Card</h3>
-        <p class="text-xs text-gray-500 mt-1">Choose a design and write your message. Free.</p>
+        <p id="card-modal-subtitle" class="text-xs text-gray-500 mt-1">Choose a design and write your message.</p>
       </div>
       <button type="button" data-close-modal class="text-gray-400 hover:text-gray-700 text-xl cursor-pointer" aria-label="Close">✕</button>
     </div>
@@ -574,16 +578,20 @@
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="' + bg + '"/>' + inner + '</svg>';
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
-  const CARD_DESIGNS = [
+  const DEFAULT_CARD_DESIGNS = [
     {
+      id: 'default-classic-ivory',
       name: 'Lorin Classic Ivory',
+      price: 0,
       imageUrl: cardSvg('#FBF6EA',
         '<rect x="14" y="14" width="372" height="272" rx="10" fill="none" stroke="#00313C" stroke-width="2"/>' +
         '<rect x="24" y="24" width="352" height="252" rx="6" fill="none" stroke="#00313C" stroke-opacity=".35" stroke-width="1"/>' +
         '<g fill="#00313C" fill-opacity=".85"><circle cx="200" cy="38" r="4"/><circle cx="188" cy="42" r="2.5"/><circle cx="212" cy="42" r="2.5"/></g>')
     },
     {
+      id: 'default-botanical-gold',
       name: 'Botanical Gold',
+      price: 0,
       imageUrl: cardSvg('#FFFDF7',
         '<g fill="none" stroke="#C9A24B" stroke-width="2" stroke-linecap="round">' +
         '<path d="M20 280C40 220 60 170 110 130M20 280C70 270 120 250 150 210"/>' +
@@ -592,12 +600,16 @@
         '<ellipse cx="340" cy="110" rx="16" ry="7" transform="rotate(130 340 110)"/><ellipse cx="305" cy="150" rx="14" ry="6" transform="rotate(140 305 150)"/><ellipse cx="290" cy="60" rx="16" ry="7" transform="rotate(160 290 60)"/></g>')
     },
     {
+      id: 'default-minimalist-cream',
       name: 'Minimalist Cream',
+      price: 0,
       imageUrl: cardSvg('#F5EFE6',
         '<line x1="150" y1="46" x2="250" y2="46" stroke="#00313C" stroke-opacity=".5" stroke-width="1.5"/>' +
         '<line x1="150" y1="254" x2="250" y2="254" stroke="#00313C" stroke-opacity=".5" stroke-width="1.5"/>')
     }
   ];
+
+  let CARD_DESIGNS = [...DEFAULT_CARD_DESIGNS];
 
   function esc(v) {
     return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -693,6 +705,70 @@
   }
 
   /* =====================================================
+     Gift Card Designs from Supabase (gift_card_designs)
+  ===================================================== */
+  function findMatchingDesign(cardObj) {
+    if (!cardObj) return CARD_DESIGNS[0];
+    return CARD_DESIGNS.find(d =>
+      (cardObj.designId && String(d.id) === String(cardObj.designId)) ||
+      (cardObj.designName && d.name === cardObj.designName)
+    ) || CARD_DESIGNS[0];
+  }
+
+  function getGiftCardFee() {
+    const c = getExtras().card;
+    if (!c || !c.selected) return 0;
+    const matched = findMatchingDesign(c);
+    const price = c.price !== undefined ? num(c.price) : num(matched ? matched.price : 0);
+    return Math.max(0, price);
+  }
+
+  async function loadGiftCardDesignsFromDb() {
+    if (!supabaseClient) return;
+    try {
+      const { data, error } = await supabaseClient.from('gift_card_designs').select('*');
+      if (error || !Array.isArray(data) || data.length === 0) return;
+
+      const mapped = data.map((row, idx) => {
+        const name = String(row.title || row.name || row.label || `Card Design ${idx + 1}`).trim();
+        const imageUrl = String(row.image_url || row.url || PLACEHOLDER_IMG).trim();
+        const price = Math.max(0, num(row.price ?? row.extra_price ?? 0));
+        return {
+          id: String(row.id ?? idx),
+          name,
+          imageUrl,
+          price
+        };
+      }).filter(item => item.name && item.imageUrl);
+
+      if (mapped.length > 0) {
+        CARD_DESIGNS = mapped;
+
+        // Keep saved card in sync if its design was updated or renamed in admin
+        const extras = getExtras();
+        if (extras.card && extras.card.selected) {
+          const updatedMatch = CARD_DESIGNS.find(d =>
+            (extras.card.designId && String(d.id) === String(extras.card.designId)) ||
+            (extras.card.designName && d.name === extras.card.designName)
+          );
+          if (updatedMatch) {
+            extras.card.designId = updatedMatch.id;
+            extras.card.designName = updatedMatch.name;
+            extras.card.designImageUrl = updatedMatch.imageUrl;
+            extras.card.price = updatedMatch.price;
+            saveExtras(extras);
+          }
+        }
+
+        renderGiftCard();
+        renderSummary();
+      }
+    } catch (e) {
+      console.warn('Gift card designs fetch fallback: ' + errMsg(e));
+    }
+  }
+
+  /* =====================================================
      Gift extras (localStorage: lorin_gift_extras)
   ===================================================== */
   function getExtras() {
@@ -705,9 +781,15 @@
     return out;
   }
   function saveExtras(extras) {
-    const fee = (extras.photoStickIn && extras.photoStickIn.selected) ? PHOTO_FEE : 0;
-    extras.photoStickInFee = fee;
-    extras.summary = { photoStickInFee: fee };
+    const photoFee = (extras.photoStickIn && extras.photoStickIn.selected) ? PHOTO_FEE : 0;
+    const cardFee = (extras.card && extras.card.selected) ? Math.max(0, num(extras.card.price)) : 0;
+    extras.photoStickInFee = photoFee;
+    extras.giftCardFee = cardFee;
+    extras.summary = {
+      photoStickInFee: photoFee,
+      giftCardFee: cardFee,
+      totalExtrasFee: photoFee + cardFee
+    };
     extras.updatedAt = new Date().toISOString();
     return writeJSON(GIFT_KEY, extras);
   }
@@ -878,24 +960,35 @@
 
   function currentCard() {
     const c = getExtras().card;
-    const design = (c && CARD_DESIGNS.find(d => d.name === c.designName)) || CARD_DESIGNS[0];
-    return { design, message: (c && typeof c.message === 'string') ? c.message : '', saved: !!c };
+    const design = findMatchingDesign(c);
+    const price = (c && c.price !== undefined) ? Math.max(0, num(c.price)) : num(design.price);
+    const imageUrl = (c && c.designImageUrl) ? c.designImageUrl : design.imageUrl;
+    const name = (c && c.designName) ? c.designName : design.name;
+    return {
+      design: { id: design.id, name, imageUrl, price },
+      message: (c && typeof c.message === 'string') ? c.message : '',
+      saved: !!(c && c.selected)
+    };
   }
+
   function previewHTML(design, message, placeholder) {
     const text = message.trim();
-    return `<div class="card-preview" style="background-image:url('${design.imageUrl}')">
+    const bg = esc(design.imageUrl || PLACEHOLDER_IMG);
+    return `<div class="card-preview" style="background-image:url('${bg}')">
       <div class="card-text" dir="auto" style="${text ? '' : 'opacity:.45;'}font-size:${text.length > 120 ? 13 : text.length > 60 ? 15 : 18}px">${esc(text || placeholder)}</div>
     </div>`;
   }
 
   function renderGiftCard() {
     const el = document.getElementById('gift-card-section');
-    const { design, message } = currentCard();
+    const { design, message, saved } = currentCard();
     const hasMsg = !!message.trim();
+    const headerFeeLabel = saved && num(design.price) > 0 ? `+ ${money(design.price)}` : (num(design.price) > 0 ? `+ ${money(design.price)}` : 'Free');
+
     el.innerHTML = `
       <div class="lc-head">
         <h3 class="lc-h">Choose Your Card Design</h3>
-        <span class="lc-free">Free</span>
+        <span class="lc-free">${esc(headerFeeLabel)}</span>
       </div>
       <div class="lc-tiles">
         <button type="button" class="lc-tile" id="card-tile-design" aria-label="Preview and personalize your card">
@@ -911,23 +1004,41 @@
         </button>
       </div>
       <div class="lc-swatches" role="group" aria-label="Card designs">
-        ${CARD_DESIGNS.map(d => `
-          <button type="button" class="lc-sw ${d.name === design.name ? 'is-selected' : ''}" data-design="${esc(d.name)}" aria-pressed="${d.name === design.name}">
-            <img src="${d.imageUrl}" alt=""><span>${esc(d.name)}</span>
-          </button>`).join('')}
+        ${CARD_DESIGNS.map(d => {
+          const isSelected = d.name === design.name;
+          const pVal = num(d.price);
+          return `
+            <button type="button" class="lc-sw ${isSelected ? 'is-selected' : ''}" data-design-name="${esc(d.name)}" aria-pressed="${isSelected}">
+              <img src="${esc(d.imageUrl)}" alt="${esc(d.name)}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'">
+              <span class="sw-meta">
+                <span class="sw-name">${esc(d.name)}</span>
+                <span class="sw-price ${pVal > 0 ? '' : 'is-free'}">${pVal > 0 ? '+ ' + money(pVal) : 'Free'}</span>
+              </span>
+            </button>`;
+        }).join('')}
       </div>
-      <button type="button" id="btn-personalize" class="btn-outline block">PERSONALIZE CARD</button>`;
+      <button type="button" id="btn-personalize" class="btn-outline block">${saved ? 'EDIT / UPDATE CARD · ' + esc(design.name) : 'PERSONALIZE CARD'}</button>`;
 
     el.querySelectorAll('.lc-sw').forEach(btn => {
       btn.onclick = () => {
+        const d = CARD_DESIGNS.find(x => x.name === btn.dataset.designName) || CARD_DESIGNS[0];
         const extras = getExtras();
-        const cur = currentCard();
-        const d = CARD_DESIGNS.find(x => x.name === btn.dataset.design) || CARD_DESIGNS[0];
-        extras.card = { designName: d.name, designImageUrl: d.imageUrl, message: cur.message };
+        const prevMsg = (extras.card && typeof extras.card.message === 'string') ? extras.card.message : '';
+        extras.card = {
+          selected: true,
+          designId: d.id,
+          designName: d.name,
+          designImageUrl: d.imageUrl,
+          price: num(d.price),
+          message: prevMsg
+        };
         saveExtras(extras);
         renderGiftCard();
+        renderSummary();
+        toast(num(d.price) > 0 ? `${d.name} added (+${money(d.price)})` : `${d.name} selected`);
       };
     });
+
     const open = () => openCardModal();
     document.getElementById('card-tile-design').onclick = open;
     document.getElementById('card-tile-message').onclick = open;
@@ -939,13 +1050,24 @@
     const subtotal = cartSubtotal(cart);
     const extras = getExtras();
     const photoFee = (cart.length && extras.photoStickIn) ? PHOTO_FEE : 0;
+    const cardFee = (cart.length && extras.card && extras.card.selected) ? Math.max(0, num(extras.card.price)) : 0;
     const promo = getPromo();
     const discount = cart.length ? calcDiscount(subtotal, promo) : 0;
-    const total = Math.max(0, subtotal - discount + photoFee);
+    const total = Math.max(0, subtotal - discount + photoFee + cardFee);
 
     document.getElementById('cart-subtotal').textContent = money(subtotal);
     setHidden(document.getElementById('summary-photo-row'), !photoFee);
     document.getElementById('summary-photo').textContent = money(photoFee);
+
+    const cardRow = document.getElementById('summary-card-row');
+    if (cardRow) {
+      setHidden(cardRow, !cardFee);
+      const cardNameEl = document.getElementById('summary-card-name');
+      const cardPriceEl = document.getElementById('summary-card-price');
+      if (cardNameEl && extras.card) cardNameEl.textContent = extras.card.designName || 'Card';
+      if (cardPriceEl) cardPriceEl.textContent = money(cardFee);
+    }
+
     setHidden(document.getElementById('summary-discount-row'), !discount);
     document.getElementById('summary-discount').textContent = '- ' + money(discount);
     document.getElementById('summary-discount-code').textContent = discount && promo ? '(' + promo.code + ')' : '';
@@ -1201,48 +1323,87 @@
   }
 
   /* ---- Card Modal ---- */
-  let draftDesign = CARD_DESIGNS[0].name;
+  let draftDesignName = CARD_DESIGNS[0].name;
+
+  function getDraftDesign() {
+    return CARD_DESIGNS.find(d => d.name === draftDesignName) || CARD_DESIGNS[0];
+  }
 
   function renderCardModalDesigns() {
-    document.getElementById('card-modal-designs').innerHTML = CARD_DESIGNS.map(d => `
-      <button type="button" class="design-opt ${d.name === draftDesign ? 'is-selected' : ''}" data-design="${esc(d.name)}">
-        <img src="${d.imageUrl}" alt="${esc(d.name)}">
-        <span class="block text-[11px] font-bold text-[#00313C] mt-1.5 leading-tight">${esc(d.name)}</span>
-      </button>`).join('');
+    const selected = getDraftDesign();
+    const sub = document.getElementById('card-modal-subtitle');
+    if (sub) {
+      const pVal = num(selected.price);
+      sub.textContent = pVal > 0
+        ? `${selected.name} (+ ${money(pVal)}) — write your message below.`
+        : `${selected.name} (Free) — write your message below.`;
+    }
+
+    document.getElementById('card-modal-designs').innerHTML = CARD_DESIGNS.map(d => {
+      const pVal = num(d.price);
+      return `
+        <button type="button" class="design-opt ${d.name === selected.name ? 'is-selected' : ''}" data-design-name="${esc(d.name)}">
+          <img src="${esc(d.imageUrl)}" alt="${esc(d.name)}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'">
+          <span class="block text-[11px] font-bold text-[#00313C] mt-1.5 leading-tight truncate">${esc(d.name)}</span>
+          <span class="block text-[10px] font-semibold mt-0.5 ${pVal > 0 ? 'text-emerald-700' : 'text-gray-500'}">${pVal > 0 ? '+ ' + money(pVal) : 'Free'}</span>
+        </button>`;
+    }).join('');
+
     document.querySelectorAll('#card-modal-designs .design-opt').forEach(b => {
-      b.onclick = () => { draftDesign = b.dataset.design; renderCardModalDesigns(); renderCardModalPreview(); };
+      b.onclick = () => {
+        draftDesignName = b.dataset.designName;
+        renderCardModalDesigns();
+        renderCardModalPreview();
+      };
     });
   }
+
   function renderCardModalPreview() {
-    const design = CARD_DESIGNS.find(d => d.name === draftDesign) || CARD_DESIGNS[0];
+    const design = getDraftDesign();
     const msg = document.getElementById('card-modal-message').value;
     document.getElementById('card-modal-counter').textContent = msg.length + '/' + MESSAGE_MAX;
     document.getElementById('card-modal-preview-wrap').innerHTML = previewHTML(design, msg, 'Your message will appear here');
   }
+
   function openCardModal() {
     const cur = currentCard();
-    draftDesign = cur.design.name;
+    draftDesignName = cur.design.name;
     document.getElementById('card-modal-message').value = cur.message;
-    renderCardModalDesigns(); renderCardModalPreview();
+    renderCardModalDesigns();
+    renderCardModalPreview();
     openModal('card-modal');
   }
+
   function saveCardFromModal() {
-    const design = CARD_DESIGNS.find(d => d.name === draftDesign) || CARD_DESIGNS[0];
+    const design = getDraftDesign();
     const message = document.getElementById('card-modal-message').value.slice(0, MESSAGE_MAX).trim();
     const extras = getExtras();
-    extras.card = { designName: design.name, designImageUrl: design.imageUrl, message };
+    extras.card = {
+      selected: true,
+      designId: design.id,
+      designName: design.name,
+      designImageUrl: design.imageUrl,
+      price: num(design.price),
+      message
+    };
     saveExtras(extras);
-    closeModals(); renderGiftCard();
-    toast(message ? 'Card saved 💌' : 'Card design saved');
+    closeModals();
+    renderGiftCard();
+    renderSummary();
+    toast(num(design.price) > 0 ? `Card saved (+${money(design.price)}) 💌` : 'Card saved 💌');
   }
+
   function clearCard() {
     const extras = getExtras();
     extras.card = null;
     saveExtras(extras);
     document.getElementById('card-modal-message').value = '';
-    draftDesign = CARD_DESIGNS[0].name;
-    renderCardModalDesigns(); renderCardModalPreview(); renderGiftCard();
-    toast('Card message cleared');
+    draftDesignName = CARD_DESIGNS[0].name;
+    renderCardModalDesigns();
+    renderCardModalPreview();
+    renderGiftCard();
+    renderSummary();
+    toast('Card cleared');
   }
 
   /* =====================================================
@@ -1328,6 +1489,7 @@
     updateCartBadge();
     renderAll();
     renderPromoState();
+    loadGiftCardDesignsFromDb();
     loadProductsForSearch();
 
     document.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', closeModals));
