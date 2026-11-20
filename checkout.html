@@ -271,10 +271,23 @@
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit space-y-4">
         <h2 class="text-base font-bold text-gray-800 mb-2 pb-2 border-b">ملخص الطلب</h2>
         <div id="checkout-items-list" class="space-y-3 max-h-60 overflow-y-auto"></div>
+        <div id="checkout-gift-extras-box" class="hidden bg-[#fffdf9] border border-dashed border-[#d6cfc0] rounded-xl p-3 text-xs space-y-1.5"></div>
         <div class="border-t pt-4 space-y-2">
           <div class="flex justify-between text-sm text-gray-600">
             <span>المجموع الفرعي:</span>
             <span id="subtotal-price">0.00 د.أ</span>
+          </div>
+          <div id="checkout-photo-row" class="hidden justify-between text-sm text-gray-600">
+            <span>صورة إضافية (Photo Stick-In):</span>
+            <span id="photo-fee-price">2.50 د.أ</span>
+          </div>
+          <div id="checkout-card-row" class="hidden justify-between text-sm text-gray-600">
+            <span id="card-fee-label">بطاقة إهداء:</span>
+            <span id="card-fee-price">0.00 د.أ</span>
+          </div>
+          <div id="checkout-discount-row" class="hidden justify-between text-sm text-emerald-700 font-semibold">
+            <span id="discount-label">الخصم:</span>
+            <span id="discount-amount">- 0.00 د.أ</span>
           </div>
           <div class="flex justify-between text-sm text-gray-600">
             <span>رسوم التوصيل:</span>
@@ -297,9 +310,79 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_DbYCExpNFypVQARATbdeVw_hipYS1Oa';
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  const GIFT_KEY = 'lorin_gift_extras';
+  const PROMO_KEY = 'lorin_promo';
+  const PHOTO_STICK_FEE = 2.5;
+
+  function num(v) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function escHtml(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  function readJsonStorage(key, fallback) {
+    try {
+      const raw = JSON.parse(localStorage.getItem(key));
+      return raw == null ? fallback : raw;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
   // دالة جلب السلة
   function getCart() { 
       return JSON.parse(localStorage.getItem('lorin_cart')) || []; 
+  }
+
+  function getGiftExtras() {
+      const raw = readJsonStorage(GIFT_KEY, {});
+      return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+  }
+
+  function getPromoData() {
+      const raw = readJsonStorage(PROMO_KEY, null);
+      return (raw && typeof raw === 'object') ? raw : null;
+  }
+
+  function computeDiscount(subtotal, promo) {
+      if (!promo || promo.status !== 'applied') return 0;
+      const val = num(promo.value);
+      const disc = promo.type === 'percent' ? (subtotal * val) / 100 : val;
+      return Math.max(0, Math.min(disc, subtotal));
+  }
+
+  function getCalculatedTotals(cart) {
+      const subtotal = cart.reduce((sum, item) => sum + (num(item.price) * Math.max(1, Math.floor(num(item.quantity) || 1))), 0);
+      const extras = getGiftExtras();
+      const hasPhoto = !!(cart.length && extras.photoStickIn && extras.photoStickIn.selected && extras.photoStickIn.imageUrl);
+      const photoFee = hasPhoto ? PHOTO_STICK_FEE : 0;
+
+      const cardObj = (extras.card && typeof extras.card === 'object') ? extras.card : null;
+      const cardDesignName = cardObj && cardObj.designName ? String(cardObj.designName) : '';
+      const cardMessage = cardObj && typeof cardObj.message === 'string' ? cardObj.message.trim() : '';
+      const cardFee = (cart.length && cardObj && cardObj.selected) ? Math.max(0, num(cardObj.price)) : 0;
+
+      const promo = getPromoData();
+      const discount = cart.length ? computeDiscount(subtotal, promo) : 0;
+      const total = Math.max(0, subtotal - discount + photoFee + cardFee);
+
+      return {
+          subtotal,
+          photoFee,
+          photoData: hasPhoto ? extras.photoStickIn : null,
+          cardFee,
+          cardDesignName,
+          cardMessage,
+          hasCardSelected: !!(cardObj && cardObj.selected),
+          promo,
+          discount,
+          total
+      };
   }
 
   // دالة حفظ السلة وتحديث جميع عدادات السلة في الصفحة (هاتف وكمبيوتر)
@@ -311,7 +394,7 @@
   // دالة تحديث عداد السلة - محدثة لتشمل الهواتف والكمبيوتر وتستهدف الـ ID والـ Classes معاً
   function updateCartBadge() {
       const cart = getCart();
-      const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const totalCount = cart.reduce((sum, item) => sum + (Math.max(1, Math.floor(num(item.quantity) || 1))), 0);
       
       // تحديث كل العدادات المحتملة في الصفحة (سواء هاتف أو كمبيوتر)
       const badges = document.querySelectorAll('#cart-counter-badge, .cart-counter-badge, .mobile-cart-count');
@@ -329,8 +412,9 @@
 
   // الاستماع لتغيرات التخزين المحلي لتحديث العداد فوراً
   window.addEventListener('storage', function(e) {
-      if (e.key === 'lorin_cart') {
+      if (e.key === 'lorin_cart' || e.key === GIFT_KEY || e.key === PROMO_KEY) {
           updateCartBadge();
+          renderCheckoutSummary();
       }
   });
 
@@ -339,6 +423,16 @@
     const container = document.getElementById('checkout-items-list');
     const subtotalEl = document.getElementById('subtotal-price');
     const finalTotalEl = document.getElementById('final-total-price');
+    const extrasBox = document.getElementById('checkout-gift-extras-box');
+    const photoRow = document.getElementById('checkout-photo-row');
+    const photoFeeEl = document.getElementById('photo-fee-price');
+    const cardRow = document.getElementById('checkout-card-row');
+    const cardLabelEl = document.getElementById('card-fee-label');
+    const cardFeeEl = document.getElementById('card-fee-price');
+    const discountRow = document.getElementById('checkout-discount-row');
+    const discountLabelEl = document.getElementById('discount-label');
+    const discountAmountEl = document.getElementById('discount-amount');
+    const giftNoteInput = document.getElementById('gift-note');
 
     if (!container) return;
 
@@ -346,32 +440,109 @@
       container.innerHTML = '<p class="text-center text-gray-400 text-xs py-4">سلة المشتريات فارغة!</p>';
       subtotalEl.textContent = '0.00 د.أ';
       finalTotalEl.textContent = '0.00 د.أ';
+      if (extrasBox) extrasBox.classList.add('hidden');
+      if (photoRow) { photoRow.classList.add('hidden'); photoRow.classList.remove('flex'); }
+      if (cardRow) { cardRow.classList.add('hidden'); cardRow.classList.remove('flex'); }
+      if (discountRow) { discountRow.classList.add('hidden'); discountRow.classList.remove('flex'); }
       return;
     }
 
-    let total = 0;
+    const totals = getCalculatedTotals(cart);
+
     container.innerHTML = cart.map((item) => {
-      total += item.price * item.quantity;
+      const qty = Math.max(1, Math.floor(num(item.quantity) || 1));
+      const price = num(item.price);
       return `
         <div class="flex items-center gap-3 text-xs border-b pb-2">
-          <img src="${item.image_url}" class="w-12 h-12 object-cover rounded-lg">
+          <img src="${escHtml(item.image_url)}" class="w-12 h-12 object-cover rounded-lg">
           <div class="flex-1">
-            <div class="font-bold text-gray-800">${item.name}</div>
-            <div class="text-gray-500">الكمية: ${item.quantity}</div>
+            <div class="font-bold text-gray-800">${escHtml(item.name)}</div>
+            <div class="text-gray-500">الكمية: ${qty}</div>
           </div>
-          <div class="font-bold text-red-600">${(item.price * item.quantity).toFixed(2)} د.أ</div>
+          <div class="font-bold text-red-600">${(price * qty).toFixed(2)} د.أ</div>
         </div>
       `;
     }).join('');
 
-    subtotalEl.textContent = total.toFixed(2) + ' د.أ';
-    finalTotalEl.textContent = total.toFixed(2) + ' د.أ';
+    // عرض تفاصيل الإضافات (صورة / بطاقة إهداء)
+    const detailLines = [];
+    if (totals.photoData) {
+      detailLines.push(`<div class="flex items-center justify-between text-[#00313C] font-semibold"><span>📷 صورة إضافية مرفقة</span><span>+${totals.photoFee.toFixed(2)} د.أ</span></div>`);
+    }
+    if (totals.hasCardSelected || totals.cardMessage) {
+      const cardTitle = totals.cardDesignName ? `بطاقة: ${totals.cardDesignName}` : 'بطاقة إهداء';
+      const cardCostText = totals.cardFee > 0 ? `+${totals.cardFee.toFixed(2)} د.أ` : 'مجاناً';
+      detailLines.push(`<div class="flex items-center justify-between text-[#00313C] font-semibold"><span>💌 ${escHtml(cardTitle)}</span><span>${cardCostText}</span></div>`);
+      if (totals.cardMessage) {
+        detailLines.push(`<div class="text-gray-600 bg-white rounded-lg p-2 border border-gray-100 leading-relaxed">"${escHtml(totals.cardMessage)}"</div>`);
+      }
+    }
+
+    if (extrasBox) {
+      if (detailLines.length > 0) {
+        extrasBox.innerHTML = detailLines.join('');
+        extrasBox.classList.remove('hidden');
+      } else {
+        extrasBox.innerHTML = '';
+        extrasBox.classList.add('hidden');
+      }
+    }
+
+    // تعبئة نص البطاقة تلقائياً في حقل الملاحظات إذا كان فارغاً ولم يُعدل يدوياً
+    if (giftNoteInput && totals.cardMessage && !giftNoteInput.dataset.userEdited && !giftNoteInput.value.trim()) {
+      giftNoteInput.value = totals.cardMessage;
+    }
+
+    if (photoRow && photoFeeEl) {
+      if (totals.photoFee > 0) {
+        photoFeeEl.textContent = '+' + totals.photoFee.toFixed(2) + ' د.أ';
+        photoRow.classList.remove('hidden');
+        photoRow.classList.add('flex');
+      } else {
+        photoRow.classList.add('hidden');
+        photoRow.classList.remove('flex');
+      }
+    }
+
+    if (cardRow && cardLabelEl && cardFeeEl) {
+      if (totals.cardFee > 0) {
+        cardLabelEl.textContent = totals.cardDesignName ? `بطاقة (${totals.cardDesignName}):` : 'بطاقة إهداء:';
+        cardFeeEl.textContent = '+' + totals.cardFee.toFixed(2) + ' د.أ';
+        cardRow.classList.remove('hidden');
+        cardRow.classList.add('flex');
+      } else {
+        cardRow.classList.add('hidden');
+        cardRow.classList.remove('flex');
+      }
+    }
+
+    if (discountRow && discountLabelEl && discountAmountEl) {
+      if (totals.discount > 0 && totals.promo) {
+        discountLabelEl.textContent = `الخصم (${totals.promo.code}):`;
+        discountAmountEl.textContent = '- ' + totals.discount.toFixed(2) + ' د.أ';
+        discountRow.classList.remove('hidden');
+        discountRow.classList.add('flex');
+      } else {
+        discountRow.classList.add('hidden');
+        discountRow.classList.remove('flex');
+      }
+    }
+
+    subtotalEl.textContent = totals.subtotal.toFixed(2) + ' د.أ';
+    finalTotalEl.textContent = totals.total.toFixed(2) + ' د.أ';
   }
 
   // إدارة القوائم الجانبية (المنيو والبحث) بأمان لتجنب أخطاء الهواتف
   document.addEventListener('DOMContentLoaded', () => {
     updateCartBadge();
     renderCheckoutSummary();
+
+    const giftNoteInput = document.getElementById('gift-note');
+    if (giftNoteInput) {
+      giftNoteInput.addEventListener('input', () => {
+        giftNoteInput.dataset.userEdited = '1';
+      });
+    }
 
     var btnMenu = document.getElementById('btn-trigger-menu');
     var btnSearch = document.getElementById('btn-trigger-search');
@@ -420,14 +591,12 @@
     const phone = document.getElementById('receiver-phone').value;
     const city = document.getElementById('receiver-city').value;
     const addressInput = document.getElementById('receiver-address').value;
-    const note = document.getElementById('gift-note').value;
+    const note = document.getElementById('gift-note').value.trim();
 
     const fullAddress = `المدينة: ${city} - العنوان: ${addressInput}`;
-    let total = 0;
-
-    cart.forEach(item => {
-      total += item.price * item.quantity;
-    });
+    const totals = getCalculatedTotals(cart);
+    const total = totals.total;
+    const finalCardMessage = note || totals.cardMessage || '';
 
     try {
       const { error: dbError } = await supabaseClient
@@ -439,7 +608,7 @@
           total_price: total,
           items: cart,
           recipient_phone: phone,
-          gift_card_message: note || ''
+          gift_card_message: finalCardMessage
         }]);
 
       if (dbError) {
@@ -453,15 +622,28 @@
     }
 
     let message = `🌸 *طلب جديد من متجر Lorin* 🌸%0A%0A`;
-    message += `👤 *اسم المستلم:* ${name}%0A`;
-    message += `📞 *رقم الهاتف:* ${phone}%0A`;
-    message += `📍 *المدينة:* ${city}%0A`;
-    message += `🏠 *العنوان:* ${addressInput}%0A`;
-    if (note) message += `💌 *ملاحظة الهدية:* ${note}%0A`;
+    message += `👤 *اسم المستلم:* ${encodeURIComponent(name)}%0A`;
+    message += `📞 *رقم الهاتف:* ${encodeURIComponent(phone)}%0A`;
+    message += `📍 *المدينة:* ${encodeURIComponent(city)}%0A`;
+    message += `🏠 *العنوان:* ${encodeURIComponent(addressInput)}%0A`;
+    if (totals.cardDesignName) {
+      message += `💌 *تصميم البطاقة:* ${encodeURIComponent(totals.cardDesignName)}${totals.cardFee > 0 ? ` (+${totals.cardFee.toFixed(2)} د.أ)` : ''}%0A`;
+    }
+    if (finalCardMessage) {
+      message += `✍️ *ملاحظة / عبارة البطاقة:* ${encodeURIComponent(finalCardMessage)}%0A`;
+    }
+    if (totals.photoData) {
+      message += `📷 *صورة إضافية (+${totals.photoFee.toFixed(2)} د.أ):* ${encodeURIComponent(totals.photoData.imageUrl)}%0A`;
+    }
+    if (totals.discount > 0 && totals.promo) {
+      message += `🏷️ *الخصم (${encodeURIComponent(totals.promo.code)}):* -${totals.discount.toFixed(2)} د.أ%0A`;
+    }
     message += `%0A------------------------%0A📦 *المنتجات المطلوبة:*%0A`;
 
     cart.forEach((item, index) => {
-      message += `${index + 1}. ${item.name} (الكمية: ${item.quantity}) - ${(item.price * item.quantity).toFixed(2)} د.أ%0A`;
+      const qty = Math.max(1, Math.floor(num(item.quantity) || 1));
+      const lineTotal = (num(item.price) * qty).toFixed(2);
+      message += `${index + 1}. ${encodeURIComponent(item.name)} (الكمية: ${qty}) - ${lineTotal} د.أ%0A`;
     });
 
     message += `------------------------%0A💰 *المجموع الكلي:* *${total.toFixed(2)} د.أ*`;
