@@ -533,8 +533,13 @@
     finalTotalEl.textContent = totals.total.toFixed(2) + ' د.أ';
   }
 
-  // إدارة القوائم الجانبية (المنيو والبحث) بأمان لتجنب أخطاء الهواتف
-  document.addEventListener('DOMContentLoaded', () => {
+ // إدارة القوائم الجانبية (المنيو والبحث) وتطبيق إعدادات صفحة الدفع بأمان
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (window.LorinStoreSettings) {
+      const lorinSettings = await window.LorinStoreSettings.load(supabaseClient);
+      window.LorinStoreSettings.applyCheckoutSettings(lorinSettings);
+    }
+
     updateCartBadge();
     renderCheckoutSummary();
 
@@ -584,19 +589,27 @@
       return;
     }
 
+    const activeSettings = window.LorinStoreSettings ? window.LorinStoreSettings.get() : {};
+    const defaultSubmitLabel = activeSettings.checkout_submit_label || 'تأكيد وإرسال الطلب عبر واتساب 📲';
+
     const submitBtn = document.getElementById('submit-order-btn');
     submitBtn.disabled = true;
     submitBtn.textContent = 'جاري إرسال الطلب وحفظه... ⏳';
 
     const name = document.getElementById('receiver-name').value;
     const phone = document.getElementById('receiver-phone').value;
-    const city = document.getElementById('receiver-city').value;
+    const cityEl = document.getElementById('receiver-city') || document.getElementById('city');
+    const city = cityEl ? cityEl.value : '';
     const addressInput = document.getElementById('receiver-address').value;
-    const note = document.getElementById('gift-note').value.trim();
+    const giftEl = document.getElementById('gift-note') || document.getElementById('gift_message');
+    const note = giftEl ? giftEl.value.trim() : '';
 
     const fullAddress = `المدينة: ${city} - العنوان: ${addressInput}`;
     const totals = getCalculatedTotals(cart);
-    const total = totals.total;
+    const deliveryFee = window.LorinStoreSettings
+      ? window.LorinStoreSettings.computeDeliveryFee(totals.subtotal ?? totals.total, activeSettings)
+      : 0;
+    const total = Number(totals.total || 0) + Number(deliveryFee || 0);
     const finalCardMessage = note || totals.cardMessage || '';
 
     try {
@@ -619,7 +632,7 @@
       console.error('Error:', err);
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'تأكيد وإرسال الطلب عبر واتساب 📲';
+      submitBtn.textContent = defaultSubmitLabel;
     }
 
     let message = `🌸 *طلب جديد من متجر Lorin* 🌸%0A%0A`;
@@ -639,6 +652,9 @@
     if (totals.discount > 0 && totals.promo) {
       message += `🏷️ *الخصم (${encodeURIComponent(totals.promo.code)}):* -${totals.discount.toFixed(2)} د.أ%0A`;
     }
+    if (deliveryFee > 0) {
+      message += `🚚 *رسوم التوصيل:* ${deliveryFee.toFixed(2)} د.أ%0A`;
+    }
     message += `%0A------------------------%0A📦 *المنتجات المطلوبة:*%0A`;
 
     cart.forEach((item, index) => {
@@ -649,7 +665,7 @@
 
     message += `------------------------%0A💰 *المجموع الكلي:* *${total.toFixed(2)} د.أ*`;
 
-    const whatsappNumber = '962700000000'; 
+    const whatsappNumber = String(activeSettings.checkout_whatsapp || '962700000000').replace(/\D/g, '') || '962700000000';
     window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
   }
 </script>
