@@ -273,13 +273,18 @@
 
     let allStoreProducts = [];
 
-    async function initCategoryPage() {
+async function initCategoryPage() {
         const urlParams = new URLSearchParams(window.location.search);
         const categoryName = urlParams.get('name') || 'All';
         
         document.getElementById('category-title-text').textContent = categoryName;
         document.getElementById('breadcrumb-current').textContent = categoryName;
         document.getElementById('page-title').textContent = `${categoryName} - Lorin 🌸`;
+
+        if (window.LorinStoreSettings) {
+            const lorinSettings = await window.LorinStoreSettings.load(supabaseClient);
+            window.LorinStoreSettings.applyCategorySettings(categoryName, lorinSettings);
+        }
 
         const [{ data: prodData }, { data: catData }, { data: allImages }] = await Promise.all([
             supabaseClient.from('products').select('*'),
@@ -318,8 +323,26 @@
             `).join('');
         }
 
+        renderFilteredCategoryProducts(categoryName);
+        bindCategoryPriceFilters(categoryName);
+        updateCartBadge();
+    }
+
+    function renderFilteredCategoryProducts(categoryName) {
         const isAll = categoryName.toLowerCase().includes('all');
-        const filteredProducts = isAll ? allStoreProducts : allStoreProducts.filter(p => p.category && p.category.toLowerCase().includes(categoryName.toLowerCase()));
+        let filteredProducts = isAll
+            ? allStoreProducts
+            : allStoreProducts.filter(p => p.category && p.category.toLowerCase().includes(categoryName.toLowerCase()));
+
+        const priceChecks = Array.from(document.querySelectorAll('.filters-sidebar .filter-options input[type="checkbox"]')).slice(-3);
+        const activeRanges = [];
+        if (priceChecks[0]?.checked) activeRanges.push(p => parseFloat(p.price) < 25);
+        if (priceChecks[1]?.checked) activeRanges.push(p => parseFloat(p.price) >= 25 && parseFloat(p.price) <= 50);
+        if (priceChecks[2]?.checked) activeRanges.push(p => parseFloat(p.price) > 50);
+
+        if (activeRanges.length > 0) {
+            filteredProducts = filteredProducts.filter(p => activeRanges.some(fn => fn(p)));
+        }
 
         document.getElementById('category-count-badge').textContent = `/ ${filteredProducts.length} Products`;
         const gridContainer = document.getElementById('category-products-grid');
@@ -338,8 +361,13 @@
                 <div class="floward-item-name">${p.name}</div>
             </a>
         `).join('');
+    }
 
-        updateCartBadge();
+    function bindCategoryPriceFilters(categoryName) {
+        const priceChecks = Array.from(document.querySelectorAll('.filters-sidebar .filter-options input[type="checkbox"]')).slice(-3);
+        priceChecks.forEach(cb => {
+            cb.onchange = () => renderFilteredCategoryProducts(categoryName);
+        });
     }
 
     function performLiveSearch(query) {
