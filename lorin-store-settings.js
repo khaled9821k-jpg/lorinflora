@@ -63,24 +63,34 @@
 
   function tryParseJson(val) {
     if (typeof val !== 'string') return val;
-    const t = val.trim();
-    if ((t.startsWith('{') && t.endsWith('}')) || (t.startsWith('[') && t.endsWith(']'))) {
-      try {
-        return JSON.parse(t);
-      } catch (_) {
-        return val;
+    let current = val.trim();
+    for (let i = 0; i < 2; i++) {
+      if ((current.startsWith('{') && current.endsWith('}')) || (current.startsWith('[') && current.endsWith(']'))) {
+        try {
+          const parsed = JSON.parse(current);
+          if (typeof parsed === 'string') {
+            current = parsed.trim();
+            continue;
+          }
+          return parsed;
+        } catch (_) {
+          return val;
+        }
       }
+      break;
     }
-    return val;
+    return current;
   }
 
   function normalizeRows(rows) {
-    const out = { ...DEFAULTS };
+    const out = { ...DEFAULTS, category_descriptions: {} };
     if (!Array.isArray(rows)) return out;
 
     rows.forEach((row) => {
-      if (!row || !row.setting_key) return;
-      const key = String(row.setting_key).trim();
+      if (!row) return;
+      const rawKey = row.setting_key || row.key_name;
+      if (!rawKey) return;
+      const key = String(rawKey).trim();
       let val = tryParseJson(row.setting_value);
 
       if (key === 'checkout_cities') {
@@ -111,16 +121,18 @@
     return out;
   }
 
-  async function load(client) {
-    try {
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (parsed && parsed.data) {
-          window.lorinSettings = { ...DEFAULTS, ...parsed.data };
+  async function load(client, forceFresh = true) {
+    if (!forceFresh) {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.data) {
+            window.lorinSettings = { ...DEFAULTS, ...parsed.data };
+          }
         }
-      }
-    } catch (_) {}
+      } catch (_) {}
+    }
 
     if (!client) {
       window.lorinSettings = window.lorinSettings || { ...DEFAULTS };
@@ -130,7 +142,7 @@
     try {
       const { data, error } = await client
         .from('site_settings')
-        .select('setting_key, setting_value');
+        .select('setting_key, key_name, setting_value');
 
       if (!error && Array.isArray(data)) {
         const norm = normalizeRows(data);
@@ -217,19 +229,13 @@
     const descEl = document.getElementById('category-description-text');
     if (descEl) {
       const customMap = s.category_descriptions || {};
-      const matched =
-        (categoryName && customMap[categoryName]) ||
-        (categoryName &&
-          Object.keys(customMap).find(
-            (k) => k.toLowerCase() === String(categoryName).trim().toLowerCase()
-          ) &&
-          customMap[
-            Object.keys(customMap).find(
-              (k) => k.toLowerCase() === String(categoryName).trim().toLowerCase()
-            )
-          ]) ||
-        s.category_default_description;
-      if (matched) descEl.textContent = matched;
+      const cleanCat = String(categoryName || '').trim().toLowerCase();
+      const matchedKey = Object.keys(customMap).find(
+        (k) => String(k || '').trim().toLowerCase() === cleanCat
+      );
+      const customVal = matchedKey ? String(customMap[matchedKey] || '').trim() : '';
+      const finalDesc = customVal || s.category_default_description;
+      if (finalDesc) descEl.textContent = finalDesc;
     }
 
     const subpills = document.querySelector('.sub-pills-track');
@@ -270,7 +276,7 @@
     const h1 = document.querySelector('main h1');
     if (h1 && s.checkout_page_title) h1.textContent = s.checkout_page_title;
 
-    const citySelect = document.getElementById('city');
+    const citySelect = document.getElementById('city') || document.getElementById('receiver-city');
     if (citySelect && Array.isArray(s.checkout_cities) && s.checkout_cities.length) {
       const currentVal = citySelect.value;
       citySelect.innerHTML = s.checkout_cities
@@ -281,7 +287,7 @@
       }
     }
 
-    const giftInput = document.getElementById('gift_message');
+    const giftInput = document.getElementById('gift_message') || document.getElementById('gift-note');
     if (giftInput) {
       const wrapper = giftInput.closest('div');
       if (wrapper) wrapper.style.display = s.checkout_gift_note_enabled ? '' : 'none';
@@ -292,7 +298,7 @@
       }
     }
 
-    const submitBtn = document.querySelector('#checkout-form button[type="submit"]');
+    const submitBtn = document.querySelector('#checkout-form button[type="submit"]') || document.getElementById('submit-order-btn');
     if (submitBtn && s.checkout_submit_label) {
       submitBtn.textContent = s.checkout_submit_label;
     }
