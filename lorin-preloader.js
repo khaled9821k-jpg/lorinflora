@@ -1,7 +1,12 @@
 // lorin-preloader.js
-// شاشة تحميل بحركة رسم شعار Lorin خطاً بخط داخل مربع أبيض على خلفية بيضاء
+// شاشة تحميل بحركة رسم شعار Lorin خطاً بخط بمدة ظهور أوضح قبل الاختفاء
 
 (function () {
+  // مدة الانتظار بعد اكتمال تحميل الصفحة قبل بدء التلاشي (بالميلي ثانية: 1200 = 1.2 ثانية)
+  const MIN_HOLD_AFTER_LOAD_MS = 1200;
+  // مدة التلاشي التدريجي للشاشة (بالميلي ثانية)
+  const FADE_DURATION_MS = 500;
+
   const LOGO_SVG = `
     <svg viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Lorin">
       <!-- حرف L المنحني -->
@@ -64,7 +69,7 @@
       justify-content: center;
       opacity: 1;
       visibility: visible;
-      transition: opacity 0.35s ease, visibility 0.35s ease;
+      transition: opacity ${FADE_DURATION_MS}ms ease, visibility ${FADE_DURATION_MS}ms ease;
     }
 
     #lorin-page-preloader.is-hidden {
@@ -74,12 +79,12 @@
     }
 
     .lorin-preloader-card {
-      width: 96px;
-      height: 96px;
+      width: 104px;
+      height: 104px;
       border-radius: 14px;
       background-color: #ffffff;
       border: 1px solid #f0f2f2;
-      box-shadow: 0 8px 24px rgba(0, 49, 60, 0.07);
+      box-shadow: 0 8px 24px rgba(0, 49, 60, 0.08);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -97,23 +102,23 @@
     .lorin-draw-path {
       stroke-dasharray: 420;
       stroke-dashoffset: 420;
-      animation: lorinStrokeDraw 2.1s cubic-bezier(0.45, 0.05, 0.25, 0.95) infinite;
+      animation: lorinStrokeDraw 3.2s cubic-bezier(0.45, 0.05, 0.25, 0.95) infinite;
     }
 
     .lorin-path-base {
-      animation-delay: 0.12s;
+      animation-delay: 0.2s;
     }
 
     .lorin-path-stem {
-      animation-delay: 0.24s;
+      animation-delay: 0.4s;
     }
 
     .lorin-path-petal-1 {
-      animation-delay: 0.36s;
+      animation-delay: 0.6s;
     }
 
     .lorin-path-petal-2 {
-      animation-delay: 0.48s;
+      animation-delay: 0.8s;
     }
 
     @keyframes lorinStrokeDraw {
@@ -125,7 +130,7 @@
         stroke-dashoffset: 0;
         opacity: 1;
       }
-      82% {
+      84% {
         stroke-dashoffset: 0;
         opacity: 1;
       }
@@ -135,6 +140,8 @@
       }
     }
   `;
+
+  let hideTimer = null;
 
   function createPreloader() {
     if (document.getElementById('lorin-page-preloader')) return;
@@ -156,6 +163,10 @@
   }
 
   function showPreloader() {
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
     createPreloader();
     const overlay = document.getElementById('lorin-page-preloader');
     if (overlay) {
@@ -169,6 +180,11 @@
     overlay.classList.add('is-hidden');
   }
 
+  function scheduleHideAfterLoad() {
+    if (hideTimer) clearTimeout(hideTimer);
+    hideTimer = setTimeout(hidePreloader, MIN_HOLD_AFTER_LOAD_MS);
+  }
+
   if (document.readyState === 'loading') {
     createPreloader();
     document.addEventListener('DOMContentLoaded', createPreloader);
@@ -176,9 +192,11 @@
     createPreloader();
   }
 
-  window.addEventListener('load', () => {
-    setTimeout(hidePreloader, 220);
-  });
+  if (document.readyState === 'complete') {
+    scheduleHideAfterLoad();
+  } else {
+    window.addEventListener('load', scheduleHideAfterLoad);
+  }
 
   window.addEventListener('pageshow', (event) => {
     if (event.persisted) {
