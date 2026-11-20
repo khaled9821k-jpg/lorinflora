@@ -2174,22 +2174,37 @@
         if (file) image_url = await uploadFileToBucket('gift-cards', file);
         if (!image_url) throw new Error('يرجى رفع صورة البطاقة أو إدخال رابط مباشر لها.');
 
-        const primaryPayload = { title: label, name: label, image_url, price };
-        let res;
-        if (editId) {
-          res = await supabaseClient.from('gift_card_designs').update(primaryPayload).eq('id', editId).select();
-          if (res.error) res = await supabaseClient.from('gift_card_designs').update({ title: label, image_url, price }).eq('id', editId).select();
-          if (res.error) res = await supabaseClient.from('gift_card_designs').update({ name: label, image_url, price }).eq('id', editId).select();
-          if (res.error) res = await supabaseClient.from('gift_card_designs').update({ title: label, image_url }).eq('id', editId).select();
-          if (res.error) res = await supabaseClient.from('gift_card_designs').update({ name: label, image_url }).eq('id', editId).select();
-        } else {
-          res = await supabaseClient.from('gift_card_designs').insert([primaryPayload]).select();
-          if (res.error) res = await supabaseClient.from('gift_card_designs').insert([{ title: label, image_url, price }]).select();
-          if (res.error) res = await supabaseClient.from('gift_card_designs').insert([{ name: label, image_url, price }]).select();
-          if (res.error) res = await supabaseClient.from('gift_card_designs').insert([{ title: label, image_url }]).select();
-          if (res.error) res = await supabaseClient.from('gift_card_designs').insert([{ name: label, image_url }]).select();
+       const cleanPrice = Math.max(0, Number(price) || 0);
+        const { data: authData } = await supabaseClient.auth.getSession();
+        if (!authData || !authData.session) {
+          throw new Error('يجب تسجيل الدخول في لوحة الإدارة أولاً لإضافة أو تعديل البطاقات (RLS).');
         }
-        if (res.error) throw res.error;
+
+        const payloadCandidates = [
+          { title: label, name: label, image_url, price: cleanPrice },
+          { title: label, image_url, price: cleanPrice },
+          { name: label, image_url, price: cleanPrice },
+          { title: label, image_url },
+          { name: label, image_url }
+        ];
+
+        let res = null;
+        for (const payload of payloadCandidates) {
+          const attempt = editId
+            ? await supabaseClient.from('gift_card_designs').update(payload).eq('id', editId).select()
+            : await supabaseClient.from('gift_card_designs').insert([payload]).select();
+
+          res = attempt;
+          if (!attempt.error) break;
+
+          // إذا كان الخطأ بسبب RLS أو صلاحيات، أوقف المحاولات فوراً ولا تكررها
+          const msg = String(attempt.error.message || '').toLowerCase();
+          if (msg.includes('row-level security') || msg.includes('permission') || msg.includes('policy')) {
+            break;
+          }
+        }
+
+        if (!res || res.error) throw (res && res.error) || new Error('تعذر حفظ تصميم البطاقة.');
 
         resetGiftCardForm();
         await fetchCartExtrasAdmin();
