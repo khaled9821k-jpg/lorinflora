@@ -25,8 +25,7 @@
     product_payment_logo_url: '',
 
     // إعدادات صفحة التصنيف (category.html)
-    category_default_description:
-      'استمتع بأرقى تشكيلة من الزهور والهدايا الفاخرة المصممة خصيصاً لتجعل كل لحظة استثنائية ولا تُنسى. اطلب الآن واجعل أحبابك يبتسمون مع لورين.',
+    category_default_description: '',
     category_descriptions: {},
     category_show_subpills: true,
     category_show_sidebar: true,
@@ -222,7 +221,7 @@
     }
   }
 
-  function applyCategorySettings(categoryName, settings) {
+ function applyCategorySettings(categoryName, settings) {
     const s = { ...DEFAULTS, ...(settings || get()) };
     applyFooterLinks(s);
 
@@ -234,8 +233,14 @@
         (k) => String(k || '').trim().toLowerCase() === cleanCat
       );
       const customVal = matchedKey ? String(customMap[matchedKey] || '').trim() : '';
-      const finalDesc = customVal || s.category_default_description;
-      if (finalDesc) descEl.textContent = finalDesc;
+
+      if (customVal) {
+        descEl.textContent = customVal;
+        descEl.style.display = '';
+      } else {
+        descEl.textContent = '';
+        descEl.style.display = 'none';
+      }
     }
 
     const subpills = document.querySelector('.sub-pills-track');
