@@ -233,7 +233,7 @@
           <span id="category-title-text">جاري التحميل...</span> 
           <span id="category-count-badge" class="category-product-count">/ 0 Products</span>
       </h1>
-      <p class="category-description">
+      <p id="category-description-text" class="category-description">
           استمتع بأرقى تشكيلة من الزهور والهدايا الفاخرة المصممة خصيصاً لتجعل كل لحظة استثنائية ولا تُنسى. اطلب الآن واجعل أحبابك يبتسمون مع لورين.
       </p>
 
@@ -265,7 +265,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="lorin-store-settings.js"></script>
+<script src="lorin-store-settings.js"></script>
 <script>
     const SUPABASE_URL = 'https://dptincirgzfwrlrpxajl.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_DbYCExpNFypVQARATbdeVw_hipYS1Oa';
@@ -273,7 +273,7 @@
 
     let allStoreProducts = [];
 
-async function initCategoryPage() {
+    async function initCategoryPage() {
         const urlParams = new URLSearchParams(window.location.search);
         const categoryName = urlParams.get('name') || 'All';
         
@@ -281,15 +281,15 @@ async function initCategoryPage() {
         document.getElementById('breadcrumb-current').textContent = categoryName;
         document.getElementById('page-title').textContent = `${categoryName} - Lorin 🌸`;
 
+        let loadedSettings = null;
         if (window.LorinStoreSettings) {
-            const lorinSettings = await window.LorinStoreSettings.load(supabaseClient);
-            window.LorinStoreSettings.applyCategorySettings(categoryName, lorinSettings);
+            loadedSettings = await window.LorinStoreSettings.load(supabaseClient, true);
+            window.LorinStoreSettings.applyCategorySettings(categoryName, loadedSettings);
         }
 
         const [{ data: prodData }, { data: catData }, { data: allImages }] = await Promise.all([
             supabaseClient.from('products').select('*'),
             supabaseClient.from('categories').select('*'),
-            // تعديل جلب الصور لترتيبها تصاعدياً حسب sort_order تماماً مثل صفحة المنتج
             supabaseClient.from('product_images').select('*').order('sort_order', { ascending: true })
         ]);
 
@@ -297,7 +297,6 @@ async function initCategoryPage() {
             const prodImgs = (allImages || []).filter(img => String(img.product_id) === String(p.id));
             let firstImg = 'placeholder.jpg';
             if (prodImgs.length > 0) {
-                // اختيار الصورة التي في المرتبة الأولى (sort_order = 1) بناءً على الترتيب الجديد
                 firstImg = prodImgs[0].image_url || prodImgs[0].url || 'placeholder.jpg';
             }
             return { ...p, image_url: firstImg };
@@ -325,6 +324,11 @@ async function initCategoryPage() {
 
         renderFilteredCategoryProducts(categoryName);
         bindCategoryPriceFilters(categoryName);
+
+        if (window.LorinStoreSettings) {
+            window.LorinStoreSettings.applyCategorySettings(categoryName, loadedSettings || window.LorinStoreSettings.get());
+        }
+
         updateCartBadge();
     }
 
@@ -448,9 +452,8 @@ async function initCategoryPage() {
 
     document.addEventListener('DOMContentLoaded', () => {
         updateCartBadge();
+        initCategoryPage();
     });
-
-    document.addEventListener('DOMContentLoaded', initCategoryPage);
 </script>
 
 <!-- Footer الفاخر المدمج داخل الـ body -->
@@ -486,4 +489,5 @@ async function initCategoryPage() {
     </div>
   </div>
 </footer>
+</body>
 </html>
