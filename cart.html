@@ -144,31 +144,33 @@
         .lc-status { font-size: 12px; font-weight: 700; color: #1a7f4b; margin: 4px 0 2px; }
         .lc-file { font-size: 11px; color: #8a8a8a; margin-bottom: 10px; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: ltr; text-align: left; }
 
-        /* Gift Card Design & Message */
+        /* Gift Card Design & Message (Two tiles only) */
         .lc-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .lc-tile { border: 1px dashed #c8c3b8; background: #fffdf9; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; padding: 10px; overflow: hidden; border-radius: 4px; box-sizing: border-box; font-family: inherit; color: #768387; font-size: 12px; transition: border-color .15s; }
         .lc-tile:hover { border-color: var(--lorin); }
-        .lc-tile .card-preview { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 3px; }
-        .lc-tile-msg { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 100%; }
-        .lc-tile-msg .txt { color: #1f292e; font-size: 13px; line-height: 1.6; max-height: 80px; overflow: hidden; word-break: break-word; white-space: pre-wrap; }
+        .lc-tile-face { width: 100%; height: 100%; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #ffffff; }
+        .lc-tile-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .lc-tile-msg { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 100%; width: 100%; height: 100%; justify-content: center; background: #ffffff; border: 1px solid #efeae0; border-radius: 4px; padding: 10px; box-sizing: border-box; }
+        .lc-tile-msg .txt { color: #1f292e; font-size: 13px; line-height: 1.6; max-height: 76px; overflow: hidden; word-break: break-word; white-space: pre-wrap; }
         .lc-tile-msg .edit { font-size: 11px; font-weight: 700; color: var(--lorin); letter-spacing: .08em; text-transform: uppercase; }
-        .lc-swatches { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 14px; }
-        .lc-sw { flex: 1 1 calc(33.333% - 8px); min-width: 120px; display: flex; align-items: center; gap: 8px; border: 1px solid #e3e3e3; padding: 6px; background: #fff; cursor: pointer; border-radius: 6px; text-align: left; font-family: inherit; transition: border-color .15s, box-shadow .15s; }
-        .lc-sw img { width: 42px; height: 32px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: #f8fafc; }
-        .lc-sw .sw-meta { display: flex; flex-direction: column; min-width: 0; }
-        .lc-sw .sw-name { font-size: 11px; font-weight: 600; color: #333; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .lc-sw .sw-price { font-size: 10px; font-weight: 700; color: #0f766e; margin-top: 2px; }
-        .lc-sw .sw-price.is-free { color: #6b7280; font-weight: 500; }
-        .lc-sw.is-selected { border-color: var(--lorin); box-shadow: 0 0 0 2px rgba(0,49,60,.14); }
-        .lc-sw.is-selected .sw-name { color: var(--lorin); font-weight: 700; }
+
+        /* Separate face image & blank message card preview */
+        .card-preview-stack { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: stretch; }
+        @media (max-width: 480px) {
+            .card-preview-stack { grid-template-columns: 1fr; }
+        }
+        .card-face-only { border-radius: 12px; overflow: hidden; aspect-ratio: 4 / 3; border: 1px solid #ece7da; background: #faf8f4; box-shadow: 0 4px 14px rgba(0,0,0,.06); display: flex; align-items: center; justify-content: center; }
+        .card-face-only img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .card-blank-message-sheet { border-radius: 12px; aspect-ratio: 4 / 3; background: #fffdf9; border: 1px solid #e6e0d3; box-shadow: 0 4px 14px rgba(0,0,0,.06); padding: 16px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+        .card-blank-message-sheet .card-text { color: var(--lorin); font-weight: 500; line-height: 1.7; word-break: break-word; overflow: hidden; white-space: pre-wrap; }
 
         .design-opt { border: 2px solid #e5e7eb; border-radius: 12px; padding: 6px; background: #fff; cursor: pointer; text-align: center; transition: border-color .15s, box-shadow .15s; display: flex; flex-direction: column; justify-content: space-between; }
         .design-opt:hover { border-color: #9fb4ba; }
         .design-opt.is-selected { border-color: var(--lorin); box-shadow: 0 0 0 3px rgba(0,49,60,.12); }
         .design-opt img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px; display: block; background: #f8fafc; }
 
-        .card-preview { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 4/3; background-size: cover; background-position: center; box-shadow: 0 6px 18px rgba(0,0,0,.08); border: 1px solid #ece7da; }
-        .card-preview .card-text { position: absolute; inset: 14% 12%; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--lorin); font-weight: 500; line-height: 1.7; word-break: break-word; overflow: hidden; white-space: pre-wrap; }
+        .modal-tab-btn { flex: 1; padding: 9px 12px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid #e5e7eb; background: #f9fafb; color: #4b5563; cursor: pointer; transition: all .15s; }
+        .modal-tab-btn.is-active { background: var(--lorin); color: #ffffff; border-color: var(--lorin); }
 
         /* Add a Finishing Touch */
         .ft-tabs {
@@ -289,7 +291,7 @@
 
         .lorin-modal { display: none; position: fixed; inset: 0; z-index: 100000; background: rgba(0,0,0,.5); align-items: center; justify-content: center; padding: 16px; }
         .lorin-modal.is-open { display: flex; }
-        .lorin-modal-panel { background: #fff; border-radius: 6px; width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+        .lorin-modal-panel { background: #fff; border-radius: 6px; width: 100%; max-width: 540px; max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
 
         .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: #00313C; color: #fff; padding: 10px 18px; border-radius: 9999px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 2147483647; max-width: 90vw; text-align: center; }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -309,7 +311,6 @@
             input, textarea { font-size: 16px !important; }
             .lc-dashed { flex-direction: column; align-items: flex-start; }
             .lc-illus, .polaroid { align-self: center; margin-top: 4px; }
-            .lc-swatches { flex-direction: column; }
         }
     </style>
 </head>
@@ -504,20 +505,29 @@
   <div class="lorin-modal-panel p-6" dir="ltr">
     <div class="flex justify-between items-start mb-4">
       <div>
-        <h3 id="card-modal-title" class="text-lg font-bold text-[#00313C]">Personalize Your Card</h3>
-        <p id="card-modal-subtitle" class="text-xs text-gray-500 mt-1">Choose a design and write your message.</p>
+        <h3 id="card-modal-title" class="text-lg font-bold text-[#00313C]">Gift Card &amp; Message</h3>
+        <p id="card-modal-subtitle" class="text-xs text-gray-500 mt-1">Select your card design or add your message.</p>
       </div>
       <button type="button" data-close-modal class="text-gray-400 hover:text-gray-700 text-xl cursor-pointer" aria-label="Close">✕</button>
     </div>
 
-    <div class="text-xs font-bold text-gray-500 mb-2">Card design</div>
-    <div id="card-modal-designs" class="grid grid-cols-3 gap-3 mb-5"></div>
+    <div class="flex gap-2 mb-4" role="tablist">
+      <button type="button" id="tab-select-card" class="modal-tab-btn is-active" onclick="switchCardModalTab('card')">Select Your Card</button>
+      <button type="button" id="tab-add-message" class="modal-tab-btn" onclick="switchCardModalTab('message')">Add a Message</button>
+    </div>
 
-    <label for="card-modal-message" class="text-xs font-bold text-gray-500 mb-2 flex justify-between">
-      <span>Message on Card</span>
-      <span id="card-modal-counter" class="font-normal text-gray-400">0/200</span>
-    </label>
-    <textarea id="card-modal-message" dir="auto" rows="4" maxlength="200" placeholder="Write your gift message here..." class="w-full border border-gray-200 rounded-md p-3 text-sm outline-none focus:border-[#00313C] bg-gray-50 resize-none"></textarea>
+    <div id="panel-select-card">
+      <div class="text-xs font-bold text-gray-500 mb-2">Card design</div>
+      <div id="card-modal-designs" class="grid grid-cols-3 gap-3 mb-4"></div>
+    </div>
+
+    <div id="panel-add-message">
+      <label for="card-modal-message" class="text-xs font-bold text-gray-500 mb-2 flex justify-between">
+        <span>Message on Card</span>
+        <span id="card-modal-counter" class="font-normal text-gray-400">0/200</span>
+      </label>
+      <textarea id="card-modal-message" dir="auto" rows="4" maxlength="200" placeholder="Write your gift message here..." class="w-full border border-gray-200 rounded-md p-3 text-sm outline-none focus:border-[#00313C] bg-gray-50 resize-none"></textarea>
+    </div>
 
     <div class="text-xs font-bold text-gray-500 mt-4 mb-2">Preview</div>
     <div id="card-modal-preview-wrap"></div>
@@ -626,42 +636,8 @@
     }
   ];
 
-  function cardSvg(bg, inner) {
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect width="400" height="300" fill="' + bg + '"/>' + inner + '</svg>';
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-  }
-  const DEFAULT_CARD_DESIGNS = [
-    {
-      id: 'default-classic-ivory',
-      name: 'Lorin Classic Ivory',
-      price: 0,
-      imageUrl: cardSvg('#FBF6EA',
-        '<rect x="14" y="14" width="372" height="272" rx="10" fill="none" stroke="#00313C" stroke-width="2"/>' +
-        '<rect x="24" y="24" width="352" height="252" rx="6" fill="none" stroke="#00313C" stroke-opacity=".35" stroke-width="1"/>' +
-        '<g fill="#00313C" fill-opacity=".85"><circle cx="200" cy="38" r="4"/><circle cx="188" cy="42" r="2.5"/><circle cx="212" cy="42" r="2.5"/></g>')
-    },
-    {
-      id: 'default-botanical-gold',
-      name: 'Botanical Gold',
-      price: 0,
-      imageUrl: cardSvg('#FFFDF7',
-        '<g fill="none" stroke="#C9A24B" stroke-width="2" stroke-linecap="round">' +
-        '<path d="M20 280C40 220 60 170 110 130M20 280C70 270 120 250 150 210"/>' +
-        '<path d="M380 20C360 80 340 130 290 170M380 20C330 30 280 50 250 90"/></g>' +
-        '<g fill="#C9A24B" fill-opacity=".55"><ellipse cx="60" cy="190" rx="16" ry="7" transform="rotate(-50 60 190)"/><ellipse cx="95" cy="150" rx="14" ry="6" transform="rotate(-40 95 150)"/><ellipse cx="110" cy="240" rx="16" ry="7" transform="rotate(-20 110 240)"/>' +
-        '<ellipse cx="340" cy="110" rx="16" ry="7" transform="rotate(130 340 110)"/><ellipse cx="305" cy="150" rx="14" ry="6" transform="rotate(140 305 150)"/><ellipse cx="290" cy="60" rx="16" ry="7" transform="rotate(160 290 60)"/></g>')
-    },
-    {
-      id: 'default-minimalist-cream',
-      name: 'Minimalist Cream',
-      price: 0,
-      imageUrl: cardSvg('#F5EFE6',
-        '<line x1="150" y1="46" x2="250" y2="46" stroke="#00313C" stroke-opacity=".5" stroke-width="1.5"/>' +
-        '<line x1="150" y1="254" x2="250" y2="254" stroke="#00313C" stroke-opacity=".5" stroke-width="1.5"/>')
-    }
-  ];
-
-  let CARD_DESIGNS = [...DEFAULT_CARD_DESIGNS];
+  // تُملأ حصرياً من جدول gift_card_designs في قاعدة البيانات (بدون بطاقات ثابتة عالقة)
+  let CARD_DESIGNS = [];
 
   function esc(v) {
     return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -760,30 +736,36 @@
      Gift Card Designs from Supabase (gift_card_designs)
   ===================================================== */
   function findMatchingDesign(cardObj) {
-    if (!cardObj) return CARD_DESIGNS[0];
+    if (!cardObj || !CARD_DESIGNS.length) return null;
     return CARD_DESIGNS.find(d =>
       (cardObj.designId && String(d.id) === String(cardObj.designId)) ||
       (cardObj.designName && d.name === cardObj.designName)
-    ) || CARD_DESIGNS[0];
+    ) || null;
   }
 
   function getGiftCardFee() {
     const c = getExtras().card;
     if (!c || !c.selected) return 0;
     const matched = findMatchingDesign(c);
-    const price = c.price !== undefined ? num(c.price) : num(matched ? matched.price : 0);
+    const price = matched ? num(matched.price) : (c.price !== undefined ? num(c.price) : 0);
     return Math.max(0, price);
   }
 
   async function loadGiftCardDesignsFromDb() {
-    if (!supabaseClient) return;
+    if (!supabaseClient) {
+      CARD_DESIGNS = [];
+      renderGiftCard();
+      renderSummary();
+      return;
+    }
     try {
       const { data, error } = await supabaseClient.from('gift_card_designs').select('*');
-      if (error || !Array.isArray(data) || data.length === 0) return;
+      if (error) throw error;
 
-      const mapped = data.map((row, idx) => {
+      const rows = Array.isArray(data) ? data : [];
+      CARD_DESIGNS = rows.map((row, idx) => {
         const name = String(row.title || row.name || row.label || `Card Design ${idx + 1}`).trim();
-        const imageUrl = String(row.image_url || row.url || PLACEHOLDER_IMG).trim();
+        const imageUrl = String(row.image_url || row.url || '').trim();
         const price = Math.max(0, num(row.price ?? row.extra_price ?? 0));
         return {
           id: String(row.id ?? idx),
@@ -793,29 +775,29 @@
         };
       }).filter(item => item.name && item.imageUrl);
 
-      if (mapped.length > 0) {
-        CARD_DESIGNS = mapped;
-
-        const extras = getExtras();
-        if (extras.card && extras.card.selected) {
-          const updatedMatch = CARD_DESIGNS.find(d =>
-            (extras.card.designId && String(d.id) === String(extras.card.designId)) ||
-            (extras.card.designName && d.name === extras.card.designName)
-          );
-          if (updatedMatch) {
-            extras.card.designId = updatedMatch.id;
-            extras.card.designName = updatedMatch.name;
-            extras.card.designImageUrl = updatedMatch.imageUrl;
-            extras.card.price = updatedMatch.price;
-            saveExtras(extras);
-          }
+      const extras = getExtras();
+      if (extras.card && extras.card.selected) {
+        const updatedMatch = findMatchingDesign(extras.card);
+        if (updatedMatch) {
+          extras.card.designId = updatedMatch.id;
+          extras.card.designName = updatedMatch.name;
+          extras.card.designImageUrl = updatedMatch.imageUrl;
+          extras.card.price = updatedMatch.price;
+          saveExtras(extras);
+        } else {
+          const msg = typeof extras.card.message === 'string' ? extras.card.message.trim() : '';
+          extras.card = msg ? { selected: false, designId: '', designName: '', designImageUrl: '', price: 0, message: msg } : null;
+          saveExtras(extras);
         }
-
-        renderGiftCard();
-        renderSummary();
       }
+
+      renderGiftCard();
+      renderSummary();
     } catch (e) {
-      console.warn('Gift card designs fetch fallback: ' + errMsg(e));
+      CARD_DESIGNS = [];
+      renderGiftCard();
+      renderSummary();
+      console.warn('Gift card designs fetch warning: ' + errMsg(e));
     }
   }
 
@@ -1011,30 +993,42 @@
 
   function currentCard() {
     const c = getExtras().card;
-    const design = findMatchingDesign(c);
-    const price = (c && c.price !== undefined) ? Math.max(0, num(c.price)) : num(design.price);
-    const imageUrl = (c && c.designImageUrl) ? c.designImageUrl : design.imageUrl;
-    const name = (c && c.designName) ? c.designName : design.name;
+    const matched = findMatchingDesign(c);
+    const saved = !!(c && c.selected && matched);
+    const design = saved
+      ? { id: matched.id, name: matched.name, imageUrl: matched.imageUrl, price: num(matched.price) }
+      : (CARD_DESIGNS[0] ? { id: CARD_DESIGNS[0].id, name: CARD_DESIGNS[0].name, imageUrl: CARD_DESIGNS[0].imageUrl, price: num(CARD_DESIGNS[0].price) } : null);
     return {
-      design: { id: design.id, name, imageUrl, price },
+      design,
       message: (c && typeof c.message === 'string') ? c.message : '',
-      saved: !!(c && c.selected)
+      saved
     };
   }
 
+  // يعرض صورة وجه البطاقة فقط (بدون كتابة فوقها) وبطاقة الرسالة الفارغة منفصلة
   function previewHTML(design, message, placeholder) {
-    const text = message.trim();
-    const bg = esc(design.imageUrl || PLACEHOLDER_IMG);
-    return `<div class="card-preview" style="background-image:url('${bg}')">
-      <div class="card-text" dir="auto" style="${text ? '' : 'opacity:.45;'}font-size:${text.length > 120 ? 13 : text.length > 60 ? 15 : 18}px">${esc(text || placeholder)}</div>
+    const text = String(message || '').trim();
+    const fontSize = text.length > 120 ? 13 : text.length > 60 ? 15 : 18;
+    const faceHtml = (design && design.imageUrl)
+      ? `<div class="card-face-only" title="${esc(design.name || 'Card Face')}">
+           <img src="${esc(design.imageUrl)}" alt="${esc(design.name || 'Card Face')}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'">
+         </div>`
+      : `<div class="card-face-only">
+           <span class="text-xs text-gray-400">No card face selected</span>
+         </div>`;
+
+    const msgSheetHtml = `<div class="card-blank-message-sheet">
+      <div class="card-text" dir="auto" style="${text ? '' : 'opacity:.45;'}font-size:${fontSize}px">${esc(text || placeholder)}</div>
     </div>`;
+
+    return `<div class="card-preview-stack">${faceHtml}${msgSheetHtml}</div>`;
   }
 
   function renderGiftCard() {
     const el = document.getElementById('gift-card-section');
     const { design, message, saved } = currentCard();
     const hasMsg = !!message.trim();
-    const headerFeeLabel = saved && num(design.price) > 0 ? `+ ${money(design.price)}` : (num(design.price) > 0 ? `+ ${money(design.price)}` : 'Free');
+    const headerFeeLabel = saved && design && num(design.price) > 0 ? `+ ${money(design.price)}` : 'Free';
 
     el.innerHTML = `
       <div class="lc-head">
@@ -1042,10 +1036,12 @@
         <span class="lc-free">${esc(headerFeeLabel)}</span>
       </div>
       <div class="lc-tiles">
-        <button type="button" class="lc-tile" id="card-tile-design" aria-label="Preview and personalize your card">
-          ${previewHTML(design, message, '')}
+        <button type="button" class="lc-tile" id="card-tile-design" aria-label="Select your card">
+          ${saved && design && design.imageUrl
+            ? `<span class="lc-tile-face"><img src="${esc(design.imageUrl)}" alt="${esc(design.name || 'Card')}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'"></span>`
+            : `<span class="lc-tile-msg"><span>Select Your Card</span></span>`}
         </button>
-        <button type="button" class="lc-tile" id="card-tile-message">
+        <button type="button" class="lc-tile" id="card-tile-message" aria-label="Click here to add a message">
           ${hasMsg
             ? `<span class="lc-tile-msg"><span class="txt" dir="auto">${esc(message.trim())}</span><span class="edit">EDIT MESSAGE</span></span>`
             : `<span class="lc-tile-msg">
@@ -1053,47 +1049,10 @@
                  <span>Click here to add a message</span>
                </span>`}
         </button>
-      </div>
-      <div class="lc-swatches" role="group" aria-label="Card designs">
-        ${CARD_DESIGNS.map(d => {
-          const isSelected = d.name === design.name;
-          const pVal = num(d.price);
-          return `
-            <button type="button" class="lc-sw ${isSelected ? 'is-selected' : ''}" data-design-name="${esc(d.name)}" aria-pressed="${isSelected}">
-              <img src="${esc(d.imageUrl)}" alt="${esc(d.name)}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'">
-              <span class="sw-meta">
-                <span class="sw-name">${esc(d.name)}</span>
-                <span class="sw-price ${pVal > 0 ? '' : 'is-free'}">${pVal > 0 ? '+ ' + money(pVal) : 'Free'}</span>
-              </span>
-            </button>`;
-        }).join('')}
-      </div>
-      <button type="button" id="btn-personalize" class="btn-outline block">${saved ? 'EDIT / UPDATE CARD · ' + esc(design.name) : 'PERSONALIZE CARD'}</button>`;
+      </div>`;
 
-    el.querySelectorAll('.lc-sw').forEach(btn => {
-      btn.onclick = () => {
-        const d = CARD_DESIGNS.find(x => x.name === btn.dataset.designName) || CARD_DESIGNS[0];
-        const extras = getExtras();
-        const prevMsg = (extras.card && typeof extras.card.message === 'string') ? extras.card.message : '';
-        extras.card = {
-          selected: true,
-          designId: d.id,
-          designName: d.name,
-          designImageUrl: d.imageUrl,
-          price: num(d.price),
-          message: prevMsg
-        };
-        saveExtras(extras);
-        renderGiftCard();
-        renderSummary();
-        toast(num(d.price) > 0 ? `${d.name} added (+${money(d.price)})` : `${d.name} selected`);
-      };
-    });
-
-    const open = () => openCardModal();
-    document.getElementById('card-tile-design').onclick = open;
-    document.getElementById('card-tile-message').onclick = open;
-    document.getElementById('btn-personalize').onclick = open;
+    document.getElementById('card-tile-design').onclick = () => openCardModal('card');
+    document.getElementById('card-tile-message').onclick = () => openCardModal('message');
   }
 
   function renderSummary() {
@@ -1374,33 +1333,62 @@
   }
 
   /* ---- Card Modal ---- */
-  let draftDesignName = CARD_DESIGNS[0].name;
+  let draftDesignName = '';
+  let activeCardTab = 'card';
+
+  function switchCardModalTab(tab) {
+    activeCardTab = tab === 'message' ? 'message' : 'card';
+    const tabCard = document.getElementById('tab-select-card');
+    const tabMsg = document.getElementById('tab-add-message');
+    const panelCard = document.getElementById('panel-select-card');
+    const panelMsg = document.getElementById('panel-add-message');
+
+    if (tabCard) tabCard.classList.toggle('is-active', activeCardTab === 'card');
+    if (tabMsg) tabMsg.classList.toggle('is-active', activeCardTab === 'message');
+    setHidden(panelCard, activeCardTab !== 'card');
+    setHidden(panelMsg, activeCardTab !== 'message');
+
+    if (activeCardTab === 'message') {
+      const msgInput = document.getElementById('card-modal-message');
+      if (msgInput) setTimeout(() => msgInput.focus(), 40);
+    }
+  }
 
   function getDraftDesign() {
+    if (!CARD_DESIGNS.length) return null;
     return CARD_DESIGNS.find(d => d.name === draftDesignName) || CARD_DESIGNS[0];
   }
 
   function renderCardModalDesigns() {
-    const selected = getDraftDesign();
+    const container = document.getElementById('card-modal-designs');
     const sub = document.getElementById('card-modal-subtitle');
-    if (sub) {
+
+    if (!CARD_DESIGNS.length) {
+      if (sub) sub.textContent = 'No card designs available yet.';
+      container.innerHTML = '<p class="col-span-3 text-xs text-gray-400 text-center py-4">No card designs found in database.</p>';
+      return;
+    }
+
+    const selected = getDraftDesign();
+    if (sub && selected) {
       const pVal = num(selected.price);
       sub.textContent = pVal > 0
         ? `${selected.name} (+ ${money(pVal)}) — write your message below.`
         : `${selected.name} (Free) — write your message below.`;
     }
 
-    document.getElementById('card-modal-designs').innerHTML = CARD_DESIGNS.map(d => {
+    container.innerHTML = CARD_DESIGNS.map(d => {
       const pVal = num(d.price);
+      const isSel = selected && d.name === selected.name;
       return `
-        <button type="button" class="design-opt ${d.name === selected.name ? 'is-selected' : ''}" data-design-name="${esc(d.name)}">
+        <button type="button" class="design-opt ${isSel ? 'is-selected' : ''}" data-design-name="${esc(d.name)}">
           <img src="${esc(d.imageUrl)}" alt="${esc(d.name)}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'">
           <span class="block text-[11px] font-bold text-[#00313C] mt-1.5 leading-tight truncate">${esc(d.name)}</span>
           <span class="block text-[10px] font-semibold mt-0.5 ${pVal > 0 ? 'text-emerald-700' : 'text-gray-500'}">${pVal > 0 ? '+ ' + money(pVal) : 'Free'}</span>
         </button>`;
     }).join('');
 
-    document.querySelectorAll('#card-modal-designs .design-opt').forEach(b => {
+    container.querySelectorAll('.design-opt').forEach(b => {
       b.onclick = () => {
         draftDesignName = b.dataset.designName;
         renderCardModalDesigns();
@@ -1413,15 +1401,16 @@
     const design = getDraftDesign();
     const msg = document.getElementById('card-modal-message').value;
     document.getElementById('card-modal-counter').textContent = msg.length + '/' + MESSAGE_MAX;
-    document.getElementById('card-modal-preview-wrap').innerHTML = previewHTML(design, msg, 'Your message will appear here');
+    document.getElementById('card-modal-preview-wrap').innerHTML = previewHTML(design, msg, 'Your message will appear here on the blank card');
   }
 
-  function openCardModal() {
+  function openCardModal(initialTab = 'card') {
     const cur = currentCard();
-    draftDesignName = cur.design.name;
+    draftDesignName = cur.design ? cur.design.name : (CARD_DESIGNS[0] ? CARD_DESIGNS[0].name : '');
     document.getElementById('card-modal-message').value = cur.message;
     renderCardModalDesigns();
     renderCardModalPreview();
+    switchCardModalTab(initialTab);
     openModal('card-modal');
   }
 
@@ -1429,19 +1418,34 @@
     const design = getDraftDesign();
     const message = document.getElementById('card-modal-message').value.slice(0, MESSAGE_MAX).trim();
     const extras = getExtras();
-    extras.card = {
-      selected: true,
-      designId: design.id,
-      designName: design.name,
-      designImageUrl: design.imageUrl,
-      price: num(design.price),
-      message
-    };
+
+    if (design) {
+      extras.card = {
+        selected: true,
+        designId: design.id,
+        designName: design.name,
+        designImageUrl: design.imageUrl,
+        price: num(design.price),
+        message
+      };
+    } else if (message) {
+      extras.card = {
+        selected: false,
+        designId: '',
+        designName: '',
+        designImageUrl: '',
+        price: 0,
+        message
+      };
+    } else {
+      extras.card = null;
+    }
+
     saveExtras(extras);
     closeModals();
     renderGiftCard();
     renderSummary();
-    toast(num(design.price) > 0 ? `Card saved (+${money(design.price)}) 💌` : 'Card saved 💌');
+    toast(design && num(design.price) > 0 ? `Card saved (+${money(design.price)}) 💌` : 'Card saved 💌');
   }
 
   function clearCard() {
@@ -1449,7 +1453,7 @@
     extras.card = null;
     saveExtras(extras);
     document.getElementById('card-modal-message').value = '';
-    draftDesignName = CARD_DESIGNS[0].name;
+    draftDesignName = CARD_DESIGNS[0] ? CARD_DESIGNS[0].name : '';
     renderCardModalDesigns();
     renderCardModalPreview();
     renderGiftCard();
