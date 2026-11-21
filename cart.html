@@ -95,6 +95,7 @@
         .lc-h { font-size: 15px; font-weight: 700; color: #1f292e; margin: 0; }
         .lc-free { font-size: 12px; font-weight: 600; color: #00313C; }
         .lc-note { font-size: 12px; color: var(--lorin-muted); margin: 12px 0 0; }
+        .lc-clear { background: none; border: none; padding: 0; margin-top: 10px; font-family: inherit; font-size: 11px; font-weight: 700; color: #b42318; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
         /* Cart items card */
         .lc-items-card { background: #ffffff; border: 1px solid #ececec; border-radius: 6px; padding: 18px; }
@@ -430,7 +431,7 @@
 
   <!-- المحتوى الرئيسي لصفحة السلة -->
   <main class="cart-main" dir="ltr">
-    <h1 class="cart-title">Cart <small id="cart-count-label"></small></h1>
+    <h1 class="cart-title"><span id="cart-title-text">Cart</span> <small id="cart-count-label"></small></h1>
 
     <div class="cart-grid">
 
@@ -440,17 +441,17 @@
         <p id="addons-note" class="lc-note hidden">Gift add-ons are saved now and applied once you add a product to your cart.</p>
 
         <!-- Photo Stick-In -->
-        <section id="photo-stick-card" class="lc-section"></section>
+        <section id="photo-stick-card" class="lc-section" data-editor-section="cart-extras" data-editor-label="خيارات السلة (Photo Stick-In)"></section>
 
         <!-- Card design & message -->
-        <section id="gift-card-section" class="lc-section"></section>
+        <section id="gift-card-section" class="lc-section" data-editor-section="cart-extras" data-editor-label="بطاقات الإهداء والرسائل المقترحة"></section>
 
         <!-- Add a Finishing Touch -->
-        <section id="finishing-touch" class="lc-section"></section>
+        <section id="finishing-touch" class="lc-section" data-editor-section="cart-extras" data-editor-label="اللمسة الأخيرة (Finishing Touch)"></section>
       </div>
 
       <aside class="cart-summary">
-        <div class="promo-card">
+        <div class="promo-card" id="promo-card" data-editor-section="cart-extras" data-editor-label="أكواد الخصم وإعدادات السلة">
           <div class="promo-header-row">
             <button type="button" id="promo-toggle-btn" class="promo-badge-trigger">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>
@@ -478,7 +479,7 @@
           <div id="summary-photo-row" class="sum-row hidden"><span>Photo Stick-In</span><span id="summary-photo">JOD 2.50</span></div>
           <div id="summary-card-row" class="sum-row hidden"><span>Gift Card (<span id="summary-card-name"></span>)</span><span id="summary-card-price">JOD 0.00</span></div>
           <div class="sum-row"><span>Delivery charges</span><span class="muted" id="summary-delivery-label">JOD 0.00</span></div>
-          <p class="sum-note">Please note that specific regions and express delivery may incur extra delivery fees.</p>
+          <p class="sum-note" id="summary-delivery-note">Please note that specific regions and express delivery may incur extra delivery fees.</p>
           <div class="sum-row sum-total"><span>Total</span><span id="cart-total">JOD 0.00</span></div>
 
           <button id="checkout-btn" type="button" onclick="goToCheckout()" class="btn-primary">PROCEED TO CHECKOUT · <span id="checkout-btn-total">JOD 0.00</span></button>
@@ -501,7 +502,7 @@
     <div class="flex justify-between items-start mb-4">
       <div>
         <h3 id="photo-modal-title" class="text-lg font-bold text-[#00313C]">Add a Photo Stick-In</h3>
-        <p class="text-xs text-gray-500 mt-1">Upload a photo to be printed and placed with your gift. + JOD 2.50</p>
+        <p id="photo-modal-desc" class="text-xs text-gray-500 mt-1">Upload a photo to be printed and placed with your gift. + JOD 2.50</p>
       </div>
       <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">✕</button>
     </div>
@@ -739,10 +740,9 @@
   const STORAGE_BUCKET = 'store-assets';
   const GIFT_KEY = 'lorin_gift_extras';
   const PROMO_KEY = 'lorin_promo';
-  const PHOTO_FEE = 2.5;
-  const MESSAGE_MAX = 200;
   const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
   const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  const MAX_MESSAGE_LINES = 5;
   const PLACEHOLDER_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><rect width="160" height="160" fill="#f1f5f6"/><g fill="none" stroke="#9fb4ba" stroke-width="3" stroke-linecap="round"><circle cx="80" cy="70" r="14"/><path d="M80 84v30M80 100c-14-2-22-10-24-20M80 100c14-2 22-10 24-20"/></g></svg>');
 
@@ -750,9 +750,44 @@
     '<g transform="rotate(-9 42 52)"><rect x="8" y="14" width="64" height="74" fill="#fff" stroke="#e6e1d6"/><rect x="14" y="20" width="52" height="50" fill="#d8e6ea"/><circle cx="40" cy="42" r="9" fill="#00313C" fill-opacity=".75"/><path d="M26 70c4-9 10-13 14-13s10 4 14 13z" fill="#00313C" fill-opacity=".55"/></g>' +
     '<g transform="rotate(8 92 56)"><rect x="62" y="18" width="62" height="72" fill="#fff" stroke="#e6e1d6"/><rect x="68" y="24" width="50" height="48" fill="#f1d9d9"/><path d="M93 58c-14-9-17-17-12-22 4-4 10-2 12 3 2-5 8-7 12-3 5 5 2 13-12 22z" fill="#c0504d" fill-opacity=".8"/></g></svg>';
 
-  const PROMO_CODES = {
-    'LORIN10': { type: 'percent', value: 10 },
-    'WELCOME2': { type: 'fixed', value: 2 }
+  /* =====================================================
+     Store-settings contract (shared with admin.html)
+     Everything below is overridden by site_settings rows.
+  ===================================================== */
+  const DEFAULT_PROMO_LINES = ['LORIN10|percent|10', 'WELCOME2|fixed|2'];
+
+  function parsePromoLines(lines) {
+    const map = {};
+    (Array.isArray(lines) ? lines : []).forEach(l => {
+      const parts = String(l == null ? '' : l).split('|').map(s => s.trim());
+      const code = (parts[0] || '').toUpperCase();
+      const type = parts[1];
+      const v = Number(parts[2]);
+      if (code && (type === 'percent' || type === 'fixed') && Number.isFinite(v) && v > 0) {
+        map[code] = { type, value: type === 'percent' ? Math.min(v, 100) : v };
+      }
+    });
+    return map;
+  }
+
+  let PHOTO_FEE = 2.5;
+  let MESSAGE_MAX = 200;
+  let PROMO_CODES = parsePromoLines(DEFAULT_PROMO_LINES);
+  let settingsLoaded = false;
+  let FT_CONFIG = []; // rows of finishing_touch_config {id, tab_key, product_id}
+
+  const CART_CFG = {
+    pageTitle: 'Cart',
+    photoEnabled: true,
+    photoTitle: 'Add a Photo Stick-In',
+    photoSubtitle: 'Make this gift unforgettable',
+    cardTitle: 'Choose Your Card Design',
+    finishingEnabled: true,
+    finishingTitle: 'Add a Finishing Touch',
+    promoEnabled: true,
+    deliveryNote: 'Please note that specific regions and express delivery may incur extra delivery fees.',
+    deliveryFee: 0,
+    freeThreshold: 0
   };
 
   const FINISHING_TABS = [
@@ -817,6 +852,19 @@
     }
   };
 
+  // Same normaliser as admin.html: guarantees {label, EN[], AR[]} per occasion.
+  function normalizeSuggested(obj) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
+    const clean = arr => Array.isArray(arr) ? arr.map(x => String(x == null ? '' : x).trim()).filter(Boolean) : [];
+    const out = {};
+    Object.keys(obj).forEach(k => {
+      const v = obj[k];
+      if (!v || typeof v !== 'object') return;
+      out[k] = { label: String(v.label || k).trim() || k, EN: clean(v.EN), AR: clean(v.AR) };
+    });
+    return Object.keys(out).length ? out : null;
+  }
+
   let CARD_DESIGNS = [];
   let SUGGESTED_MESSAGES = JSON.parse(JSON.stringify(DEFAULT_SUGGESTED_MESSAGES));
   let CARD_OPTIONS_CONFIG = {
@@ -830,6 +878,8 @@
   }
   function num(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
   function money(n) { return 'JOD ' + num(n).toFixed(2); }
+  function shortMoney(n) { const v = num(n); return 'JOD' + (Number.isInteger(v) ? String(v) : v.toFixed(2)); }
+  function feeShort() { const v = Math.round(num(PHOTO_FEE) * 100) / 100; return String(v); }
   function readJSON(key, fallback) {
     try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; }
     catch (e) { return fallback; }
@@ -849,6 +899,18 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
   }
   function setHidden(el, hide) { if (el) el.classList.toggle('hidden', !!hide); }
+  function settingBool(v, def) {
+    if (v === undefined || v === null || v === '') return def;
+    return String(v) !== 'false';
+  }
+  function settingNum(v, def, min) {
+    if (v === undefined || v === null || v === '') return def;
+    const n = Number(v);
+    return Number.isFinite(n) && n >= (min == null ? 0 : min) ? n : def;
+  }
+  function settingText(v, def) {
+    return (v === undefined || v === null || String(v).trim() === '') ? def : String(v).trim();
+  }
 
   /* =====================================================
      Cart data
@@ -919,7 +981,7 @@
   }
 
   /* =====================================================
-     Gift Card Designs & Admin Settings from Supabase
+     Gift Card Designs from Supabase
   ===================================================== */
   function findMatchingDesign(cardObj) {
     if (!cardObj || !CARD_DESIGNS.length) return null;
@@ -953,8 +1015,11 @@
         };
       }).filter(item => item.name && item.imageUrl);
 
+      // Reconcile the saved selection with the live catalogue (price / name / image changes
+      // made in admin.html). Only when the catalogue actually loaded, so an empty/blocked
+      // response never wipes a customer's saved card.
       const extras = getExtras();
-      if (extras.card && extras.card.selected) {
+      if (CARD_DESIGNS.length && extras.card && extras.card.selected) {
         const updatedMatch = findMatchingDesign(extras.card);
         if (updatedMatch) {
           extras.card.designId = updatedMatch.id;
@@ -979,28 +1044,93 @@
     }
   }
 
-  async function loadCardAdminSettingsFromDb() {
+  /* =====================================================
+     site_settings -> cart configuration
+  ===================================================== */
+  async function loadStoreSettingsFromDb() {
     if (!supabaseClient) return;
     try {
       const { data, error } = await supabaseClient.from('site_settings').select('*');
-      if (error || !Array.isArray(data)) return;
+      if (error || !Array.isArray(data)) throw (error || new Error('No settings returned'));
       const map = {};
       data.forEach(r => { map[r.setting_key] = r.setting_value; });
 
-      if (map.gift_card_enable_suggested !== undefined) CARD_OPTIONS_CONFIG.enableSuggested = String(map.gift_card_enable_suggested) !== 'false';
-      if (map.gift_card_enable_signature !== undefined) CARD_OPTIONS_CONFIG.enableSignature = String(map.gift_card_enable_signature) !== 'false';
-      if (map.gift_card_enable_link !== undefined) CARD_OPTIONS_CONFIG.enableLink = String(map.gift_card_enable_link) !== 'false';
+      // Gift card modal toggles
+      CARD_OPTIONS_CONFIG.enableSuggested = settingBool(map.gift_card_enable_suggested, true);
+      CARD_OPTIONS_CONFIG.enableSignature = settingBool(map.gift_card_enable_signature, true);
+      CARD_OPTIONS_CONFIG.enableLink = settingBool(map.gift_card_enable_link, true);
 
+      // Suggested messages (strict JSON -> normalised; falls back to defaults on anything invalid)
+      let sm = null;
       if (map.gift_card_suggested_messages) {
-        const parsed = JSON.parse(map.gift_card_suggested_messages);
-        if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
-          SUGGESTED_MESSAGES = parsed;
-        }
+        try { sm = normalizeSuggested(JSON.parse(map.gift_card_suggested_messages)); } catch (e) { console.warn('gift_card_suggested_messages is not valid JSON'); }
       }
+      SUGGESTED_MESSAGES = sm || JSON.parse(JSON.stringify(DEFAULT_SUGGESTED_MESSAGES));
+
+      // Cart page options
+      CART_CFG.pageTitle = settingText(map.cart_page_title, 'Cart');
+      CART_CFG.photoEnabled = settingBool(map.cart_photo_enabled, true);
+      PHOTO_FEE = settingNum(map.cart_photo_fee, 2.5, 0);
+      CART_CFG.photoTitle = settingText(map.cart_photo_title, 'Add a Photo Stick-In');
+      CART_CFG.photoSubtitle = settingText(map.cart_photo_subtitle, 'Make this gift unforgettable');
+      CART_CFG.cardTitle = settingText(map.cart_card_section_title, 'Choose Your Card Design');
+      MESSAGE_MAX = Math.min(1000, Math.max(20, Math.floor(settingNum(map.cart_card_message_max, 200, 1))));
+      CART_CFG.finishingEnabled = settingBool(map.cart_finishing_enabled, true);
+      CART_CFG.finishingTitle = settingText(map.cart_finishing_title, 'Add a Finishing Touch');
+      CART_CFG.promoEnabled = settingBool(map.cart_promo_enabled, true);
+      CART_CFG.deliveryNote = settingText(map.cart_delivery_note, 'Please note that specific regions and express delivery may incur extra delivery fees.');
+
+      // Promo codes ("CODE|percent|10" / "CODE|fixed|2")
+      let promoLines = DEFAULT_PROMO_LINES;
+      if (map.cart_promo_codes !== undefined && map.cart_promo_codes !== null && map.cart_promo_codes !== '') {
+        try {
+          const parsed = JSON.parse(map.cart_promo_codes);
+          if (Array.isArray(parsed)) promoLines = parsed;
+        } catch (e) { promoLines = String(map.cart_promo_codes).split('\n'); }
+      }
+      PROMO_CODES = parsePromoLines(promoLines);
+
+      // Delivery display (owned by the checkout_* keys)
+      CART_CFG.deliveryFee = settingNum(map.checkout_delivery_fee, 0, 0);
+      CART_CFG.freeThreshold = settingNum(map.checkout_free_delivery_threshold, 0, 0);
+
+      settingsLoaded = true;
+      applyFooterLinks(map.footer_facebook, map.footer_instagram);
+      revalidatePromo();
+      // refresh persisted fee snapshot so checkout sees the current admin fee
+      saveExtras(getExtras());
+      applyCartConfigToDom();
       applyCardFeatureVisibility();
+      renderAll();
+      renderPromoState();
     } catch (e) {
-      console.warn('Card settings load warning: ' + errMsg(e));
+      console.warn('Store settings load warning: ' + errMsg(e));
     }
+  }
+
+  function applyFooterLinks(fb, ig) {
+    const fbEl = document.getElementById('footer-fb');
+    if (fbEl && fb && /^https?:\/\//i.test(String(fb).trim())) fbEl.href = String(fb).trim();
+    const igEl = document.getElementById('footer-ig');
+    if (igEl) {
+      if (ig && /^https?:\/\//i.test(String(ig).trim())) { igEl.href = String(ig).trim(); igEl.style.display = 'flex'; }
+      else igEl.style.display = 'none';
+    }
+  }
+
+  function applyCartConfigToDom() {
+    const title = document.getElementById('cart-title-text');
+    if (title) title.textContent = CART_CFG.pageTitle;
+    const note = document.getElementById('summary-delivery-note');
+    if (note) note.textContent = CART_CFG.deliveryNote;
+    const ta = document.getElementById('card-modal-message');
+    if (ta) ta.setAttribute('maxlength', String(MESSAGE_MAX));
+    const desc = document.getElementById('photo-modal-desc');
+    if (desc) desc.textContent = 'Upload a photo to be printed and placed with your gift. + JOD ' + num(PHOTO_FEE).toFixed(2);
+    const ptitle = document.getElementById('photo-modal-title');
+    if (ptitle) ptitle.textContent = CART_CFG.photoTitle;
+    setHidden(document.getElementById('promo-card'), !CART_CFG.promoEnabled);
+    updateMessageCounter();
   }
 
   function applyCardFeatureVisibility() {
@@ -1010,6 +1140,7 @@
 
     const sigBtn = document.getElementById('btn-open-signature');
     if (sigBtn) setHidden(sigBtn, !CARD_OPTIONS_CONFIG.enableSignature);
+    if (!CARD_OPTIONS_CONFIG.enableSignature) setHidden(document.getElementById('sig-attached-box'), true);
 
     const linkWrap = document.querySelector('.fw-link-trigger-wrap');
     if (linkWrap) setHidden(linkWrap, !CARD_OPTIONS_CONFIG.enableLink);
@@ -1017,6 +1148,11 @@
 
   /* =====================================================
      Gift extras (localStorage: lorin_gift_extras)
+     Shape (consumed by checkout.html):
+       { photoStickIn: {selected, imageUrl, downloadUrl, fileName, path} | null,
+         card: {selected, designId, designName, designImageUrl, price, recipientName,
+                senderName, message, signature:{type,value}|null, mediaUrl} | null,
+         photoStickInFee, giftCardFee, summary:{photoStickInFee, giftCardFee, totalExtrasFee}, updatedAt }
   ===================================================== */
   function getExtras() {
     const e = readJSON(GIFT_KEY, {});
@@ -1028,7 +1164,7 @@
     return out;
   }
   function saveExtras(extras) {
-    const photoFee = (extras.photoStickIn && extras.photoStickIn.selected) ? PHOTO_FEE : 0;
+    const photoFee = (CART_CFG.photoEnabled && extras.photoStickIn && extras.photoStickIn.selected) ? num(PHOTO_FEE) : 0;
     const cardFee = (extras.card && extras.card.selected) ? Math.max(0, num(extras.card.price)) : 0;
     extras.photoStickInFee = photoFee;
     extras.giftCardFee = cardFee;
@@ -1049,6 +1185,15 @@
     if (!promo || promo.status !== 'applied') return 0;
     let d = promo.type === 'percent' ? subtotal * num(promo.value) / 100 : num(promo.value);
     return Math.max(0, Math.min(d, subtotal));
+  }
+  // Keep a stored promo consistent with the codes currently defined in admin.
+  function revalidatePromo() {
+    if (!settingsLoaded) return;
+    const p = getPromo();
+    if (!p || !p.code) return;
+    const def = PROMO_CODES[String(p.code).toUpperCase()];
+    if (def) writeJSON(PROMO_KEY, { code: p.code, status: 'applied', type: def.type, value: def.value });
+    else if (p.status === 'applied') writeJSON(PROMO_KEY, { code: p.code, status: 'pending' });
   }
   function showPromoMsg(text, kind) {
     const el = document.getElementById('promo-msg');
@@ -1082,13 +1227,14 @@
     const btn = document.getElementById('promo-btn');
     const quickBtn = document.getElementById('promo-quick-apply');
     const availLabel = document.getElementById('promo-available-label');
+    const codesCount = Object.keys(PROMO_CODES).length;
 
     if (promo && promo.code) {
       input.value = promo.code;
       input.readOnly = true;
       btn.textContent = 'Remove';
       btn.dataset.mode = 'remove';
-      if (quickBtn) { quickBtn.textContent = 'Applied'; }
+      if (quickBtn) { quickBtn.textContent = 'Applied'; setHidden(quickBtn, false); }
       if (availLabel) { availLabel.textContent = 'Promo Active: ' + promo.code; }
       if (promo.status === 'applied') showPromoMsg('Promo code ' + promo.code + ' applied.', 'ok');
       else showPromoMsg('Code ' + promo.code + ' saved. It will be verified at checkout.', 'info');
@@ -1096,8 +1242,8 @@
       input.readOnly = false;
       btn.textContent = 'Apply';
       btn.dataset.mode = 'apply';
-      if (quickBtn) { quickBtn.textContent = 'Apply'; }
-      if (availLabel) { availLabel.textContent = '1 Promotions Available'; }
+      if (quickBtn) { quickBtn.textContent = 'Apply'; setHidden(quickBtn, codesCount === 0); }
+      if (availLabel) { availLabel.textContent = codesCount ? (codesCount + ' Promotions Available') : 'Have a promo code?'; }
     }
   }
 
@@ -1169,14 +1315,16 @@
 
   function renderPhotoCard() {
     const el = document.getElementById('photo-stick-card');
+    setHidden(el, !CART_CFG.photoEnabled);
+    if (!CART_CFG.photoEnabled) { el.innerHTML = ''; return; }
     const p = getExtras().photoStickIn;
     if (!p) {
       el.innerHTML = `
         <div class="lc-dashed">
-          <span class="lc-fee">+ JOD 2.5</span>
+          <span class="lc-fee">+ JOD ${esc(feeShort())}</span>
           <div class="lc-dashed-text">
-            <h3>Add a Photo Stick-In</h3>
-            <p>Make this gift unforgettable</p>
+            <h3>${esc(CART_CFG.photoTitle)}</h3>
+            <p>${esc(CART_CFG.photoSubtitle)}</p>
             <button type="button" id="btn-add-photo" class="btn-outline">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               ADD PHOTO STICK
@@ -1187,14 +1335,14 @@
     } else {
       el.innerHTML = `
         <div class="lc-dashed">
-          <span class="lc-fee">+ JOD 2.5</span>
+          <span class="lc-fee">+ JOD ${esc(feeShort())}</span>
           <div class="lc-dashed-text">
             <h3>Photo Stick-In</h3>
             <div class="lc-status">✓ Photo added</div>
             <div class="lc-file">${esc(p.fileName || '')}</div>
             <div class="lc-btnrow">
               <button type="button" id="btn-change-photo" class="btn-outline">CHANGE PHOTO</button>
-              <button type="button" id="btn-remove-photo" class="btn-outline danger">REMOVE (-2.50 JOD)</button>
+              <button type="button" id="btn-remove-photo" class="btn-outline danger">REMOVE (-${esc(num(PHOTO_FEE).toFixed(2))} JOD)</button>
             </div>
           </div>
           <div class="polaroid"><img src="${esc(p.imageUrl)}" alt="Uploaded photo" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'"></div>
@@ -1219,19 +1367,20 @@
       message: (c && typeof c.message === 'string') ? c.message : '',
       signature: (c && c.signature) ? c.signature : null,
       mediaUrl: (c && typeof c.mediaUrl === 'string') ? c.mediaUrl : '',
-      saved
+      saved,
+      hasAnything: !!c
     };
   }
 
   function renderGiftCard() {
     const el = document.getElementById('gift-card-section');
-    const { design, message, saved } = currentCard();
+    const { design, message, saved, hasAnything } = currentCard();
     const hasMsg = !!message.trim();
     const headerFeeLabel = saved && design && num(design.price) > 0 ? `+ ${money(design.price)}` : 'Free';
 
     el.innerHTML = `
       <div class="lc-head">
-        <h3 class="lc-h">Choose Your Card Design</h3>
+        <h3 class="lc-h">${esc(CART_CFG.cardTitle)}</h3>
         <span class="lc-free">${esc(headerFeeLabel)}</span>
       </div>
       <div class="lc-tiles">
@@ -1248,19 +1397,38 @@
                  <span>Click here to add a message</span>
                </span>`}
         </button>
-      </div>`;
+      </div>
+      ${hasAnything ? `<button type="button" class="lc-clear" id="card-clear-btn">Remove card &amp; message · إزالة البطاقة والرسالة</button>` : ''}`;
 
     document.getElementById('card-tile-design').onclick = () => openCardModal('card');
     document.getElementById('card-tile-message').onclick = () => openCardModal('message');
+    const clr = document.getElementById('card-clear-btn');
+    if (clr) clr.onclick = clearGiftCard;
+  }
+
+  function clearGiftCard() {
+    const extras = getExtras();
+    extras.card = null;
+    saveExtras(extras);
+    renderGiftCard();
+    renderSummary();
+    toast('Card & message removed');
+  }
+
+  function deliveryDisplay(afterDiscount) {
+    const fee = num(CART_CFG.deliveryFee);
+    if (!(fee > 0)) return 'JOD 0.00';
+    if (num(CART_CFG.freeThreshold) > 0 && afterDiscount >= num(CART_CFG.freeThreshold)) return 'Free';
+    return money(fee) + ' (added at checkout)';
   }
 
   function renderSummary() {
     const cart = getCart();
     const subtotal = cartSubtotal(cart);
     const extras = getExtras();
-    const photoFee = (cart.length && extras.photoStickIn) ? PHOTO_FEE : 0;
+    const photoFee = (cart.length && CART_CFG.photoEnabled && extras.photoStickIn) ? num(PHOTO_FEE) : 0;
     const cardFee = (cart.length && extras.card && extras.card.selected) ? Math.max(0, num(extras.card.price)) : 0;
-    const promo = getPromo();
+    const promo = CART_CFG.promoEnabled ? getPromo() : null;
     const discount = cart.length ? calcDiscount(subtotal, promo) : 0;
     const total = Math.max(0, subtotal - discount + photoFee + cardFee);
 
@@ -1280,6 +1448,7 @@
     setHidden(document.getElementById('summary-discount-row'), !discount);
     document.getElementById('summary-discount').textContent = '- ' + money(discount);
     document.getElementById('summary-discount-code').textContent = discount && promo ? '(' + promo.code + ')' : '';
+    document.getElementById('summary-delivery-label').textContent = deliveryDisplay(subtotal - discount);
     document.getElementById('cart-total').textContent = money(total);
     document.getElementById('checkout-btn-total').textContent = money(total);
     document.getElementById('mobile-total').textContent = money(total);
@@ -1294,6 +1463,9 @@
 
   /* =====================================================
      Add a Finishing Touch
+     - If finishing_touch_config has rows pointing at existing products, ONLY those are shown,
+       grouped by their tab_key (admin.html has full control).
+     - Otherwise the legacy automatic catalogue (category heuristic + fallback items) is used.
   ===================================================== */
   let productsLoaded = false;
   let ftTab = 'recommended';
@@ -1308,7 +1480,34 @@
     return 'recommended';
   }
 
-  function getFinishingCatalog() {
+  function tabLabel(key) {
+    const t = FINISHING_TABS.find(x => x.key === key);
+    return t ? t.label : key;
+  }
+
+  function getConfiguredFinishing() {
+    const byId = new Map();
+    FT_CONFIG.forEach(row => {
+      const p = allStoreProducts.find(x => String(x.id) === String(row.product_id));
+      if (!p || !String(p.name || '').trim()) return;
+      const key = String(p.id);
+      if (!byId.has(key)) {
+        byId.set(key, {
+          id: key,
+          name: String(p.name).trim(),
+          price: num(p.price),
+          category: tabLabel(row.tab_key),
+          tabs: [],
+          image_url: p.image_url || PLACEHOLDER_IMG
+        });
+      }
+      const entry = byId.get(key);
+      if (!entry.tabs.includes(row.tab_key)) entry.tabs.push(row.tab_key);
+    });
+    return Array.from(byId.values());
+  }
+
+  function getLegacyFinishing() {
     const dbItems = allStoreProducts
       .filter(p => p && p.id != null && String(p.name || '').trim() && num(p.price) > 0)
       .map(p => {
@@ -1331,31 +1530,47 @@
     return combined;
   }
 
+  function getFinishingCatalog() {
+    const configured = getConfiguredFinishing();
+    if (configured.length) return { items: configured, configured: true };
+    return { items: getLegacyFinishing(), configured: false };
+  }
+
+  function ftLineMatches(i, prodId) {
+    return i.source === 'finishing_touch' && itemId(i) === String(prodId);
+  }
   function cartQtyForProduct(prodId) {
-    return getCart()
-      .filter(i => itemId(i) === String(prodId))
-      .reduce((sum, i) => sum + itemQty(i), 0);
+    return getCart().filter(i => ftLineMatches(i, prodId)).reduce((sum, i) => sum + itemQty(i), 0);
   }
 
   function renderFinishingTouch() {
     const el = document.getElementById('finishing-touch');
     if (!el) return;
+    setHidden(el, !CART_CFG.finishingEnabled);
+    if (!CART_CFG.finishingEnabled) { el.innerHTML = ''; return; }
 
     if (!productsLoaded) {
       el.innerHTML = `
-        <div class="lc-head"><h3 class="lc-h">Add a Finishing Touch</h3></div>
+        <div class="lc-head"><h3 class="lc-h">${esc(CART_CFG.finishingTitle)}</h3></div>
         <div class="ft-track">${'<div class="ft-skel"><i></i><i></i><i></i></div>'.repeat(3)}</div>`;
       return;
     }
 
-    const catalog = getFinishingCatalog();
-    const shown = catalog.filter(p => ftTab === 'recommended' ? p.tabs.includes('recommended') : p.tabs.includes(ftTab));
-    const listToRender = shown.length ? shown : catalog.slice(0, 4);
+    const { items: catalog, configured } = getFinishingCatalog();
+    // In configured mode only tabs that actually have items are shown.
+    const visibleTabs = configured
+      ? FINISHING_TABS.filter(t => catalog.some(p => p.tabs.includes(t.key)))
+      : FINISHING_TABS;
+    if (!visibleTabs.length) { el.innerHTML = ''; setHidden(el, true); return; }
+    if (!visibleTabs.some(t => t.key === ftTab)) ftTab = visibleTabs[0].key;
+
+    const shown = catalog.filter(p => p.tabs.includes(ftTab));
+    const listToRender = shown.length ? shown : (configured ? [] : catalog.slice(0, 4));
 
     el.innerHTML = `
-      <div class="lc-head"><h3 class="lc-h">Add a Finishing Touch</h3></div>
+      <div class="lc-head"><h3 class="lc-h">${esc(CART_CFG.finishingTitle)}</h3></div>
       <div class="ft-tabs" id="ft-tabs" role="tablist">
-        ${FINISHING_TABS.map(t => `
+        ${visibleTabs.map(t => `
           <button type="button" role="tab" aria-selected="${ftTab === t.key}" class="ft-tab ${ftTab === t.key ? 'is-active' : ''}" data-ft-tab="${esc(t.key)}">${esc(t.label)}</button>
         `).join('')}
       </div>
@@ -1373,7 +1588,7 @@
                   <span class="ft-info-badge" title="${esc(p.category)}">i</span>
                 </div>
                 <div class="ft-name" dir="auto">${esc(p.name)}</div>
-                <div class="ft-price">JOD${esc(num(p.price).toFixed(0))}</div>
+                <div class="ft-price">${esc(shortMoney(p.price))}</div>
                 ${qty > 0
                   ? `<div class="ft-qty-ctrl">
                        <button type="button" data-ft-dec="${esc(p.id)}" aria-label="Decrease">−</button>
@@ -1391,11 +1606,10 @@
   }
 
   function addFinishingProduct(id) {
-    const catalog = getFinishingCatalog();
-    const p = catalog.find(x => String(x.id) === String(id));
+    const p = getFinishingCatalog().items.find(x => String(x.id) === String(id));
     if (!p) return;
     const cart = getCart();
-    const existing = cart.find(i => itemId(i) === String(p.id) && normalizeCustomizations(i.customizations).length === 0);
+    const existing = cart.find(i => ftLineMatches(i, p.id));
     if (existing) {
       existing.quantity = Math.min(itemQty(existing) + 1, 99);
     } else {
@@ -1419,7 +1633,7 @@
 
   function adjustFinishingQty(id, delta) {
     const cart = getCart();
-    const idx = cart.findIndex(i => itemId(i) === String(id));
+    const idx = cart.findIndex(i => ftLineMatches(i, id));
     if (idx === -1) return;
     const next = itemQty(cart[idx]) + delta;
     if (next <= 0) cart.splice(idx, 1);
@@ -1507,7 +1721,7 @@
       uploading = false;
       closeModals();
       renderPhotoCard(); renderSummary();
-      toast('Photo added: + JOD 2.50');
+      toast('Photo added: + JOD ' + num(PHOTO_FEE).toFixed(2));
     } catch (e) {
       const m = errMsg(e);
       console.warn('Photo upload failed: ' + m);
@@ -1528,7 +1742,7 @@
     saveExtras(extras);
     if (old && old.path && supabaseClient) { supabaseClient.storage.from(STORAGE_BUCKET).remove([old.path]).catch(() => {}); }
     renderPhotoCard(); renderSummary();
-    toast('Photo removed: -2.50 JOD');
+    toast('Photo removed: -' + num(PHOTO_FEE).toFixed(2) + ' JOD');
   }
 
   /* ---- Floward Card Modal State ---- */
@@ -1576,7 +1790,7 @@
     container.innerHTML = CARD_DESIGNS.map(d => {
       const pVal = num(d.price);
       const isSel = selected && d.name === selected.name;
-      const priceText = pVal > 0 ? `JOD ${pVal.toFixed(0)}` : 'Free';
+      const priceText = pVal > 0 ? shortMoney(pVal).replace('JOD', 'JOD ') : 'Free';
       return `
         <div class="fw-card-item ${isSel ? 'is-selected' : ''}" data-design-name="${esc(d.name)}">
           <div class="fw-card-thumb">
@@ -1599,11 +1813,22 @@
   }
 
   function updateMessageCounter() {
-    const msg = document.getElementById('card-modal-message').value || '';
+    const ta = document.getElementById('card-modal-message');
+    if (!ta) return;
+    const msg = ta.value || '';
     const remainingChars = Math.max(0, MESSAGE_MAX - msg.length);
     const linesUsed = msg ? msg.split('\n').length : 0;
-    const remainingLines = Math.max(0, 5 - linesUsed);
+    const remainingLines = Math.max(0, MAX_MESSAGE_LINES - linesUsed);
     document.getElementById('card-modal-counter').textContent = `${remainingChars} Characters | ${remainingLines} lines remaining`;
+  }
+
+  function enforceMessageLimits() {
+    const ta = document.getElementById('card-modal-message');
+    let v = ta.value;
+    if (v.length > MESSAGE_MAX) v = v.slice(0, MESSAGE_MAX);
+    const lines = v.split('\n');
+    if (lines.length > MAX_MESSAGE_LINES) v = lines.slice(0, MAX_MESSAGE_LINES).join('\n');
+    if (v !== ta.value) ta.value = v;
   }
 
   function renderSignatureBadge() {
@@ -1612,7 +1837,7 @@
     const txt = document.getElementById('sig-attached-text');
     const lbl = document.getElementById('sig-trigger-label');
 
-    if (!draftSignature || !draftSignature.value) {
+    if (!draftSignature || !draftSignature.value || !CARD_OPTIONS_CONFIG.enableSignature) {
       setHidden(box, true);
       if (lbl) lbl.textContent = 'ADD SIGNATURE';
       return;
@@ -1661,7 +1886,7 @@
            <span class="text-xs text-gray-400">No card face selected</span>
          </div>`;
 
-    const sigHtml = signature && signature.value
+    const sigHtml = signature && signature.value && CARD_OPTIONS_CONFIG.enableSignature
       ? (signature.type === 'handwritten'
           ? `<img src="${esc(signature.value)}" alt="Signature">`
           : `<span style="font-family:'Dancing Script',cursive;font-size:18px;">${esc(signature.value)}</span>`)
@@ -1674,7 +1899,7 @@
         ${fromName ? `<span>From: <b>${esc(fromName)}</b></span>` : ''}
         ${sigHtml}
       </div>
-      ${mediaUrl ? `<div class="text-[10px] text-emerald-700 truncate mt-1">🔗 QR Link attached</div>` : ''}
+      ${mediaUrl && CARD_OPTIONS_CONFIG.enableLink ? `<div class="text-[10px] text-emerald-700 truncate mt-1">🔗 QR Link attached</div>` : ''}
     </div>`;
 
     return `<div class="card-preview-stack">${faceHtml}${msgSheetHtml}</div>`;
@@ -1696,7 +1921,7 @@
     draftMediaUrl = cur.mediaUrl || '';
 
     document.getElementById('card-modal-to').value = cur.recipientName || '';
-    document.getElementById('card-modal-message').value = cur.message || '';
+    document.getElementById('card-modal-message').value = (cur.message || '').slice(0, MESSAGE_MAX);
     document.getElementById('card-modal-from').value = cur.senderName || '';
 
     setHidden(document.getElementById('fw-preview-section'), true);
@@ -1714,8 +1939,15 @@
   let activeSmCategory = 'general';
   let activeSmLang = 'EN';
 
+  function smKeysWithMessages() {
+    return Object.keys(SUGGESTED_MESSAGES).filter(k => {
+      const c = SUGGESTED_MESSAGES[k];
+      return c && ((c.EN && c.EN.length) || (c.AR && c.AR.length));
+    });
+  }
+
   function openSuggestedModal() {
-    const keys = Object.keys(SUGGESTED_MESSAGES);
+    const keys = smKeysWithMessages();
     if (!keys.includes(activeSmCategory)) activeSmCategory = keys[0] || 'general';
     renderSuggestedTabs();
     renderSuggestedList();
@@ -1731,7 +1963,7 @@
 
   function renderSuggestedTabs() {
     const box = document.getElementById('sm-occasion-tabs');
-    const keys = Object.keys(SUGGESTED_MESSAGES);
+    const keys = smKeysWithMessages();
     box.innerHTML = keys.map(k => {
       const cat = SUGGESTED_MESSAGES[k];
       const lbl = (cat && cat.label) ? cat.label : k;
@@ -1750,25 +1982,32 @@
   function renderSuggestedList() {
     const listBox = document.getElementById('sm-messages-list');
     const cat = SUGGESTED_MESSAGES[activeSmCategory] || {};
-    const msgs = Array.isArray(cat[activeSmLang]) ? cat[activeSmLang] : (Array.isArray(cat.EN) ? cat.EN : []);
+    // Use the chosen language; if it has no messages fall back to the other one (and render it with the right direction).
+    let usedLang = activeSmLang;
+    let msgs = Array.isArray(cat[usedLang]) ? cat[usedLang] : [];
+    if (!msgs.length) {
+      usedLang = usedLang === 'AR' ? 'EN' : 'AR';
+      msgs = Array.isArray(cat[usedLang]) ? cat[usedLang] : [];
+    }
 
     if (!msgs.length) {
       listBox.innerHTML = '<div class="text-xs text-gray-400 text-center py-6">No messages in this category.</div>';
       return;
     }
 
-    listBox.innerHTML = msgs.map(m => `
-      <button type="button" class="sm-item" dir="${activeSmLang === 'AR' ? 'rtl' : 'ltr'}">${esc(m)}</button>
+    listBox.innerHTML = msgs.map((m, i) => `
+      <button type="button" class="sm-item" data-sm-idx="${i}" dir="${usedLang === 'AR' ? 'rtl' : 'ltr'}">${esc(m)}</button>
     `).join('');
 
     listBox.querySelectorAll('.sm-item').forEach(itemBtn => {
       itemBtn.onclick = () => {
-        const chosen = itemBtn.textContent.slice(0, MESSAGE_MAX);
+        const chosen = String(msgs[Number(itemBtn.dataset.smIdx)] || '').slice(0, MESSAGE_MAX);
         const ta = document.getElementById('card-modal-message');
         ta.value = chosen;
         updateMessageCounter();
         renderCardModalPreview();
         showCardSubView('main');
+        switchCardModalTab('message');
       };
     });
   }
@@ -1805,6 +2044,9 @@
       const p = getPos(ev);
       ctx.beginPath();
       ctx.moveTo(p.x, p.y);
+      // draw a dot for a simple tap
+      ctx.lineTo(p.x + 0.01, p.y + 0.01);
+      ctx.stroke();
       updateSigConfirmState();
     }
 
@@ -1867,6 +2109,7 @@
       switchSignatureMode('text');
       document.getElementById('sig-text-input').value = draftSignature.value || '';
       document.getElementById('sig-text-live').textContent = draftSignature.value || '';
+      updateSigConfirmState();
     } else {
       switchSignatureMode('handwritten');
       if (draftSignature && draftSignature.type === 'handwritten' && draftSignature.value) {
@@ -1897,6 +2140,7 @@
     renderSignatureBadge();
     renderCardModalPreview();
     showCardSubView('main');
+    switchCardModalTab('message');
   }
 
   /* ---- Video / Photo Link Sub-view ---- */
@@ -1911,10 +2155,14 @@
   function confirmMediaLink() {
     const raw = document.getElementById('fw-link-input').value.trim();
     if (!raw) return;
-    draftMediaUrl = raw;
+    let u;
+    try { u = new URL(raw); } catch (e) { toast('Please enter a valid link (https://…)', true); return; }
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') { toast('Only http/https links are allowed', true); return; }
+    draftMediaUrl = u.href;
     renderLinkBadge();
     renderCardModalPreview();
     showCardSubView('main');
+    switchCardModalTab('message');
     toast('Link attached for QR code');
   }
 
@@ -1924,9 +2172,11 @@
     const recipientName = document.getElementById('card-modal-to').value.trim();
     const message = document.getElementById('card-modal-message').value.slice(0, MESSAGE_MAX).trim();
     const senderName = document.getElementById('card-modal-from').value.trim();
+    const signature = (CARD_OPTIONS_CONFIG.enableSignature && draftSignature && draftSignature.value) ? draftSignature : null;
+    const mediaUrl = CARD_OPTIONS_CONFIG.enableLink ? (draftMediaUrl || '') : '';
     const extras = getExtras();
 
-    const hasAnyData = !!(design || recipientName || message || senderName || (draftSignature && draftSignature.value) || draftMediaUrl);
+    const hasAnyData = !!(design || recipientName || message || senderName || signature || mediaUrl);
 
     if (hasAnyData) {
       extras.card = {
@@ -1938,8 +2188,8 @@
         recipientName,
         senderName,
         message,
-        signature: draftSignature && draftSignature.value ? draftSignature : null,
-        mediaUrl: draftMediaUrl || ''
+        signature,
+        mediaUrl
       };
     } else {
       extras.card = null;
@@ -1971,6 +2221,16 @@
     } catch (e) {
       allStoreProducts = [];
       console.warn('Product search/catalog using fallback: ' + errMsg(e));
+    }
+    try {
+      if (supabaseClient) {
+        const { data, error } = await supabaseClient.from('finishing_touch_config').select('*');
+        if (error) throw error;
+        FT_CONFIG = Array.isArray(data) ? data.filter(r => r && r.tab_key && r.product_id != null) : [];
+      }
+    } catch (e) {
+      FT_CONFIG = [];
+      console.warn('finishing_touch_config unavailable, using automatic catalogue: ' + errMsg(e));
     } finally {
       productsLoaded = true;
       renderFinishingTouch();
@@ -1981,7 +2241,7 @@
     const box = document.getElementById('live-search-results');
     const q = String(query || '').trim().toLowerCase();
     if (!q) { box.innerHTML = ''; return; }
-    const filtered = allStoreProducts.filter(p => String(p.name || '').toLowerCase().includes(q) || (p.category && String(p.category).toLowerCase().includes(q)));
+    const filtered = allStoreProducts.filter(p => !p.is_hidden && (String(p.name || '').toLowerCase().includes(q) || (p.category && String(p.category).toLowerCase().includes(q))));
     if (filtered.length === 0) { box.innerHTML = '<p style="text-align:center; color:#888; font-size:14px; padding:10px;">عذراً، لم نجد أي منتج يطابق بحثك.</p>'; return; }
     box.innerHTML = filtered.map(p => `
       <a href="product.html?id=${encodeURIComponent(p.id)}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb; transition: background 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
@@ -2037,7 +2297,7 @@
     renderPromoState();
     initSignatureCanvas();
     loadGiftCardDesignsFromDb();
-    loadCardAdminSettingsFromDb();
+    loadStoreSettingsFromDb();
     loadProductsForSearch();
 
     document.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', closeModals));
@@ -2047,6 +2307,7 @@
 
     // Card modal events
     document.getElementById('card-modal-message').addEventListener('input', () => {
+      enforceMessageLimits();
       updateMessageCounter();
       renderCardModalPreview();
     });
@@ -2065,11 +2326,11 @@
 
     // Suggested messages sub-view
     document.getElementById('btn-open-suggested').addEventListener('click', openSuggestedModal);
-    document.getElementById('sm-back-btn').addEventListener('click', () => showCardSubView('main'));
+    document.getElementById('sm-back-btn').addEventListener('click', () => { showCardSubView('main'); switchCardModalTab('message'); });
 
     // Signature sub-view
     document.getElementById('btn-open-signature').addEventListener('click', openSignatureModal);
-    document.getElementById('sig-back-btn').addEventListener('click', () => showCardSubView('main'));
+    document.getElementById('sig-back-btn').addEventListener('click', () => { showCardSubView('main'); switchCardModalTab('message'); });
     document.getElementById('sig-clear-canvas-btn').addEventListener('click', clearSignatureCanvas);
     document.getElementById('sig-confirm-btn').addEventListener('click', confirmSignature);
     document.getElementById('sig-text-input').addEventListener('input', e => {
@@ -2084,7 +2345,7 @@
 
     // Link sub-view
     document.getElementById('btn-open-link').addEventListener('click', openLinkModal);
-    document.getElementById('link-back-btn').addEventListener('click', () => showCardSubView('main'));
+    document.getElementById('link-back-btn').addEventListener('click', () => { showCardSubView('main'); switchCardModalTab('message'); });
     document.getElementById('fw-link-input').addEventListener('input', e => {
       document.getElementById('fw-add-link-btn').disabled = !e.target.value.trim();
     });
@@ -2131,8 +2392,11 @@
     const quickApply = document.getElementById('promo-quick-apply');
     if (quickApply) {
       quickApply.addEventListener('click', () => {
+        if (getPromo()) return;
         const currentInput = document.getElementById('promo-input');
-        const codeToApply = (currentInput.value || '').trim() || 'LORIN10';
+        const firstCode = Object.keys(PROMO_CODES)[0] || '';
+        const codeToApply = (currentInput.value || '').trim() || firstCode;
+        if (!codeToApply) { currentInput.focus(); return; }
         currentInput.value = codeToApply;
         applyPromo(codeToApply);
       });
@@ -2166,6 +2430,7 @@
       <div style="font-size: 13px; font-weight: 700; color: rgba(255, 255, 255, 0.7); margin-bottom: 12px;">Social Media</div>
       <div style="display: flex; gap: 10px; align-items: center;">
         <a id="footer-fb" href="#" target="_blank" rel="noopener" aria-label="Facebook" style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; text-decoration: none;"><svg style="width: 16px; height: 16px; fill: #ffffff;" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12c0-5.523-4.477-10-10-10z"/></svg></a>
+        <a id="footer-ig" href="#" target="_blank" rel="noopener" aria-label="Instagram" style="display: none; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); align-items: center; justify-content: center; text-decoration: none;"><svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#ffffff"/></svg></a>
       </div>
     </div>
     <div>
