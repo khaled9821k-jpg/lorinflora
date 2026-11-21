@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" href="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png">
 
     <link rel="stylesheet" href="base.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Alexandria:wght@400;500;600&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         html { scroll-behavior: smooth; height: 100%; }
@@ -75,7 +75,7 @@
         .floward-drawer-backdrop.is-open { visibility: visible !important; opacity: 1 !important; }
 
         /* =====================================================
-           Cart page layout matching reference bag/cart hierarchy
+           Cart page layout
         ===================================================== */
         .cart-main { width: 100%; max-width: 1180px; margin: 0 auto; padding: 28px 20px 44px; box-sizing: border-box; flex: 1 0 auto; direction: ltr; }
         .cart-title { font-size: 22px; font-weight: 700; color: #1f292e; margin: 0 0 24px; display: flex; align-items: baseline; gap: 10px; }
@@ -122,14 +122,21 @@
         .lc-empty p { font-size: 13px; color: var(--lorin-muted); margin: 0 0 22px; }
 
         /* Buttons */
-        .btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--lorin); background: #ffffff; color: var(--lorin); font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; padding: 10px 18px; cursor: pointer; border-radius: 2px; transition: background .15s, color .15s; text-decoration: none; }
-        .btn-outline:hover { background: var(--lorin); color: #ffffff; }
+        .btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #1f292e; background: #ffffff; color: #1f292e; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; padding: 10px 18px; cursor: pointer; border-radius: 2px; transition: background .15s, color .15s; text-decoration: none; }
+        .btn-outline:hover { background: #1f292e; color: #ffffff; }
         .btn-outline.block { width: 100%; padding: 13px 18px; }
         .btn-outline.danger { border-color: #e4b4b0; color: #b42318; }
         .btn-outline.danger:hover { background: #b42318; border-color: #b42318; color: #ffffff; }
         .btn-primary { width: 100%; background: var(--lorin); color: #ffffff; border: none; font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; padding: 15px 18px; cursor: pointer; border-radius: 2px; transition: background .15s; }
         .btn-primary:hover { background: #00222B; }
         .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+
+        .btn-floward-dark { background: #1f2224; color: #ffffff; border: 1px solid #1f2224; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; padding: 13px 18px; cursor: pointer; border-radius: 2px; transition: opacity .15s; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-floward-dark:hover { opacity: .9; }
+        .btn-floward-dark:disabled { opacity: .35; cursor: not-allowed; }
+
+        .btn-floward-light { background: #ffffff; color: #1f2224; border: 1px solid #1f2224; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; padding: 13px 18px; cursor: pointer; border-radius: 2px; transition: background .15s, color .15s; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-floward-light:hover { background: #f5f5f5; }
 
         /* Photo Stick-In card */
         .lc-dashed { position: relative; border: 1px dashed #c8c3b8; background: #fffdf9; padding: 20px; display: flex; justify-content: space-between; align-items: center; gap: 18px; border-radius: 4px; }
@@ -147,95 +154,118 @@
         /* Gift Card Design & Message (Two tiles only) */
         .lc-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         .lc-tile { border: 1px dashed #c8c3b8; background: #fffdf9; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; padding: 10px; overflow: hidden; border-radius: 4px; box-sizing: border-box; font-family: inherit; color: #768387; font-size: 12px; transition: border-color .15s; }
-        .lc-tile:hover { border-color: var(--lorin); }
+        .lc-tile:hover { border-color: #1f2224; }
         .lc-tile-face { width: 100%; height: 100%; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #ffffff; }
         .lc-tile-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .lc-tile-msg { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 100%; width: 100%; height: 100%; justify-content: center; background: #ffffff; border: 1px solid #efeae0; border-radius: 4px; padding: 10px; box-sizing: border-box; }
         .lc-tile-msg .txt { color: #1f292e; font-size: 13px; line-height: 1.6; max-height: 76px; overflow: hidden; word-break: break-word; white-space: pre-wrap; }
-        .lc-tile-msg .edit { font-size: 11px; font-weight: 700; color: var(--lorin); letter-spacing: .08em; text-transform: uppercase; }
+        .lc-tile-msg .edit { font-size: 11px; font-weight: 700; color: #1f2224; letter-spacing: .08em; text-transform: uppercase; }
 
-        /* Separate face image & blank message card preview */
-        .card-preview-stack { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: stretch; }
-        @media (max-width: 480px) {
-            .card-preview-stack { grid-template-columns: 1fr; }
+        /* Floward-style Modal & Sub-views */
+        .lorin-modal { display: none; position: fixed; inset: 0; z-index: 100000; background: rgba(0,0,0,.52); align-items: center; justify-content: center; padding: 16px; }
+        .lorin-modal.is-open { display: flex; }
+        .lorin-modal-panel { position: relative; background: #ffffff; border-radius: 4px; width: 100%; max-width: 660px; max-height: 92vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,.28); }
+        .lorin-modal-panel.narrow { max-width: 520px; }
+
+        .fw-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 12px; background: #ffffff; }
+        .fw-modal-title { font-family: Georgia, 'Times New Roman', serif; font-size: 22px; color: #1f2224; margin: 0; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .fw-back-btn { width: 32px; height: 32px; border-radius: 9999px; border: 1px solid #e5e7eb; background: #ffffff; color: #1f2224; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+        .fw-close-btn { width: 34px; height: 34px; border-radius: 9999px; border: 1px solid #ececec; background: #fafafa; color: #4b5563; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; }
+        .fw-close-btn:hover { background: #f0f0f0; color: #111; }
+
+        .fw-top-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #ececec; padding: 0 24px; background: #ffffff; }
+        .fw-top-tab { background: transparent; border: none; border-bottom: 2px solid transparent; padding: 12px 10px; font-family: inherit; font-size: 13px; color: #6b7280; cursor: pointer; text-align: center; transition: color .15s, border-color .15s; }
+        .fw-top-tab.is-active { color: #1f2224; border-bottom-color: #1f2224; font-weight: 600; }
+
+        .fw-body { padding: 18px 24px 20px; }
+
+        /* Select Your Card grid */
+        .fw-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        @media (max-width: 560px) {
+            .fw-card-grid { grid-template-columns: 1fr; }
+            .fw-modal-header, .fw-top-tabs, .fw-body, .fw-modal-footer { padding-left: 16px; padding-right: 16px; }
         }
-        .card-face-only { border-radius: 12px; overflow: hidden; aspect-ratio: 4 / 3; border: 1px solid #ece7da; background: #faf8f4; box-shadow: 0 4px 14px rgba(0,0,0,.06); display: flex; align-items: center; justify-content: center; }
+        .fw-card-item { cursor: pointer; text-align: left; }
+        .fw-card-thumb { position: relative; aspect-ratio: 16 / 10; border-radius: 4px; overflow: hidden; border: 2px solid transparent; background: #f5f2eb; transition: border-color .15s, box-shadow .15s; }
+        .fw-card-item.is-selected .fw-card-thumb { border-color: #1f2224; box-shadow: 0 0 0 1px #1f2224; }
+        .fw-card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .fw-card-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 13px; color: #1f2224; }
+        .fw-card-meta .fw-price-tag { font-size: 12px; font-weight: 600; color: #374151; white-space: nowrap; }
+
+        /* Add a Message cream sheet */
+        .fw-cream-sheet { background: #fbf7f0; border: 1px solid #f2ece1; border-radius: 4px; padding: 18px; }
+        .fw-emblem { display: flex; justify-content: center; margin-bottom: 14px; color: #8c6d53; }
+        .fw-field-row { background: #ffffff; border: 1px solid #e6e2da; border-radius: 3px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .fw-field-prefix { font-size: 12px; color: #6b7280; white-space: nowrap; }
+        .fw-inline-input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: inherit; font-size: 13px; color: #1f2224; }
+        .fw-inline-input::placeholder { color: #a3a3a3; }
+
+        .fw-msg-box { position: relative; background: #ffffff; border: 1px solid #e6e2da; border-radius: 3px; padding: 12px; margin-top: 10px; }
+        .fw-msg-textarea { width: 100%; min-height: 92px; border: none; outline: none; resize: none; background: transparent; font-family: inherit; font-size: 13px; line-height: 1.6; color: #1f2224; box-sizing: border-box; }
+        .fw-msg-textarea::placeholder { color: #a3a3a3; }
+        .fw-msg-counter { text-align: right; font-size: 11px; color: #8c8c8c; margin-top: 4px; }
+
+        .fw-helper-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 10px; font-size: 12px; color: #4b5563; }
+        .fw-underlined-btn { background: none; border: none; padding: 0; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #1f2224; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+        .fw-sig-trigger { display: inline-flex; align-items: center; gap: 5px; background: none; border: none; padding: 0; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #1f2224; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; white-space: nowrap; }
+        .fw-sig-preview-pill { display: inline-flex; align-items: center; gap: 8px; background: #faf7f2; border: 1px solid #e5dfd3; border-radius: 4px; padding: 4px 8px; margin-top: 8px; font-size: 12px; color: #1f2224; }
+        .fw-sig-preview-pill img { height: 26px; max-width: 110px; object-fit: contain; display: block; }
+
+        .fw-link-trigger-wrap { text-align: center; margin-top: 14px; }
+        .fw-link-trigger { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #1f2224; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+        .fw-link-badge { margin-top: 8px; font-size: 11px; color: #1a7f4b; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 4px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; word-break: break-all; }
+
+        .fw-modal-footer { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 14px 24px 22px; background: #ffffff; }
+
+        /* Preview split (face image only + separate blank message card) */
+        .card-preview-stack { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: stretch; }
+        @media (max-width: 480px) { .card-preview-stack { grid-template-columns: 1fr; } }
+        .card-face-only { border-radius: 8px; overflow: hidden; aspect-ratio: 4 / 3; border: 1px solid #ece7da; background: #faf8f4; display: flex; align-items: center; justify-content: center; }
         .card-face-only img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .card-blank-message-sheet { border-radius: 12px; aspect-ratio: 4 / 3; background: #fffdf9; border: 1px solid #e6e0d3; box-shadow: 0 4px 14px rgba(0,0,0,.06); padding: 16px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
-        .card-blank-message-sheet .card-text { color: var(--lorin); font-weight: 500; line-height: 1.7; word-break: break-word; overflow: hidden; white-space: pre-wrap; }
+        .card-blank-message-sheet { border-radius: 8px; aspect-ratio: 4 / 3; background: #fbf7f0; border: 1px solid #e6e0d3; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; text-align: center; overflow: hidden; }
+        .card-blank-message-sheet .msg-meta-top { font-size: 11px; color: #6b7280; text-align: left; }
+        .card-blank-message-sheet .card-text { color: #1f292e; font-weight: 500; line-height: 1.65; word-break: break-word; overflow: hidden; white-space: pre-wrap; margin: auto 0; }
+        .card-blank-message-sheet .msg-meta-bottom { font-size: 11px; color: #4b5563; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+        .card-blank-message-sheet .msg-meta-bottom img { height: 22px; max-width: 85px; object-fit: contain; }
 
-        .design-opt { border: 2px solid #e5e7eb; border-radius: 12px; padding: 6px; background: #fff; cursor: pointer; text-align: center; transition: border-color .15s, box-shadow .15s; display: flex; flex-direction: column; justify-content: space-between; }
-        .design-opt:hover { border-color: #9fb4ba; }
-        .design-opt.is-selected { border-color: var(--lorin); box-shadow: 0 0 0 3px rgba(0,49,60,.12); }
-        .design-opt img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 8px; display: block; background: #f8fafc; }
+        /* Suggested Messages sub-modal */
+        .sm-tabs { display: flex; gap: 18px; border-bottom: 1px solid #ebebeb; overflow-x: auto; scrollbar-width: none; padding: 0 24px; }
+        .sm-tabs::-webkit-scrollbar { display: none; }
+        .sm-tab { background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 2px; font-family: inherit; font-size: 12px; color: #6b7280; cursor: pointer; white-space: nowrap; }
+        .sm-tab.is-active { color: #1f2224; border-bottom-color: #1f2224; font-weight: 700; }
+        .sm-lang-toggle { display: inline-flex; border: 1px solid #d1d5db; border-radius: 3px; overflow: hidden; }
+        .sm-lang-btn { padding: 4px 10px; font-size: 11px; font-weight: 700; border: none; background: #ffffff; color: #374151; cursor: pointer; }
+        .sm-lang-btn.is-active { background: #1f2224; color: #ffffff; }
+        .sm-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; max-height: 340px; overflow-y: auto; }
+        .sm-item { border: 1px solid #e5e7eb; border-radius: 4px; padding: 14px 16px; text-align: left; background: #ffffff; color: #1f2224; font-size: 13px; line-height: 1.55; cursor: pointer; transition: border-color .15s, background .15s; }
+        .sm-item:hover { border-color: #1f2224; background: #fcfbf8; }
 
-        .modal-tab-btn { flex: 1; padding: 9px 12px; font-size: 12px; font-weight: 700; border-radius: 8px; border: 1px solid #e5e7eb; background: #f9fafb; color: #4b5563; cursor: pointer; transition: all .15s; }
-        .modal-tab-btn.is-active { background: var(--lorin); color: #ffffff; border-color: var(--lorin); }
+        /* Signature sub-modal */
+        .sig-mode-tabs { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #e5e7eb; border-radius: 4px; overflow: hidden; margin-bottom: 14px; }
+        .sig-mode-btn { padding: 10px 12px; border: none; background: #f3f4f6; color: #4b5563; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .sig-mode-btn.is-active { background: #ffffff; color: #1f2224; font-weight: 700; box-shadow: inset 0 -2px 0 #1f2224; }
+        .sig-canvas-wrap { position: relative; border: 1px solid #d1d5db; border-radius: 4px; background: #ffffff; height: 210px; overflow: hidden; }
+        .sig-canvas-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; font-family: 'Dancing Script', cursive; font-size: 26px; color: #9ca3af; }
+        .sig-canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+        .sig-text-box { border: 1px solid #d1d5db; border-radius: 4px; padding: 16px; background: #ffffff; min-height: 210px; display: flex; flex-direction: column; justify-content: center; gap: 12px; box-sizing: border-box; }
+        .sig-text-live { text-align: center; font-family: 'Dancing Script', 'Alexandria', cursive; font-size: 30px; color: #1f2224; min-height: 44px; }
+
+        /* Video/Photo link sub-modal */
+        .link-info-box { background: #fbf7f0; border: 1px solid #efe7da; border-radius: 4px; padding: 14px 16px; font-size: 12px; color: #374151; line-height: 1.75; }
+        .link-info-box ul { margin: 6px 0 0; padding-left: 18px; }
 
         /* Add a Finishing Touch */
-        .ft-tabs {
-            position: relative;
-            display: flex;
-            align-items: stretch;
-            gap: 20px;
-            width: 100%;
-            max-width: 100%;
-            border-bottom: 1px solid #ebebeb;
-            overflow-x: auto;
-            overflow-y: hidden;
-            white-space: nowrap;
-            scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-            touch-action: pan-x;
-            box-sizing: border-box;
-        }
+        .ft-tabs { position: relative; display: flex; align-items: stretch; gap: 20px; width: 100%; max-width: 100%; border-bottom: 1px solid #ebebeb; overflow-x: auto; overflow-y: hidden; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; touch-action: pan-x; box-sizing: border-box; }
         .ft-tabs::-webkit-scrollbar { display: none; }
-        .ft-tab {
-            position: relative;
-            flex: 0 0 auto;
-            flex-shrink: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: auto;
-            min-width: fit-content;
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid transparent;
-            margin: 0 0 -1px 0;
-            padding: 10px 4px;
-            font-family: inherit;
-            font-size: 12px;
-            line-height: 1.3;
-            color: #6b7280;
-            cursor: pointer;
-            box-sizing: border-box;
-            transition: color .15s, border-color .15s;
-        }
+        .ft-tab { position: relative; flex: 0 0 auto; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; width: auto; min-width: fit-content; background: transparent; border: none; border-bottom: 2px solid transparent; margin: 0 0 -1px 0; padding: 10px 4px; font-family: inherit; font-size: 12px; line-height: 1.3; color: #6b7280; cursor: pointer; box-sizing: border-box; transition: color .15s, border-color .15s; }
         .ft-tab:hover { color: var(--lorin); }
         .ft-tab.is-active { color: #111827; border-bottom-color: #111827; font-weight: 700; }
 
         .ft-wrap { position: relative; width: 100%; max-width: 100%; overflow: hidden; }
-        .ft-track {
-            display: grid;
-            grid-auto-flow: column;
-            grid-auto-columns: calc((100% - 28px) / 3);
-            gap: 14px;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scroll-snap-type: x mandatory;
-            padding: 18px 2px 6px;
-            scrollbar-width: none;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            touch-action: pan-x;
-            box-sizing: border-box;
-        }
+        .ft-track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 28px) / 3); gap: 14px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; padding: 18px 2px 6px; scrollbar-width: none; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; touch-action: pan-x; box-sizing: border-box; }
         .ft-track::-webkit-scrollbar { display: none; }
-        @media (max-width: 640px) {
-            .ft-tabs { gap: 16px; }
-            .ft-track { grid-auto-columns: calc((100% - 14px) / 2); }
-        }
+        @media (max-width: 640px) { .ft-tabs { gap: 16px; } .ft-track { grid-auto-columns: calc((100% - 14px) / 2); } }
 
         .ft-card { scroll-snap-align: start; text-align: center; display: flex; flex-direction: column; min-width: 0; }
         .ft-img-box { position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 4px; overflow: hidden; background: #f4f6f7; }
@@ -244,7 +274,6 @@
         .ft-name { font-size: 12px; color: #374151; margin: 10px 0 3px; line-height: 1.4; min-height: 2.8em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .ft-price { font-size: 12px; font-weight: 700; color: #1f292e; margin-bottom: 10px; }
         .ft-card .btn-outline { width: 100%; padding: 8px 10px; margin-top: auto; }
-        .ft-card .btn-outline.is-added { background: var(--lorin); color: #fff; }
         .ft-qty-ctrl { display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--lorin); border-radius: 2px; height: 31px; margin-top: auto; background: #fff; }
         .ft-qty-ctrl button { width: 32px; height: 100%; border: none; background: transparent; color: var(--lorin); font-weight: 700; font-size: 14px; cursor: pointer; }
         .ft-qty-ctrl button:hover { background: #f3f7f8; }
@@ -288,10 +317,6 @@
         .mobile-bar .mb-total b { display: block; font-size: 15px; color: #111; }
         .mobile-bar .btn-primary { flex: 1; padding: 13px 14px; }
         .mobile-bar-spacer { display: none; height: 74px; }
-
-        .lorin-modal { display: none; position: fixed; inset: 0; z-index: 100000; background: rgba(0,0,0,.5); align-items: center; justify-content: center; padding: 16px; }
-        .lorin-modal.is-open { display: flex; }
-        .lorin-modal-panel { background: #fff; border-radius: 6px; width: 100%; max-width: 540px; max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
 
         .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: #00313C; color: #fff; padding: 10px 18px; border-radius: 9999px; font-size: 13px; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; z-index: 2147483647; max-width: 90vw; text-align: center; }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -472,13 +497,13 @@
 
 <!-- ============ Photo Stick-In Modal ============ -->
 <div id="photo-modal" class="lorin-modal" role="dialog" aria-modal="true" aria-labelledby="photo-modal-title">
-  <div class="lorin-modal-panel p-6" dir="ltr">
+  <div class="lorin-modal-panel narrow p-6" dir="ltr">
     <div class="flex justify-between items-start mb-4">
       <div>
         <h3 id="photo-modal-title" class="text-lg font-bold text-[#00313C]">Add a Photo Stick-In</h3>
         <p class="text-xs text-gray-500 mt-1">Upload a photo to be printed and placed with your gift. + JOD 2.50</p>
       </div>
-      <button type="button" data-close-modal class="text-gray-400 hover:text-gray-700 text-xl cursor-pointer" aria-label="Close">✕</button>
+      <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">✕</button>
     </div>
 
     <label for="photo-file-input" class="block border-2 border-dashed border-gray-300 hover:border-[#00313C] rounded-md p-4 text-center cursor-pointer transition">
@@ -494,47 +519,201 @@
     <p id="photo-modal-error" class="hidden text-xs text-red-600 bg-red-50 border border-red-100 rounded p-2.5 mt-3" role="alert"></p>
 
     <div class="flex gap-3 mt-5">
-      <button type="button" data-close-modal class="btn-outline" style="flex:1">CANCEL</button>
-      <button type="button" id="photo-upload-btn" disabled class="btn-primary" style="flex:1">Upload &amp; Save</button>
+      <button type="button" data-close-modal class="btn-floward-light" style="flex:1">CANCEL</button>
+      <button type="button" id="photo-upload-btn" disabled class="btn-floward-dark" style="flex:1">Upload &amp; Save</button>
     </div>
   </div>
 </div>
 
-<!-- ============ Card Personalize Modal ============ -->
+<!-- ============ Floward Gift Card & Message Modal ============ -->
 <div id="card-modal" class="lorin-modal" role="dialog" aria-modal="true" aria-labelledby="card-modal-title">
-  <div class="lorin-modal-panel p-6" dir="ltr">
-    <div class="flex justify-between items-start mb-4">
-      <div>
-        <h3 id="card-modal-title" class="text-lg font-bold text-[#00313C]">Gift Card &amp; Message</h3>
-        <p id="card-modal-subtitle" class="text-xs text-gray-500 mt-1">Select your card design or add your message.</p>
+  <div class="lorin-modal-panel" dir="ltr">
+    <!-- Main View: Select Your Card / Add a Message -->
+    <div id="fw-main-view">
+      <div class="fw-modal-header">
+        <h3 id="card-modal-title" class="fw-modal-title">Gift Card &amp; Message</h3>
+        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">✕</button>
       </div>
-      <button type="button" data-close-modal class="text-gray-400 hover:text-gray-700 text-xl cursor-pointer" aria-label="Close">✕</button>
+
+      <div class="fw-top-tabs" role="tablist">
+        <button type="button" role="tab" id="tab-select-card" class="fw-top-tab is-active" onclick="switchCardModalTab('card')">Select Your Card</button>
+        <button type="button" role="tab" id="tab-add-message" class="fw-top-tab" onclick="switchCardModalTab('message')">Add a Message</button>
+      </div>
+
+      <div class="fw-body">
+        <!-- Tab 1: Select Your Card -->
+        <div id="panel-select-card">
+          <div id="card-modal-designs" class="fw-card-grid"></div>
+        </div>
+
+        <!-- Tab 2: Add a Message -->
+        <div id="panel-add-message" class="hidden">
+          <div class="fw-cream-sheet">
+            <div class="fw-emblem" aria-hidden="true">
+              <svg width="26" height="22" viewBox="0 0 32 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M16 12c-3-5-9-7-12-3-2.5 3.3 0 8 5 9 3.5.7 5.5-.5 7-2.5 1.5 2 3.5 3.2 7 2.5 5-1 7.5-5.7 5-9-3-4-9-2-12 3z"/>
+                <path d="M16 12c-2 4-6 8-11 9M16 12c2 4 6 8 11 9"/>
+              </svg>
+            </div>
+
+            <div class="fw-field-row">
+              <span class="fw-field-prefix">To:</span>
+              <input type="text" id="card-modal-to" class="fw-inline-input" maxlength="80" placeholder="Recipient's Name (Optional)">
+            </div>
+
+            <div class="fw-msg-box">
+              <textarea id="card-modal-message" class="fw-msg-textarea" dir="auto" rows="4" maxlength="200" placeholder="Type your message here"></textarea>
+              <div id="card-modal-counter" class="fw-msg-counter">200 Characters | 5 lines remaining</div>
+            </div>
+
+            <div class="fw-helper-bar">
+              <span class="inline-flex items-center gap-1.5 text-gray-600">
+                <span class="inline-flex items-center justify-center w-4 h-4 rounded-full border border-gray-500 text-[10px]">i</span>
+                <span>Not sure what to say</span>
+              </span>
+              <button type="button" id="btn-open-suggested" class="fw-underlined-btn">TRY A SUGGESTED MESSAGE</button>
+            </div>
+
+            <div class="fw-field-row mt-3">
+              <div class="flex items-center gap-2 flex-1 min-w-0">
+                <span class="fw-field-prefix">From:</span>
+                <input type="text" id="card-modal-from" class="fw-inline-input" maxlength="80" placeholder="(Optional)">
+              </div>
+              <button type="button" id="btn-open-signature" class="fw-sig-trigger">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                <span id="sig-trigger-label">ADD SIGNATURE</span>
+              </button>
+            </div>
+
+            <div id="sig-attached-box" class="hidden fw-sig-preview-pill">
+              <img id="sig-attached-img" alt="Signature preview" class="hidden">
+              <span id="sig-attached-text" class="hidden italic"></span>
+              <button type="button" id="sig-clear-btn" class="ml-auto text-[11px] font-bold text-red-600 hover:underline">Remove</button>
+            </div>
+
+            <div class="fw-link-trigger-wrap">
+              <button type="button" id="btn-open-link" class="fw-link-trigger">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <span id="link-trigger-label">ATTACH A WEB LINK</span>
+              </button>
+              <div id="link-attached-box" class="hidden fw-link-badge">
+                <span id="link-attached-url"></span>
+                <button type="button" id="link-clear-btn" class="text-red-600 font-bold shrink-0">✕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inline Preview Box (shown when user clicks PREVIEW) -->
+        <div id="fw-preview-section" class="hidden mt-4 pt-4 border-t border-gray-200">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-gray-600">Card &amp; Message Preview</span>
+            <button type="button" id="fw-hide-preview-btn" class="text-[11px] font-bold underline text-gray-600">Hide Preview</button>
+          </div>
+          <div id="card-modal-preview-wrap"></div>
+        </div>
+      </div>
+
+      <div class="fw-modal-footer">
+        <button type="button" id="fw-preview-btn" class="btn-floward-light">PREVIEW</button>
+        <button type="button" id="card-save-btn" class="btn-floward-dark">SAVE &amp; CONTINUE</button>
+      </div>
     </div>
 
-    <div class="flex gap-2 mb-4" role="tablist">
-      <button type="button" id="tab-select-card" class="modal-tab-btn is-active" onclick="switchCardModalTab('card')">Select Your Card</button>
-      <button type="button" id="tab-add-message" class="modal-tab-btn" onclick="switchCardModalTab('message')">Add a Message</button>
+    <!-- Sub-View A: Suggested Messages -->
+    <div id="fw-suggested-view" class="hidden">
+      <div class="fw-modal-header border-b border-gray-100">
+        <h3 class="fw-modal-title">
+          <button type="button" id="sm-back-btn" class="fw-back-btn" aria-label="Back">‹</button>
+          <span>Suggested Messages</span>
+        </h3>
+        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">✕</button>
+      </div>
+
+      <div id="sm-occasion-tabs" class="sm-tabs"></div>
+
+      <div class="fw-body">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs text-gray-600">Select any message to add on card</span>
+          <div class="sm-lang-toggle" role="group" aria-label="Message language">
+            <button type="button" id="sm-lang-en" class="sm-lang-btn is-active" onclick="setSuggestedLang('EN')">EN</button>
+            <button type="button" id="sm-lang-ar" class="sm-lang-btn" onclick="setSuggestedLang('AR')">AR</button>
+          </div>
+        </div>
+        <div id="sm-messages-list" class="sm-list"></div>
+      </div>
     </div>
 
-    <div id="panel-select-card">
-      <div class="text-xs font-bold text-gray-500 mb-2">Card design</div>
-      <div id="card-modal-designs" class="grid grid-cols-3 gap-3 mb-4"></div>
+    <!-- Sub-View B: Signature -->
+    <div id="fw-signature-view" class="hidden">
+      <div class="fw-modal-header border-b border-gray-100">
+        <h3 class="fw-modal-title">
+          <button type="button" id="sig-back-btn" class="fw-back-btn" aria-label="Back">‹</button>
+          <span>Signature</span>
+        </h3>
+        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">✕</button>
+      </div>
+
+      <div class="fw-body">
+        <div class="sig-mode-tabs" role="tablist">
+          <button type="button" id="sig-tab-hand" class="sig-mode-btn is-active" onclick="switchSignatureMode('handwritten')">
+            <span>✎ Handwritten</span>
+          </button>
+          <button type="button" id="sig-tab-text" class="sig-mode-btn" onclick="switchSignatureMode('text')">
+            <span>T Text Input</span>
+          </button>
+        </div>
+
+        <div id="sig-panel-hand">
+          <div class="text-center text-xs text-gray-600 mb-2">Draw your signature inside the frame</div>
+          <div class="sig-canvas-wrap">
+            <div id="sig-placeholder" class="sig-canvas-placeholder">John</div>
+            <canvas id="sig-canvas" class="sig-canvas" width="560" height="210"></canvas>
+          </div>
+        </div>
+
+        <div id="sig-panel-text" class="hidden">
+          <div class="text-center text-xs text-gray-600 mb-2">Type your signature</div>
+          <div class="sig-text-box">
+            <div id="sig-text-live" class="sig-text-live"></div>
+            <input type="text" id="sig-text-input" maxlength="60" placeholder="Enter signature text..." class="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-[#1f2224]">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3.5 mt-5">
+          <button type="button" id="sig-clear-canvas-btn" class="btn-floward-light">CLEAR</button>
+          <button type="button" id="sig-confirm-btn" disabled class="btn-floward-dark">CONFIRM</button>
+        </div>
+      </div>
     </div>
 
-    <div id="panel-add-message">
-      <label for="card-modal-message" class="text-xs font-bold text-gray-500 mb-2 flex justify-between">
-        <span>Message on Card</span>
-        <span id="card-modal-counter" class="font-normal text-gray-400">0/200</span>
-      </label>
-      <textarea id="card-modal-message" dir="auto" rows="4" maxlength="200" placeholder="Write your gift message here..." class="w-full border border-gray-200 rounded-md p-3 text-sm outline-none focus:border-[#00313C] bg-gray-50 resize-none"></textarea>
-    </div>
+    <!-- Sub-View C: Add a Video or Photo Link -->
+    <div id="fw-link-view" class="hidden">
+      <div class="fw-modal-header border-b border-gray-100">
+        <h3 class="fw-modal-title">
+          <button type="button" id="link-back-btn" class="fw-back-btn" aria-label="Back">‹</button>
+          <span>Add a Video or Photo</span>
+        </h3>
+        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">✕</button>
+      </div>
 
-    <div class="text-xs font-bold text-gray-500 mt-4 mb-2">Preview</div>
-    <div id="card-modal-preview-wrap"></div>
+      <div class="fw-body">
+        <div class="link-info-box">
+          <div class="font-bold text-[#1f2224]">How it works?</div>
+          <ul>
+            <li>Paste a link of video or photo from the internet</li>
+            <li>A QR code will be added to your card message</li>
+            <li>No extra cost!</li>
+          </ul>
+        </div>
 
-    <div class="flex gap-3 mt-5">
-      <button type="button" id="card-clear-btn" class="btn-outline">CLEAR</button>
-      <button type="button" id="card-save-btn" class="btn-primary" style="flex:1">Save Card</button>
+        <div class="fw-field-row mt-4">
+          <span class="text-gray-400">🔗</span>
+          <input type="url" id="fw-link-input" class="fw-inline-input" placeholder="Paste your link here">
+        </div>
+
+        <button type="button" id="fw-add-link-btn" disabled class="btn-floward-dark w-full mt-5">ADD LINK</button>
+      </div>
     </div>
   </div>
 </div>
@@ -586,58 +765,65 @@
   ];
 
   const FALLBACK_FINISHING_ITEMS = [
-    {
-      id: 'ft-pink-balloons',
-      name: '3 Pink Balloons',
-      price: 16,
-      category: 'Occasion Balloons',
-      tabs: ['recommended', 'balloons'],
-      image_url: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=400&q=80'
-    },
-    {
-      id: 'ft-yellow-balloons',
-      name: 'Yellow Balloons | 3 Balloons',
-      price: 16,
-      category: 'Occasion Balloons',
-      tabs: ['recommended', 'balloons'],
-      image_url: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=400&q=80'
-    },
-    {
-      id: 'ft-blue-white-balloons',
-      name: 'Vibrant Beauty Balloons',
-      price: 16,
-      category: 'Occasion Balloons',
-      tabs: ['recommended', 'balloons', 'best_picks'],
-      image_url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=400&q=80'
-    },
-    {
-      id: 'ft-belgian-chocolates',
-      name: 'Artisanal Belgian Chocolates Box',
-      price: 18,
-      category: 'Chocolates',
-      tabs: ['recommended', 'chocolates', 'best_picks'],
-      image_url: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=400&q=80'
-    },
-    {
-      id: 'ft-sparkling-rose',
-      name: 'Botanical Sparkling Berry Drink',
-      price: 9,
-      category: 'Drinks',
-      tabs: ['recommended', 'drinks'],
-      image_url: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80'
-    },
-    {
-      id: 'ft-mini-cake',
-      name: 'Vanilla Berry Celebration Cake',
-      price: 22,
-      category: 'Cakes',
-      tabs: ['recommended', 'cakes', 'best_picks'],
-      image_url: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=400&q=80'
-    }
+    { id: 'ft-pink-balloons', name: '3 Pink Balloons', price: 16, category: 'Occasion Balloons', tabs: ['recommended', 'balloons'], image_url: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=400&q=80' },
+    { id: 'ft-yellow-balloons', name: 'Yellow Balloons | 3 Balloons', price: 16, category: 'Occasion Balloons', tabs: ['recommended', 'balloons'], image_url: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=400&q=80' },
+    { id: 'ft-blue-white-balloons', name: 'Vibrant Beauty Balloons', price: 16, category: 'Occasion Balloons', tabs: ['recommended', 'balloons', 'best_picks'], image_url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=400&q=80' },
+    { id: 'ft-belgian-chocolates', name: 'Artisanal Belgian Chocolates Box', price: 18, category: 'Chocolates', tabs: ['recommended', 'chocolates', 'best_picks'], image_url: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=400&q=80' },
+    { id: 'ft-sparkling-rose', name: 'Botanical Sparkling Berry Drink', price: 9, category: 'Drinks', tabs: ['recommended', 'drinks'], image_url: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80' },
+    { id: 'ft-mini-cake', name: 'Vanilla Berry Celebration Cake', price: 22, category: 'Cakes', tabs: ['recommended', 'cakes', 'best_picks'], image_url: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=400&q=80' }
   ];
 
-  // تُملأ حصرياً من جدول gift_card_designs في قاعدة البيانات (بدون بطاقات ثابتة عالقة)
+  const DEFAULT_SUGGESTED_MESSAGES = {
+    general: {
+      label: 'general',
+      EN: [
+        'A small gesture to remind you how much you mean to me.',
+        'Just a little something to brighten your day and remind you how special you are.',
+        "No Special occasion, just a small reminder that you're always on my mind",
+        'No reason needed just sending some love your way!',
+        'A little surprise, just to brighten your day as you always brighten mine!'
+      ],
+      AR: [
+        'لفتة بسيطة لتذكيرك بمدى مكانتك الغالية في قلبي.',
+        'هدية صغيرة لتضيء يومك وتذكرك بجمال حضورك.',
+        'بلا مناسبة خاصة، مجرد تذكير بأنك دائماً في البال.',
+        'أرسل لك محبة وامتناناً من القلب.'
+      ]
+    },
+    graduation: {
+      label: 'Graduation',
+      EN: ['Congratulations on your graduation! Wishing you endless success ahead.', 'So proud of your hard work and achievement. Here’s to your bright future!'],
+      AR: ['ألف مبارك التخرج! أتمنى لك مستقبلاً مليئاً بالنجاح والإنجازات.', 'فخور جداً بجهدك وتميزك، وإلى نجاحات أكبر دائماً.']
+    },
+    get_well: {
+      label: 'Get Well Soon',
+      EN: ['Sending warm wishes for a speedy and complete recovery.', 'Thinking of you and hoping you feel much better very soon.'],
+      AR: ['أطيب الأمنيات بالشفاء العاجل والصحة التامة.', 'سلامة قلبك، نتمنى لك عافية قريبة بإذن الله.']
+    },
+    new_baby: {
+      label: 'New Baby Born',
+      EN: ['Welcome to the world, little one! Congratulations to the growing family.', 'Wishing your precious new arrival a lifetime of joy and blessings.'],
+      AR: ['الحمد لله على السلامة ومبارك المولود الجديد، جعله الله من مواليد السعادة.', 'يتربى بعزكم ودلالكم، وألف مبروك.']
+    },
+    birthday: {
+      label: 'Happy Birthday',
+      EN: ['Happy Birthday! May this year bring you joy, peace, and everything you wish for.', 'Wishing you the happiest of birthdays filled with laughter and love.'],
+      AR: ['كل عام وأنت بخير، وعام جديد مليء بالفرح وتحقيق الأماني.', 'عيد ميلاد سعيد وأيام جميلة تليق بقلبك.']
+    },
+    weddings: {
+      label: 'Weddings',
+      EN: ['Wishing you a lifetime of love, happiness, and togetherness.', 'Congratulations on your marriage! May your home always be filled with joy.'],
+      AR: ['بارك الله لكما وبارك عليكما وجمع بينكما في خير.', 'ألف مبروك الزواج، وحياة مليئة بالمودة والسعادة.']
+    }
+  };
+
   let CARD_DESIGNS = [];
+  let SUGGESTED_MESSAGES = JSON.parse(JSON.stringify(DEFAULT_SUGGESTED_MESSAGES));
+  let CARD_OPTIONS_CONFIG = {
+    enableSuggested: true,
+    enableSignature: true,
+    enableLink: true
+  };
 
   function esc(v) {
     return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -733,7 +919,7 @@
   }
 
   /* =====================================================
-     Gift Card Designs from Supabase (gift_card_designs)
+     Gift Card Designs & Admin Settings from Supabase
   ===================================================== */
   function findMatchingDesign(cardObj) {
     if (!cardObj || !CARD_DESIGNS.length) return null;
@@ -741,14 +927,6 @@
       (cardObj.designId && String(d.id) === String(cardObj.designId)) ||
       (cardObj.designName && d.name === cardObj.designName)
     ) || null;
-  }
-
-  function getGiftCardFee() {
-    const c = getExtras().card;
-    if (!c || !c.selected) return 0;
-    const matched = findMatchingDesign(c);
-    const price = matched ? num(matched.price) : (c.price !== undefined ? num(c.price) : 0);
-    return Math.max(0, price);
   }
 
   async function loadGiftCardDesignsFromDb() {
@@ -785,8 +963,8 @@
           extras.card.price = updatedMatch.price;
           saveExtras(extras);
         } else {
-          const msg = typeof extras.card.message === 'string' ? extras.card.message.trim() : '';
-          extras.card = msg ? { selected: false, designId: '', designName: '', designImageUrl: '', price: 0, message: msg } : null;
+          const hasContent = !!(extras.card.message || extras.card.recipientName || extras.card.senderName || extras.card.signature || extras.card.mediaUrl);
+          extras.card = hasContent ? Object.assign({}, extras.card, { selected: false, designId: '', designName: '', designImageUrl: '', price: 0 }) : null;
           saveExtras(extras);
         }
       }
@@ -799,6 +977,42 @@
       renderSummary();
       console.warn('Gift card designs fetch warning: ' + errMsg(e));
     }
+  }
+
+  async function loadCardAdminSettingsFromDb() {
+    if (!supabaseClient) return;
+    try {
+      const { data, error } = await supabaseClient.from('site_settings').select('*');
+      if (error || !Array.isArray(data)) return;
+      const map = {};
+      data.forEach(r => { map[r.setting_key] = r.setting_value; });
+
+      if (map.gift_card_enable_suggested !== undefined) CARD_OPTIONS_CONFIG.enableSuggested = String(map.gift_card_enable_suggested) !== 'false';
+      if (map.gift_card_enable_signature !== undefined) CARD_OPTIONS_CONFIG.enableSignature = String(map.gift_card_enable_signature) !== 'false';
+      if (map.gift_card_enable_link !== undefined) CARD_OPTIONS_CONFIG.enableLink = String(map.gift_card_enable_link) !== 'false';
+
+      if (map.gift_card_suggested_messages) {
+        const parsed = JSON.parse(map.gift_card_suggested_messages);
+        if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
+          SUGGESTED_MESSAGES = parsed;
+        }
+      }
+      applyCardFeatureVisibility();
+    } catch (e) {
+      console.warn('Card settings load warning: ' + errMsg(e));
+    }
+  }
+
+  function applyCardFeatureVisibility() {
+    const sugBtn = document.getElementById('btn-open-suggested');
+    const sugHelper = sugBtn ? sugBtn.closest('.fw-helper-bar') : null;
+    if (sugHelper) setHidden(sugHelper, !CARD_OPTIONS_CONFIG.enableSuggested);
+
+    const sigBtn = document.getElementById('btn-open-signature');
+    if (sigBtn) setHidden(sigBtn, !CARD_OPTIONS_CONFIG.enableSignature);
+
+    const linkWrap = document.querySelector('.fw-link-trigger-wrap');
+    if (linkWrap) setHidden(linkWrap, !CARD_OPTIONS_CONFIG.enableLink);
   }
 
   /* =====================================================
@@ -1000,28 +1214,13 @@
       : (CARD_DESIGNS[0] ? { id: CARD_DESIGNS[0].id, name: CARD_DESIGNS[0].name, imageUrl: CARD_DESIGNS[0].imageUrl, price: num(CARD_DESIGNS[0].price) } : null);
     return {
       design,
+      recipientName: (c && typeof c.recipientName === 'string') ? c.recipientName : '',
+      senderName: (c && typeof c.senderName === 'string') ? c.senderName : '',
       message: (c && typeof c.message === 'string') ? c.message : '',
+      signature: (c && c.signature) ? c.signature : null,
+      mediaUrl: (c && typeof c.mediaUrl === 'string') ? c.mediaUrl : '',
       saved
     };
-  }
-
-  // يعرض صورة وجه البطاقة فقط (بدون كتابة فوقها) وبطاقة الرسالة الفارغة منفصلة
-  function previewHTML(design, message, placeholder) {
-    const text = String(message || '').trim();
-    const fontSize = text.length > 120 ? 13 : text.length > 60 ? 15 : 18;
-    const faceHtml = (design && design.imageUrl)
-      ? `<div class="card-face-only" title="${esc(design.name || 'Card Face')}">
-           <img src="${esc(design.imageUrl)}" alt="${esc(design.name || 'Card Face')}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'">
-         </div>`
-      : `<div class="card-face-only">
-           <span class="text-xs text-gray-400">No card face selected</span>
-         </div>`;
-
-    const msgSheetHtml = `<div class="card-blank-message-sheet">
-      <div class="card-text" dir="auto" style="${text ? '' : 'opacity:.45;'}font-size:${fontSize}px">${esc(text || placeholder)}</div>
-    </div>`;
-
-    return `<div class="card-preview-stack">${faceHtml}${msgSheetHtml}</div>`;
   }
 
   function renderGiftCard() {
@@ -1094,7 +1293,7 @@
   }
 
   /* =====================================================
-     Add a Finishing Touch (Tabs + Carousel + Store/Fallback items)
+     Add a Finishing Touch
   ===================================================== */
   let productsLoaded = false;
   let ftTab = 'recommended';
@@ -1232,7 +1431,7 @@
   }
 
   /* =====================================================
-     Modals
+     Modals & Sub-views
   ===================================================== */
   function openModal(id) {
     document.getElementById(id).classList.add('is-open');
@@ -1332,21 +1531,28 @@
     toast('Photo removed: -2.50 JOD');
   }
 
-  /* ---- Card Modal ---- */
+  /* ---- Floward Card Modal State ---- */
   let draftDesignName = '';
+  let draftSignature = null; // { type: 'handwritten' | 'text', value: string }
+  let draftMediaUrl = '';
   let activeCardTab = 'card';
 
+  function showCardSubView(viewName) {
+    setHidden(document.getElementById('fw-main-view'), viewName !== 'main');
+    setHidden(document.getElementById('fw-suggested-view'), viewName !== 'suggested');
+    setHidden(document.getElementById('fw-signature-view'), viewName !== 'signature');
+    setHidden(document.getElementById('fw-link-view'), viewName !== 'link');
+  }
+
   function switchCardModalTab(tab) {
+    showCardSubView('main');
     activeCardTab = tab === 'message' ? 'message' : 'card';
     const tabCard = document.getElementById('tab-select-card');
     const tabMsg = document.getElementById('tab-add-message');
-    const panelCard = document.getElementById('panel-select-card');
-    const panelMsg = document.getElementById('panel-add-message');
-
     if (tabCard) tabCard.classList.toggle('is-active', activeCardTab === 'card');
     if (tabMsg) tabMsg.classList.toggle('is-active', activeCardTab === 'message');
-    setHidden(panelCard, activeCardTab !== 'card');
-    setHidden(panelMsg, activeCardTab !== 'message');
+    setHidden(document.getElementById('panel-select-card'), activeCardTab !== 'card');
+    setHidden(document.getElementById('panel-add-message'), activeCardTab !== 'message');
 
     if (activeCardTab === 'message') {
       const msgInput = document.getElementById('card-modal-message');
@@ -1361,81 +1567,379 @@
 
   function renderCardModalDesigns() {
     const container = document.getElementById('card-modal-designs');
-    const sub = document.getElementById('card-modal-subtitle');
-
     if (!CARD_DESIGNS.length) {
-      if (sub) sub.textContent = 'No card designs available yet.';
-      container.innerHTML = '<p class="col-span-3 text-xs text-gray-400 text-center py-4">No card designs found in database.</p>';
+      container.innerHTML = '<p class="col-span-2 text-xs text-gray-400 text-center py-6">No card designs added yet.</p>';
       return;
     }
 
     const selected = getDraftDesign();
-    if (sub && selected) {
-      const pVal = num(selected.price);
-      sub.textContent = pVal > 0
-        ? `${selected.name} (+ ${money(pVal)}) — write your message below.`
-        : `${selected.name} (Free) — write your message below.`;
-    }
-
     container.innerHTML = CARD_DESIGNS.map(d => {
       const pVal = num(d.price);
       const isSel = selected && d.name === selected.name;
+      const priceText = pVal > 0 ? `JOD ${pVal.toFixed(0)}` : 'Free';
       return `
-        <button type="button" class="design-opt ${isSel ? 'is-selected' : ''}" data-design-name="${esc(d.name)}">
-          <img src="${esc(d.imageUrl)}" alt="${esc(d.name)}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'">
-          <span class="block text-[11px] font-bold text-[#00313C] mt-1.5 leading-tight truncate">${esc(d.name)}</span>
-          <span class="block text-[10px] font-semibold mt-0.5 ${pVal > 0 ? 'text-emerald-700' : 'text-gray-500'}">${pVal > 0 ? '+ ' + money(pVal) : 'Free'}</span>
-        </button>`;
+        <div class="fw-card-item ${isSel ? 'is-selected' : ''}" data-design-name="${esc(d.name)}">
+          <div class="fw-card-thumb">
+            <img src="${esc(d.imageUrl)}" alt="${esc(d.name)}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'">
+          </div>
+          <div class="fw-card-meta">
+            <span class="truncate">${esc(d.name)}</span>
+            <span class="fw-price-tag">${esc(priceText)}</span>
+          </div>
+        </div>`;
     }).join('');
 
-    container.querySelectorAll('.design-opt').forEach(b => {
-      b.onclick = () => {
-        draftDesignName = b.dataset.designName;
+    container.querySelectorAll('.fw-card-item').forEach(el => {
+      el.onclick = () => {
+        draftDesignName = el.dataset.designName;
         renderCardModalDesigns();
         renderCardModalPreview();
       };
     });
   }
 
+  function updateMessageCounter() {
+    const msg = document.getElementById('card-modal-message').value || '';
+    const remainingChars = Math.max(0, MESSAGE_MAX - msg.length);
+    const linesUsed = msg ? msg.split('\n').length : 0;
+    const remainingLines = Math.max(0, 5 - linesUsed);
+    document.getElementById('card-modal-counter').textContent = `${remainingChars} Characters | ${remainingLines} lines remaining`;
+  }
+
+  function renderSignatureBadge() {
+    const box = document.getElementById('sig-attached-box');
+    const img = document.getElementById('sig-attached-img');
+    const txt = document.getElementById('sig-attached-text');
+    const lbl = document.getElementById('sig-trigger-label');
+
+    if (!draftSignature || !draftSignature.value) {
+      setHidden(box, true);
+      if (lbl) lbl.textContent = 'ADD SIGNATURE';
+      return;
+    }
+
+    setHidden(box, false);
+    if (lbl) lbl.textContent = 'EDIT SIGNATURE';
+
+    if (draftSignature.type === 'handwritten') {
+      img.src = draftSignature.value;
+      img.classList.remove('hidden');
+      txt.classList.add('hidden');
+    } else {
+      txt.textContent = draftSignature.value;
+      txt.classList.remove('hidden');
+      img.classList.add('hidden');
+    }
+  }
+
+  function renderLinkBadge() {
+    const box = document.getElementById('link-attached-box');
+    const urlEl = document.getElementById('link-attached-url');
+    const lbl = document.getElementById('link-trigger-label');
+
+    if (!draftMediaUrl) {
+      setHidden(box, true);
+      if (lbl) lbl.textContent = 'ATTACH A WEB LINK';
+      return;
+    }
+
+    setHidden(box, false);
+    urlEl.textContent = draftMediaUrl;
+    if (lbl) lbl.textContent = 'EDIT WEB LINK';
+  }
+
+  // يعرض صورة وجه البطاقة فقط (بدون كتابة فوقها) وورقة الرسالة المنفصلة
+  function buildCardAndMessagePreviewHTML(design, message, toName, fromName, signature, mediaUrl, placeholder) {
+    const text = String(message || '').trim();
+    const fontSize = text.length > 120 ? 13 : text.length > 60 ? 14 : 16;
+
+    const faceHtml = (design && design.imageUrl)
+      ? `<div class="card-face-only">
+           <img src="${esc(design.imageUrl)}" alt="${esc(design.name || 'Card Face')}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'">
+         </div>`
+      : `<div class="card-face-only">
+           <span class="text-xs text-gray-400">No card face selected</span>
+         </div>`;
+
+    const sigHtml = signature && signature.value
+      ? (signature.type === 'handwritten'
+          ? `<img src="${esc(signature.value)}" alt="Signature">`
+          : `<span style="font-family:'Dancing Script',cursive;font-size:18px;">${esc(signature.value)}</span>`)
+      : '';
+
+    const msgSheetHtml = `<div class="card-blank-message-sheet">
+      <div class="msg-meta-top">${toName ? `To: <b>${esc(toName)}</b>` : ''}</div>
+      <div class="card-text" dir="auto" style="${text ? '' : 'opacity:.45;'}font-size:${fontSize}px">${esc(text || placeholder)}</div>
+      <div class="msg-meta-bottom">
+        ${fromName ? `<span>From: <b>${esc(fromName)}</b></span>` : ''}
+        ${sigHtml}
+      </div>
+      ${mediaUrl ? `<div class="text-[10px] text-emerald-700 truncate mt-1">🔗 QR Link attached</div>` : ''}
+    </div>`;
+
+    return `<div class="card-preview-stack">${faceHtml}${msgSheetHtml}</div>`;
+  }
+
   function renderCardModalPreview() {
     const design = getDraftDesign();
-    const msg = document.getElementById('card-modal-message').value;
-    document.getElementById('card-modal-counter').textContent = msg.length + '/' + MESSAGE_MAX;
-    document.getElementById('card-modal-preview-wrap').innerHTML = previewHTML(design, msg, 'Your message will appear here on the blank card');
+    const msg = document.getElementById('card-modal-message').value || '';
+    const toName = document.getElementById('card-modal-to').value.trim();
+    const fromName = document.getElementById('card-modal-from').value.trim();
+    document.getElementById('card-modal-preview-wrap').innerHTML =
+      buildCardAndMessagePreviewHTML(design, msg, toName, fromName, draftSignature, draftMediaUrl, 'Your message will appear here');
   }
 
   function openCardModal(initialTab = 'card') {
     const cur = currentCard();
     draftDesignName = cur.design ? cur.design.name : (CARD_DESIGNS[0] ? CARD_DESIGNS[0].name : '');
-    document.getElementById('card-modal-message').value = cur.message;
+    draftSignature = cur.signature ? Object.assign({}, cur.signature) : null;
+    draftMediaUrl = cur.mediaUrl || '';
+
+    document.getElementById('card-modal-to').value = cur.recipientName || '';
+    document.getElementById('card-modal-message').value = cur.message || '';
+    document.getElementById('card-modal-from').value = cur.senderName || '';
+
+    setHidden(document.getElementById('fw-preview-section'), true);
+    applyCardFeatureVisibility();
+    updateMessageCounter();
+    renderSignatureBadge();
+    renderLinkBadge();
     renderCardModalDesigns();
     renderCardModalPreview();
     switchCardModalTab(initialTab);
     openModal('card-modal');
   }
 
+  /* ---- Suggested Messages Sub-view ---- */
+  let activeSmCategory = 'general';
+  let activeSmLang = 'EN';
+
+  function openSuggestedModal() {
+    const keys = Object.keys(SUGGESTED_MESSAGES);
+    if (!keys.includes(activeSmCategory)) activeSmCategory = keys[0] || 'general';
+    renderSuggestedTabs();
+    renderSuggestedList();
+    showCardSubView('suggested');
+  }
+
+  function setSuggestedLang(lang) {
+    activeSmLang = lang === 'AR' ? 'AR' : 'EN';
+    document.getElementById('sm-lang-en').classList.toggle('is-active', activeSmLang === 'EN');
+    document.getElementById('sm-lang-ar').classList.toggle('is-active', activeSmLang === 'AR');
+    renderSuggestedList();
+  }
+
+  function renderSuggestedTabs() {
+    const box = document.getElementById('sm-occasion-tabs');
+    const keys = Object.keys(SUGGESTED_MESSAGES);
+    box.innerHTML = keys.map(k => {
+      const cat = SUGGESTED_MESSAGES[k];
+      const lbl = (cat && cat.label) ? cat.label : k;
+      return `<button type="button" class="sm-tab ${k === activeSmCategory ? 'is-active' : ''}" data-sm-cat="${esc(k)}">${esc(lbl)}</button>`;
+    }).join('');
+
+    box.querySelectorAll('[data-sm-cat]').forEach(btn => {
+      btn.onclick = () => {
+        activeSmCategory = btn.dataset.smCat;
+        renderSuggestedTabs();
+        renderSuggestedList();
+      };
+    });
+  }
+
+  function renderSuggestedList() {
+    const listBox = document.getElementById('sm-messages-list');
+    const cat = SUGGESTED_MESSAGES[activeSmCategory] || {};
+    const msgs = Array.isArray(cat[activeSmLang]) ? cat[activeSmLang] : (Array.isArray(cat.EN) ? cat.EN : []);
+
+    if (!msgs.length) {
+      listBox.innerHTML = '<div class="text-xs text-gray-400 text-center py-6">No messages in this category.</div>';
+      return;
+    }
+
+    listBox.innerHTML = msgs.map(m => `
+      <button type="button" class="sm-item" dir="${activeSmLang === 'AR' ? 'rtl' : 'ltr'}">${esc(m)}</button>
+    `).join('');
+
+    listBox.querySelectorAll('.sm-item').forEach(itemBtn => {
+      itemBtn.onclick = () => {
+        const chosen = itemBtn.textContent.slice(0, MESSAGE_MAX);
+        const ta = document.getElementById('card-modal-message');
+        ta.value = chosen;
+        updateMessageCounter();
+        renderCardModalPreview();
+        showCardSubView('main');
+      };
+    });
+  }
+
+  /* ---- Signature Sub-view ---- */
+  let sigMode = 'handwritten';
+  let isDrawingSig = false;
+  let hasDrawnSig = false;
+
+  function initSignatureCanvas() {
+    const canvas = document.getElementById('sig-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#1f2224';
+    ctx.lineWidth = 2.4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    function getPos(ev) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = ev.touches && ev.touches[0] ? ev.touches[0].clientX : ev.clientX;
+      const clientY = ev.touches && ev.touches[0] ? ev.touches[0].clientY : ev.clientY;
+      const scaleX = canvas.width / (rect.width || 1);
+      const scaleY = canvas.height / (rect.height || 1);
+      return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+    }
+
+    function startDraw(ev) {
+      if (sigMode !== 'handwritten') return;
+      ev.preventDefault();
+      isDrawingSig = true;
+      hasDrawnSig = true;
+      setHidden(document.getElementById('sig-placeholder'), true);
+      const p = getPos(ev);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      updateSigConfirmState();
+    }
+
+    function moveDraw(ev) {
+      if (!isDrawingSig || sigMode !== 'handwritten') return;
+      ev.preventDefault();
+      const p = getPos(ev);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+
+    function endDraw() {
+      if (!isDrawingSig) return;
+      isDrawingSig = false;
+      ctx.closePath();
+      updateSigConfirmState();
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', moveDraw, { passive: false });
+    window.addEventListener('touchend', endDraw);
+  }
+
+  function clearSignatureCanvas() {
+    const canvas = document.getElementById('sig-canvas');
+    if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    hasDrawnSig = false;
+    setHidden(document.getElementById('sig-placeholder'), false);
+    document.getElementById('sig-text-input').value = '';
+    document.getElementById('sig-text-live').textContent = '';
+    updateSigConfirmState();
+  }
+
+  function updateSigConfirmState() {
+    const confirmBtn = document.getElementById('sig-confirm-btn');
+    if (!confirmBtn) return;
+    if (sigMode === 'handwritten') {
+      confirmBtn.disabled = !hasDrawnSig;
+    } else {
+      const val = document.getElementById('sig-text-input').value.trim();
+      confirmBtn.disabled = val.length === 0;
+    }
+  }
+
+  function switchSignatureMode(mode) {
+    sigMode = mode === 'text' ? 'text' : 'handwritten';
+    document.getElementById('sig-tab-hand').classList.toggle('is-active', sigMode === 'handwritten');
+    document.getElementById('sig-tab-text').classList.toggle('is-active', sigMode === 'text');
+    setHidden(document.getElementById('sig-panel-hand'), sigMode !== 'handwritten');
+    setHidden(document.getElementById('sig-panel-text'), sigMode !== 'text');
+    updateSigConfirmState();
+  }
+
+  function openSignatureModal() {
+    clearSignatureCanvas();
+    if (draftSignature && draftSignature.type === 'text') {
+      switchSignatureMode('text');
+      document.getElementById('sig-text-input').value = draftSignature.value || '';
+      document.getElementById('sig-text-live').textContent = draftSignature.value || '';
+    } else {
+      switchSignatureMode('handwritten');
+      if (draftSignature && draftSignature.type === 'handwritten' && draftSignature.value) {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.getElementById('sig-canvas');
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          hasDrawnSig = true;
+          setHidden(document.getElementById('sig-placeholder'), true);
+          updateSigConfirmState();
+        };
+        img.src = draftSignature.value;
+      }
+    }
+    showCardSubView('signature');
+  }
+
+  function confirmSignature() {
+    if (sigMode === 'handwritten') {
+      if (!hasDrawnSig) return;
+      const canvas = document.getElementById('sig-canvas');
+      draftSignature = { type: 'handwritten', value: canvas.toDataURL('image/png') };
+    } else {
+      const txt = document.getElementById('sig-text-input').value.trim();
+      if (!txt) return;
+      draftSignature = { type: 'text', value: txt };
+    }
+    renderSignatureBadge();
+    renderCardModalPreview();
+    showCardSubView('main');
+  }
+
+  /* ---- Video / Photo Link Sub-view ---- */
+  function openLinkModal() {
+    const inp = document.getElementById('fw-link-input');
+    inp.value = draftMediaUrl || '';
+    document.getElementById('fw-add-link-btn').disabled = !inp.value.trim();
+    showCardSubView('link');
+    setTimeout(() => inp.focus(), 40);
+  }
+
+  function confirmMediaLink() {
+    const raw = document.getElementById('fw-link-input').value.trim();
+    if (!raw) return;
+    draftMediaUrl = raw;
+    renderLinkBadge();
+    renderCardModalPreview();
+    showCardSubView('main');
+    toast('Link attached for QR code');
+  }
+
+  /* ---- Save / Preview Card Modal ---- */
   function saveCardFromModal() {
     const design = getDraftDesign();
+    const recipientName = document.getElementById('card-modal-to').value.trim();
     const message = document.getElementById('card-modal-message').value.slice(0, MESSAGE_MAX).trim();
+    const senderName = document.getElementById('card-modal-from').value.trim();
     const extras = getExtras();
 
-    if (design) {
+    const hasAnyData = !!(design || recipientName || message || senderName || (draftSignature && draftSignature.value) || draftMediaUrl);
+
+    if (hasAnyData) {
       extras.card = {
-        selected: true,
-        designId: design.id,
-        designName: design.name,
-        designImageUrl: design.imageUrl,
-        price: num(design.price),
-        message
-      };
-    } else if (message) {
-      extras.card = {
-        selected: false,
-        designId: '',
-        designName: '',
-        designImageUrl: '',
-        price: 0,
-        message
+        selected: !!design,
+        designId: design ? design.id : '',
+        designName: design ? design.name : '',
+        designImageUrl: design ? design.imageUrl : '',
+        price: design ? num(design.price) : 0,
+        recipientName,
+        senderName,
+        message,
+        signature: draftSignature && draftSignature.value ? draftSignature : null,
+        mediaUrl: draftMediaUrl || ''
       };
     } else {
       extras.card = null;
@@ -1446,19 +1950,6 @@
     renderGiftCard();
     renderSummary();
     toast(design && num(design.price) > 0 ? `Card saved (+${money(design.price)}) 💌` : 'Card saved 💌');
-  }
-
-  function clearCard() {
-    const extras = getExtras();
-    extras.card = null;
-    saveExtras(extras);
-    document.getElementById('card-modal-message').value = '';
-    draftDesignName = CARD_DESIGNS[0] ? CARD_DESIGNS[0].name : '';
-    renderCardModalDesigns();
-    renderCardModalPreview();
-    renderGiftCard();
-    renderSummary();
-    toast('Card cleared');
   }
 
   /* =====================================================
@@ -1544,16 +2035,65 @@
     updateCartBadge();
     renderAll();
     renderPromoState();
+    initSignatureCanvas();
     loadGiftCardDesignsFromDb();
+    loadCardAdminSettingsFromDb();
     loadProductsForSearch();
 
     document.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', closeModals));
     document.querySelectorAll('.lorin-modal').forEach(m => m.addEventListener('mousedown', e => { if (e.target === m) closeModals(); }));
     document.getElementById('photo-file-input').addEventListener('change', e => onPhotoPicked(e.target.files && e.target.files[0]));
     document.getElementById('photo-upload-btn').addEventListener('click', uploadPhoto);
-    document.getElementById('card-modal-message').addEventListener('input', renderCardModalPreview);
+
+    // Card modal events
+    document.getElementById('card-modal-message').addEventListener('input', () => {
+      updateMessageCounter();
+      renderCardModalPreview();
+    });
+    document.getElementById('card-modal-to').addEventListener('input', renderCardModalPreview);
+    document.getElementById('card-modal-from').addEventListener('input', renderCardModalPreview);
     document.getElementById('card-save-btn').addEventListener('click', saveCardFromModal);
-    document.getElementById('card-clear-btn').addEventListener('click', clearCard);
+
+    document.getElementById('fw-preview-btn').addEventListener('click', () => {
+      showCardSubView('main');
+      renderCardModalPreview();
+      setHidden(document.getElementById('fw-preview-section'), false);
+    });
+    document.getElementById('fw-hide-preview-btn').addEventListener('click', () => {
+      setHidden(document.getElementById('fw-preview-section'), true);
+    });
+
+    // Suggested messages sub-view
+    document.getElementById('btn-open-suggested').addEventListener('click', openSuggestedModal);
+    document.getElementById('sm-back-btn').addEventListener('click', () => showCardSubView('main'));
+
+    // Signature sub-view
+    document.getElementById('btn-open-signature').addEventListener('click', openSignatureModal);
+    document.getElementById('sig-back-btn').addEventListener('click', () => showCardSubView('main'));
+    document.getElementById('sig-clear-canvas-btn').addEventListener('click', clearSignatureCanvas);
+    document.getElementById('sig-confirm-btn').addEventListener('click', confirmSignature);
+    document.getElementById('sig-text-input').addEventListener('input', e => {
+      document.getElementById('sig-text-live').textContent = e.target.value;
+      updateSigConfirmState();
+    });
+    document.getElementById('sig-clear-btn').addEventListener('click', () => {
+      draftSignature = null;
+      renderSignatureBadge();
+      renderCardModalPreview();
+    });
+
+    // Link sub-view
+    document.getElementById('btn-open-link').addEventListener('click', openLinkModal);
+    document.getElementById('link-back-btn').addEventListener('click', () => showCardSubView('main'));
+    document.getElementById('fw-link-input').addEventListener('input', e => {
+      document.getElementById('fw-add-link-btn').disabled = !e.target.value.trim();
+    });
+    document.getElementById('fw-add-link-btn').addEventListener('click', confirmMediaLink);
+    document.getElementById('link-clear-btn').addEventListener('click', () => {
+      draftMediaUrl = '';
+      renderLinkBadge();
+      renderCardModalPreview();
+    });
 
     document.getElementById('finishing-touch').addEventListener('click', e => {
       const tab = e.target.closest('[data-ft-tab]');
