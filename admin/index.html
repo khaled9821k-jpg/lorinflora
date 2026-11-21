@@ -115,6 +115,10 @@
     .image-card { cursor: grab; transition: transform 0.15s; }
     .image-card:active { cursor: grabbing; }
     .image-card.sortable-ghost { opacity: 0.4; background: #cbd5e1; }
+
+    .step-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 9999px; background: #00313C; color: #fff; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    details.sm-json > summary { cursor: pointer; list-style: none; }
+    details.sm-json > summary::-webkit-details-marker { display: none; }
   </style>
 </head>
 <body>
@@ -591,20 +595,41 @@
         </div>
       </div>
 
-      <!-- 7. CART & GIFT EXTRAS -->
+      <!-- 7. CART & GIFT EXTRAS (reorganised in 4 numbered blocks) -->
       <div id="sec-cart-extras" class="editor-section space-y-5">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-3">
           <div>
             <h1 class="text-lg font-bold text-gray-900">السلة وإضافات الهدايا (Cart & Gift Extras)</h1>
-            <p class="text-xs text-gray-500">إدارة تصاميم وأسعار البطاقات (<code class="bg-gray-200 px-1 rounded">gift_card_designs</code>)، خيارات النافذة والرسائل المقترحة (<code class="bg-gray-200 px-1 rounded">site_settings</code>)، واللمسة الأخيرة (<code class="bg-gray-200 px-1 rounded">finishing_touch_config</code>).</p>
+            <p class="text-xs text-gray-500">كل ما يظهر في cart.html يُدار من هنا: نصوص السلة، بطاقات الإهداء، الرسائل المقترحة، واللمسة الأخيرة.</p>
           </div>
-          <button type="button" onclick="changePreviewPage('cart.html')" class="sp-btn-secondary">معاينة السلة 🛒</button>
+          <button type="button" onclick="changePreviewPage('cart.html')" class="sp-btn-secondary shrink-0">معاينة السلة 🛒</button>
         </div>
 
-        <!-- Card Designs CRUD -->
+        <!-- Block 1: cart texts & options -->
+        <form class="page-settings-form space-y-4" data-page="cart">
+          <div class="sp-card p-5 space-y-3">
+            <div class="flex items-center gap-2 border-b pb-2">
+              <span class="step-badge">1</span>
+              <div>
+                <h3 class="text-sm font-bold text-[#00313C]">نصوص وخيارات صفحة السلة ⚙️</h3>
+                <p class="text-[11px] text-gray-500">عنوان الصفحة، سعر وعناوين Photo Stick-In، أكواد الخصم، إظهار/إخفاء الأقسام. (<code class="bg-gray-200 px-1 rounded">site_settings</code> بالبادئة <code class="bg-gray-200 px-1 rounded">cart_</code>)</p>
+              </div>
+            </div>
+            <div id="fields-cart" class="space-y-3"></div>
+            <div class="bg-amber-50 border border-amber-200 text-amber-900 text-[11px] rounded-xl p-3 leading-relaxed">
+              أكواد الخصم تُحسب في المتصفح للعرض فقط. يجب إعادة التحقق من الكود والسعر ورسوم الإضافات داخل checkout / قاعدة البيانات قبل اعتماد الطلب.
+            </div>
+          </div>
+          <button type="submit" class="sp-btn-primary w-full py-3 page-save-btn">حفظ إعدادات السلة 💾</button>
+        </form>
+
+        <!-- Block 2: Card Designs CRUD -->
         <div class="sp-card p-5 space-y-4">
           <div class="flex items-center justify-between pb-2 border-b">
-            <h3 id="gc-form-heading" class="text-sm font-bold text-gray-800">إضافة تصميم بطاقة إهداء جديدة 💌</h3>
+            <div class="flex items-center gap-2">
+              <span class="step-badge">2</span>
+              <h3 id="gc-form-heading" class="text-sm font-bold text-gray-800">إضافة تصميم بطاقة إهداء جديدة 💌</h3>
+            </div>
             <span id="gc-count-badge" class="text-[11px] font-bold bg-[#e6f0f2] text-[#00313C] px-2.5 py-0.5 rounded-full">0 تصاميم</span>
           </div>
           <form id="gift-card-form" class="space-y-3">
@@ -635,13 +660,17 @@
           <div id="gift-cards-list" class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2"></div>
         </div>
 
-        <!-- Dedicated Card Modal Features & Suggested Messages Manager -->
+        <!-- Block 3: Card modal toggles + suggested messages -->
         <div class="sp-card p-5 space-y-4">
-          <div class="flex items-center justify-between pb-2 border-b">
-            <div>
-              <h3 class="text-sm font-bold text-[#00313C]">إعدادات نافذة الرسالة والتوقيع والرسائل المقترحة ✨</h3>
-              <p class="text-[11px] text-gray-500">تحكم في أزرار النافذة وإدارة عبارات الإهداء الجاهزة حسب المناسبة واللغة.</p>
+          <div class="flex items-center justify-between pb-2 border-b gap-2">
+            <div class="flex items-center gap-2">
+              <span class="step-badge">3</span>
+              <div>
+                <h3 class="text-sm font-bold text-[#00313C]">نافذة الرسالة والتوقيع والرسائل المقترحة ✨</h3>
+                <p class="text-[11px] text-gray-500">تحكم في أزرار النافذة وأدر عبارات الإهداء الجاهزة حسب المناسبة واللغة.</p>
+              </div>
             </div>
+            <span id="sm-dirty" class="hidden text-[11px] font-bold bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full shrink-0">تغييرات غير محفوظة</span>
           </div>
 
           <form id="card-modal-settings-form" class="space-y-4">
@@ -652,7 +681,7 @@
                   <div class="text-[11px] text-gray-500">يفتح نافذة المناسبات والرسائل الجاهزة باللغتين EN / AR.</div>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                  <input type="checkbox" id="gc-enable-suggested" checked class="sr-only peer">
+                  <input type="checkbox" id="gc-enable-suggested" checked class="sr-only peer" onchange="markSmDirty()">
                   <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-[#00313C] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
                 </label>
               </div>
@@ -663,7 +692,7 @@
                   <div class="text-[11px] text-gray-500">يسمح للعميل برسم توقيعه أو كتابته بخط أنيق.</div>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                  <input type="checkbox" id="gc-enable-signature" checked class="sr-only peer">
+                  <input type="checkbox" id="gc-enable-signature" checked class="sr-only peer" onchange="markSmDirty()">
                   <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-[#00313C] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
                 </label>
               </div>
@@ -674,7 +703,7 @@
                   <div class="text-[11px] text-gray-500">يفتح نافذة Add a Video or Photo لإرفاق رابط مع QR.</div>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                  <input type="checkbox" id="gc-enable-link" checked class="sr-only peer">
+                  <input type="checkbox" id="gc-enable-link" checked class="sr-only peer" onchange="markSmDirty()">
                   <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-[#00313C] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
                 </label>
               </div>
@@ -683,16 +712,9 @@
             <!-- Easy Suggested Messages Editor -->
             <div class="bg-[#faf9f6] border border-[#ebe6d8] rounded-xl p-4 space-y-3">
               <div class="flex flex-wrap items-center justify-between gap-2">
-                <span class="text-xs font-bold text-[#00313C]">إدارة الرسائل المقترحة بسهولة</span>
-                <div class="flex items-center gap-2">
-                  <select id="admin-sm-occasion" onchange="renderAdminSuggestedList()" class="sp-input py-1 px-2.5 text-xs w-auto">
-                    <option value="general">general</option>
-                    <option value="graduation">Graduation</option>
-                    <option value="get_well">Get Well Soon</option>
-                    <option value="new_baby">New Baby Born</option>
-                    <option value="birthday">Happy Birthday</option>
-                    <option value="weddings">Weddings</option>
-                  </select>
+                <span class="text-xs font-bold text-[#00313C]">إدارة الرسائل المقترحة</span>
+                <div class="flex flex-wrap items-center gap-2">
+                  <select id="admin-sm-occasion" onchange="renderAdminSuggestedList()" class="sp-input py-1 px-2.5 text-xs w-auto max-w-[220px]"></select>
                   <select id="admin-sm-lang" onchange="renderAdminSuggestedList()" class="sp-input py-1 px-2.5 text-xs w-auto">
                     <option value="EN">EN</option>
                     <option value="AR">AR</option>
@@ -700,27 +722,51 @@
                 </div>
               </div>
 
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="addAdminOccasion()" class="sp-btn-secondary py-1 px-2.5 text-[11px]">+ مناسبة جديدة</button>
+                <button type="button" onclick="renameAdminOccasion()" class="sp-btn-secondary py-1 px-2.5 text-[11px]">✎ إعادة تسمية المناسبة</button>
+                <button type="button" onclick="deleteAdminOccasion()" class="sp-btn-secondary py-1 px-2.5 text-[11px] text-red-600">🗑 حذف المناسبة</button>
+                <button type="button" onclick="resetAdminSuggestedDefaults()" class="sp-btn-secondary py-1 px-2.5 text-[11px]">↺ استعادة الافتراضي</button>
+              </div>
+
               <div class="flex gap-2">
-                <input type="text" id="admin-sm-new-text" placeholder="اكتب رسالة مقترحة جديدة هنا..." class="sp-input text-xs flex-1" dir="auto">
+                <input type="text" id="admin-sm-new-text" placeholder="اكتب رسالة مقترحة جديدة هنا..." class="sp-input text-xs flex-1" dir="auto" onkeydown="if(event.key==='Enter'){event.preventDefault();addAdminSuggestedMessage();}">
                 <button type="button" onclick="addAdminSuggestedMessage()" class="sp-btn-primary py-1.5 px-3 text-xs shrink-0">+ إضافة</button>
               </div>
 
-              <div id="admin-sm-items-list" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
+              <div id="admin-sm-items-list" class="space-y-1.5 max-h-56 overflow-y-auto"></div>
             </div>
 
-            <!-- Advanced JSON fallback -->
-            <div>
-              <label class="sp-label" for="gc-suggested-json">المصدر الكامل للرسائل المقترحة (JSON — يتحدث تلقائياً)</label>
-              <textarea id="gc-suggested-json" rows="5" class="sp-input font-mono text-[11px]" dir="ltr" onchange="syncSuggestedFromJson()"></textarea>
-            </div>
+            <!-- Advanced JSON view (always synced) -->
+            <details class="sm-json bg-gray-50 border border-gray-200 rounded-xl">
+              <summary class="px-4 py-2.5 text-xs font-bold text-gray-700 flex items-center justify-between">
+                <span>عرض/تحرير JSON الكامل (متقدم)</span>
+                <span id="sm-json-status" class="text-[11px] font-bold text-emerald-700">✓ صالح</span>
+              </summary>
+              <div class="p-4 pt-1 space-y-2">
+                <textarea id="gc-suggested-json" rows="8" class="sp-input font-mono text-[11px]" dir="ltr" oninput="onSuggestedJsonInput()" onchange="syncSuggestedFromJson()"></textarea>
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" onclick="formatSuggestedJson()" class="sp-btn-secondary py-1 px-2.5 text-[11px]">تنسيق JSON</button>
+                  <button type="button" onclick="syncSuggestedFromJson(true)" class="sp-btn-secondary py-1 px-2.5 text-[11px]">تطبيق JSON على القائمة أعلاه</button>
+                  <button type="button" onclick="syncJsonFromSuggested()" class="sp-btn-secondary py-1 px-2.5 text-[11px]">إعادة التوليد من القائمة</button>
+                </div>
+                <p class="text-[11px] text-gray-500">الشكل: <code dir="ltr">{ "occasion_key": { "label": "Name", "EN": ["..."], "AR": ["..."] } }</code>. لا يمكن الحفظ إذا كان JSON غير صالح.</p>
+              </div>
+            </details>
 
             <button type="submit" id="save-card-modal-settings-btn" class="sp-btn-primary w-full py-2.5">حفظ إعدادات نافذة البطاقة والرسائل 💾</button>
           </form>
         </div>
 
-        <!-- Finishing Touch Config -->
+        <!-- Block 4: Finishing Touch Config -->
         <div class="sp-card p-5 space-y-4">
-          <h3 class="text-sm font-bold text-gray-800 pb-2 border-b">إعدادات اللمسة الأخيرة في السلة (Finishing Touch) 🎈</h3>
+          <div class="flex items-center gap-2 pb-2 border-b">
+            <span class="step-badge">4</span>
+            <h3 class="text-sm font-bold text-gray-800">اللمسة الأخيرة في السلة (Finishing Touch) 🎈</h3>
+          </div>
+          <div class="bg-sky-50 border border-sky-200 text-sky-900 text-[11px] rounded-xl p-3 leading-relaxed">
+            عند ربط منتج واحد على الأقل تعرض السلة المنتجات المربوطة فقط (حسب التبويب). وإذا لم يوجد أي ربط تعود السلة للقائمة التلقائية.
+          </div>
           <form id="finishing-touch-form" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
             <div>
               <label class="sp-label">التبويب (Tab Key)</label>
@@ -736,7 +782,7 @@
             <div><label class="sp-label">المنتج المرتبط</label><select id="ft-product-select" class="sp-input"></select></div>
             <button type="submit" class="sp-btn-primary">ربط بالسلة +</button>
           </form>
-          <div id="finishing-touch-list" class="divide-y divide-gray-100 border rounded-xl overflow-hidden"></div>
+          <div id="finishing-touch-list" class="space-y-3"></div>
         </div>
       </div>
 
@@ -882,7 +928,7 @@
         </div>
 
         <div class="bg-amber-50 border border-amber-200 text-amber-900 text-[11px] rounded-xl p-3 leading-relaxed">
-          رسوم التوصيل ورقم الواتساب يقرؤهما checkout.html بعد تطبيق التعديل الموجود في <b>STOREFRONT-PATCHES.md</b>. النصوص والمدن وحقل الهدية تعمل بمجرد إضافة <code>lorin-store-settings.js</code>.
+          رسوم التوصيل ورقم الواتساب يقرؤهما checkout.html بعد تطبيق التعديل الموجود في <b>STOREFRONT-PATCHES.md</b>. النصوص والمدن وحقل الهدية تعمل بمجرد إضافة <code>lorin-store-settings.js</code>. تعرض السلة رسوم التوصيل وحد التوصيل المجاني للعلم فقط (تُضاف للمجموع في صفحة الدفع).
         </div>
 
         <form class="page-settings-form space-y-4" data-page="checkout">
@@ -934,6 +980,7 @@
     const PLACEHOLDER_IMG = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // Keep identical to DEFAULT_SUGGESTED_MESSAGES in cart.html.
     const DEFAULT_ADMIN_SUGGESTED = {
       general: {
         label: 'general',
@@ -947,34 +994,40 @@
         AR: [
           'لفتة بسيطة لتذكيرك بمدى مكانتك الغالية في قلبي.',
           'هدية صغيرة لتضيء يومك وتذكرك بجمال حضورك.',
-          'بلا مناسبة خاصة، مجرد تذكير بأنك دائماً في البال.'
+          'بلا مناسبة خاصة، مجرد تذكير بأنك دائماً في البال.',
+          'أرسل لك محبة وامتناناً من القلب.'
         ]
       },
       graduation: {
         label: 'Graduation',
-        EN: ['Congratulations on your graduation! Wishing you endless success ahead.'],
-        AR: ['ألف مبارك التخرج! أتمنى لك مستقبلاً مليئاً بالنجاح والإنجازات.']
+        EN: ['Congratulations on your graduation! Wishing you endless success ahead.', 'So proud of your hard work and achievement. Here’s to your bright future!'],
+        AR: ['ألف مبارك التخرج! أتمنى لك مستقبلاً مليئاً بالنجاح والإنجازات.', 'فخور جداً بجهدك وتميزك، وإلى نجاحات أكبر دائماً.']
       },
       get_well: {
         label: 'Get Well Soon',
-        EN: ['Sending warm wishes for a speedy and complete recovery.'],
-        AR: ['أطيب الأمنيات بالشفاء العاجل والصحة التامة.']
+        EN: ['Sending warm wishes for a speedy and complete recovery.', 'Thinking of you and hoping you feel much better very soon.'],
+        AR: ['أطيب الأمنيات بالشفاء العاجل والصحة التامة.', 'سلامة قلبك، نتمنى لك عافية قريبة بإذن الله.']
       },
       new_baby: {
         label: 'New Baby Born',
-        EN: ['Welcome to the world, little one! Congratulations to the growing family.'],
-        AR: ['الحمد لله على السلامة ومبارك المولود الجديد، جعله الله من مواليد السعادة.']
+        EN: ['Welcome to the world, little one! Congratulations to the growing family.', 'Wishing your precious new arrival a lifetime of joy and blessings.'],
+        AR: ['الحمد لله على السلامة ومبارك المولود الجديد، جعله الله من مواليد السعادة.', 'يتربى بعزكم ودلالكم، وألف مبروك.']
       },
       birthday: {
         label: 'Happy Birthday',
-        EN: ['Happy Birthday! May this year bring you joy, peace, and everything you wish for.'],
-        AR: ['كل عام وأنت بخير، وعام جديد مليء بالفرح وتحقيق الأماني.']
+        EN: ['Happy Birthday! May this year bring you joy, peace, and everything you wish for.', 'Wishing you the happiest of birthdays filled with laughter and love.'],
+        AR: ['كل عام وأنت بخير، وعام جديد مليء بالفرح وتحقيق الأماني.', 'عيد ميلاد سعيد وأيام جميلة تليق بقلبك.']
       },
       weddings: {
         label: 'Weddings',
-        EN: ['Wishing you a lifetime of love, happiness, and togetherness.'],
-        AR: ['بارك الله لكما وبارك عليكما وجمع بينكما في خير.']
+        EN: ['Wishing you a lifetime of love, happiness, and togetherness.', 'Congratulations on your marriage! May your home always be filled with joy.'],
+        AR: ['بارك الله لكما وبارك عليكما وجمع بينكما في خير.', 'ألف مبروك الزواج، وحياة مليئة بالمودة والسعادة.']
       }
+    };
+
+    const FT_TAB_LABELS = {
+      recommended: 'Recommended', chocolates: 'Chocolates', drinks: 'Drinks',
+      balloons: 'Occasion Balloons', cakes: 'Cakes', best_picks: 'Our Best Picks'
     };
 
     // ---------- State ----------
@@ -1016,16 +1069,19 @@
       if (/does not exist|schema cache|could not find/i.test(msg)) {
         return 'جدول أو عمود مفقود في قاعدة البيانات. شغّل ملف lorin-supabase-setup.sql ثم أعد المحاولة. — ' + msg;
       }
+      if (/no unique or exclusion constraint|on conflict/i.test(msg)) {
+        return 'جدول site_settings يحتاج قيد UNIQUE على العمود setting_key (شغّل ملف SQL). — ' + msg;
+      }
       return msg;
     }
 
     function showToast(msg, type = 'success') {
       const el = document.getElementById('toast-banner');
       el.textContent = msg;
-      el.className = `fixed bottom-5 left-5 z-[9999] px-4 py-3 rounded-xl shadow-lg text-xs font-bold text-white transition-all max-w-md ${type === 'error' ? 'bg-red-600' : 'bg-[#00313C]'}`;
+      el.className = `fixed bottom-5 left-5 z-[9999] px-4 py-3 rounded-xl shadow-lg text-xs font-bold text-white transition-all max-w-md ${type === 'error' ? 'bg-red-600' : type === 'warn' ? 'bg-amber-600' : 'bg-[#00313C]'}`;
       el.classList.remove('hidden');
       clearTimeout(el._timer);
-      el._timer = setTimeout(() => el.classList.add('hidden'), type === 'error' ? 7000 : 3500);
+      el._timer = setTimeout(() => el.classList.add('hidden'), type === 'success' ? 3500 : 7000);
     }
 
     async function sbDelete(table, id, col = 'id') {
@@ -1482,7 +1538,11 @@
     // ================= 2. CATEGORIES & SUBCATEGORIES =================
     async function fetchAdminCategories() {
       const tbody = document.getElementById('admin-categories-list');
-      const { data } = await supabaseClient.from('categories').select('*');
+      const { data, error } = await supabaseClient.from('categories').select('*');
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-500">${escapeHtml(friendlyError(error))}</td></tr>`;
+        return;
+      }
       currentCategories = data || [];
       tbody.innerHTML = currentCategories.length ? currentCategories.map(c => `
         <tr class="hover:bg-gray-50">
@@ -1538,7 +1598,11 @@
 
     async function fetchAdminSubCategories() {
       const tbody = document.getElementById('admin-subcategories-list');
-      const { data } = await supabaseClient.from('sub_categories').select('*');
+      const { data, error } = await supabaseClient.from('sub_categories').select('*');
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-500">${escapeHtml(friendlyError(error))}</td></tr>`;
+        return;
+      }
       currentSubCategories = data || [];
       tbody.innerHTML = currentSubCategories.length ? currentSubCategories.map(sc => `
         <tr class="hover:bg-gray-50">
@@ -1593,7 +1657,11 @@
     // ================= 3. HOME SECTIONS =================
     async function fetchAdminSections() {
       const tbody = document.getElementById('admin-sections-list');
-      const { data } = await supabaseClient.from('store_sections').select('*').order('display_order', { ascending: true });
+      const { data, error } = await supabaseClient.from('store_sections').select('*').order('display_order', { ascending: true });
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">${escapeHtml(friendlyError(error))}</td></tr>`;
+        return;
+      }
       currentSections = data || [];
       tbody.innerHTML = currentSections.length ? currentSections.map(s => `
         <tr class="hover:bg-gray-50">
@@ -2047,6 +2115,7 @@
       document.getElementById('group_Vase_or_Bouquet_for_flowers_rows').innerHTML = '';
       document.getElementById('dynamic-custom-groups-container').innerHTML = '';
       dynamicGroups.clear();
+      toggleVesselGroup(false);
       document.getElementById('customization-options-container').classList.add('hidden');
       document.getElementById('product-images-manager-wrapper').classList.add('hidden');
       editingProductImages = [];
@@ -2223,88 +2292,228 @@
       document.getElementById('gc-cancel-btn').classList.add('hidden');
     }
 
-    function applyCardModalSettingsToUI() {
-      document.getElementById('gc-enable-suggested').checked = siteSettings.gift_card_enable_suggested !== 'false';
-      document.getElementById('gc-enable-signature').checked = siteSettings.gift_card_enable_signature !== 'false';
-      document.getElementById('gc-enable-link').checked = siteSettings.gift_card_enable_link !== 'false';
+    // ---------- Suggested messages: state, normalisation, JSON sync ----------
+    function markSmDirty(v = true) {
+      const el = document.getElementById('sm-dirty');
+      if (el) el.classList.toggle('hidden', !v);
+    }
 
-      try {
-        if (siteSettings.gift_card_suggested_messages) {
-          const parsed = JSON.parse(siteSettings.gift_card_suggested_messages);
-          if (parsed && typeof parsed === 'object') {
-            adminSuggestedData = parsed;
-          }
-        }
-      } catch (e) {}
+    function cloneDefaultSuggested() { return JSON.parse(JSON.stringify(DEFAULT_ADMIN_SUGGESTED)); }
 
-      renderAdminSuggestedList();
-      syncJsonFromSuggested();
+    // Guarantees { key: { label, EN: [], AR: [] } } with trimmed non-empty strings, always containing "general".
+    function normalizeSuggested(obj) {
+      if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
+      const clean = arr => Array.isArray(arr) ? arr.map(x => String(x == null ? '' : x).trim()).filter(Boolean) : [];
+      const out = {};
+      Object.keys(obj).forEach(k => {
+        const v = obj[k];
+        if (!v || typeof v !== 'object') return;
+        out[k] = { label: String(v.label || k).trim() || k, EN: clean(v.EN), AR: clean(v.AR) };
+      });
+      if (!Object.keys(out).length) return null;
+      if (!out.general) out.general = { label: 'general', EN: [], AR: [] };
+      return out;
+    }
+
+    function setJsonStatus(ok, msg) {
+      const el = document.getElementById('sm-json-status');
+      if (!el) return;
+      el.textContent = ok ? '✓ صالح' : ('✗ ' + msg);
+      el.className = 'text-[11px] font-bold ' + (ok ? 'text-emerald-700' : 'text-red-600');
+    }
+
+    function parseSuggestedJsonText() {
+      const ta = document.getElementById('gc-suggested-json');
+      const raw = ta ? ta.value.trim() : '';
+      if (!raw) return { ok: true, empty: true, obj: normalizeSuggested(adminSuggestedData) };
+      let parsed;
+      try { parsed = JSON.parse(raw); }
+      catch (err) { return { ok: false, msg: 'JSON غير صالح: ' + err.message }; }
+      const norm = normalizeSuggested(parsed);
+      if (!norm) return { ok: false, msg: 'الشكل غير صحيح: يجب أن يكون كائناً يحوي مناسبة واحدة على الأقل' };
+      return { ok: true, obj: norm };
+    }
+
+    let smJsonTimer = null;
+    function onSuggestedJsonInput() {
+      clearTimeout(smJsonTimer);
+      smJsonTimer = setTimeout(() => {
+        const r = parseSuggestedJsonText();
+        setJsonStatus(r.ok, r.msg);
+        if (r.ok) markSmDirty();
+      }, 250);
     }
 
     function syncJsonFromSuggested() {
       const ta = document.getElementById('gc-suggested-json');
       if (ta) ta.value = JSON.stringify(adminSuggestedData, null, 2);
+      setJsonStatus(true);
     }
 
-    function syncSuggestedFromJson() {
-      const ta = document.getElementById('gc-suggested-json');
-      if (!ta) return;
-      try {
-        const parsed = JSON.parse(ta.value);
-        if (parsed && typeof parsed === 'object') {
-          adminSuggestedData = parsed;
-          renderAdminSuggestedList();
-          showToast('تم تحديث قائمة الرسائل من JSON');
-        }
-      } catch (err) {
-        showToast('صيغة JSON غير صحيحة: ' + err.message, 'error');
+    // Applies the JSON textarea to the visual editor. Invalid JSON never touches the state.
+    function syncSuggestedFromJson(announce) {
+      const r = parseSuggestedJsonText();
+      setJsonStatus(r.ok, r.msg);
+      if (!r.ok) { showToast(r.msg, 'error'); return false; }
+      if (!r.empty) {
+        adminSuggestedData = r.obj;
+        renderAdminSuggestedList();
+        syncJsonFromSuggested();
+        markSmDirty();
+        if (announce === true) showToast('تم تطبيق JSON على قائمة الرسائل');
       }
+      return true;
+    }
+
+    function formatSuggestedJson() {
+      const r = parseSuggestedJsonText();
+      if (!r.ok) { setJsonStatus(false, r.msg); showToast(r.msg, 'error'); return; }
+      if (!r.empty) adminSuggestedData = r.obj;
+      syncJsonFromSuggested();
+      renderAdminSuggestedList();
+    }
+
+    function applyCardModalSettingsToUI() {
+      document.getElementById('gc-enable-suggested').checked = siteSettings.gift_card_enable_suggested !== 'false';
+      document.getElementById('gc-enable-signature').checked = siteSettings.gift_card_enable_signature !== 'false';
+      document.getElementById('gc-enable-link').checked = siteSettings.gift_card_enable_link !== 'false';
+
+      let data = null;
+      if (siteSettings.gift_card_suggested_messages) {
+        try { data = normalizeSuggested(JSON.parse(siteSettings.gift_card_suggested_messages)); }
+        catch (e) { showToast('القيمة المحفوظة للرسائل المقترحة ليست JSON صالحاً، تم عرض الافتراضي. احفظ لإصلاحها.', 'warn'); }
+      }
+      adminSuggestedData = data || normalizeSuggested(cloneDefaultSuggested());
+
+      renderAdminSuggestedList();
+      syncJsonFromSuggested();
+      markSmDirty(false);
+    }
+
+    function currentOccKey() {
+      const sel = document.getElementById('admin-sm-occasion');
+      const v = sel && sel.value;
+      return (v && adminSuggestedData[v]) ? v : (Object.keys(adminSuggestedData)[0] || 'general');
+    }
+
+    function renderAdminOccasionSelect() {
+      const sel = document.getElementById('admin-sm-occasion');
+      if (!sel) return;
+      const prev = sel.value;
+      sel.innerHTML = Object.keys(adminSuggestedData).map(k => {
+        const o = adminSuggestedData[k];
+        return `<option value="${escapeHtml(k)}">${escapeHtml(o.label || k)} (EN ${o.EN.length} / AR ${o.AR.length})</option>`;
+      }).join('');
+      sel.value = adminSuggestedData[prev] ? prev : (Object.keys(adminSuggestedData)[0] || '');
     }
 
     function renderAdminSuggestedList() {
-      const occ = document.getElementById('admin-sm-occasion')?.value || 'general';
-      const lang = document.getElementById('admin-sm-lang')?.value || 'EN';
       const box = document.getElementById('admin-sm-items-list');
       if (!box) return;
+      renderAdminOccasionSelect();
+      const occ = currentOccKey();
+      const lang = document.getElementById('admin-sm-lang')?.value === 'AR' ? 'AR' : 'EN';
 
-      if (!adminSuggestedData[occ]) {
-        adminSuggestedData[occ] = { label: occ, EN: [], AR: [] };
-      }
-      if (!Array.isArray(adminSuggestedData[occ][lang])) {
-        adminSuggestedData[occ][lang] = [];
-      }
+      if (!adminSuggestedData[occ]) adminSuggestedData[occ] = { label: occ, EN: [], AR: [] };
+      if (!Array.isArray(adminSuggestedData[occ][lang])) adminSuggestedData[occ][lang] = [];
 
       const list = adminSuggestedData[occ][lang];
       box.innerHTML = list.length ? list.map((msg, i) => `
         <div class="flex items-center justify-between gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs">
           <span dir="${lang === 'AR' ? 'rtl' : 'ltr'}" class="flex-1 text-gray-800">${escapeHtml(msg)}</span>
-          <button type="button" onclick="deleteAdminSuggestedMessage('${escapeHtml(occ)}', '${escapeHtml(lang)}', ${i})" class="text-red-600 font-bold hover:underline shrink-0">حذف</button>
+          <span class="flex items-center gap-2 shrink-0">
+            <button type="button" data-sm-edit="${i}" class="text-blue-600 font-bold hover:underline">تعديل</button>
+            <button type="button" data-sm-del="${i}" class="text-red-600 font-bold hover:underline">حذف</button>
+          </span>
         </div>
       `).join('') : `<div class="text-xs text-gray-400 text-center py-3">لا توجد رسائل مضافة لهذه المناسبة واللغة.</div>`;
     }
+
+    document.getElementById('admin-sm-items-list').addEventListener('click', function(e) {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const occ = currentOccKey();
+      const lang = document.getElementById('admin-sm-lang').value === 'AR' ? 'AR' : 'EN';
+      const list = adminSuggestedData[occ] && adminSuggestedData[occ][lang];
+      if (!Array.isArray(list)) return;
+      if (btn.dataset.smDel !== undefined) {
+        list.splice(Number(btn.dataset.smDel), 1);
+      } else if (btn.dataset.smEdit !== undefined) {
+        const idx = Number(btn.dataset.smEdit);
+        const next = prompt('عدّل الرسالة:', list[idx]);
+        if (next === null) return;
+        const v = next.trim();
+        if (!v) return;
+        list[idx] = v;
+      } else return;
+      renderAdminSuggestedList();
+      syncJsonFromSuggested();
+      markSmDirty();
+    });
 
     function addAdminSuggestedMessage() {
       const input = document.getElementById('admin-sm-new-text');
       const val = (input.value || '').trim();
       if (!val) return;
-      const occ = document.getElementById('admin-sm-occasion').value || 'general';
-      const lang = document.getElementById('admin-sm-lang').value || 'EN';
+      const occ = currentOccKey();
+      const lang = document.getElementById('admin-sm-lang').value === 'AR' ? 'AR' : 'EN';
 
       if (!adminSuggestedData[occ]) adminSuggestedData[occ] = { label: occ, EN: [], AR: [] };
       if (!Array.isArray(adminSuggestedData[occ][lang])) adminSuggestedData[occ][lang] = [];
+      if (adminSuggestedData[occ][lang].includes(val)) { showToast('هذه الرسالة موجودة مسبقاً', 'warn'); return; }
       adminSuggestedData[occ][lang].push(val);
 
       input.value = '';
       renderAdminSuggestedList();
       syncJsonFromSuggested();
-      showToast('تمت إضافة الرسالة المقترحة (اضغط حفظ لتثبيتها)');
+      markSmDirty();
     }
 
-    function deleteAdminSuggestedMessage(occ, lang, idx) {
-      if (!adminSuggestedData[occ] || !Array.isArray(adminSuggestedData[occ][lang])) return;
-      adminSuggestedData[occ][lang].splice(idx, 1);
+    function uniqueOccasionKey(label) {
+      const base = String(label || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || ('occasion_' + Date.now().toString(36).slice(-4));
+      let k = base, i = 2;
+      while (adminSuggestedData[k]) k = `${base}_${i++}`;
+      return k;
+    }
+
+    function addAdminOccasion() {
+      const label = prompt('اسم المناسبة الجديدة (يظهر للعميل، مثال: Anniversary):');
+      if (!label || !label.trim()) return;
+      const key = uniqueOccasionKey(label);
+      adminSuggestedData[key] = { label: label.trim(), EN: [], AR: [] };
+      renderAdminSuggestedList();
+      document.getElementById('admin-sm-occasion').value = key;
       renderAdminSuggestedList();
       syncJsonFromSuggested();
+      markSmDirty();
+    }
+
+    function renameAdminOccasion() {
+      const occ = currentOccKey();
+      const label = prompt('الاسم الجديد للمناسبة:', adminSuggestedData[occ].label || occ);
+      if (!label || !label.trim()) return;
+      adminSuggestedData[occ].label = label.trim();
+      renderAdminSuggestedList();
+      syncJsonFromSuggested();
+      markSmDirty();
+    }
+
+    function deleteAdminOccasion() {
+      const occ = currentOccKey();
+      if (occ === 'general') { showToast('لا يمكن حذف المناسبة الأساسية general (يمكنك إفراغ رسائلها).', 'warn'); return; }
+      if (!confirm(`حذف المناسبة "${adminSuggestedData[occ].label || occ}" وكل رسائلها؟`)) return;
+      delete adminSuggestedData[occ];
+      renderAdminSuggestedList();
+      syncJsonFromSuggested();
+      markSmDirty();
+    }
+
+    function resetAdminSuggestedDefaults() {
+      if (!confirm('استبدال كل الرسائل المقترحة بالقائمة الافتراضية؟ (لن يُحفظ شيء حتى تضغط حفظ)')) return;
+      adminSuggestedData = normalizeSuggested(cloneDefaultSuggested());
+      renderAdminSuggestedList();
+      syncJsonFromSuggested();
+      markSmDirty();
     }
 
     document.getElementById('card-modal-settings-form').addEventListener('submit', async function(e) {
@@ -2312,24 +2521,29 @@
       const btn = document.getElementById('save-card-modal-settings-btn');
       btn.disabled = true;
       try {
-        const rawJson = document.getElementById('gc-suggested-json').value.trim();
-        let parsedObj = adminSuggestedData;
-        if (rawJson) {
-          parsedObj = JSON.parse(rawJson);
-          adminSuggestedData = parsedObj;
+        // JSON is validated first: an invalid JSON blocks saving instead of silently saving stale data.
+        const parsed = parseSuggestedJsonText();
+        if (!parsed.ok) {
+          setJsonStatus(false, parsed.msg);
+          document.querySelector('details.sm-json').open = true;
+          throw new Error(parsed.msg);
         }
+        adminSuggestedData = parsed.obj;
 
         const rows = [
           { setting_key: 'gift_card_enable_suggested', setting_value: document.getElementById('gc-enable-suggested').checked ? 'true' : 'false' },
           { setting_key: 'gift_card_enable_signature', setting_value: document.getElementById('gc-enable-signature').checked ? 'true' : 'false' },
           { setting_key: 'gift_card_enable_link', setting_value: document.getElementById('gc-enable-link').checked ? 'true' : 'false' },
-          { setting_key: 'gift_card_suggested_messages', setting_value: JSON.stringify(parsedObj) }
+          { setting_key: 'gift_card_suggested_messages', setting_value: JSON.stringify(adminSuggestedData) }
         ];
 
         const { error } = await supabaseClient.from('site_settings').upsert(rows, { onConflict: 'setting_key' });
         if (error) throw error;
 
         rows.forEach(r => { siteSettings[r.setting_key] = r.setting_value; });
+        renderAdminSuggestedList();
+        syncJsonFromSuggested();
+        markSmDirty(false);
         if (currentPreviewPage.includes('cart.html')) refreshStorePreview(false);
         showToast('تم حفظ إعدادات نافذة البطاقة والرسائل المقترحة 💌');
       } catch (err) {
@@ -2341,12 +2555,11 @@
 
     async function fetchCartExtrasAdmin() {
       const gcBox = document.getElementById('gift-cards-list');
-      const ftBox = document.getElementById('finishing-touch-list');
       const gcBadge = document.getElementById('gc-count-badge');
 
       const { data: gcs, error: gcErr } = await supabaseClient.from('gift_card_designs').select('*');
       if (gcErr) {
-        gcBox.innerHTML = `<div class="col-span-full text-xs text-red-500 text-center py-3">خطأ في جلب البطاقات: ${escapeHtml(gcErr.message)}</div>`;
+        gcBox.innerHTML = `<div class="col-span-full text-xs text-red-500 text-center py-3">خطأ في جلب البطاقات: ${escapeHtml(friendlyError(gcErr))}</div>`;
       } else {
         currentGiftCards = gcs || [];
         if (gcBadge) gcBadge.textContent = `${currentGiftCards.length} تصاميم`;
@@ -2376,25 +2589,51 @@
         }).join('') : `<div class="col-span-full text-xs text-gray-400 text-center py-4 bg-gray-50 rounded-xl border border-dashed">لا توجد تصاميم كروت مضافة بعد.</div>`;
       }
 
-      const { data: ft } = await supabaseClient.from('finishing_touch_config').select('*');
+      const { data: ft, error: ftErr } = await supabaseClient.from('finishing_touch_config').select('*');
+      if (ftErr) showToast(friendlyError(ftErr), 'error');
       currentFinishingConfig = ft || [];
-      ftBox.innerHTML = currentFinishingConfig.length ? currentFinishingConfig.map(item => {
-        const prod = currentProducts.find(p => String(p.id) === String(item.product_id));
+      renderFinishingTouchList();
+    }
+
+    function renderFinishingTouchList() {
+      const ftBox = document.getElementById('finishing-touch-list');
+      if (!ftBox) return;
+      if (!currentFinishingConfig.length) {
+        ftBox.innerHTML = `<div class="p-3 text-xs text-gray-400 text-center border rounded-xl">لا توجد عناصر مربوطة في Finishing Touch (السلة تستخدم القائمة التلقائية).</div>`;
+        return;
+      }
+      const tabKeys = Object.keys(FT_TAB_LABELS);
+      const extraKeys = Array.from(new Set(currentFinishingConfig.map(i => i.tab_key))).filter(k => !tabKeys.includes(k));
+      ftBox.innerHTML = tabKeys.concat(extraKeys).map(tab => {
+        const items = currentFinishingConfig.filter(i => i.tab_key === tab);
+        if (!items.length) return '';
         return `
-          <div class="p-3 flex items-center justify-between text-xs bg-white">
-            <div>
-              <span class="bg-[#e6f0f2] text-[#00313C] font-bold px-2 py-0.5 rounded">${escapeHtml(item.tab_key)}</span>
-              <span class="font-bold text-gray-800 mr-2">${escapeHtml(prod ? prod.name : 'منتج #' + item.product_id)}</span>
+          <div class="border rounded-xl overflow-hidden">
+            <div class="px-3 py-2 bg-gray-50 border-b flex items-center justify-between text-xs">
+              <span class="font-bold text-[#00313C]">${escapeHtml(FT_TAB_LABELS[tab] || tab)}</span>
+              <span class="text-[11px] text-gray-500">${items.length} منتج</span>
             </div>
-            <button type="button" data-del-ft="${escapeHtml(item.id)}" class="text-red-600 font-bold hover:underline">إزالة</button>
+            <div class="divide-y divide-gray-100">
+              ${items.map(item => {
+                const prod = currentProducts.find(p => String(p.id) === String(item.product_id));
+                return `
+                  <div class="p-3 flex items-center justify-between text-xs bg-white">
+                    <span class="font-bold text-gray-800">${escapeHtml(prod ? prod.name : 'منتج محذوف #' + item.product_id)}${prod ? ` <span class="text-gray-400 font-normal">(${Number(prod.price || 0).toFixed(2)} JOD)</span>` : ''}</span>
+                    <button type="button" data-del-ft="${escapeHtml(item.id)}" class="text-red-600 font-bold hover:underline">إزالة</button>
+                  </div>`;
+              }).join('')}
+            </div>
           </div>`;
-      }).join('') : `<div class="p-3 text-xs text-gray-400 text-center">لا توجد عناصر مربوطة في Finishing Touch.</div>`;
+      }).join('');
     }
 
     function populateFinishingProductDropdown() {
       const sel = document.getElementById('ft-product-select');
       if (!sel) return;
-      sel.innerHTML = currentProducts.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)} (${Number(p.price || 0).toFixed(2)} JOD)</option>`).join('');
+      sel.innerHTML = currentProducts.length
+        ? currentProducts.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)} (${Number(p.price || 0).toFixed(2)} JOD)${p.is_hidden ? ' 👻' : ''}</option>`).join('')
+        : '<option value="">لا توجد منتجات</option>';
+      renderFinishingTouchList();
     }
 
     document.getElementById('gift-card-form').addEventListener('submit', async function(e) {
@@ -2425,13 +2664,14 @@
         ];
 
         let res = null;
+        let usedPayload = null;
         for (const payload of payloadCandidates) {
           const attempt = editId
             ? await supabaseClient.from('gift_card_designs').update(payload).eq('id', editId).select()
             : await supabaseClient.from('gift_card_designs').insert([payload]).select();
 
           res = attempt;
-          if (!attempt.error) break;
+          if (!attempt.error) { usedPayload = payload; break; }
 
           const msg = String(attempt.error.message || '').toLowerCase();
           if (msg.includes('row-level security') || msg.includes('permission') || msg.includes('policy')) {
@@ -2444,7 +2684,11 @@
         resetGiftCardForm();
         await fetchCartExtrasAdmin();
         if (currentPreviewPage.includes('cart.html')) refreshStorePreview(false);
-        showToast(editId ? 'تم تحديث البطاقة والسعر بنجاح 💌' : 'تمت إضافة تصميم بطاقة الإهداء بنجاح 💌');
+        if (usedPayload && !('price' in usedPayload) && cleanPrice > 0) {
+          showToast('تم حفظ البطاقة لكن بدون السعر: جدول gift_card_designs لا يحتوي عمود price. شغّل ملف SQL ثم أعد الحفظ.', 'warn');
+        } else {
+          showToast(editId ? 'تم تحديث البطاقة والسعر بنجاح 💌' : 'تمت إضافة تصميم بطاقة الإهداء بنجاح 💌');
+        }
       } catch (err) {
         showToast(friendlyError(err), 'error');
       } finally {
@@ -2455,8 +2699,13 @@
     document.getElementById('finishing-touch-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const tab_key = document.getElementById('ft-tab-key').value;
-      const product_id = document.getElementById('ft-product-select').value;
-      if (!product_id) return;
+      const rawId = document.getElementById('ft-product-select').value;
+      if (!rawId) return showToast('اختر منتجاً أولاً', 'warn');
+      if (currentFinishingConfig.some(r => r.tab_key === tab_key && String(r.product_id) === String(rawId))) {
+        return showToast('هذا المنتج مربوط بالفعل في هذا التبويب', 'warn');
+      }
+      const prod = currentProducts.find(p => String(p.id) === String(rawId));
+      const product_id = prod ? prod.id : rawId;
       const { error } = await supabaseClient.from('finishing_touch_config').insert([{ tab_key, product_id }]);
       if (error) return showToast(friendlyError(error), 'error');
       await fetchCartExtrasAdmin();
@@ -2509,7 +2758,7 @@
             <td class="p-3">
               <div class="font-bold text-gray-900">${escapeHtml(o.customer_name || o.recipient_name || '-')}</div>
               <div class="text-gray-600" dir="ltr">${escapeHtml(phone || '-')}</div>
-              ${wa ? `<a href="${escapeHtml(wa)}" target="_blank" class="inline-block mt-1 text-[11px] font-bold text-emerald-700 hover:underline">واتساب ↗</a>` : ''}
+              ${wa ? `<a href="${escapeHtml(wa)}" target="_blank" rel="noopener" class="inline-block mt-1 text-[11px] font-bold text-emerald-700 hover:underline">واتساب ↗</a>` : ''}
             </td>
             <td class="p-3 max-w-[220px]">
               <div class="text-gray-700">${escapeHtml(o.shipping_address || o.address || o.delivery_address || '-')}</div>
@@ -2578,8 +2827,22 @@
       }
     });
 
-    // ================= 8. PAGE SETTINGS: product.html / category.html / checkout.html =================
+    // ================= 8. PAGE SETTINGS: cart.html / product.html / category.html / checkout.html =================
     const PAGE_SETTINGS = {
+      cart: [
+        { key: 'cart_page_title', type: 'text', label: 'عنوان صفحة السلة', def: 'Cart' },
+        { key: 'cart_photo_enabled', type: 'toggle', label: 'تفعيل خدمة Photo Stick-In', def: true },
+        { key: 'cart_photo_fee', type: 'number', label: 'سعر Photo Stick-In (JOD)', def: 2.5 },
+        { key: 'cart_photo_title', type: 'text', label: 'عنوان بطاقة Photo Stick-In', def: 'Add a Photo Stick-In' },
+        { key: 'cart_photo_subtitle', type: 'text', label: 'النص الفرعي لـ Photo Stick-In', def: 'Make this gift unforgettable' },
+        { key: 'cart_card_section_title', type: 'text', label: 'عنوان قسم تصميم البطاقة والرسالة', def: 'Choose Your Card Design' },
+        { key: 'cart_card_message_max', type: 'number', label: 'الحد الأقصى لعدد أحرف رسالة البطاقة (20 – 1000)', def: 200 },
+        { key: 'cart_finishing_enabled', type: 'toggle', label: 'إظهار قسم اللمسة الأخيرة (Finishing Touch)', def: true },
+        { key: 'cart_finishing_title', type: 'text', label: 'عنوان قسم اللمسة الأخيرة', def: 'Add a Finishing Touch' },
+        { key: 'cart_promo_enabled', type: 'toggle', label: 'إظهار صندوق كود الخصم', def: true },
+        { key: 'cart_promo_codes', type: 'lines', label: 'أكواد الخصم (كود في كل سطر بالصيغة CODE|percent|10 أو CODE|fixed|2)', def: ['LORIN10|percent|10', 'WELCOME2|fixed|2'], hint: 'percent = نسبة مئوية، fixed = مبلغ ثابت بالدينار. لإلغاء كل الأكواد عطّل صندوق كود الخصم.' },
+        { key: 'cart_delivery_note', type: 'text', label: 'ملاحظة التوصيل في ملخص الطلب', def: 'Please note that specific regions and express delivery may incur extra delivery fees.' }
+      ],
       product: [
         { key: 'product_notice_enabled', type: 'toggle', label: 'إظهار صندوق الإشعار (التوصيل/العنوان)', def: true },
         { key: 'product_notice_text', type: 'text', label: 'نص الإشعار', def: 'لست بحاجة لمعرفة العنوان، فريقنا سيفعل ذلك نيابة عنك.' },
@@ -2675,7 +2938,7 @@
           } else if (f.type === 'lines') {
             let arr = f.def;
             if (has && stored !== '') {
-              try { const parsed = JSON.parse(stored); if (Array.isArray(parsed) && parsed.length) arr = parsed; } catch (e) { arr = String(stored).split('\n'); }
+              try { const parsed = JSON.parse(stored); if (Array.isArray(parsed)) arr = parsed; } catch (e) { arr = String(stored).split('\n'); }
             }
             el.value = (arr || []).join('\n');
           } else {
@@ -2714,10 +2977,34 @@
       return rows;
     }
 
+    function validateCartRows(rows) {
+      rows.forEach(r => {
+        if (r.setting_key === 'cart_promo_codes') {
+          const lines = JSON.parse(r.setting_value);
+          const seen = new Set();
+          lines.forEach(l => {
+            const m = /^([A-Za-z0-9_-]{2,30})\|(percent|fixed)\|(\d+(?:\.\d+)?)$/.exec(l);
+            if (!m) throw new Error('كود الخصم غير صالح: "' + l + '" — الصيغة: CODE|percent|10 أو CODE|fixed|2');
+            if (m[2] === 'percent' && Number(m[3]) > 100) throw new Error('النسبة المئوية لا تتجاوز 100: "' + l + '"');
+            if (!(Number(m[3]) > 0)) throw new Error('قيمة الخصم يجب أن تكون أكبر من صفر: "' + l + '"');
+            const code = m[1].toUpperCase();
+            if (seen.has(code)) throw new Error('كود مكرر: ' + code);
+            seen.add(code);
+          });
+        }
+        if (r.setting_key === 'cart_card_message_max') {
+          const n = Math.floor(Number(r.setting_value));
+          if (!(n >= 20 && n <= 1000)) throw new Error('الحد الأقصى لأحرف الرسالة يجب أن يكون بين 20 و 1000.');
+          r.setting_value = String(n);
+        }
+      });
+    }
+
     async function savePageSettings(page, btn) {
       btn.disabled = true;
       try {
         const rows = await collectPageRows(page);
+        if (page === 'cart') validateCartRows(rows);
         if (page === 'category') {
           const map = {};
           document.querySelectorAll('#category-descriptions-editor textarea[data-cat-desc]').forEach(t => {
@@ -2874,7 +3161,7 @@
       } else if (target.dataset.delProd) {
         if (!confirm('هل أنت متأكد من حذف هذا المنتج؟ سيتم حذف صوره وارتباطاته أيضاً.')) return;
         if (await deleteProductCascade(target.dataset.delProd)) {
-          await fetchAdminProducts(); refreshStorePreview(false); showToast('تم حذف المنتج');
+          await fetchAdminProducts(); await fetchCartExtrasAdmin(); refreshStorePreview(false); showToast('تم حذف المنتج');
         }
       } else if (target.dataset.editGc) {
         editGiftCard(target.dataset.editGc);
@@ -2901,6 +3188,12 @@
 
     document.getElementById('mobile-menu-btn').addEventListener('click', function() {
       document.getElementById('sidebar-pane').classList.toggle('mobile-open');
+    });
+
+    // Warn before leaving with unsaved suggested-message edits.
+    window.addEventListener('beforeunload', function(e) {
+      const d = document.getElementById('sm-dirty');
+      if (d && !d.classList.contains('hidden')) { e.preventDefault(); e.returnValue = ''; }
     });
   </script>
 </body>
