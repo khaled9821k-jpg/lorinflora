@@ -596,11 +596,12 @@
         <div class="flex items-center justify-between">
           <div>
             <h1 class="text-lg font-bold text-gray-900">السلة وإضافات الهدايا (Cart & Gift Extras)</h1>
-            <p class="text-xs text-gray-500">إضافة وتعديل وتحديد أسعار بطاقات الإهداء (<code class="bg-gray-200 px-1 rounded">gift_card_designs</code>) وإعدادات اللمسة الأخيرة (<code class="bg-gray-200 px-1 rounded">finishing_touch_config</code>).</p>
+            <p class="text-xs text-gray-500">إدارة تصاميم وأسعار البطاقات (<code class="bg-gray-200 px-1 rounded">gift_card_designs</code>)، خيارات النافذة والرسائل المقترحة (<code class="bg-gray-200 px-1 rounded">site_settings</code>)، واللمسة الأخيرة (<code class="bg-gray-200 px-1 rounded">finishing_touch_config</code>).</p>
           </div>
           <button type="button" onclick="changePreviewPage('cart.html')" class="sp-btn-secondary">معاينة السلة 🛒</button>
         </div>
 
+        <!-- Card Designs CRUD -->
         <div class="sp-card p-5 space-y-4">
           <div class="flex items-center justify-between pb-2 border-b">
             <h3 id="gc-form-heading" class="text-sm font-bold text-gray-800">إضافة تصميم بطاقة إهداء جديدة 💌</h3>
@@ -622,7 +623,7 @@
                 <img id="gc-local-preview-img" src="" class="w-14 h-14 object-cover rounded-lg border bg-white" alt="">
                 <div>
                   <div class="text-xs font-bold text-gray-700">معاينة صورة البطاقة</div>
-                  <div class="text-[11px] text-gray-500">تظهر للعميل داخل نافذة Personalize Your Card</div>
+                  <div class="text-[11px] text-gray-500">تظهر للعميل داخل نافذة Gift Card & Message</div>
                 </div>
               </div>
             </div>
@@ -634,6 +635,90 @@
           <div id="gift-cards-list" class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2"></div>
         </div>
 
+        <!-- Dedicated Card Modal Features & Suggested Messages Manager -->
+        <div class="sp-card p-5 space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b">
+            <div>
+              <h3 class="text-sm font-bold text-[#00313C]">إعدادات نافذة الرسالة والتوقيع والرسائل المقترحة ✨</h3>
+              <p class="text-[11px] text-gray-500">تحكم في أزرار النافذة وإدارة عبارات الإهداء الجاهزة حسب المناسبة واللغة.</p>
+            </div>
+          </div>
+
+          <form id="card-modal-settings-form" class="space-y-4">
+            <div class="grid grid-cols-1 gap-2.5">
+              <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl flex items-center justify-between gap-3">
+                <div>
+                  <div class="font-bold text-xs text-[#00313C]">تفعيل زر الرسائل المقترحة (Try a Suggested Message)</div>
+                  <div class="text-[11px] text-gray-500">يفتح نافذة المناسبات والرسائل الجاهزة باللغتين EN / AR.</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input type="checkbox" id="gc-enable-suggested" checked class="sr-only peer">
+                  <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-[#00313C] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                </label>
+              </div>
+
+              <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl flex items-center justify-between gap-3">
+                <div>
+                  <div class="font-bold text-xs text-[#00313C]">تفعيل زر التوقيع (Add Signature — رسم أو نص)</div>
+                  <div class="text-[11px] text-gray-500">يسمح للعميل برسم توقيعه أو كتابته بخط أنيق.</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input type="checkbox" id="gc-enable-signature" checked class="sr-only peer">
+                  <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-[#00313C] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                </label>
+              </div>
+
+              <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl flex items-center justify-between gap-3">
+                <div>
+                  <div class="font-bold text-xs text-[#00313C]">تفعيل إرفاق رابط فيديو أو صورة (Attach a Web Link)</div>
+                  <div class="text-[11px] text-gray-500">يفتح نافذة Add a Video or Photo لإرفاق رابط مع QR.</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input type="checkbox" id="gc-enable-link" checked class="sr-only peer">
+                  <div class="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-[#00313C] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"></div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Easy Suggested Messages Editor -->
+            <div class="bg-[#faf9f6] border border-[#ebe6d8] rounded-xl p-4 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-xs font-bold text-[#00313C]">إدارة الرسائل المقترحة بسهولة</span>
+                <div class="flex items-center gap-2">
+                  <select id="admin-sm-occasion" onchange="renderAdminSuggestedList()" class="sp-input py-1 px-2.5 text-xs w-auto">
+                    <option value="general">general</option>
+                    <option value="graduation">Graduation</option>
+                    <option value="get_well">Get Well Soon</option>
+                    <option value="new_baby">New Baby Born</option>
+                    <option value="birthday">Happy Birthday</option>
+                    <option value="weddings">Weddings</option>
+                  </select>
+                  <select id="admin-sm-lang" onchange="renderAdminSuggestedList()" class="sp-input py-1 px-2.5 text-xs w-auto">
+                    <option value="EN">EN</option>
+                    <option value="AR">AR</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex gap-2">
+                <input type="text" id="admin-sm-new-text" placeholder="اكتب رسالة مقترحة جديدة هنا..." class="sp-input text-xs flex-1" dir="auto">
+                <button type="button" onclick="addAdminSuggestedMessage()" class="sp-btn-primary py-1.5 px-3 text-xs shrink-0">+ إضافة</button>
+              </div>
+
+              <div id="admin-sm-items-list" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
+            </div>
+
+            <!-- Advanced JSON fallback -->
+            <div>
+              <label class="sp-label" for="gc-suggested-json">المصدر الكامل للرسائل المقترحة (JSON — يتحدث تلقائياً)</label>
+              <textarea id="gc-suggested-json" rows="5" class="sp-input font-mono text-[11px]" dir="ltr" onchange="syncSuggestedFromJson()"></textarea>
+            </div>
+
+            <button type="submit" id="save-card-modal-settings-btn" class="sp-btn-primary w-full py-2.5">حفظ إعدادات نافذة البطاقة والرسائل 💾</button>
+          </form>
+        </div>
+
+        <!-- Finishing Touch Config -->
         <div class="sp-card p-5 space-y-4">
           <h3 class="text-sm font-bold text-gray-800 pb-2 border-b">إعدادات اللمسة الأخيرة في السلة (Finishing Touch) 🎈</h3>
           <form id="finishing-touch-form" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
@@ -849,6 +934,49 @@
     const PLACEHOLDER_IMG = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    const DEFAULT_ADMIN_SUGGESTED = {
+      general: {
+        label: 'general',
+        EN: [
+          'A small gesture to remind you how much you mean to me.',
+          'Just a little something to brighten your day and remind you how special you are.',
+          "No Special occasion, just a small reminder that you're always on my mind",
+          'No reason needed just sending some love your way!',
+          'A little surprise, just to brighten your day as you always brighten mine!'
+        ],
+        AR: [
+          'لفتة بسيطة لتذكيرك بمدى مكانتك الغالية في قلبي.',
+          'هدية صغيرة لتضيء يومك وتذكرك بجمال حضورك.',
+          'بلا مناسبة خاصة، مجرد تذكير بأنك دائماً في البال.'
+        ]
+      },
+      graduation: {
+        label: 'Graduation',
+        EN: ['Congratulations on your graduation! Wishing you endless success ahead.'],
+        AR: ['ألف مبارك التخرج! أتمنى لك مستقبلاً مليئاً بالنجاح والإنجازات.']
+      },
+      get_well: {
+        label: 'Get Well Soon',
+        EN: ['Sending warm wishes for a speedy and complete recovery.'],
+        AR: ['أطيب الأمنيات بالشفاء العاجل والصحة التامة.']
+      },
+      new_baby: {
+        label: 'New Baby Born',
+        EN: ['Welcome to the world, little one! Congratulations to the growing family.'],
+        AR: ['الحمد لله على السلامة ومبارك المولود الجديد، جعله الله من مواليد السعادة.']
+      },
+      birthday: {
+        label: 'Happy Birthday',
+        EN: ['Happy Birthday! May this year bring you joy, peace, and everything you wish for.'],
+        AR: ['كل عام وأنت بخير، وعام جديد مليء بالفرح وتحقيق الأماني.']
+      },
+      weddings: {
+        label: 'Weddings',
+        EN: ['Wishing you a lifetime of love, happiness, and togetherness.'],
+        AR: ['بارك الله لكما وبارك عليكما وجمع بينكما في خير.']
+      }
+    };
+
     // ---------- State ----------
     let currentProducts = [];
     let currentCategories = [];
@@ -865,6 +993,7 @@
     let currentPreviewPage = 'index.html';
     let inspectorEnabled = true;
     let siteSettings = {};
+    let adminSuggestedData = JSON.parse(JSON.stringify(DEFAULT_ADMIN_SUGGESTED));
     let appStarted = false;
     const dynamicGroups = new Map();
     let dynGroupCounter = 0;
@@ -1111,14 +1240,13 @@
       }
 
       if (el.closest('[class*="card-design"], [data-gift-card], [id*="gift-card"], [id*="card-modal"]')) {
-        return { section: 'cart-extras', label: 'تصاميم بطاقات الإهداء وأسعارها' };
+        return { section: 'cart-extras', label: 'تصاميم بطاقات الإهداء والرسائل المقترحة' };
       }
 
       if (el.closest('footer, .footer, #footer')) {
         return { section: 'theme', label: 'النصوص والخطوط والروابط' };
       }
 
-      // ---- product.html ----
       if (pageName.includes('product.html')) {
         if (el.closest('.fbt-section, .product-tabs-section, .floward-notice-box, .product-tax-note, .payment-methods-box, #upsell-modal-backdrop')) {
           return { section: 'product-page', label: 'إعدادات صفحة المنتج' };
@@ -1130,7 +1258,6 @@
         }
       }
 
-      // ---- category.html ----
       if (pageName.includes('category.html')) {
         const card = el.closest('a.floward-item-card');
         if (!card && el.closest('.category-header-area, .filters-sidebar, .sub-pills-track, .breadcrumb-trail')) {
@@ -1138,7 +1265,6 @@
         }
       }
 
-      // ---- checkout.html ----
       if (pageName.includes('checkout.html') && el.closest('main')) {
         return { section: 'checkout-page', label: 'إعدادات إتمام الطلب' };
       }
@@ -1592,7 +1718,6 @@
       document.getElementById('group_Vase_or_Bouquet_for_flowers_rows').classList.toggle('hidden', !checked);
     }
 
-    // Option text safe for product.html inline onclick handlers
     function cleanOptText(v) {
       return String(v == null ? '' : v).trim().replace(/'/g, '’').replace(/"/g, '”').replace(/\\/g, '/').replace(/[<>`]/g, '');
     }
@@ -1739,7 +1864,6 @@
         prodList = retry.data;
       }
 
-      // product.html / category.html read product_images ordered by sort_order
       let imgRes = await supabaseClient.from('product_images').select('*').order('sort_order', { ascending: true });
       if (imgRes.error) imgRes = await supabaseClient.from('product_images').select('*');
       const images = (imgRes.data || []).slice().sort((a, b) => imageSortKey(a) - imageSortKey(b));
@@ -1878,7 +2002,6 @@
       toggleCustomizationFields(Boolean(prod.has_customization));
       renderProductImagesManager(prod.product_images || []);
 
-      // Customization: JSON column is the source product.html reads; fall back to legacy rows table
       let groups = prod.customization_options;
       if (typeof groups === 'string') { try { groups = JSON.parse(groups); } catch (e) { groups = null; } }
       if (!groups || typeof groups !== 'object' || !Object.keys(groups).length) {
@@ -1959,7 +2082,6 @@
         const uploadedUrls = [];
         for (const f of files) uploadedUrls.push(await uploadFileToBucket('products', f));
 
-        // Primary image: keep the current first image when editing, else the first upload
         const primaryImage = editingProductImages[0]?.image_url || uploadedUrls[0] || PLACEHOLDER_IMG;
 
         const { groups, flat } = collectCustomization();
@@ -1991,7 +2113,6 @@
           if (imgErr) throw imgErr;
         }
 
-        // Legacy mirror (product_customization_options) — best effort, JSON column is the source of truth
         try {
           const { error: delErr } = await supabaseClient.from('product_customization_options').delete().eq('product_id', savedId);
           if (delErr) throw delErr;
@@ -2039,7 +2160,6 @@
     }
 
     async function deleteProductCascade(id) {
-      // Best-effort cleanup of related rows, then the product itself
       await supabaseClient.from('product_images').delete().eq('product_id', id);
       await supabaseClient.from('product_customization_options').delete().eq('product_id', id);
       await supabaseClient.from('product_upsells').delete().eq('product_id', id);
@@ -2050,7 +2170,7 @@
       return sbDelete('products', id);
     }
 
-    // ================= 5. CART & GIFT EXTRAS =================
+    // ================= 5. CART, GIFT EXTRAS & SUGGESTED MESSAGES =================
     function previewSelectedGiftCard(input) {
       const box = document.getElementById('gc-local-preview-box');
       const img = document.getElementById('gc-local-preview-img');
@@ -2102,6 +2222,122 @@
       document.getElementById('gc-submit-btn').textContent = 'حفظ تصميم البطاقة 💌';
       document.getElementById('gc-cancel-btn').classList.add('hidden');
     }
+
+    function applyCardModalSettingsToUI() {
+      document.getElementById('gc-enable-suggested').checked = siteSettings.gift_card_enable_suggested !== 'false';
+      document.getElementById('gc-enable-signature').checked = siteSettings.gift_card_enable_signature !== 'false';
+      document.getElementById('gc-enable-link').checked = siteSettings.gift_card_enable_link !== 'false';
+
+      try {
+        if (siteSettings.gift_card_suggested_messages) {
+          const parsed = JSON.parse(siteSettings.gift_card_suggested_messages);
+          if (parsed && typeof parsed === 'object') {
+            adminSuggestedData = parsed;
+          }
+        }
+      } catch (e) {}
+
+      renderAdminSuggestedList();
+      syncJsonFromSuggested();
+    }
+
+    function syncJsonFromSuggested() {
+      const ta = document.getElementById('gc-suggested-json');
+      if (ta) ta.value = JSON.stringify(adminSuggestedData, null, 2);
+    }
+
+    function syncSuggestedFromJson() {
+      const ta = document.getElementById('gc-suggested-json');
+      if (!ta) return;
+      try {
+        const parsed = JSON.parse(ta.value);
+        if (parsed && typeof parsed === 'object') {
+          adminSuggestedData = parsed;
+          renderAdminSuggestedList();
+          showToast('تم تحديث قائمة الرسائل من JSON');
+        }
+      } catch (err) {
+        showToast('صيغة JSON غير صحيحة: ' + err.message, 'error');
+      }
+    }
+
+    function renderAdminSuggestedList() {
+      const occ = document.getElementById('admin-sm-occasion')?.value || 'general';
+      const lang = document.getElementById('admin-sm-lang')?.value || 'EN';
+      const box = document.getElementById('admin-sm-items-list');
+      if (!box) return;
+
+      if (!adminSuggestedData[occ]) {
+        adminSuggestedData[occ] = { label: occ, EN: [], AR: [] };
+      }
+      if (!Array.isArray(adminSuggestedData[occ][lang])) {
+        adminSuggestedData[occ][lang] = [];
+      }
+
+      const list = adminSuggestedData[occ][lang];
+      box.innerHTML = list.length ? list.map((msg, i) => `
+        <div class="flex items-center justify-between gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs">
+          <span dir="${lang === 'AR' ? 'rtl' : 'ltr'}" class="flex-1 text-gray-800">${escapeHtml(msg)}</span>
+          <button type="button" onclick="deleteAdminSuggestedMessage('${escapeHtml(occ)}', '${escapeHtml(lang)}', ${i})" class="text-red-600 font-bold hover:underline shrink-0">حذف</button>
+        </div>
+      `).join('') : `<div class="text-xs text-gray-400 text-center py-3">لا توجد رسائل مضافة لهذه المناسبة واللغة.</div>`;
+    }
+
+    function addAdminSuggestedMessage() {
+      const input = document.getElementById('admin-sm-new-text');
+      const val = (input.value || '').trim();
+      if (!val) return;
+      const occ = document.getElementById('admin-sm-occasion').value || 'general';
+      const lang = document.getElementById('admin-sm-lang').value || 'EN';
+
+      if (!adminSuggestedData[occ]) adminSuggestedData[occ] = { label: occ, EN: [], AR: [] };
+      if (!Array.isArray(adminSuggestedData[occ][lang])) adminSuggestedData[occ][lang] = [];
+      adminSuggestedData[occ][lang].push(val);
+
+      input.value = '';
+      renderAdminSuggestedList();
+      syncJsonFromSuggested();
+      showToast('تمت إضافة الرسالة المقترحة (اضغط حفظ لتثبيتها)');
+    }
+
+    function deleteAdminSuggestedMessage(occ, lang, idx) {
+      if (!adminSuggestedData[occ] || !Array.isArray(adminSuggestedData[occ][lang])) return;
+      adminSuggestedData[occ][lang].splice(idx, 1);
+      renderAdminSuggestedList();
+      syncJsonFromSuggested();
+    }
+
+    document.getElementById('card-modal-settings-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('save-card-modal-settings-btn');
+      btn.disabled = true;
+      try {
+        const rawJson = document.getElementById('gc-suggested-json').value.trim();
+        let parsedObj = adminSuggestedData;
+        if (rawJson) {
+          parsedObj = JSON.parse(rawJson);
+          adminSuggestedData = parsedObj;
+        }
+
+        const rows = [
+          { setting_key: 'gift_card_enable_suggested', setting_value: document.getElementById('gc-enable-suggested').checked ? 'true' : 'false' },
+          { setting_key: 'gift_card_enable_signature', setting_value: document.getElementById('gc-enable-signature').checked ? 'true' : 'false' },
+          { setting_key: 'gift_card_enable_link', setting_value: document.getElementById('gc-enable-link').checked ? 'true' : 'false' },
+          { setting_key: 'gift_card_suggested_messages', setting_value: JSON.stringify(parsedObj) }
+        ];
+
+        const { error } = await supabaseClient.from('site_settings').upsert(rows, { onConflict: 'setting_key' });
+        if (error) throw error;
+
+        rows.forEach(r => { siteSettings[r.setting_key] = r.setting_value; });
+        if (currentPreviewPage.includes('cart.html')) refreshStorePreview(false);
+        showToast('تم حفظ إعدادات نافذة البطاقة والرسائل المقترحة 💌');
+      } catch (err) {
+        showToast(friendlyError(err), 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
 
     async function fetchCartExtrasAdmin() {
       const gcBox = document.getElementById('gift-cards-list');
@@ -2174,7 +2410,7 @@
         if (file) image_url = await uploadFileToBucket('gift-cards', file);
         if (!image_url) throw new Error('يرجى رفع صورة البطاقة أو إدخال رابط مباشر لها.');
 
-       const cleanPrice = Math.max(0, Number(price) || 0);
+        const cleanPrice = Math.max(0, Number(price) || 0);
         const { data: authData } = await supabaseClient.auth.getSession();
         if (!authData || !authData.session) {
           throw new Error('يجب تسجيل الدخول في لوحة الإدارة أولاً لإضافة أو تعديل البطاقات (RLS).');
@@ -2197,7 +2433,6 @@
           res = attempt;
           if (!attempt.error) break;
 
-          // إذا كان الخطأ بسبب RLS أو صلاحيات، أوقف المحاولات فوراً ولا تكررها
           const msg = String(attempt.error.message || '').toLowerCase();
           if (msg.includes('row-level security') || msg.includes('permission') || msg.includes('policy')) {
             break;
@@ -2229,7 +2464,7 @@
       showToast('تم ربط المنتج بالسلة بنجاح 🎈');
     });
 
-    // ================= 6. ORDERS (aligned with checkout.html columns) =================
+    // ================= 6. ORDERS =================
     function parseOrderItems(o) {
       let items = o.items;
       if (typeof items === 'string') { try { items = JSON.parse(items); } catch (e) { items = null; } }
@@ -2289,7 +2524,7 @@
       }).join('') : `<tr><td colspan="6" class="p-4 text-center text-gray-400">لا توجد طلبات واردة حالياً.</td></tr>`;
     }
 
-    // ================= 7. SITE SETTINGS (theme form — existing) =================
+    // ================= 7. SITE SETTINGS (theme form) =================
     async function loadSiteSettingsInAdmin() {
       const { data, error } = await supabaseClient.from('site_settings').select('*');
       if (error) {
@@ -2310,6 +2545,8 @@
       if (map.section2_size) document.getElementById('set-size-2').value = map.section2_size;
       if (map.footer_facebook) document.getElementById('footer-fb').value = map.footer_facebook;
       if (map.footer_instagram) document.getElementById('footer-ig').value = map.footer_instagram;
+
+      applyCardModalSettingsToUI();
     }
 
     document.getElementById('settings-form').addEventListener('submit', async function(e) {
@@ -2342,7 +2579,6 @@
     });
 
     // ================= 8. PAGE SETTINGS: product.html / category.html / checkout.html =================
-    // Stored in site_settings (setting_key / setting_value). Defaults mirror what the storefront renders today.
     const PAGE_SETTINGS = {
       product: [
         { key: 'product_notice_enabled', type: 'toggle', label: 'إظهار صندوق الإشعار (التوصيل/العنوان)', def: true },
@@ -2560,6 +2796,8 @@
 
     renderAllSettingsFields();
     applySettingsToForms();
+    renderAdminSuggestedList();
+    syncJsonFromSuggested();
 
     // ================= EVENT DELEGATION =================
     document.addEventListener('click', async function(e) {
