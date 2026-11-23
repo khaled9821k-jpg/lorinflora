@@ -782,6 +782,34 @@
             <div><label class="sp-label">المنتج المرتبط</label><select id="ft-product-select" class="sp-input"></select></div>
             <button type="submit" class="sp-btn-primary">ربط بالسلة +</button>
           </form>
+
+          <!-- Edit Finishing Touch Item Panel -->
+          <div id="ft-edit-panel" class="hidden bg-amber-50/70 border border-amber-200 rounded-xl p-3.5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span id="ft-edit-title" class="text-xs font-bold text-[#00313C]">تعديل عنصر اللمسة الأخيرة</span>
+              <button type="button" onclick="cancelEditFinishingTouch()" class="text-[11px] font-bold text-gray-600 hover:text-gray-900">إلغاء ✕</button>
+            </div>
+            <form id="ft-edit-form" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+              <input type="hidden" id="ft-edit-id">
+              <div>
+                <label class="sp-label">التبويب الجديد (Tab Key)</label>
+                <select id="ft-edit-tab-key" class="sp-input">
+                  <option value="recommended">Recommended</option>
+                  <option value="chocolates">Chocolates</option>
+                  <option value="drinks">Drinks</option>
+                  <option value="balloons">Occasion Balloons</option>
+                  <option value="cakes">Cakes</option>
+                  <option value="best_picks">Our Best Picks</option>
+                </select>
+              </div>
+              <div>
+                <label class="sp-label">المنتج الجديد</label>
+                <select id="ft-edit-product-select" class="sp-input"></select>
+              </div>
+              <button type="submit" id="ft-edit-submit-btn" class="sp-btn-primary">حفظ التعديل 💾</button>
+            </form>
+          </div>
+
           <div id="finishing-touch-list" class="space-y-3"></div>
         </div>
       </div>
@@ -980,7 +1008,6 @@
     const PLACEHOLDER_IMG = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Keep identical to DEFAULT_SUGGESTED_MESSAGES in cart.html.
     const DEFAULT_ADMIN_SUGGESTED = {
       general: {
         label: 'general',
@@ -2292,7 +2319,6 @@
       document.getElementById('gc-cancel-btn').classList.add('hidden');
     }
 
-    // ---------- Suggested messages: state, normalisation, JSON sync ----------
     function markSmDirty(v = true) {
       const el = document.getElementById('sm-dirty');
       if (el) el.classList.toggle('hidden', !v);
@@ -2300,7 +2326,6 @@
 
     function cloneDefaultSuggested() { return JSON.parse(JSON.stringify(DEFAULT_ADMIN_SUGGESTED)); }
 
-    // Guarantees { key: { label, EN: [], AR: [] } } with trimmed non-empty strings, always containing "general".
     function normalizeSuggested(obj) {
       if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
       const clean = arr => Array.isArray(arr) ? arr.map(x => String(x == null ? '' : x).trim()).filter(Boolean) : [];
@@ -2350,7 +2375,6 @@
       setJsonStatus(true);
     }
 
-    // Applies the JSON textarea to the visual editor. Invalid JSON never touches the state.
     function syncSuggestedFromJson(announce) {
       const r = parseSuggestedJsonText();
       setJsonStatus(r.ok, r.msg);
@@ -2521,7 +2545,6 @@
       const btn = document.getElementById('save-card-modal-settings-btn');
       btn.disabled = true;
       try {
-        // JSON is validated first: an invalid JSON blocks saving instead of silently saving stale data.
         const parsed = parseSuggestedJsonText();
         if (!parsed.ok) {
           setJsonStatus(false, parsed.msg);
@@ -2617,9 +2640,12 @@
               ${items.map(item => {
                 const prod = currentProducts.find(p => String(p.id) === String(item.product_id));
                 return `
-                  <div class="p-3 flex items-center justify-between text-xs bg-white">
-                    <span class="font-bold text-gray-800">${escapeHtml(prod ? prod.name : 'منتج محذوف #' + item.product_id)}${prod ? ` <span class="text-gray-400 font-normal">(${Number(prod.price || 0).toFixed(2)} JOD)</span>` : ''}</span>
-                    <button type="button" data-del-ft="${escapeHtml(item.id)}" class="text-red-600 font-bold hover:underline">إزالة</button>
+                  <div class="p-3 flex items-center justify-between gap-2 text-xs bg-white">
+                    <span class="font-bold text-gray-800 truncate">${escapeHtml(prod ? prod.name : 'منتج محذوف #' + item.product_id)}${prod ? ` <span class="text-gray-400 font-normal">(${Number(prod.price || 0).toFixed(2)} JOD)</span>` : ''}</span>
+                    <div class="flex items-center gap-2 shrink-0">
+                      <button type="button" data-edit-ft="${escapeHtml(item.id)}" class="text-blue-600 font-bold hover:underline">تعديل</button>
+                      <button type="button" data-del-ft="${escapeHtml(item.id)}" class="text-red-600 font-bold hover:underline">إزالة</button>
+                    </div>
                   </div>`;
               }).join('')}
             </div>
@@ -2627,14 +2653,91 @@
       }).join('');
     }
 
+    function buildProductOptionsHtml(selectedId = '') {
+      if (!currentProducts.length) return '<option value="">لا توجد منتجات</option>';
+      return currentProducts.map(p => {
+        const sel = String(p.id) === String(selectedId) ? 'selected' : '';
+        return `<option value="${escapeHtml(p.id)}" ${sel}>${escapeHtml(p.name)} (${Number(p.price || 0).toFixed(2)} JOD)${p.is_hidden ? ' 👻' : ''}</option>`;
+      }).join('');
+    }
+
     function populateFinishingProductDropdown() {
       const sel = document.getElementById('ft-product-select');
-      if (!sel) return;
-      sel.innerHTML = currentProducts.length
-        ? currentProducts.map(p => `<option value="${escapeHtml(p.id)}">${escapeHtml(p.name)} (${Number(p.price || 0).toFixed(2)} JOD)${p.is_hidden ? ' 👻' : ''}</option>`).join('')
-        : '<option value="">لا توجد منتجات</option>';
+      if (sel) sel.innerHTML = buildProductOptionsHtml(sel.value);
+      const editSel = document.getElementById('ft-edit-product-select');
+      if (editSel) editSel.innerHTML = buildProductOptionsHtml(editSel.value);
       renderFinishingTouchList();
     }
+
+    function startEditFinishingTouch(id) {
+      const item = currentFinishingConfig.find(r => String(r.id) === String(id));
+      if (!item) return;
+      const panel = document.getElementById('ft-edit-panel');
+      const tabSel = document.getElementById('ft-edit-tab-key');
+      const prodSel = document.getElementById('ft-edit-product-select');
+      document.getElementById('ft-edit-id').value = item.id;
+
+      if (item.tab_key && !Array.from(tabSel.options).some(o => o.value === item.tab_key)) {
+        const opt = document.createElement('option');
+        opt.value = item.tab_key;
+        opt.textContent = item.tab_key;
+        tabSel.appendChild(opt);
+      }
+      tabSel.value = item.tab_key || 'recommended';
+      prodSel.innerHTML = buildProductOptionsHtml(item.product_id);
+      if (item.product_id && !Array.from(prodSel.options).some(o => String(o.value) === String(item.product_id))) {
+        const opt = document.createElement('option');
+        opt.value = item.product_id;
+        opt.textContent = `منتج #${item.product_id}`;
+        opt.selected = true;
+        prodSel.appendChild(opt);
+      }
+
+      const prod = currentProducts.find(p => String(p.id) === String(item.product_id));
+      document.getElementById('ft-edit-title').textContent = `تعديل عنصر: ${prod ? prod.name : '#' + item.product_id}`;
+      panel.classList.remove('hidden');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function cancelEditFinishingTouch() {
+      document.getElementById('ft-edit-id').value = '';
+      document.getElementById('ft-edit-panel').classList.add('hidden');
+    }
+
+    document.getElementById('ft-edit-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const id = document.getElementById('ft-edit-id').value;
+      if (!id) return;
+      const tab_key = document.getElementById('ft-edit-tab-key').value;
+      const rawId = document.getElementById('ft-edit-product-select').value;
+      if (!rawId) return showToast('اختر منتجاً أولاً', 'warn');
+
+      const duplicate = currentFinishingConfig.some(
+        r => String(r.id) !== String(id) && r.tab_key === tab_key && String(r.product_id) === String(rawId)
+      );
+      if (duplicate) return showToast('هذا المنتج مربوط بالفعل في هذا التبويب', 'warn');
+
+      const btn = document.getElementById('ft-edit-submit-btn');
+      btn.disabled = true;
+      try {
+        const prod = currentProducts.find(p => String(p.id) === String(rawId));
+        const product_id = prod ? prod.id : rawId;
+        const { error } = await supabaseClient
+          .from('finishing_touch_config')
+          .update({ tab_key, product_id })
+          .eq('id', id);
+        if (error) throw error;
+
+        cancelEditFinishingTouch();
+        await fetchCartExtrasAdmin();
+        if (currentPreviewPage.includes('cart.html')) refreshStorePreview(false);
+        showToast('تم تحديث عنصر اللمسة الأخيرة بنجاح 🎈');
+      } catch (err) {
+        showToast(friendlyError(err), 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
 
     document.getElementById('gift-card-form').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -3172,7 +3275,12 @@
           if (currentPreviewPage.includes('cart.html')) refreshStorePreview(false);
           showToast('تم حذف تصميم البطاقة');
         }
+      } else if (target.dataset.editFt) {
+        startEditFinishingTouch(target.dataset.editFt);
       } else if (target.dataset.delFt) {
+        if (String(document.getElementById('ft-edit-id').value) === String(target.dataset.delFt)) {
+          cancelEditFinishingTouch();
+        }
         if (await sbDelete('finishing_touch_config', target.dataset.delFt)) {
           await fetchCartExtrasAdmin();
           if (currentPreviewPage.includes('cart.html')) refreshStorePreview(false);
@@ -3190,7 +3298,6 @@
       document.getElementById('sidebar-pane').classList.toggle('mobile-open');
     });
 
-    // Warn before leaving with unsaved suggested-message edits.
     window.addEventListener('beforeunload', function(e) {
       const d = document.getElementById('sm-dirty');
       if (d && !d.classList.contains('hidden')) { e.preventDefault(); e.returnValue = ''; }
