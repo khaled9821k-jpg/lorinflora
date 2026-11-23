@@ -4,98 +4,485 @@
   <script src="lorin-preloader.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>إتمام الطلب - Lorin 🌸</title>
+  <title>إتمام الطلب - Lorin 🌸 | Checkout</title>
 
   <link rel="icon" type="image/png" href="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png">
   
-  <link rel="stylesheet" href="base.css">
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Fonts: Tajawal (Arabic) & Cormorant Garamond (Editorial Serif for English / Headings) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Tajawal:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- مكتبة Supabase للاتصال بقاعدة البيانات -->
+  
+  <!-- Supabase CDN & Store Modules -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="lorin-store-settings.js"></script>
+  <script src="lorin-i18n.js"></script>
+  <script src="lorin-auth.js"></script>
+
+  <!-- Leaflet Map for Interactive Delivery Location Picker -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <style>
+    :root {
+      --lorin-brand: #00313C;
+      --lorin-brand-hover: #00222B;
+      --lorin-accent: #07515b;
+      --lorin-canvas: #FAF8F5;
+      --lorin-card-bg: #FFFFFF;
+      --lorin-border: #E5E7EB;
+      --lorin-border-focus: #00313C;
+      --lorin-text: #1F292E;
+      --lorin-muted: #6B7280;
+    }
+
     html {
-        scroll-behavior: smooth;
-        height: 100%;
+      scroll-behavior: smooth;
+      height: 100%;
     }
 
-    body { 
-        font-family: 'Tajawal', sans-serif; 
-        background-color: #fcfcfc; 
-        color: #333; 
-        margin: 0; 
-        padding: 0; 
-        overflow-x: hidden;
-        min-height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background-color: var(--lorin-canvas);
+      color: var(--lorin-text);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
+    /* Top Utility Bar */
     .custom-pill-utility-bar {
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-        background: #ffffff;
-        display: block;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      background: #FFFFFF;
+      display: block;
     }
+    .pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #F8F9FA;
+      border: 1px solid #E9ECEF;
+      border-radius: 50px;
+      padding: 5px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #333333;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .pill-btn:hover { background: #F1F3F5; border-color: #DEE2E6; }
+    .pill-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: #FFFFFF;
+      border: 1px solid #EDF2F7;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      min-width: 140px;
+      z-index: 99 !important;
+      padding: 6px;
+    }
+    .pill-dropdown-menu.show { display: block; }
+    .pill-dropdown-item {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border: none;
+      background: transparent;
+      font-size: 12px;
+      color: #495057;
+      text-align: right;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .pill-dropdown-item:hover { background: #F8F9FA; color: #000; }
+    .pill-dropdown-item.active { font-weight: 700; background: #F1F3F5; }
 
+    /* Sticky Main Header */
     header.header-wrapper {
-        position: sticky;
-        top: 0;
-        z-index: 999;
-        background: #ffffff;
-        width: 100%;
-        border-bottom: 1px solid #f1f1f1;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: #FFFFFF;
+      width: 100%;
+      border-bottom: 1px solid #F1F1F1;
     }
-
     .header--floward-style {
-        max-width: 1350px !important;
-        margin: 0 auto;
-        padding: 1rem 1.5rem !important;
-        display: grid !important;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center !important;
+      max-width: 1350px !important;
+      margin: 0 auto;
+      padding: 1rem 1.5rem !important;
+      display: grid !important;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center !important;
     }
-
-    .page-width.pill-bar-container {
-        max-width: 1350px !important;
-    }
-
-    :root { --floward-main-color: #00313C; --floward-font-size: 14px; --floward-icon-size: 20px; }
     .floward-left-group { display: flex !important; align-items: center !important; gap: 1.5rem !important; justify-self: start; }
     .floward-center-group { justify-self: center; text-align: center; }
-    .floward-right-group { display: flex !important; align-items: center !important; gap: 1.5rem !important; justify-self: end; }
-    .floward-btn-link { display: inline-flex !important; align-items: center !important; gap: 0.4rem !important; color: var(--floward-main-color) !important; text-decoration: none !important; font-size: var(--floward-font-size) !important; font-weight: 500 !important; background: transparent !important; border: none !important; cursor: pointer !important; padding: 0 !important; }
-    .floward-svg-icon { width: var(--floward-icon-size) !important; height: var(--floward-icon-size) !important; flex-shrink: 0; }
-    
-    .floward-search-overlay { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.1); z-index: 99999; border-top: 1px solid #eee; }
-    .floward-search-overlay.is-open { display: block !important; }
-    
-    .floward-menu-drawer, .floward-cart-drawer { position: fixed !important; top: 0 !important; left: 0 !important; width: 380px; max-width: 85vw; height: 100vh !important; background: #ffffff !important; z-index: 2147483647 !important; box-shadow: 4px 0 25px rgba(0,0,0,0.12); padding: 2rem 1.5rem; box-sizing: border-box; display: flex; flex-direction: column; visibility: hidden; opacity: 0; transform: translateX(-100%); transition: transform 0.4s ease, opacity 0.4s ease, visibility 0.4s ease; }
-    .floward-menu-drawer.is-open, .floward-cart-drawer.is-open { visibility: visible !important; opacity: 1 !important; transform: translateX(0) !important; }
-    .floward-drawer-backdrop { position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0, 0, 0, 0.4) !important; z-index: 2147483646 !important; visibility: hidden; opacity: 0; transition: opacity 0.35s ease, visibility 0.35s ease; }
-    .floward-drawer-backdrop.is-open { visibility: visible !important; opacity: 1 !important; }
+    .floward-right-group { display: flex !important; align-items: center !important; gap: 1.5rem !important; justify-self: end; position: relative; }
+    .floward-btn-link {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 0.4rem !important;
+      color: var(--lorin-brand) !important;
+      text-decoration: none !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      background: transparent !important;
+      border: none !important;
+      cursor: pointer !important;
+      padding: 0 !important;
+    }
+    .floward-svg-icon { width: 20px !important; height: 20px !important; flex-shrink: 0; }
 
-    @media screen and (max-width: 768px) {
-        .header--floward-style { padding: 0.8rem 1rem !important; gap: 10px; }
-        .floward-left-group, .floward-right-group { gap: 0.8rem !important; }
-        .floward-btn-link span { display: none; }
-        .floward-svg-icon { width: 22px !important; height: 22px !important; }
-        .header__heading-link img { height: 38px !important; }
+    /* Step Indicator Bar (Screenshots 5, 6, 10) */
+    .checkout-step-stepper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      font-family: 'Cormorant Garamond', 'Tajawal', Georgia, serif;
+    }
+    .checkout-step-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 26px;
+      font-weight: 600;
+      color: #9CA3AF;
+      transition: color 0.2s;
+    }
+    .checkout-step-item.is-active {
+      color: var(--lorin-brand);
+      font-weight: 700;
+    }
+    .checkout-step-item.is-completed {
+      color: var(--lorin-brand);
+      cursor: pointer;
+    }
+    .checkout-step-check {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #10B981;
+      color: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .checkout-step-divider {
+      color: #9CA3AF;
+      font-size: 22px;
+    }
+
+    /* Cards & Containers */
+    .lorin-checkout-card {
+      background: #FFFFFF;
+      border: 1px solid var(--lorin-border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .lorin-input-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+    .lorin-input-field {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--lorin-border);
+      border-radius: 6px;
+      font-size: 14px;
+      color: #111827;
+      background: #FFFFFF;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+    .lorin-input-field:focus {
+      border-color: var(--lorin-brand);
+      box-shadow: 0 0 0 3px rgba(0, 49, 60, 0.08);
+    }
+
+    /* Phone Input with +962 Flag */
+    .lorin-checkout-phone-wrap {
+      display: flex;
+      border: 1px solid var(--lorin-border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #FFFFFF;
+      transition: border-color 0.15s;
+    }
+    .lorin-checkout-phone-wrap:focus-within {
+      border-color: var(--lorin-brand);
+      box-shadow: 0 0 0 3px rgba(0, 49, 60, 0.08);
+    }
+    .lorin-checkout-flag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #F9FAFB;
+      border-inline-end: 1px solid var(--lorin-border);
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      user-select: none;
+    }
+    .lorin-checkout-phone-input {
+      flex: 1;
+      border: none;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #111827;
+      outline: none;
+      font-family: inherit;
+    }
+
+    /* Toggle Switch (Screenshot 5) */
+    .lorin-toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+    .lorin-toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .lorin-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #E5E7EB;
+      transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 34px;
+    }
+    .lorin-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    input:checked + .lorin-slider {
+      background-color: var(--lorin-brand);
+    }
+    input:checked + .lorin-slider:before {
+      transform: translateX(22px);
+    }
+
+    /* Delivery Slot Selectable Cards (Screenshots 5 & 6) */
+    .lorin-slot-card {
+      border: 1px solid var(--lorin-border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      cursor: pointer;
+      background: #FFFFFF;
+      transition: border-color 0.2s, background 0.2s;
+      flex: 1;
+      min-width: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .lorin-slot-card:hover {
+      border-color: #CBD5E1;
+      background: #FAF8F5;
+    }
+    .lorin-slot-card.is-selected {
+      border-color: var(--lorin-brand);
+      background: #FFFFFF;
+      box-shadow: 0 0 0 1px var(--lorin-brand);
+    }
+    .lorin-radio-dot {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #D1D5DB;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s;
+    }
+    .lorin-slot-card.is-selected .lorin-radio-dot,
+    .lorin-payment-card.is-selected .lorin-radio-dot {
+      border-color: var(--lorin-brand);
+    }
+    .lorin-slot-card.is-selected .lorin-radio-dot::after,
+    .lorin-payment-card.is-selected .lorin-radio-dot::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--lorin-brand);
+      border-radius: 50%;
+    }
+
+    /* Black Express Banner (Screenshot 5) */
+    .lorin-express-banner {
+      background: #111111;
+      color: #FFFFFF;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    /* Deliver To Summary Card (Screenshot 10) */
+    .deliver-to-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #F3F4F6;
+    }
+    .deliver-to-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .btn-deliver-to-edit {
+      background: none;
+      border: none;
+      color: #111827;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: underline;
+      letter-spacing: 0.05em;
+    }
+    .btn-deliver-to-edit:hover {
+      color: var(--lorin-brand);
+    }
+
+    /* Payment Option Card (Screenshot 10) */
+    .lorin-payment-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      border: 1px solid var(--lorin-border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      background: #FFFFFF;
+      transition: border-color 0.2s;
+    }
+    .lorin-payment-card.is-selected {
+      border-color: var(--lorin-brand);
+      box-shadow: 0 0 0 1px var(--lorin-brand);
+    }
+
+    /* Primary CTA Buttons */
+    .btn-checkout-cta {
+      width: 100%;
+      background: #111111;
+      color: #FFFFFF;
+      padding: 15px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+    .btn-checkout-cta:hover {
+      background: var(--lorin-brand);
+    }
+    .btn-checkout-cta:disabled {
+      background: #D1D5DB;
+      color: #9CA3AF;
+      cursor: not-allowed;
+    }
+
+    /* Quantity Stepper (Screenshots 5, 6, 10) */
+    .lorin-qty-stepper {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--lorin-border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #FFFFFF;
+    }
+    .lorin-qty-btn {
+      padding: 4px 10px;
+      background: none;
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+      color: #4B5563;
+      transition: background 0.15s;
+    }
+    .lorin-qty-btn:hover { background: #F3F4F6; }
+    .lorin-qty-val {
+      padding: 0 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #111827;
+      min-width: 16px;
+      text-align: center;
+    }
+
+    /* Mobile Sticky Bar */
+    .mobile-sticky-checkout {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #FFFFFF;
+      border-top: 1px solid #E5E7EB;
+      padding: 12px 16px;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+      z-index: 999;
+    }
+    @media (max-width: 768px) {
+      .mobile-sticky-checkout { display: flex; }
+      body { padding-bottom: 80px; }
     }
   </style>
 </head>
 <body>
 
 <div>
-  <!-- شريط الأدوات العلوي (Utility Bar) -->
+  <!-- الشريط العلوي (Utility Bar) -->
   <div class="custom-pill-utility-bar">
-    <div class="page-width pill-bar-container" style="display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 auto; padding: 0 20px;">
+    <div class="page-width pill-bar-container" style="max-width: 1350px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap;">
       <div class="pill-dropdown-wrapper" style="position: relative;">
         <button type="button" class="pill-btn" onclick="togglePillDropdown('country-dropdown')">
           <span>الأردن (Jordan)</span>
-          <span class="pill-arrow">▾</span>
+          <span style="font-size: 9px; color: #6c757d;">▾</span>
         </button>
         <div id="country-dropdown" class="pill-dropdown-menu">
           <button type="button" class="pill-dropdown-item active"><span>الأردن</span></button>
@@ -105,10 +492,10 @@
       <div class="pill-dropdown-wrapper" style="position: relative;">
         <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
           <span>JOD (د.أ)</span>
-          <span class="pill-arrow">▾</span>
+          <span style="font-size: 9px; color: #6c757d;">▾</span>
         </button>
         <div id="currency-dropdown" class="pill-dropdown-menu">
-          <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
+          <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span style="font-size: 11px; color: #868e96;">(JOD)</span></button>
         </div>
       </div>
 
@@ -120,363 +507,584 @@
     </div>
   </div>
 
-  <style>
-    .pill-btn { display: inline-flex; align-items: center; gap: 6px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 50px; padding: 5px 16px; font-size: 12px; font-weight: 500; color: #333333; cursor: pointer; text-decoration: none; transition: all 0.2s ease; }
-    .pill-btn:hover { background: #f1f3f5; border-color: #dee2e6; }
-    .pill-arrow { font-size: 9px; color: #6c757d; }
-    .pill-dropdown-menu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: #ffffff; border: 1px solid #edf2f7; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); min-width: 140px; z-index: 99 !important; padding: 6px; }
-    .pill-dropdown-menu.show { display: block; }
-    .pill-dropdown-item { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border: none; background: transparent; font-size: 12px; color: #495057; text-align: right; cursor: pointer; border-radius: 6px; }
-    .pill-dropdown-item:hover { background: #f8f9fa; color: #000000; }
-    .pill-dropdown-item.active { font-weight: 700; background: #f1f3f5; }
-    .currency-code { font-size: 11px; color: #868e96; }
-  </style>
-
-  <script>
-    function togglePillDropdown(id) {
-      var dropdown = document.getElementById(id);
-      var allDropdowns = document.querySelectorAll('.pill-dropdown-menu');
-      allDropdowns.forEach(function(item) { if (item.id !== id) item.classList.remove('show'); });
-      dropdown.classList.toggle('show');
-    }
-    document.addEventListener('click', function(event) {
-      if (!event.target.closest('.pill-dropdown-wrapper')) {
-        document.querySelectorAll('.pill-dropdown-menu').forEach(function(item) { item.classList.remove('show'); });
-      }
-    });
-  </script>
-
   <!-- الهيدر الرئيسي -->
-  <header class="header-wrapper color-scheme">
+  <header class="header-wrapper">
     <div class="header header--floward-style page-width">
       <div class="floward-left-group">
-        <button type="button" class="floward-btn-link" id="btn-trigger-menu">
+        <a href="index.html" class="floward-btn-link">
           <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-          <span>Menu</span>
-        </button>
-        <button type="button" class="floward-btn-link" id="btn-trigger-search">
-          <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <span>Search</span>
-        </button>
+          <span data-i18n="nav_menu">القائمة</span>
+        </a>
       </div>
 
       <div class="floward-center-group">
         <a href="index.html" class="header__heading-link link">
-          <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 45px; object-fit: contain;">
+          <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 42px; object-fit: contain;">
         </a>
       </div>
 
       <div class="floward-right-group">
-        <a href="#" class="floward-btn-link">
+        <a href="#" class="floward-btn-link lorin-account-trigger">
           <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-          <span>Account</span>
+          <span class="btn-label" data-i18n="nav_account">حسابي</span>
         </a>
         <a href="cart.html" class="floward-btn-link relative" style="position: relative; text-decoration: none;">
           <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-          <span>Cart</span>
-          <span id="cart-counter-badge" style="display:none; position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; border-radius: 50%; font-size: 11px; width: 18px; height: 18px; font-weight: bold; align-items: center; justify-content: center;">0</span>
+          <span data-i18n="nav_cart">السلة</span>
+          <span id="cart-counter-badge" style="display:none; position: absolute; top: -5px; right: -8px; background: #E74C3C; color: white; border-radius: 50%; font-size: 11px; width: 18px; height: 18px; font-weight: bold; align-items: center; justify-content: center;">0</span>
         </a>
-      </div>
-
-      <!-- نافذة البحث الفوري -->
-      <div id="box-search-overlay" class="floward-search-overlay">
-        <div style="padding: 25px; max-width: 600px; margin: 0 auto;">
-          <input type="text" id="live-search-input" placeholder="ابحث عن الزهور والهدايا (اكتب اسم المنتج)..." oninput="performLiveSearch(this.value)" style="width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-          <div id="live-search-results" style="margin-top: 15px; max-height: 300px; overflow-y: auto; text-align: right; display: flex; flex-direction: column; gap: 10px;"></div>
-        </div>
       </div>
     </div>
   </header>
 
-  <!-- نافذة سلة التسوق الجانبية -->
-  <div id="cart-drawer-backdrop" class="floward-drawer-backdrop"></div>
-  <div id="cart-drawer" class="floward-cart-drawer">
-    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
-      <span style="font-size: 1.5rem; font-weight: 700; color: #00313C;">سلة المشتريات 🛍️</span>
-      <button type="button" id="btn-close-cart" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
-    </div>
-    <div id="cart-items-container" style="padding: 20px 0; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;"></div>
-    <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: auto;">
-      <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; margin-bottom: 15px;">
-        <span>المجموع الكلي:</span>
-        <span id="cart-total-price" style="color: #e74c3c;">0 د.أ</span>
+  <!-- المحتوى الرئيسي لتجربة Checkout -->
+  <main class="max-w-[1300px] mx-auto px-4 py-8 w-full flex-1">
+    
+    <!-- Step Indicator Bar (Screenshots 5, 6, 10) -->
+    <div class="checkout-step-stepper" id="checkout-stepper">
+      <div class="checkout-step-item is-active" id="step-indicator-delivery" onclick="goToStep(1)">
+        <span id="step-check-delivery" class="checkout-step-check hidden">✓</span>
+        <span data-i18n="step_delivery">تفاصيل التوصيل</span>
       </div>
-      <button onclick="goToCheckout()" style="width: 100%; background: #00313C; color: white; padding: 12px; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; text-align: center;">إتمام الطلب وتعبئة البيانات 🛍️</button>
-    </div>
-  </div>
-
-  <!-- المنيو الجانبي -->
-  <div id="box-menu-backdrop" class="floward-drawer-backdrop"></div>
-  <div id="box-menu-drawer" class="floward-menu-drawer">
-    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #eee;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" style="height: 30px;">
-        <span style="font-size: 1.5rem; font-weight: 700; color: #00313C;">Lorin</span>
+      <span class="checkout-step-divider">—</span>
+      <div class="checkout-step-item" id="step-indicator-payment" onclick="goToStep(2)">
+        <span data-i18n="step_payment">الدفع وتأكيد الطلب</span>
       </div>
-      <button type="button" id="btn-close-menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
     </div>
-    <div style="padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
-      <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الرئيسية</a>
-      <a href="#" style="text-decoration: none; color: #333; font-size: 16px;">الزهور المنسقة</a>
-      <a href="#" style="text-decoration: none; color: #333; font-size: 16px;">هدايا ورد طبيعي</a>
-    </div>
-  </div>
 
-  <!-- المحتوى الرئيسي -->
-  <main class="max-w-4xl mx-auto px-4 py-10 w-full flex-1">
-    <h1 class="text-2xl font-bold text-[#00313C] mb-6 text-right">إتمام طلب الهدية 🎁</h1>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <!-- شبكة من عمودين: العمود الرئيسي (62%) + الملخص الجانبي (38%) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       
-      <div class="md:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h2 class="text-base font-bold text-gray-800 mb-4 pb-2 border-b">معلومات التوصيل والمستلم</h2>
-        <form id="checkout-form" onsubmit="submitCheckout(event)" class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">اسم المستلم الكامل</label>
-            <input type="text" id="receiver-name" required placeholder="مثال: سارة محمد" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#00313C] outline-none bg-gray-50">
-          </div>
+      <!-- العمود الرئيسي (Step 1 & Step 2 Forms) -->
+      <div class="lg:col-span-7 xl:col-span-8">
+        
+        <!-- =================== STEP 1: DELIVERY DETAILS =================== -->
+        <div id="checkout-step-1" class="space-y-6">
           
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">رقم الهاتف (واتساب)</label>
-              <input type="tel" id="receiver-phone" required placeholder="07xxxxxxxx" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#00313C] outline-none bg-gray-50" dir="ltr" style="text-align: right;">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">المدينة</label>
-              <select id="receiver-city" class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#00313C] outline-none bg-gray-50">
-                <option value="عمان">عمان</option>
-                <option value="الزرقاء">الزرقاء</option>
-                <option value="إربد">إربد</option>
-                <option value="السلط">السلط</option>
-                <option value="العقبة">العقبة</option>
-                <option value="مادبا">مادبا</option>
-              </select>
+          <!-- 1. "Collect the address" Toggle Card (Screenshot 5) -->
+          <div class="lorin-checkout-card" style="background: #FAF8F5; border-color: #ECECEC;">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <h3 class="text-sm font-bold text-gray-900 mb-1" data-i18n="collect_address_title">طلب العنوان من المستلم نيابة عنك</h3>
+                <p class="text-xs text-gray-500 leading-relaxed" data-i18n="collect_address_desc">سوف نقوم بالتواصل مع المستلم بلباقة لأخذ تفاصيل العنوان. قد يتأثر وقت التوصيل في حال عدم رد المستلم.</p>
+              </div>
+              <label class="lorin-toggle-switch">
+                <input type="checkbox" id="toggle-collect-address" onchange="toggleCollectAddress(this.checked)">
+                <span class="lorin-slider"></span>
+              </label>
             </div>
           </div>
 
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">العنوان بالتفصيل (المنطقة، الشارع، رقم البناية)</label>
-            <textarea id="receiver-address" required rows="2" placeholder="اكتب العنوان بوضوح لضمان سرعة التوصيل..." class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#00313C] outline-none bg-gray-50"></textarea>
+          <!-- 2. Recipient Details -->
+          <div class="lorin-checkout-card">
+            <h3 class="font-serif text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100" data-i18n="recipient_details_title">معلومات المستلم</h3>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="lorin-input-label" data-i18n="recipient_name_label">اسم المستلم الكامل</label>
+                <input type="text" id="receiver-name" required placeholder="مثال: سارة محمد" class="lorin-input-field" data-i18n-placeholder="recipient_name_placeholder">
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="lorin-input-label mb-0" data-i18n="recipient_phone_label">رقم هاتف المستلم (واتساب)</label>
+                  <span class="text-[11px] text-gray-400" title="للتواصل مع المستلم لتسليم الهدية">ⓘ</span>
+                </div>
+                <div class="lorin-checkout-phone-wrap">
+                  <div class="lorin-checkout-flag">
+                    <span>🇯🇴</span>
+                    <span>+962 ▾</span>
+                  </div>
+                  <input type="tel" id="receiver-phone" required placeholder="7XXXXXXXX" class="lorin-checkout-phone-input" dir="ltr" maxlength="10">
+                </div>
+              </div>
+
+              <!-- Contextual Notice (Screenshot 6) -->
+              <div id="contextual-address-notice" class="hidden p-3 bg-amber-50/70 border border-amber-200 rounded-lg text-xs text-amber-900 leading-relaxed" data-i18n="context_gift_self_notice">
+                ⓘ بما أن هذا الطلب لك شخصياً، سنحتاج عنوان التوصيل الكامل أدناه لتأكيد الموعد.
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">بطاقة هدية / ملاحظات (اختياري)</label>
-            <textarea id="gift-note" rows="2" placeholder="اكتب عبارة الهدية إذا كنت تريد إرفاقها مع الزهور..." class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-[#00313C] outline-none bg-gray-50"></textarea>
+          <!-- 3. Recipient Address (Hides when collect address toggle is ON) -->
+          <div id="recipient-address-card" class="lorin-checkout-card">
+            <h3 class="font-serif text-lg font-bold text-gray-900 mb-1" data-i18n="recipient_address_title">عنوان التوصيل</h3>
+            <p class="text-xs text-gray-500 mb-4" data-i18n="recipient_address_desc">حدد موقع التوصيل على الخريطة لمساعدتنا على الوصول بالموعد الدقيق</p>
+
+            <div class="space-y-4">
+              <!-- Interactive Map Picker -->
+              <div class="relative border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
+                <div id="leaflet-map-container" style="height: 180px; width: 100%; z-index: 1;"></div>
+                <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none z-[400]">
+                  <span class="bg-white/95 text-[11px] font-semibold text-gray-700 px-2.5 py-1 rounded shadow-sm" id="map-status-pill" data-i18n="map_pin_instruction">انقر على الخريطة أو اسحب المؤشر</span>
+                  <button type="button" onclick="locateUserGps()" class="pointer-events-auto bg-[#00313C] text-white text-[11px] font-bold px-3 py-1 rounded shadow hover:bg-black transition flex items-center gap-1.5" data-i18n="btn_use_current_location">
+                    موقعي الحالي 📍
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="lorin-input-label" data-i18n="area_label">المنطقة *</label>
+                  <select id="receiver-area" class="lorin-input-field cursor-pointer">
+                    <option value="عمان - دابوق">عمان - دابوق</option>
+                    <option value="عمان - عبدون">عمان - عبدون</option>
+                    <option value="عمان - الصويفية">عمان - الصويفية</option>
+                    <option value="عمان - دير غبار">عمان - دير غبار</option>
+                    <option value="عمان - خلدا">عمان - خلدا</option>
+                    <option value="عمان - الشميساني">عمان - الشميساني</option>
+                    <option value="عمان - الجبيهة">عمان - الجبيهة</option>
+                    <option value="عمان - تلاع العلي">عمان - تلاع العلي</option>
+                    <option value="عمان - وادي السير">عمان - وادي السير</option>
+                    <option value="الزرقاء">الزرقاء</option>
+                    <option value="إربد">إربد</option>
+                    <option value="السلط">السلط</option>
+                    <option value="العقبة">العقبة</option>
+                    <option value="مادبا">مادبا</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="lorin-input-label" data-i18n="full_address_label">العنوان بالتفصيل *</label>
+                  <input type="text" id="receiver-full-address" required placeholder="اسم الشارع، رقم البناية، الشقة أو المعلم..." class="lorin-input-field" data-i18n-placeholder="full_address_placeholder">
+                </div>
+              </div>
+            </div>
           </div>
 
-          <button type="submit" id="submit-order-btn" class="w-full bg-[#00313C] text-white py-3.5 rounded-xl font-bold text-sm hover:bg-[#00222B] transition shadow-md mt-4 cursor-pointer">
-            تأكيد وإرسال الطلب عبر واتساب 📲
+          <!-- 4. Delivery Date & Time Selector (Screenshots 5 & 6) -->
+          <div class="lorin-checkout-card">
+            <h3 class="font-serif text-lg font-bold text-gray-900 mb-4" data-i18n="delivery_time_title">تاريخ ووقت التوصيل</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="slot-cards-container">
+              <!-- Express Card -->
+              <div class="lorin-slot-card is-selected" id="slot-express" onclick="selectSlot('express')">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold text-gray-900" data-i18n="express_delivery">توصيل سريع</span>
+                  <span class="lorin-radio-dot"></span>
+                </div>
+                <div class="text-[11px] text-gray-500 mb-3" data-i18n="express_delivery_sub">توصيل سريع خلال 120 دقيقة</div>
+                <div class="text-xs font-bold text-gray-900" id="slot-express-price">JOD 5</div>
+              </div>
+
+              <!-- Same Day Card -->
+              <div class="lorin-slot-card" id="slot-sameday" onclick="selectSlot('sameday')">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold text-gray-900" data-i18n="sameday_delivery">توصيل بنفس اليوم</span>
+                  <span class="lorin-radio-dot"></span>
+                </div>
+                <select id="sameday-slot-select" class="text-[11px] text-gray-600 border border-gray-200 rounded p-1 mb-2 w-full bg-white outline-none">
+                  <option value="1:00 PM - 4:00 PM">01:00 م - 04:00 م</option>
+                  <option value="5:00 PM - 9:00 PM">05:00 م - 09:00 م</option>
+                  <option value="9:00 PM - 12:00 AM">09:00 م - 12:00 ليلاً</option>
+                </select>
+                <div class="text-xs font-bold text-gray-900">JOD 0</div>
+              </div>
+
+              <!-- Custom Date & Time -->
+              <div class="lorin-slot-card" id="slot-custom" onclick="selectSlot('custom')">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold text-gray-900" data-i18n="choose_datetime">موعد مخصص</span>
+                  <span class="lorin-radio-dot"></span>
+                </div>
+                <input type="date" id="custom-date-input" class="text-[11px] text-gray-600 border border-gray-200 rounded p-1 mb-2 w-full bg-white outline-none">
+                <div class="text-xs font-bold text-gray-900">JOD 0</div>
+              </div>
+            </div>
+
+            <!-- Black Express Banner (Screenshot 5) -->
+            <div id="express-info-banner" class="lorin-express-banner">
+              <div class="flex items-center gap-2">
+                <span>⚡</span>
+                <span data-i18n="express_banner_text">أدخل عنوان المستلم وسنضمن وصول هديتك الفاخرة خلال 120 دقيقة!</span>
+              </div>
+              <a href="#" onclick="alert('خدمة التوصيل السريع من Lorin تضمن توصيل الباقات المنسقة طازجة خلال ساعتين في عمان.'); return false;" class="text-[11px] underline text-gray-300 hover:text-white" data-i18n="express_banner_link">تعرف أكثر</a>
+            </div>
+          </div>
+
+          <!-- 5. "Keep my identity a secret" Card (Screenshots 5 & 6) -->
+          <div class="lorin-checkout-card" style="background: #FFFFFF;">
+            <label class="flex items-center justify-between cursor-pointer">
+              <div>
+                <div class="text-xs font-bold text-gray-900" data-i18n="secret_identity_title">إخفاء هويتي عن المستلم (مفاجأة 🤫)</div>
+                <div class="text-[11px] text-gray-500 mt-0.5" data-i18n="secret_identity_desc">عند تفعيل هذا الخيار، لن نشارك أي معلومات شخصية عنك مع المستلم وسيبقى اسمك سراً.</div>
+              </div>
+              <input type="checkbox" id="check-secret-identity" class="w-4 h-4 text-[#00313C] rounded border-gray-300 focus:ring-0 cursor-pointer">
+            </label>
+          </div>
+
+          <button type="button" onclick="validateStep1AndProceed()" class="btn-checkout-cta" data-i18n="btn_proceed_to_payment">
+            المتابعة إلى الدفع · <span class="cta-price-holder">0.00 د.أ</span>
           </button>
-        </form>
+        </div>
+
+        <!-- =================== STEP 2: PAYMENT & CONFIRMATION =================== -->
+        <div id="checkout-step-2" class="space-y-6 hidden">
+          
+          <!-- Payment Options (Screenshot 10) -->
+          <div class="lorin-checkout-card">
+            <h3 class="font-serif text-lg font-bold text-gray-900 mb-4" data-i18n="payment_options_title">خيارات الدفع المتاحة</h3>
+            
+            <div id="payment-options-list">
+              <!-- Apple Pay -->
+              <div class="lorin-payment-card is-selected" onclick="selectPaymentMethod('apple_pay', this)">
+                <div class="flex items-center gap-3">
+                  <span class="text-base font-bold">Pay</span>
+                  <span class="text-xs font-semibold text-gray-800" data-i18n="pay_apple">Apple pay</span>
+                </div>
+                <span class="lorin-radio-dot"></span>
+              </div>
+
+              <!-- Google Pay -->
+              <div class="lorin-payment-card" onclick="selectPaymentMethod('google_pay', this)">
+                <div class="flex items-center gap-3">
+                  <span class="text-xs font-bold text-blue-600">G Pay</span>
+                  <span class="text-xs font-semibold text-gray-800" data-i18n="pay_google">Google Pay</span>
+                </div>
+                <span class="lorin-radio-dot"></span>
+              </div>
+
+              <!-- Credit Card -->
+              <div class="lorin-payment-card" onclick="selectPaymentMethod('card', this)">
+                <div class="flex items-center gap-3">
+                  <span class="text-base">💳</span>
+                  <span class="text-xs font-semibold text-gray-800" data-i18n="pay_card">بطاقة ائتمان (Visa / Mastercard)</span>
+                </div>
+                <span class="lorin-radio-dot"></span>
+              </div>
+
+              <!-- CliQ -->
+              <div class="lorin-payment-card" onclick="selectPaymentMethod('cliq', this)">
+                <div class="flex items-center gap-3">
+                  <span class="text-base">⚡</span>
+                  <span class="text-xs font-semibold text-gray-800" data-i18n="pay_cliq">تحويل فوري عبر CliQ (الأردن)</span>
+                </div>
+                <span class="lorin-radio-dot"></span>
+              </div>
+
+              <!-- Cash On Delivery -->
+              <div class="lorin-payment-card" onclick="selectPaymentMethod('cod', this)">
+                <div class="flex items-center gap-3">
+                  <span class="text-base">💵</span>
+                  <span class="text-xs font-semibold text-gray-800" data-i18n="pay_cod">الدفع عند الاستلام (نقداً)</span>
+                </div>
+                <span class="lorin-radio-dot"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Promo Code Section (Screenshot 10) -->
+          <div class="lorin-checkout-card">
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                <span>🏷️</span>
+                <span id="promo-status-label" data-i18n="promo_available_label">عروض وخصومات متاحة</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" id="checkout-promo-input" placeholder="أدخل كود الخصم" class="border border-gray-200 rounded px-2.5 py-1 text-xs uppercase outline-none focus:border-[#00313C] w-32" data-i18n-placeholder="promo_placeholder">
+                <button type="button" id="btn-apply-promo" onclick="applyPromoCode()" class="text-xs font-bold text-[#00313C] hover:underline" data-i18n="promo_apply">تطبيق</button>
+              </div>
+            </div>
+            <div id="promo-feedback-msg" class="text-[11px] mt-2 hidden"></div>
+          </div>
+
+          <!-- "Deliver To" Summary Card with Inline EDIT (Screenshot 10) -->
+          <div class="lorin-checkout-card">
+            <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-2">
+              <h3 class="font-serif text-lg font-bold text-gray-900" data-i18n="deliver_to_title">بيانات التوصيل المختارة</h3>
+              <span class="text-xs text-gray-500 font-semibold flex items-center gap-1.5">
+                <span>🇯🇴</span>
+                <span id="deliver-to-city-tag">Amman</span>
+              </span>
+            </div>
+
+            <!-- Row 1: Name & Phone -->
+            <div class="deliver-to-row">
+              <div>
+                <div class="text-xs font-bold text-gray-900" id="summary-rec-name">سارة محمد</div>
+                <div class="text-[11px] text-gray-500" dir="ltr" id="summary-rec-phone">+962 7XXXXXXXX</div>
+              </div>
+              <button type="button" onclick="goToStep(1)" class="btn-deliver-to-edit" data-i18n="btn_edit">EDIT</button>
+            </div>
+
+            <!-- Row 2: Delivery Date & Time -->
+            <div class="deliver-to-row">
+              <div>
+                <div class="text-[11px] text-gray-400 mb-0.5" data-i18n="delivery_time_title">موعد التوصيل</div>
+                <div class="text-xs font-bold text-gray-900" id="summary-rec-datetime">اليوم | توصيل سريع (120 دقيقة)</div>
+              </div>
+              <button type="button" onclick="goToStep(1)" class="btn-deliver-to-edit" data-i18n="btn_edit">EDIT</button>
+            </div>
+
+            <!-- Row 3: Address -->
+            <div class="deliver-to-row">
+              <div>
+                <div class="text-[11px] text-gray-400 mb-0.5" data-i18n="recipient_address_title">عنوان التوصيل</div>
+                <div class="text-xs font-bold text-gray-900" id="summary-rec-address">عمان - دابوق</div>
+              </div>
+              <button type="button" onclick="goToStep(1)" class="btn-deliver-to-edit" data-i18n="btn_edit">EDIT</button>
+            </div>
+          </div>
+
+          <!-- Add a note for the delivery team (Screenshot 10) -->
+          <div class="lorin-checkout-card">
+            <details class="group cursor-pointer">
+              <summary class="flex items-center justify-between text-xs font-bold text-gray-800 list-none">
+                <span class="flex items-center gap-2">
+                  <span>✏️</span>
+                  <span data-i18n="delivery_team_note_title">إضافة ملاحظة لفريق التوصيل</span>
+                </span>
+                <span class="text-gray-400 group-open:rotate-180 transition-transform">▾</span>
+              </summary>
+              <div class="pt-3 mt-2 border-t border-gray-100">
+                <textarea id="delivery-driver-note" rows="2" placeholder="اكتب أي ملاحظة خاصة بفريق التوصيل (مثال: عدم رن الجرس، ترك الطلب عند الباب)..." class="lorin-input-field text-xs" data-i18n-placeholder="delivery_team_note_placeholder"></textarea>
+              </div>
+            </details>
+          </div>
+
+          <button type="button" id="btn-final-place-order" onclick="submitFinalOrder()" class="btn-checkout-cta" data-i18n="btn_place_order">
+            تأكيد وإرسال الطلب · <span class="cta-price-holder">0.00 د.أ</span>
+          </button>
+        </div>
+
       </div>
 
-      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-fit space-y-4">
-        <h2 class="text-base font-bold text-gray-800 mb-2 pb-2 border-b">ملخص الطلب</h2>
-        <div id="checkout-items-list" class="space-y-3 max-h-60 overflow-y-auto"></div>
-        <div id="checkout-gift-extras-box" class="hidden bg-[#fffdf9] border border-dashed border-[#d6cfc0] rounded-xl p-3 text-xs space-y-1.5"></div>
-        <div class="border-t pt-4 space-y-2">
-          <div class="flex justify-between text-sm text-gray-600">
-            <span>المجموع الفرعي:</span>
-            <span id="subtotal-price">0.00 د.أ</span>
+      <!-- العمود الجانبي: ملخص الطلب الثابت Sticky Order Summary (Screenshots 5, 6, 10) -->
+      <div class="lg:col-span-5 xl:col-span-4 sticky top-24">
+        <div class="lorin-checkout-card space-y-4">
+          <h3 class="font-serif text-lg font-bold text-gray-900 pb-2 border-b border-gray-100" data-i18n="order_summary_title">ملخص الطلب</h3>
+
+          <!-- Cart items list -->
+          <div id="checkout-cart-items" class="space-y-3 max-h-72 overflow-y-auto pr-1"></div>
+
+          <!-- Gift Extras (Photo stick-in & card message) -->
+          <div id="checkout-gift-extras" class="hidden bg-[#FAF8F5] border border-dashed border-[#D6CFC0] rounded-xl p-3 text-xs space-y-1.5"></div>
+
+          <!-- Pricing Breakdown -->
+          <div class="border-t border-gray-100 pt-4 space-y-2 text-xs">
+            <div class="flex justify-between text-gray-600">
+              <span data-i18n="subtotal">المجموع الفرعي:</span>
+              <span id="summary-subtotal" class="font-semibold text-gray-800">0.00 د.أ</span>
+            </div>
+
+            <div id="row-photo-stick" class="hidden justify-between text-gray-600">
+              <span data-i18n="photo_stick_title">صورة إضافية:</span>
+              <span class="font-semibold text-gray-800">+2.50 د.أ</span>
+            </div>
+
+            <div id="row-card-fee" class="hidden justify-between text-gray-600">
+              <span data-i18n="card_extra_title">بطاقة إهداء:</span>
+              <span id="summary-card-fee" class="font-semibold text-gray-800">0.00 د.أ</span>
+            </div>
+
+            <div id="row-discount" class="hidden justify-between text-emerald-700 font-semibold">
+              <span id="summary-discount-label" data-i18n="discount">الخصم:</span>
+              <span id="summary-discount-val">- 0.00 د.أ</span>
+            </div>
+
+            <div class="flex justify-between text-gray-600">
+              <div>
+                <span data-i18n="delivery_charges">رسوم التوصيل:</span>
+                <p class="text-[10px] text-gray-400 leading-tight mt-0.5" data-i18n="delivery_disclaimer">يرجى العلم بأن بعض المناطق البعيدة أو التوصيل السريع قد يترتب عليها رسوم إضافية.</p>
+              </div>
+              <span id="summary-delivery-charge" class="font-semibold text-gray-800">0.00 د.أ</span>
+            </div>
+
+            <div class="flex justify-between items-center font-bold text-base text-[#00313C] pt-3 border-t border-gray-200">
+              <span data-i18n="total">المجموع الكلي:</span>
+              <span id="summary-final-total" class="text-lg text-red-600">0.00 د.أ</span>
+            </div>
           </div>
-          <div id="checkout-photo-row" class="hidden justify-between text-sm text-gray-600">
-            <span>صورة إضافية (Photo Stick-In):</span>
-            <span id="photo-fee-price">2.50 د.أ</span>
-          </div>
-          <div id="checkout-card-row" class="hidden justify-between text-sm text-gray-600">
-            <span id="card-fee-label">بطاقة إهداء:</span>
-            <span id="card-fee-price">0.00 د.أ</span>
-          </div>
-          <div id="checkout-discount-row" class="hidden justify-between text-sm text-emerald-700 font-semibold">
-            <span id="discount-label">الخصم:</span>
-            <span id="discount-amount">- 0.00 د.أ</span>
-          </div>
-          <div class="flex justify-between text-sm text-gray-600">
-            <span>رسوم التوصيل:</span>
-            <span>مجاناً 🌸</span>
-          </div>
-          <div class="flex justify-between font-bold text-base text-[#00313C] pt-2 border-t">
-            <span>المجموع الكلي:</span>
-            <span id="final-total-price" class="text-red-600">0.00 د.أ</span>
-          </div>
+
+          <!-- Primary CTA Button in Sidebar -->
+          <button type="button" id="sidebar-cta-btn" onclick="onSidebarCtaClick()" class="btn-checkout-cta mt-4">
+            المتابعة إلى الدفع · <span class="cta-price-holder">0.00 د.أ</span>
+          </button>
         </div>
       </div>
 
     </div>
   </main>
+
+  <!-- Mobile Sticky Bottom Checkout Bar -->
+  <div class="mobile-sticky-checkout items-center justify-between">
+    <div>
+      <div class="text-[10px] text-gray-500 uppercase" data-i18n="total">Total</div>
+      <div id="mobile-sticky-total" class="text-base font-bold text-[#00313C]">0.00 د.أ</div>
+    </div>
+    <button type="button" id="mobile-sticky-btn" onclick="onSidebarCtaClick()" class="bg-[#111111] text-white px-5 py-2.5 rounded font-bold text-xs uppercase tracking-wider">
+      المتابعة
+    </button>
+  </div>
 </div>
 
+<!-- Footer -->
+<footer style="background-color: #00313C; color: #ffffff; padding: 50px 20px 30px 20px; font-family: 'Tajawal', sans-serif; direction: rtl; margin-top: 50px;">
+  <div style="max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; padding-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+    <div>
+      <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 36px; filter: brightness(0) invert(1); object-fit: contain; margin-bottom: 16px;">
+      <p style="font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6;">متجر Lorin للزهور والهدايا الفاخرة - توصيل فوري داخل الأردن 🌸</p>
+    </div>
+    <div>
+      <div style="font-size: 13px; font-weight: 700; color: #ffffff; margin-bottom: 14px;">روابط سريعة</div>
+      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.7);">
+        <li><a href="index.html" style="color: inherit; text-decoration: none;">الرئيسية</a></li>
+        <li><a href="cart.html" style="color: inherit; text-decoration: none;">سلة المشتريات</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
 <script>
-  // تعريف عميل Supabase
+  // 1. Supabase Initialization
   const SUPABASE_URL = 'https://dptincirgzfwrlrpxajl.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_DbYCExpNFypVQARATbdeVw_hipYS1Oa';
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.supabaseClient = supabaseClient;
 
   const GIFT_KEY = 'lorin_gift_extras';
   const PROMO_KEY = 'lorin_promo';
   const PHOTO_STICK_FEE = 2.5;
 
-  function num(v) {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
+  let currentStep = 1;
+  let selectedSlotType = 'express';
+  let selectedPayment = 'apple_pay';
+  let activeMap = null;
+  let activeMarker = null;
+  let currentCoordinates = { lat: 31.9539, lng: 35.9106 };
+
+  function t(key, fallback) {
+    if (window.LorinI18n) return window.LorinI18n.t(key, fallback);
+    return fallback || key;
   }
 
-  function escHtml(v) {
-    return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
-  }
-
-  function readJsonStorage(key, fallback) {
+  function getCart() {
     try {
-      const raw = JSON.parse(localStorage.getItem(key));
-      return raw == null ? fallback : raw;
-    } catch (e) {
-      return fallback;
+      return JSON.parse(localStorage.getItem('lorin_cart')) || [];
+    } catch (_) {
+      return [];
     }
   }
 
-  // دالة جلب السلة
-  function getCart() { 
-      return JSON.parse(localStorage.getItem('lorin_cart')) || []; 
+  function saveCart(cart) {
+    localStorage.setItem('lorin_cart', JSON.stringify(cart));
+    renderOrderSummary();
+    updateCartBadges();
   }
 
   function getGiftExtras() {
-      const raw = readJsonStorage(GIFT_KEY, {});
-      return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+    try {
+      return JSON.parse(localStorage.getItem(GIFT_KEY)) || {};
+    } catch (_) {
+      return {};
+    }
   }
 
   function getPromoData() {
-      const raw = readJsonStorage(PROMO_KEY, null);
-      return (raw && typeof raw === 'object') ? raw : null;
+    try {
+      return JSON.parse(localStorage.getItem(PROMO_KEY)) || null;
+    } catch (_) {
+      return null;
+    }
   }
 
-  function computeDiscount(subtotal, promo) {
-      if (!promo || promo.status !== 'applied') return 0;
-      const val = num(promo.value);
-      const disc = promo.type === 'percent' ? (subtotal * val) / 100 : val;
-      return Math.max(0, Math.min(disc, subtotal));
-  }
-
-  function getCalculatedTotals(cart) {
-      const subtotal = cart.reduce((sum, item) => sum + (num(item.price) * Math.max(1, Math.floor(num(item.quantity) || 1))), 0);
-      const extras = getGiftExtras();
-      const hasPhoto = !!(cart.length && extras.photoStickIn && extras.photoStickIn.selected && extras.photoStickIn.imageUrl);
-      const photoFee = hasPhoto ? PHOTO_STICK_FEE : 0;
-
-      const cardObj = (extras.card && typeof extras.card === 'object') ? extras.card : null;
-      const cardDesignName = cardObj && cardObj.designName ? String(cardObj.designName) : '';
-      const cardMessage = cardObj && typeof cardObj.message === 'string' ? cardObj.message.trim() : '';
-      const cardFee = (cart.length && cardObj && cardObj.selected) ? Math.max(0, num(cardObj.price)) : 0;
-
-      const promo = getPromoData();
-      const discount = cart.length ? computeDiscount(subtotal, promo) : 0;
-      const total = Math.max(0, subtotal - discount + photoFee + cardFee);
-
-      return {
-          subtotal,
-          photoFee,
-          photoData: hasPhoto ? extras.photoStickIn : null,
-          cardFee,
-          cardDesignName,
-          cardMessage,
-          hasCardSelected: !!(cardObj && cardObj.selected),
-          promo,
-          discount,
-          total
-      };
-  }
-
-  // دالة حفظ السلة وتحديث جميع عدادات السلة في الصفحة (هاتف وكمبيوتر)
-  function saveCart(cart) { 
-      localStorage.setItem('lorin_cart', JSON.stringify(cart)); 
-      updateCartBadge(); 
-  }
-
-  // دالة تحديث عداد السلة - محدثة لتشمل الهواتف والكمبيوتر وتستهدف الـ ID والـ Classes معاً
-  function updateCartBadge() {
-      const cart = getCart();
-      const totalCount = cart.reduce((sum, item) => sum + (Math.max(1, Math.floor(num(item.quantity) || 1))), 0);
-      
-      // تحديث كل العدادات المحتملة في الصفحة (سواء هاتف أو كمبيوتر)
-      const badges = document.querySelectorAll('#cart-counter-badge, .cart-counter-badge, .mobile-cart-count');
-      
-      badges.forEach(badge => {
-          if (!badge) return;
-          if (totalCount > 0) { 
-              badge.textContent = totalCount; 
-              badge.style.display = 'flex'; 
-          } else { 
-              badge.style.display = 'none'; 
-          }
-      });
-  }
-
-  // الاستماع لتغيرات التخزين المحلي لتحديث العداد فوراً
-  window.addEventListener('storage', function(e) {
-      if (e.key === 'lorin_cart' || e.key === GIFT_KEY || e.key === PROMO_KEY) {
-          updateCartBadge();
-          renderCheckoutSummary();
-      }
-  });
-
-  function renderCheckoutSummary() {
+  function computeTotals() {
     const cart = getCart();
-    const container = document.getElementById('checkout-items-list');
-    const subtotalEl = document.getElementById('subtotal-price');
-    const finalTotalEl = document.getElementById('final-total-price');
-    const extrasBox = document.getElementById('checkout-gift-extras-box');
-    const photoRow = document.getElementById('checkout-photo-row');
-    const photoFeeEl = document.getElementById('photo-fee-price');
-    const cardRow = document.getElementById('checkout-card-row');
-    const cardLabelEl = document.getElementById('card-fee-label');
-    const cardFeeEl = document.getElementById('card-fee-price');
-    const discountRow = document.getElementById('checkout-discount-row');
-    const discountLabelEl = document.getElementById('discount-label');
-    const discountAmountEl = document.getElementById('discount-amount');
-    const giftNoteInput = document.getElementById('gift-note');
+    const subtotal = cart.reduce((sum, item) => sum + (Number(item.price || 0) * Math.max(1, Math.floor(Number(item.quantity) || 1))), 0);
+    const extras = getGiftExtras();
+
+    const hasPhoto = !!(cart.length && extras.photoStickIn && extras.photoStickIn.selected && extras.photoStickIn.imageUrl);
+    const photoFee = hasPhoto ? PHOTO_STICK_FEE : 0;
+
+    const cardObj = extras.card || null;
+    const cardFee = (cart.length && cardObj && cardObj.selected) ? Math.max(0, Number(cardObj.price || 0)) : 0;
+
+    const promo = getPromoData();
+    let discount = 0;
+    if (promo && promo.status === 'applied' && cart.length > 0) {
+      const v = Number(promo.value || 0);
+      discount = promo.type === 'percent' ? (subtotal * v) / 100 : v;
+      discount = Math.max(0, Math.min(discount, subtotal));
+    }
+
+    const activeSettings = window.LorinStoreSettings ? window.LorinStoreSettings.get() : {};
+    let deliveryFee = window.LorinStoreSettings ? window.LorinStoreSettings.computeDeliveryFee(subtotal - discount, activeSettings) : 0;
+    if (selectedSlotType === 'express') {
+      deliveryFee += 5; // Express delivery fee
+    }
+
+    const total = Math.max(0, subtotal - discount + photoFee + cardFee + deliveryFee);
+
+    return {
+      subtotal,
+      photoFee,
+      hasPhoto,
+      cardFee,
+      cardObj,
+      promo,
+      discount,
+      deliveryFee,
+      total
+    };
+  }
+
+  function updateCartBadges() {
+    const cart = getCart();
+    const count = cart.reduce((sum, item) => sum + Math.max(1, Math.floor(Number(item.quantity) || 1)), 0);
+    const badges = document.querySelectorAll('#cart-counter-badge');
+    badges.forEach(b => {
+      if (count > 0) {
+        b.textContent = count;
+        b.style.display = 'flex';
+      } else {
+        b.style.display = 'none';
+      }
+    });
+  }
+
+  // Render Order Summary Sticky Card (Screenshots 5, 6, 10)
+  function renderOrderSummary() {
+    const cart = getCart();
+    const container = document.getElementById('checkout-cart-items');
+    const extrasBox = document.getElementById('checkout-gift-extras');
+    const totals = computeTotals();
 
     if (!container) return;
 
     if (cart.length === 0) {
-      container.innerHTML = '<p class="text-center text-gray-400 text-xs py-4">سلة المشتريات فارغة!</p>';
-      subtotalEl.textContent = '0.00 د.أ';
-      finalTotalEl.textContent = '0.00 د.أ';
-      if (extrasBox) extrasBox.classList.add('hidden');
-      if (photoRow) { photoRow.classList.add('hidden'); photoRow.classList.remove('flex'); }
-      if (cardRow) { cardRow.classList.add('hidden'); cardRow.classList.remove('flex'); }
-      if (discountRow) { discountRow.classList.add('hidden'); discountRow.classList.remove('flex'); }
-      return;
-    }
-
-    const totals = getCalculatedTotals(cart);
-
-    container.innerHTML = cart.map((item) => {
-      const qty = Math.max(1, Math.floor(num(item.quantity) || 1));
-      const price = num(item.price);
-      return `
-        <div class="flex items-center gap-3 text-xs border-b pb-2">
-          <img src="${escHtml(item.image_url)}" class="w-12 h-12 object-cover rounded-lg">
-          <div class="flex-1">
-            <div class="font-bold text-gray-800">${escHtml(item.name)}</div>
-            <div class="text-gray-500">الكمية: ${qty}</div>
+      container.innerHTML = `<p class="text-center text-gray-400 text-xs py-6" data-i18n="cart_empty">سلة المشتريات فارغة!</p>`;
+    } else {
+      container.innerHTML = cart.map((item, idx) => {
+        const qty = Math.max(1, Math.floor(Number(item.quantity) || 1));
+        const lineTotal = (Number(item.price || 0) * qty).toFixed(2);
+        return `
+          <div class="flex items-center gap-3 text-xs border-b border-gray-100 pb-3">
+            <img src="${item.image_url || 'https://via.placeholder.com/80'}" class="w-14 h-14 object-cover rounded-lg flex-shrink-0 border border-gray-100">
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-gray-900 truncate">${item.name}</div>
+              <div class="text-[11px] text-gray-400 mt-0.5">⚡ Express Delivery</div>
+              <div class="lorin-qty-stepper mt-1.5">
+                <button type="button" class="lorin-qty-btn" onclick="updateItemQuantity(${idx}, -1)">${qty === 1 ? '🗑' : '-'}</button>
+                <span class="lorin-qty-val">${qty}</span>
+                <button type="button" class="lorin-qty-btn" onclick="updateItemQuantity(${idx}, 1)">+</button>
+              </div>
+            </div>
+            <div class="font-bold text-gray-900 text-sm whitespace-nowrap">${lineTotal} د.أ</div>
           </div>
-          <div class="font-bold text-red-600">${(price * qty).toFixed(2)} د.أ</div>
-        </div>
-      `;
-    }).join('');
-
-    // عرض تفاصيل الإضافات (صورة / بطاقة إهداء)
-    const detailLines = [];
-    if (totals.photoData) {
-      detailLines.push(`<div class="flex items-center justify-between text-[#00313C] font-semibold"><span>📷 صورة إضافية مرفقة</span><span>+${totals.photoFee.toFixed(2)} د.أ</span></div>`);
+        `;
+      }).join('');
     }
-    if (totals.hasCardSelected || totals.cardMessage) {
-      const cardTitle = totals.cardDesignName ? `بطاقة: ${totals.cardDesignName}` : 'بطاقة إهداء';
-      const cardCostText = totals.cardFee > 0 ? `+${totals.cardFee.toFixed(2)} د.أ` : 'مجاناً';
-      detailLines.push(`<div class="flex items-center justify-between text-[#00313C] font-semibold"><span>💌 ${escHtml(cardTitle)}</span><span>${cardCostText}</span></div>`);
-      if (totals.cardMessage) {
-        detailLines.push(`<div class="text-gray-600 bg-white rounded-lg p-2 border border-gray-100 leading-relaxed">"${escHtml(totals.cardMessage)}"</div>`);
+
+    // Gift Extras details
+    const extras = getGiftExtras();
+    const detailLines = [];
+    if (totals.hasPhoto) {
+      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>📷 صورة إضافية مرفقة</span><span>+${totals.photoFee.toFixed(2)} د.أ</span></div>`);
+    }
+    if (totals.cardObj && totals.cardObj.selected) {
+      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>💌 ${totals.cardObj.designName || 'بطاقة إهداء'}</span><span>${totals.cardFee > 0 ? '+' + totals.cardFee.toFixed(2) + ' د.أ' : 'مجاناً'}</span></div>`);
+      if (totals.cardObj.message) {
+        detailLines.push(`<div class="text-gray-600 bg-white p-2 rounded border border-gray-100">"${totals.cardObj.message}"</div>`);
       }
     }
 
@@ -485,224 +1093,415 @@
         extrasBox.innerHTML = detailLines.join('');
         extrasBox.classList.remove('hidden');
       } else {
-        extrasBox.innerHTML = '';
         extrasBox.classList.add('hidden');
       }
     }
 
-    // تعبئة نص البطاقة تلقائياً في حقل الملاحظات إذا كان فارغاً ولم يُعدل يدوياً
-    if (giftNoteInput && totals.cardMessage && !giftNoteInput.dataset.userEdited && !giftNoteInput.value.trim()) {
-      giftNoteInput.value = totals.cardMessage;
+    // Price breakdowns
+    document.getElementById('summary-subtotal').textContent = totals.subtotal.toFixed(2) + ' د.أ';
+    
+    const rowPhoto = document.getElementById('row-photo-stick');
+    if (rowPhoto) rowPhoto.classList.toggle('hidden', !totals.hasPhoto);
+
+    const rowCard = document.getElementById('row-card-fee');
+    if (rowCard) {
+      rowCard.classList.toggle('hidden', !(totals.cardObj && totals.cardObj.selected));
+      document.getElementById('summary-card-fee').textContent = '+' + totals.cardFee.toFixed(2) + ' د.أ';
     }
 
-    if (photoRow && photoFeeEl) {
-      if (totals.photoFee > 0) {
-        photoFeeEl.textContent = '+' + totals.photoFee.toFixed(2) + ' د.أ';
-        photoRow.classList.remove('hidden');
-        photoRow.classList.add('flex');
+    const rowDisc = document.getElementById('row-discount');
+    if (rowDisc) {
+      if (totals.discount > 0) {
+        rowDisc.classList.remove('hidden');
+        rowDisc.classList.add('flex');
+        document.getElementById('summary-discount-val').textContent = '- ' + totals.discount.toFixed(2) + ' د.أ';
       } else {
-        photoRow.classList.add('hidden');
-        photoRow.classList.remove('flex');
+        rowDisc.classList.add('hidden');
+        rowDisc.classList.remove('flex');
       }
     }
 
-    if (cardRow && cardLabelEl && cardFeeEl) {
-      if (totals.cardFee > 0) {
-        cardLabelEl.textContent = totals.cardDesignName ? `بطاقة (${totals.cardDesignName}):` : 'بطاقة إهداء:';
-        cardFeeEl.textContent = '+' + totals.cardFee.toFixed(2) + ' د.أ';
-        cardRow.classList.remove('hidden');
-        cardRow.classList.add('flex');
-      } else {
-        cardRow.classList.add('hidden');
-        cardRow.classList.remove('flex');
-      }
+    const deliveryEl = document.getElementById('summary-delivery-charge');
+    if (deliveryEl) {
+      deliveryEl.textContent = totals.deliveryFee > 0 ? totals.deliveryFee.toFixed(2) + ' د.أ' : t('delivery_free', 'مجاناً 🌸');
     }
 
-    if (discountRow && discountLabelEl && discountAmountEl) {
-      if (totals.discount > 0 && totals.promo) {
-        discountLabelEl.textContent = `الخصم (${totals.promo.code}):`;
-        discountAmountEl.textContent = '- ' + totals.discount.toFixed(2) + ' د.أ';
-        discountRow.classList.remove('hidden');
-        discountRow.classList.add('flex');
-      } else {
-        discountRow.classList.add('hidden');
-        discountRow.classList.remove('flex');
-      }
-    }
+    const grandTotalStr = totals.total.toFixed(2) + ' د.أ';
+    document.getElementById('summary-final-total').textContent = grandTotalStr;
 
-    subtotalEl.textContent = totals.subtotal.toFixed(2) + ' د.أ';
-    finalTotalEl.textContent = totals.total.toFixed(2) + ' د.أ';
+    // Update all CTA labels
+    document.querySelectorAll('.cta-price-holder').forEach(el => el.textContent = grandTotalStr);
+    const mobileStickyTotal = document.getElementById('mobile-sticky-total');
+    if (mobileStickyTotal) mobileStickyTotal.textContent = grandTotalStr;
   }
 
- // إدارة القوائم الجانبية (المنيو والبحث) وتطبيق إعدادات صفحة الدفع بأمان
-  document.addEventListener('DOMContentLoaded', async () => {
-    if (window.LorinStoreSettings) {
-      const lorinSettings = await window.LorinStoreSettings.load(supabaseClient);
-      window.LorinStoreSettings.applyCheckoutSettings(lorinSettings);
+  function updateItemQuantity(index, change) {
+    const cart = getCart();
+    if (!cart[index]) return;
+    const currentQty = Math.max(1, Math.floor(Number(cart[index].quantity) || 1));
+    const newQty = currentQty + change;
+    if (newQty <= 0) {
+      cart.splice(index, 1);
+    } else {
+      cart[index].quantity = newQty;
+    }
+    saveCart(cart);
+  }
+
+  // Toggle "Collect the address from the recipient" (Screenshot 5)
+  function toggleCollectAddress(enabled) {
+    const addressCard = document.getElementById('recipient-address-card');
+    const notice = document.getElementById('contextual-address-notice');
+    if (addressCard) {
+      addressCard.style.display = enabled ? 'none' : 'block';
+    }
+    if (notice) {
+      notice.classList.toggle('hidden', enabled);
+    }
+  }
+
+  // Delivery Slots (Express, Same-Day, Custom)
+  function selectSlot(type) {
+    selectedSlotType = type;
+    document.querySelectorAll('.lorin-slot-card').forEach(c => c.classList.remove('is-selected'));
+    const target = document.getElementById('slot-' + type);
+    if (target) target.classList.add('is-selected');
+
+    const expressBanner = document.getElementById('express-info-banner');
+    if (expressBanner) {
+      expressBanner.style.display = type === 'express' ? 'flex' : 'none';
     }
 
-    updateCartBadge();
-    renderCheckoutSummary();
+    renderOrderSummary();
+  }
 
-    const giftNoteInput = document.getElementById('gift-note');
-    if (giftNoteInput) {
-      giftNoteInput.addEventListener('input', () => {
-        giftNoteInput.dataset.userEdited = '1';
-      });
+  // Payment Options (Screenshot 10)
+  function selectPaymentMethod(method, cardEl) {
+    selectedPayment = method;
+    document.querySelectorAll('.lorin-payment-card').forEach(c => c.classList.remove('is-selected'));
+    if (cardEl) cardEl.classList.add('is-selected');
+
+    const placeOrderBtn = document.getElementById('btn-final-place-order');
+    if (placeOrderBtn) {
+      if (method === 'apple_pay') {
+        placeOrderBtn.textContent = t('btn_buy_with_apple', 'الشراء عبر Apple Pay');
+      } else {
+        placeOrderBtn.textContent = t('btn_place_order', 'تأكيد وإرسال الطلب');
+      }
+    }
+  }
+
+  // Step Navigation
+  function goToStep(step) {
+    if (step === 2) {
+      const isValid = validateStep1();
+      if (!isValid) return;
+      populateStep2Summary();
     }
 
-    var btnMenu = document.getElementById('btn-trigger-menu');
-    var btnSearch = document.getElementById('btn-trigger-search');
-    var btnCloseMenu = document.getElementById('btn-close-menu');
-    var boxSearch = document.getElementById('box-search-overlay');
-    var boxMenu = document.getElementById('box-menu-drawer');
-    var boxBackdrop = document.getElementById('box-menu-backdrop');
+    currentStep = step;
+    const step1El = document.getElementById('checkout-step-1');
+    const step2El = document.getElementById('checkout-step-2');
+    const indDelivery = document.getElementById('step-indicator-delivery');
+    const indPayment = document.getElementById('step-indicator-payment');
+    const checkDelivery = document.getElementById('step-check-delivery');
+    const sidebarCta = document.getElementById('sidebar-cta-btn');
 
-    if (btnSearch && boxSearch) {
-      btnSearch.addEventListener('click', function(e) {
-        e.preventDefault();
-        boxSearch.classList.toggle('is-open');
-        closeAllDrawers();
-      });
+    if (step === 1) {
+      step1El.classList.remove('hidden');
+      step2El.classList.add('hidden');
+      indDelivery.classList.add('is-active');
+      indDelivery.classList.remove('is-completed');
+      indPayment.classList.remove('is-active');
+      checkDelivery.classList.add('hidden');
+      if (sidebarCta) sidebarCta.innerHTML = `${t('btn_proceed_to_payment', 'المتابعة إلى الدفع')} · <span class="cta-price-holder">${computeTotals().total.toFixed(2)} د.أ</span>`;
+    } else {
+      step1El.classList.add('hidden');
+      step2El.classList.remove('hidden');
+      indDelivery.classList.remove('is-active');
+      indDelivery.classList.add('is-completed');
+      indPayment.classList.add('is-active');
+      checkDelivery.classList.remove('hidden');
+      if (sidebarCta) sidebarCta.innerHTML = `${t('btn_place_order', 'تأكيد وإرسال الطلب')} · <span class="cta-price-holder">${computeTotals().total.toFixed(2)} د.أ</span>`;
     }
-    if (btnMenu && boxMenu) {
-      btnMenu.addEventListener('click', function(e) {
-        e.preventDefault();
-        boxMenu.classList.add('is-open');
-        if(boxBackdrop) boxBackdrop.classList.add('is-open');
-        if (boxSearch) boxSearch.classList.remove('is-open');
-      });
-    }
-    function closeAllDrawers() {
-      if (boxMenu) boxMenu.classList.remove('is-open');
-      if (boxBackdrop) boxBackdrop.classList.remove('is-open');
-    }
-    if (btnCloseMenu) btnCloseMenu.addEventListener('click', closeAllDrawers);
-    if (boxBackdrop) boxBackdrop.addEventListener('click', closeAllDrawers);
-  });
 
-  // دالة إتمام الطلب وتخزين البيانات في Supabase وإرسال الواتساب
-  async function submitCheckout(e) {
-    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function validateStep1() {
+    const name = document.getElementById('receiver-name').value.trim();
+    const phone = document.getElementById('receiver-phone').value.trim();
+    const isCollectAddress = document.getElementById('toggle-collect-address').checked;
+    const address = document.getElementById('receiver-full-address').value.trim();
+
+    if (!name) {
+      alert(t('msg_fill_required', 'يرجى إدخال اسم المستلم'));
+      document.getElementById('receiver-name').focus();
+      return false;
+    }
+
+    if (!phone || phone.replace(/\D/g, '').length < 8) {
+      alert(t('msg_invalid_phone', 'يرجى إدخال رقم هاتف صحيح للمستلم'));
+      document.getElementById('receiver-phone').focus();
+      return false;
+    }
+
+    if (!isCollectAddress && !address) {
+      alert(t('msg_fill_required', 'يرجى تعبئة العنوان بالتفصيل'));
+      document.getElementById('receiver-full-address').focus();
+      return false;
+    }
+
+    return true;
+  }
+
+  function validateStep1AndProceed() {
+    if (validateStep1()) {
+      goToStep(2);
+    }
+  }
+
+  function onSidebarCtaClick() {
+    if (currentStep === 1) {
+      validateStep1AndProceed();
+    } else {
+      submitFinalOrder();
+    }
+  }
+
+  // Populate Step 2 "Deliver To" Summary Card (Screenshot 10)
+  function populateStep2Summary() {
+    const name = document.getElementById('receiver-name').value.trim();
+    const phone = document.getElementById('receiver-phone').value.trim();
+    const isCollectAddress = document.getElementById('toggle-collect-address').checked;
+    const area = document.getElementById('receiver-area').value;
+    const address = document.getElementById('receiver-full-address').value.trim();
+
+    document.getElementById('summary-rec-name').textContent = name;
+    document.getElementById('summary-rec-phone').textContent = '+962 ' + phone.replace(/\D/g, '');
+
+    // Date & Time Summary
+    let slotText = 'اليوم | توصيل سريع (120 دقيقة)';
+    if (selectedSlotType === 'sameday') {
+      const samedayVal = document.getElementById('sameday-slot-select').value;
+      slotText = 'اليوم | ' + samedayVal;
+    } else if (selectedSlotType === 'custom') {
+      const customDate = document.getElementById('custom-date-input').value;
+      slotText = (customDate || 'موعد مخصص') + ' | حسب الاختيار';
+    }
+    document.getElementById('summary-rec-datetime').textContent = slotText;
+
+    // Address Summary
+    if (isCollectAddress) {
+      document.getElementById('summary-rec-address').textContent = 'سوف يتم أخذ العنوان من المستلم مباشرة نيابة عنك 🌸';
+    } else {
+      document.getElementById('summary-rec-address').textContent = `${area} - ${address}`;
+    }
+
+    document.getElementById('deliver-to-city-tag').textContent = area.split('-')[0].trim() || 'Amman';
+  }
+
+  // Apply Promo Code
+  function applyPromoCode() {
+    const input = document.getElementById('checkout-promo-input');
+    const msg = document.getElementById('promo-feedback-msg');
+    const val = (input.value || '').trim().toUpperCase();
+
+    if (!val) return;
+
+    if (val === 'LORIN10') {
+      localStorage.setItem(PROMO_KEY, JSON.stringify({ code: 'LORIN10', type: 'percent', value: 10, status: 'applied' }));
+      msg.textContent = 'تم تطبيق خصم 10% بنجاح! 🌸';
+      msg.className = 'text-[11px] mt-2 text-emerald-700 font-bold block';
+    } else if (val === 'WELCOME2') {
+      localStorage.setItem(PROMO_KEY, JSON.stringify({ code: 'WELCOME2', type: 'fixed', value: 2, status: 'applied' }));
+      msg.textContent = 'تم تطبيق خصم 2 د.أ بنجاح! 🌸';
+      msg.className = 'text-[11px] mt-2 text-emerald-700 font-bold block';
+    } else {
+      msg.textContent = 'عذراً، كود الخصم غير صالح.';
+      msg.className = 'text-[11px] mt-2 text-red-600 font-bold block';
+    }
+
+    renderOrderSummary();
+  }
+
+  // Final Order Submission to Supabase & WhatsApp (Preserved)
+  async function submitFinalOrder() {
     const cart = getCart();
     if (cart.length === 0) {
-      alert('سلة المشتريات فارغة، يرجى إضافة منتجات أولاً.');
+      alert(t('cart_empty', 'سلة المشتريات فارغة!'));
       return;
     }
 
-    const activeSettings = window.LorinStoreSettings ? window.LorinStoreSettings.get() : {};
-    const defaultSubmitLabel = activeSettings.checkout_submit_label || 'تأكيد وإرسال الطلب عبر واتساب 📲';
+    const submitBtn = document.getElementById('btn-final-place-order');
+    const sidebarBtn = document.getElementById('sidebar-cta-btn');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = t('loading_wait', 'جاري حفظ الطلب...'); }
+    if (sidebarBtn) { sidebarBtn.disabled = true; }
 
-    const submitBtn = document.getElementById('submit-order-btn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'جاري إرسال الطلب وحفظه... ⏳';
+    const name = document.getElementById('receiver-name').value.trim();
+    const phone = document.getElementById('receiver-phone').value.trim();
+    const isCollectAddress = document.getElementById('toggle-collect-address').checked;
+    const area = document.getElementById('receiver-area').value;
+    const address = document.getElementById('receiver-full-address').value.trim();
+    const driverNote = document.getElementById('delivery-driver-note').value.trim();
+    const isSecretIdentity = document.getElementById('check-secret-identity').checked;
 
-    const name = document.getElementById('receiver-name').value;
-    const phone = document.getElementById('receiver-phone').value;
-    const cityEl = document.getElementById('receiver-city') || document.getElementById('city');
-    const city = cityEl ? cityEl.value : '';
-    const addressInput = document.getElementById('receiver-address').value;
-    const giftEl = document.getElementById('gift-note') || document.getElementById('gift_message');
-    const note = giftEl ? giftEl.value.trim() : '';
+    const extras = getGiftExtras();
+    const cardMsg = (extras.card && extras.card.message) || '';
 
-    const fullAddress = `المدينة: ${city} - العنوان: ${addressInput}`;
-    const totals = getCalculatedTotals(cart);
-    const deliveryFee = window.LorinStoreSettings
-      ? window.LorinStoreSettings.computeDeliveryFee(totals.subtotal ?? totals.total, activeSettings)
-      : 0;
-    const total = Number(totals.total || 0) + Number(deliveryFee || 0);
-    const finalCardMessage = note || totals.cardMessage || '';
+    const shippingDesc = isCollectAddress
+      ? 'طلب العنوان من المستلم نيابة عن المشتري'
+      : `${area} - ${address} (إحداثيات الخريطة: ${currentCoordinates.lat.toFixed(4)}, ${currentCoordinates.lng.toFixed(4)})`;
 
+    const totals = computeTotals();
+
+    // Prepare clean Supabase insert (strictly matching table schema)
     try {
       const { error: dbError } = await supabaseClient
         .from('orders')
         .insert([{
-          customer_name: name,
+          customer_name: isSecretIdentity ? 'عميل سري (مفاجأة 🤫)' : name,
           customer_phone: phone,
-          shipping_address: fullAddress,
-          total_price: total,
+          shipping_address: shippingDesc + (driverNote ? ` [ملاحظة للمندوب: ${driverNote}]` : ''),
+          total_price: totals.total,
           items: cart,
           recipient_phone: phone,
-          gift_card_message: finalCardMessage
+          gift_card_message: cardMsg
         }]);
 
       if (dbError) {
-        console.error('Database Error:', dbError);
+        console.warn('Orders db note:', dbError);
       }
     } catch (err) {
-      console.error('Error:', err);
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = defaultSubmitLabel;
+      console.warn('Orders insert error:', err);
     }
 
-    let message = `🌸 *طلب جديد من متجر Lorin* 🌸%0A%0A`;
-    message += `👤 *اسم المستلم:* ${encodeURIComponent(name)}%0A`;
-    message += `📞 *رقم الهاتف:* ${encodeURIComponent(phone)}%0A`;
-    message += `📍 *المدينة:* ${encodeURIComponent(city)}%0A`;
-    message += `🏠 *العنوان:* ${encodeURIComponent(addressInput)}%0A`;
-    if (totals.cardDesignName) {
-      message += `💌 *تصميم البطاقة:* ${encodeURIComponent(totals.cardDesignName)}${totals.cardFee > 0 ? ` (+${totals.cardFee.toFixed(2)} د.أ)` : ''}%0A`;
-    }
-    if (finalCardMessage) {
-      message += `✍️ *ملاحظة / عبارة البطاقة:* ${encodeURIComponent(finalCardMessage)}%0A`;
-    }
-    if (totals.photoData) {
-      message += `📷 *صورة إضافية (+${totals.photoFee.toFixed(2)} د.أ):* ${encodeURIComponent(totals.photoData.imageUrl)}%0A`;
-    }
-    if (totals.discount > 0 && totals.promo) {
-      message += `🏷️ *الخصم (${encodeURIComponent(totals.promo.code)}):* -${totals.discount.toFixed(2)} د.أ%0A`;
-    }
-    if (deliveryFee > 0) {
-      message += `🚚 *رسوم التوصيل:* ${deliveryFee.toFixed(2)} د.أ%0A`;
-    }
-    message += `%0A------------------------%0A📦 *المنتجات المطلوبة:*%0A`;
-
-    cart.forEach((item, index) => {
-      const qty = Math.max(1, Math.floor(num(item.quantity) || 1));
-      const lineTotal = (num(item.price) * qty).toFixed(2);
-      message += `${index + 1}. ${encodeURIComponent(item.name)} (الكمية: ${qty}) - ${lineTotal} د.أ%0A`;
+    // Build WhatsApp message
+    const activeSettings = window.LorinStoreSettings ? window.LorinStoreSettings.get() : {};
+    let wa = `🌸 *طلب جديد من متجر Lorin* 🌸%0A%0A`;
+    wa += `👤 *المستلم:* ${encodeURIComponent(name)}%0A`;
+    wa += `📞 *الهاتف:* ${encodeURIComponent('+962' + phone.replace(/\D/g, ''))}%0A`;
+    wa += `📍 *العنوان:* ${encodeURIComponent(shippingDesc)}%0A`;
+    wa += `⏰ *الموعد:* ${encodeURIComponent(document.getElementById('summary-rec-datetime').textContent)}%0A`;
+    if (isSecretIdentity) wa += `🤫 *ملاحظة:* المشتري يرغب بإخفاء هويته عن المستلم (مفاجأة)%0A`;
+    if (driverNote) wa += `📝 *ملاحظة للمندوب:* ${encodeURIComponent(driverNote)}%0A`;
+    if (cardMsg) wa += `💌 *بطاقة الهدية:* ${encodeURIComponent(cardMsg)}%0A`;
+    wa += `%0A📦 *المنتجات المطلوبة:*%0A`;
+    cart.forEach((item, i) => {
+      const q = Math.max(1, Math.floor(Number(item.quantity) || 1));
+      wa += `${i + 1}. ${encodeURIComponent(item.name)} (x${q}) - ${(Number(item.price || 0) * q).toFixed(2)} د.أ%0A`;
     });
+    wa += `------------------------%0A💰 *المجموع الكلي:* *${totals.total.toFixed(2)} د.أ*`;
 
-    message += `------------------------%0A💰 *المجموع الكلي:* *${total.toFixed(2)} د.أ*`;
+    // Clear cart and redirect to WhatsApp
+    localStorage.removeItem('lorin_cart');
+    localStorage.removeItem(GIFT_KEY);
+    localStorage.removeItem(PROMO_KEY);
 
-    const whatsappNumber = String(activeSettings.checkout_whatsapp || '962700000000').replace(/\D/g, '') || '962700000000';
-    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
+    const waNum = String(activeSettings.checkout_whatsapp || '962700000000').replace(/\D/g, '') || '962700000000';
+    window.open(`https://wa.me/${waNum}?text=${wa}`, '_blank');
+
+    alert(t('msg_order_success', 'تم تأكيد طلبك بنجاح! شكراً لاختيارك Lorin 🌸'));
+    window.location.href = 'index.html';
   }
+
+  // Map Initialization (Leaflet)
+  function initMap() {
+    const mapEl = document.getElementById('leaflet-map-container');
+    if (!mapEl || activeMap) return;
+
+    try {
+      activeMap = L.map('leaflet-map-container', { zoomControl: false }).setView([currentCoordinates.lat, currentCoordinates.lng], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(activeMap);
+
+      activeMarker = L.marker([currentCoordinates.lat, currentCoordinates.lng], { draggable: true }).addTo(activeMap);
+
+      activeMarker.on('dragend', function (e) {
+        const pos = e.target.getLatLng();
+        currentCoordinates = { lat: pos.lat, lng: pos.lng };
+        updateMapPill();
+      });
+
+      activeMap.on('click', function (e) {
+        activeMarker.setLatLng(e.latlng);
+        currentCoordinates = { lat: e.latlng.lat, lng: e.latlng.lng };
+        updateMapPill();
+      });
+    } catch (e) {
+      console.warn('Map initialization note:', e);
+    }
+  }
+
+  function updateMapPill() {
+    const pill = document.getElementById('map-status-pill');
+    if (pill) {
+      pill.textContent = `تم تحديد الموقع (${currentCoordinates.lat.toFixed(3)}, ${currentCoordinates.lng.toFixed(3)}) ✓`;
+      pill.style.color = '#10B981';
+    }
+  }
+
+  function locateUserGps() {
+    if (!navigator.geolocation) {
+      alert('خدمة تحديد الموقع غير مفعلة في متصفحك.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition((pos) => {
+      currentCoordinates = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      if (activeMap && activeMarker) {
+        activeMap.setView([currentCoordinates.lat, currentCoordinates.lng], 15);
+        activeMarker.setLatLng([currentCoordinates.lat, currentCoordinates.lng]);
+        updateMapPill();
+      }
+    }, () => {
+      alert('تعذر جلب موقعك الحالي تلقائياً. يمكنك النقر على الخريطة لتحديده.');
+    });
+  }
+
+  // Utility bar dropdown
+  function togglePillDropdown(id) {
+    const d = document.getElementById(id);
+    if (d) d.classList.toggle('show');
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.pill-dropdown-wrapper')) {
+      document.querySelectorAll('.pill-dropdown-menu').forEach(d => d.classList.remove('show'));
+    }
+  });
+
+  // Page Load
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (window.LorinStoreSettings) {
+      await window.LorinStoreSettings.load(supabaseClient);
+    }
+
+    // Auth verification for checkout
+    if (window.LorinAuth) {
+      const user = await window.LorinAuth.getUser();
+      if (!user) {
+        // Unauthenticated visitor -> Show auth modal
+        window.LorinAuth.openModal(1);
+      } else {
+        const meta = user.user_metadata || {};
+        if (meta.full_name) {
+          const nameInput = document.getElementById('receiver-name');
+          if (nameInput && !nameInput.value) nameInput.value = meta.full_name;
+        }
+        if (meta.phone || meta.jordanian_phone) {
+          const phoneInput = document.getElementById('receiver-phone');
+          const clean = (meta.phone || meta.jordanian_phone).replace(/\D/g, '');
+          if (phoneInput && !phoneInput.value) phoneInput.value = clean.startsWith('962') ? clean.slice(3) : clean;
+        }
+      }
+    }
+
+    initMap();
+    renderOrderSummary();
+    updateCartBadges();
+  });
 </script>
 
-<!-- Footer الفاخر المدمج داخل الـ body في مكانه الصحيح -->
-<footer style="background-color: #00313C; color: #ffffff; padding: 60px 20px 30px 20px; font-family: 'Tajawal', sans-serif; direction: rtl; margin-top: 50px;">
-  <div style="max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; padding-bottom: 40px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-    <div>
-      <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 38px; filter: brightness(0) invert(1); object-fit: contain; margin-bottom: 20px;">
-      <div style="font-size: 13px; font-weight: 700; color: rgba(255, 255, 255, 0.7); margin-bottom: 12px;">Social Media</div>
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <a id="footer-fb" href="#" target="_blank" style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; text-decoration: none;"><svg style="width: 16px; height: 16px; fill: #ffffff;" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12c0-5.523-4.477-10-10-10z"/></svg></a>
-      </div>
-    </div>
-    <div>
-      <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 16px;">Explore Lorin</div>
-      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
-        <li><a href="index.html" style="color: inherit; text-decoration: none;">الزهور المنسقة</a></li>
-        <li><a href="index.html" style="color: inherit; text-decoration: none;">هدايا ورد طبيعي</a></li>
-      </ul>
-    </div>
-    <div>
-      <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 16px;">Get to know us</div>
-      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
-        <li><a href="#" style="color: inherit; text-decoration: none;">About Us</a></li>
-        <li><a href="#" style="color: inherit; text-decoration: none;">Privacy Policy</a></li>
-      </ul>
-    </div>
-    <div>
-      <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-bottom: 16px;">Customer service</div>
-      <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: rgba(255,255,255,0.7);">
-        <li><a href="#" style="color: inherit; text-decoration: none;">Contact Us</a></li>
-        <li><a href="#" style="color: inherit; text-decoration: none;">FAQ</a></li>
-      </ul>
-    </div>
-  </div>
-</footer>
 </body>
 </html>
