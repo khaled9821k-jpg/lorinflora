@@ -1313,6 +1313,7 @@
         }
 
         event.preventDefault();
+        event.stopPropagation();
         const shouldOpen = popover.hidden;
         document.querySelectorAll('.lorin-header-cart-popover').forEach((item) => { item.hidden = true; });
         document.querySelectorAll('header .floward-right-group a[aria-controls^="lorin-empty-cart-popover-"]').forEach((item) => item.setAttribute('aria-expanded', 'false'));
@@ -1322,7 +1323,6 @@
 
       continueButton.addEventListener('click', () => {
         closePopover();
-        window.location.href = 'index.html';
       });
 
       document.addEventListener('click', (event) => {
