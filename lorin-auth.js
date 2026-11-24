@@ -1263,6 +1263,92 @@
     return meta.full_name || meta.name || currentUser.email.split('@')[0] || '';
   }
 
+  function headerCartItemCount() {
+    try {
+      const cart = JSON.parse(localStorage.getItem('lorin_cart') || '[]');
+      if (!Array.isArray(cart)) return 0;
+      return cart.reduce((total, item) => total + Math.max(1, Math.floor(Number(item.quantity) || 1)), 0);
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  function initEmptyHeaderCartPopover() {
+    const buttons = document.querySelectorAll('header .floward-right-group a[href="cart.html"]');
+    buttons.forEach((link, index) => {
+      const wrapper = document.createElement('span');
+      const popover = document.createElement('div');
+      const message = document.createElement('p');
+      const continueButton = document.createElement('button');
+      const id = `lorin-empty-cart-popover-${index}`;
+
+      wrapper.className = 'lorin-header-cart-wrap';
+      link.parentNode.insertBefore(wrapper, link);
+      wrapper.appendChild(link);
+
+      popover.className = 'lorin-header-cart-popover';
+      popover.id = id;
+      popover.hidden = true;
+      popover.setAttribute('role', 'dialog');
+      popover.setAttribute('aria-live', 'polite');
+      message.textContent = t('header_cart_empty', 'Your cart is currently empty.');
+      continueButton.type = 'button';
+      continueButton.textContent = t('header_cart_continue', 'Continue Shopping');
+      popover.append(message, continueButton);
+      wrapper.appendChild(popover);
+
+      link.setAttribute('aria-haspopup', 'dialog');
+      link.setAttribute('aria-controls', id);
+      link.setAttribute('aria-expanded', 'false');
+
+      function closePopover() {
+        popover.hidden = true;
+        link.setAttribute('aria-expanded', 'false');
+      }
+
+      link.addEventListener('click', (event) => {
+        if (headerCartItemCount() > 0) {
+          closePopover();
+          return;
+        }
+
+        event.preventDefault();
+        const shouldOpen = popover.hidden;
+        document.querySelectorAll('.lorin-header-cart-popover').forEach((item) => { item.hidden = true; });
+        document.querySelectorAll('header .floward-right-group a[aria-controls^="lorin-empty-cart-popover-"]').forEach((item) => item.setAttribute('aria-expanded', 'false'));
+        popover.hidden = !shouldOpen;
+        link.setAttribute('aria-expanded', String(shouldOpen));
+      });
+
+      continueButton.addEventListener('click', () => {
+        closePopover();
+        window.location.href = 'index.html';
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!wrapper.contains(event.target)) closePopover();
+      });
+
+      window.addEventListener('lorin:langchange', () => {
+        message.textContent = t('header_cart_empty', 'Your cart is currently empty.');
+        continueButton.textContent = t('header_cart_continue', 'Continue Shopping');
+      });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        document.querySelectorAll('.lorin-header-cart-popover:not([hidden])').forEach((popover) => {
+          popover.hidden = true;
+          const button = document.querySelector(`header .floward-right-group a[aria-controls="${popover.id}"]`);
+          if (button) {
+            button.setAttribute('aria-expanded', 'false');
+            button.focus();
+          }
+        });
+      }
+    });
+  }
+
   // Header Dropdown Setup
   function setupHeaderAccount() {
     injectStyles();
@@ -1708,6 +1794,7 @@
 
   // Initialize on load
   document.addEventListener('DOMContentLoaded', async () => {
+    initEmptyHeaderCartPopover();
     await syncUser();
     setupHeaderAccount();
 

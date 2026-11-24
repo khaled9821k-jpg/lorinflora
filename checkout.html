@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <link rel="stylesheet" href="lorin-notifications.css">
+  <link rel="stylesheet" href="lorin-cart-popover.css">
   <script src="lorin-notifications.js"></script>
   <script src="lorin-preloader.js"></script>
   <meta charset="UTF-8">
@@ -543,6 +544,23 @@
       min-width: 16px;
       text-align: center;
     }
+    .map-search-result {
+      display: block;
+      width: 100%;
+      padding: 10px 12px;
+      color: #1F292E;
+      background: #FFFFFF;
+      border: 0;
+      border-bottom: 1px solid #F0F0F0;
+      text-align: start;
+      font: inherit;
+      font-size: 12px;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+    .map-search-result:last-child { border-bottom: 0; }
+    .map-search-result:hover,
+    .map-search-result:focus { background: #FAF8F5; outline: none; }
 
     /* Mobile Sticky Bar */
     .mobile-sticky-checkout {
@@ -714,6 +732,12 @@
 
             <div class="space-y-4">
               <!-- Interactive Map Picker -->
+              <div class="flex items-center gap-2">
+                <input type="search" id="delivery-map-search" class="lorin-input-field min-w-0 flex-1" dir="auto" placeholder="Search for an address or place..." data-i18n-placeholder="map_search_placeholder" aria-label="ابحث عن موقع التوصيل" onkeydown="if(event.key==='Enter'){event.preventDefault();searchDeliveryLocation();}">
+                <button type="button" id="delivery-map-search-button" onclick="searchDeliveryLocation()" class="shrink-0 rounded-lg bg-[#00313C] px-4 py-3 text-xs font-bold text-white hover:bg-[#00222B]" data-i18n="map_search_button">Search</button>
+              </div>
+              <div id="map-search-results" class="hidden max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white" role="listbox" aria-label="نتائج البحث عن الموقع"></div>
+              <input type="hidden" id="checkout-map-url" value="">
               <div class="relative border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
                 <div id="leaflet-map-container" style="height: 180px; width: 100%; z-index: 1;"></div>
                 <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none z-[400]">
@@ -723,6 +747,7 @@
                   </button>
                 </div>
               </div>
+              <a id="checkout-map-link" class="hidden text-xs font-semibold text-[#00313C] underline underline-offset-2" href="#" target="_blank" rel="noopener noreferrer" data-i18n="map_open_link">Open selected location in Google Maps</a>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -922,6 +947,7 @@
               <div>
                 <div class="text-[11px] text-gray-400 mb-0.5" data-i18n="recipient_address_title">عنوان التوصيل</div>
                 <div class="text-xs font-bold text-gray-900" id="summary-rec-address">عمان - دابوق</div>
+                <a id="summary-rec-map" class="hidden mt-1 text-[11px] font-semibold text-[#00313C] underline" href="#" target="_blank" rel="noopener noreferrer" data-i18n="map_open_link">Open selected location in Google Maps</a>
               </div>
               <button type="button" onclick="goToStep(1)" class="btn-deliver-to-edit" data-i18n="btn_edit">EDIT</button>
             </div>
@@ -1047,6 +1073,7 @@
 
   const GIFT_KEY = 'lorin_gift_extras';
   const PROMO_KEY = 'lorin_promo';
+  const CHECKOUT_STATE_KEY = 'lorin_checkout_state';
   const PHOTO_STICK_FEE = 2.5;
 
   let currentStep = 1;
@@ -1055,6 +1082,8 @@
   let activeMap = null;
   let activeMarker = null;
   let currentCoordinates = { lat: 31.9539, lng: 35.9106 };
+  let hasSelectedCoordinates = false;
+  let mapSearchController = null;
 
   // Recipient Country Code Selector
   let selectedRecipientCountry = (window.LORIN_COUNTRIES && window.LORIN_COUNTRIES[0]) || { code: 'JO', nameAr: 'الأردن', nameEn: 'Jordan', dial: '+962', flag: '🇯🇴', placeholder: '7XXXXXXXX' };
@@ -1119,7 +1148,7 @@
     renderRecipientCountryList(val);
   }
 
-  function selectRecipientCountry(code) {
+  function selectRecipientCountry(code, shouldFocus) {
     const countries = window.LORIN_COUNTRIES || [selectedRecipientCountry];
     const match = countries.find(c => c.code === code) || countries[0];
     selectedRecipientCountry = match;
@@ -1133,7 +1162,8 @@
     if (phoneInput && match.placeholder) phoneInput.placeholder = match.placeholder;
 
     closeRecipientCountryDropdown();
-    if (phoneInput) phoneInput.focus();
+    if (shouldFocus !== false && phoneInput) phoneInput.focus();
+    persistCheckoutState();
   }
 
   document.addEventListener('click', (e) => {
@@ -1145,6 +1175,127 @@
   function t(key, fallback) {
     if (window.LorinI18n) return window.LorinI18n.t(key, fallback);
     return fallback || key;
+  }
+
+  function isValidCoordinates(lat, lng) {
+    if (lat === null || lat === '' || lng === null || lng === '') return false;
+    const latitude = Number(lat);
+    const longitude = Number(lng);
+    return Number.isFinite(latitude) && Number.isFinite(longitude) &&
+      latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180;
+  }
+
+  function currentMapUrl() {
+    if (!hasSelectedCoordinates || !isValidCoordinates(currentCoordinates.lat, currentCoordinates.lng)) return '';
+    return `https://www.google.com/maps?q=${Number(currentCoordinates.lat).toFixed(6)},${Number(currentCoordinates.lng).toFixed(6)}`;
+  }
+
+  function readCheckoutState() {
+    try {
+      const state = JSON.parse(localStorage.getItem(CHECKOUT_STATE_KEY) || 'null');
+      return state && typeof state === 'object' && !Array.isArray(state) ? state : null;
+    } catch (error) {
+      console.warn('Checkout state could not be read:', error);
+      return null;
+    }
+  }
+
+  function persistCheckoutState() {
+    const value = (id) => {
+      const field = document.getElementById(id);
+      return field ? field.value : '';
+    };
+    const checked = (id) => {
+      const field = document.getElementById(id);
+      return !!(field && field.checked);
+    };
+
+    try {
+      const mapUrl = currentMapUrl();
+      const mapUrlInput = document.getElementById('checkout-map-url');
+      if (mapUrlInput) mapUrlInput.value = mapUrl;
+      localStorage.setItem(CHECKOUT_STATE_KEY, JSON.stringify({
+        receiverName: value('receiver-name'),
+        receiverPhone: value('receiver-phone'),
+        recipientCountry: selectedRecipientCountry.code,
+        recipientArea: value('receiver-area'),
+        address: value('receiver-full-address'),
+        collectAddress: checked('toggle-collect-address'),
+        deliveryNote: value('delivery-driver-note'),
+        keepIdentitySecret: checked('check-secret-identity'),
+        selectedSlotType,
+        sameDaySlot: value('sameday-slot-select'),
+        customDate: value('custom-date-input'),
+        selectedPayment,
+        lat: Number(currentCoordinates.lat),
+        lng: Number(currentCoordinates.lng),
+        hasSelectedCoordinates,
+        mapUrl
+      }));
+    } catch (error) {
+      console.warn('Checkout state could not be saved:', error);
+    }
+  }
+
+  function restoreCheckoutState() {
+    const state = readCheckoutState();
+    if (!state) return false;
+
+    const setValue = (id, value) => {
+      const field = document.getElementById(id);
+      if (field && typeof value === 'string') field.value = value;
+    };
+    const setChecked = (id, value) => {
+      const field = document.getElementById(id);
+      if (field) field.checked = value === true;
+    };
+
+    setValue('receiver-name', state.receiverName);
+    setValue('receiver-phone', state.receiverPhone);
+    if (typeof state.recipientCountry === 'string') selectRecipientCountry(state.recipientCountry, false);
+    setValue('receiver-area', state.recipientArea);
+    setValue('receiver-full-address', state.address);
+    setValue('delivery-driver-note', state.deliveryNote);
+    setValue('sameday-slot-select', state.sameDaySlot);
+    setValue('custom-date-input', state.customDate);
+    setChecked('toggle-collect-address', state.collectAddress);
+    setChecked('check-secret-identity', state.keepIdentitySecret);
+
+    if (isValidCoordinates(state.lat, state.lng)) {
+      currentCoordinates = { lat: Number(state.lat), lng: Number(state.lng) };
+      hasSelectedCoordinates = state.hasSelectedCoordinates === true;
+    }
+    if (['express', 'sameday', 'custom'].includes(state.selectedSlotType)) {
+      selectedSlotType = state.selectedSlotType;
+      document.querySelectorAll('.lorin-slot-card').forEach((card) => card.classList.remove('is-selected'));
+      const selectedSlot = document.getElementById('slot-' + selectedSlotType);
+      if (selectedSlot) selectedSlot.classList.add('is-selected');
+      const expressBanner = document.getElementById('express-info-banner');
+      if (expressBanner) expressBanner.style.display = selectedSlotType === 'express' ? 'flex' : 'none';
+    }
+    if (['apple_pay', 'google_pay', 'card', 'cliq', 'cod'].includes(state.selectedPayment)) {
+      const paymentCard = Array.from(document.querySelectorAll('.lorin-payment-card')).find((card) => {
+        const clickHandler = card.getAttribute('onclick') || '';
+        return clickHandler.includes(`'${state.selectedPayment}'`);
+      });
+      if (paymentCard) selectPaymentMethod(state.selectedPayment, paymentCard);
+    }
+
+    toggleCollectAddress(state.collectAddress === true);
+    updateMapLink();
+    return true;
+  }
+
+  function bindCheckoutStatePersistence() {
+    ['receiver-name', 'receiver-phone', 'receiver-area', 'receiver-full-address',
+      'delivery-driver-note', 'sameday-slot-select', 'custom-date-input',
+      'toggle-collect-address', 'check-secret-identity'].forEach((id) => {
+      const field = document.getElementById(id);
+      if (field) {
+        field.addEventListener('input', persistCheckoutState);
+        field.addEventListener('change', persistCheckoutState);
+      }
+    });
   }
 
   function getCart() {
@@ -1182,7 +1333,7 @@
     const subtotal = cart.reduce((sum, item) => sum + (Number(item.price || 0) * Math.max(1, Math.floor(Number(item.quantity) || 1))), 0);
     const extras = getGiftExtras();
 
-    const hasPhoto = !!(cart.length && extras.photoStickIn && extras.photoStickIn.selected && extras.photoStickIn.imageUrl);
+    const hasPhoto = !!(cart.length && extras.photoStickIn && extras.photoStickIn.selected && (extras.photoStickIn.imageUrl || extras.photoStickIn.downloadUrl));
     const photoFee = hasPhoto ? PHOTO_STICK_FEE : 0;
 
     const cardObj = extras.card || null;
@@ -1347,6 +1498,7 @@
     if (notice) {
       notice.classList.toggle('hidden', enabled);
     }
+    persistCheckoutState();
   }
 
   // Delivery Slots (Express, Same-Day, Custom)
@@ -1362,6 +1514,7 @@
     }
 
     renderOrderSummary();
+    persistCheckoutState();
   }
 
   // Payment Options (Screenshot 10)
@@ -1378,6 +1531,7 @@
         placeOrderBtn.textContent = t('btn_place_order', 'تأكيد وإرسال الطلب');
       }
     }
+    persistCheckoutState();
   }
 
   // Step Navigation
@@ -1388,6 +1542,7 @@
       populateStep2Summary();
     }
 
+    persistCheckoutState();
     currentStep = step;
     const step1El = document.getElementById('checkout-step-1');
     const step2El = document.getElementById('checkout-step-2');
@@ -1486,8 +1641,15 @@
     } else {
       document.getElementById('summary-rec-address').textContent = `${area} - ${address}`;
     }
+    const mapLink = document.getElementById('summary-rec-map');
+    const selectedMapUrl = currentMapUrl();
+    if (mapLink) {
+      mapLink.href = selectedMapUrl || '#';
+      mapLink.classList.toggle('hidden', isCollectAddress || !selectedMapUrl);
+    }
 
     document.getElementById('deliver-to-city-tag').textContent = area.split('-')[0].trim() || 'Amman';
+    persistCheckoutState();
   }
 
   // Apply Promo Code
@@ -1514,6 +1676,116 @@
     renderOrderSummary();
   }
 
+  function getEmailSchedule() {
+    if (selectedSlotType === 'sameday') {
+      return {
+        deliveryType: t('sameday_delivery', 'Same-day delivery'),
+        scheduleLabel: document.getElementById('sameday-slot-select').value
+      };
+    }
+    if (selectedSlotType === 'custom') {
+      return {
+        deliveryType: t('choose_datetime', 'Scheduled delivery'),
+        scheduleLabel: document.getElementById('custom-date-input').value || t('choose_datetime', 'Scheduled delivery')
+      };
+    }
+    return {
+      deliveryType: t('express_delivery', 'Express delivery'),
+      scheduleLabel: t('express_delivery_sub', 'Delivery within 120 minutes')
+    };
+  }
+
+  function orderEmailCustomizations(item) {
+    const raw = item.customizations;
+    if (Array.isArray(raw)) {
+      return raw.filter((entry) => entry && typeof entry === 'object' && !Array.isArray(entry)).map((entry) => ({
+        label: String(entry.label || entry.name || ''),
+        value: String(entry.value || entry.option || '')
+      })).filter((entry) => entry.label || entry.value);
+    }
+    if (!raw || typeof raw !== 'object') return [];
+    return Object.entries(raw).map(([label, value]) => ({
+      label: String(label),
+      value: String(value == null ? '' : value)
+    })).filter((entry) => entry.value);
+  }
+
+  async function buildOrderEmailData(cart, extras, totals, recipientData, orderRecord) {
+    const user = window.LorinAuth ? await window.LorinAuth.getUser() : null;
+    const metadata = user && user.user_metadata ? user.user_metadata : {};
+    const schedule = getEmailSchedule();
+    const activeSettings = window.LorinStoreSettings ? window.LorinStoreSettings.get() : {};
+    const mapUrl = currentMapUrl();
+    const promo = totals.promo && totals.promo.status === 'applied' ? totals.promo : null;
+    const currencyLocale = document.documentElement.lang.toLowerCase().startsWith('ar') ? 'ar' : 'en';
+
+    return {
+      orderNumber: String((orderRecord && orderRecord.id) || `WEB-${Date.now()}`),
+      createdAt: (orderRecord && orderRecord.created_at) || new Date().toISOString(),
+      locale: currencyLocale,
+      currency: 'JOD',
+      siteUrl: window.location.origin,
+      supportEmail: activeSettings.support_email || activeSettings.contact_email || '',
+      items: cart.map((item) => {
+        const quantity = Math.max(1, Math.floor(Number(item.quantity) || 1));
+        const unitPrice = Number(item.price || 0);
+        return {
+          name: String(item.name || item.product_name || 'Product'),
+          imageUrl: String(item.image_url || item.imageUrl || ''),
+          quantity,
+          lineTotal: unitPrice * quantity,
+          customizations: orderEmailCustomizations(item)
+        };
+      }),
+      photoStickIn: extras.photoStickIn ? {
+        selected: extras.photoStickIn.selected === true,
+        imageUrl: String(extras.photoStickIn.imageUrl || ''),
+        downloadUrl: String(extras.photoStickIn.downloadUrl || '')
+      } : undefined,
+      card: extras.card ? {
+        selected: extras.card.selected === true,
+        designId: String(extras.card.designId || ''),
+        designName: String(extras.card.designName || ''),
+        designImageUrl: String(extras.card.designImageUrl || ''),
+        recipientName: String(extras.card.recipientName || recipientData.name),
+        senderName: String(extras.card.senderName || ''),
+        message: String(extras.card.message || ''),
+        signature: extras.card.signature || null,
+        linkUrl: String(extras.card.linkUrl || extras.card.mediaUrl || extras.card.qrUrl || ''),
+        qrUrl: String(extras.card.qrUrl || '')
+      } : undefined,
+      recipient: {
+        collectAddressFromRecipient: recipientData.collectAddressFromRecipient,
+        name: recipientData.name,
+        phone: recipientData.phone,
+        area: recipientData.area,
+        address: recipientData.address,
+        mapUrl,
+        lat: hasSelectedCoordinates ? currentCoordinates.lat : null,
+        lng: hasSelectedCoordinates ? currentCoordinates.lng : null,
+        deliveryType: schedule.deliveryType,
+        scheduleLabel: schedule.scheduleLabel,
+        keepIdentitySecret: recipientData.keepIdentitySecret,
+        deliveryNote: recipientData.deliveryNote
+      },
+      sender: {
+        name: String(metadata.full_name || metadata.name || (user && user.email) || t('account_guest', 'Guest')),
+        email: String((user && user.email) || ''),
+        phone: String(metadata.phone || metadata.jordanian_phone || '')
+      },
+      paymentMethod: t(`pay_${selectedPayment}`, selectedPayment),
+      summary: {
+        subtotal: totals.subtotal,
+        discount: totals.discount,
+        promoCode: promo ? promo.code : '',
+        photoStickInFee: totals.photoFee,
+        giftCardFee: totals.cardFee,
+        deliveryCharges: totals.deliveryFee,
+        total: totals.total
+      }
+    };
+  }
+
   // Final Order Submission to Supabase & WhatsApp (Preserved)
   async function submitFinalOrder() {
     const cart = getCart();
@@ -1537,15 +1809,29 @@
 
     const extras = getGiftExtras();
     const cardMsg = (extras.card && extras.card.message) || '';
+    const mapUrl = currentMapUrl();
+    const recipientData = {
+      collectAddressFromRecipient: isCollectAddress,
+      name,
+      phone: selectedRecipientCountry.dial + phone.replace(/\D/g, ''),
+      area,
+      address,
+      keepIdentitySecret: isSecretIdentity,
+      deliveryNote: driverNote
+    };
 
     const shippingDesc = isCollectAddress
       ? 'طلب العنوان من المستلم نيابة عن المشتري'
-      : `${area} - ${address} (إحداثيات الخريطة: ${currentCoordinates.lat.toFixed(4)}, ${currentCoordinates.lng.toFixed(4)})`;
+      : `${area} - ${address}${mapUrl ? ` (Google Maps: ${mapUrl})` : ''}`;
 
     const totals = computeTotals();
 
     const cleanPhone = phone.replace(/\D/g, '');
     const fullRecipientPhone = selectedRecipientCountry.dial + cleanPhone;
+    const orderRecord = {
+      id: `WEB-${Date.now().toString(36).toUpperCase()}`,
+      created_at: new Date().toISOString()
+    };
 
     // Prepare clean Supabase insert (strictly matching table schema)
     try {
@@ -1566,6 +1852,15 @@
       }
     } catch (err) {
       console.warn('Orders insert error:', err);
+    }
+
+    try {
+      const emailData = await buildOrderEmailData(cart, extras, totals, recipientData, orderRecord);
+      const { error: emailError } = await supabaseClient.functions.invoke('send-order-email', { body: emailData });
+      if (emailError) throw emailError;
+    } catch (error) {
+      console.error('Order email notification failed:', error);
+      showToastNotification(t('order_email_failed', 'The order was placed, but the store email notification could not be sent.'), { type: 'error' });
     }
 
     // Build WhatsApp message
@@ -1589,6 +1884,7 @@
     localStorage.removeItem('lorin_cart');
     localStorage.removeItem(GIFT_KEY);
     localStorage.removeItem(PROMO_KEY);
+    localStorage.removeItem(CHECKOUT_STATE_KEY);
 
     const waNum = String(activeSettings.checkout_whatsapp || '962700000000').replace(/\D/g, '') || '962700000000';
     window.open(`https://wa.me/${waNum}?text=${wa}`, '_blank');
@@ -1612,25 +1908,133 @@
 
       activeMarker.on('dragend', function (e) {
         const pos = e.target.getLatLng();
-        currentCoordinates = { lat: pos.lat, lng: pos.lng };
-        updateMapPill();
+        setDeliveryLocation(pos.lat, pos.lng);
       });
 
       activeMap.on('click', function (e) {
-        activeMarker.setLatLng(e.latlng);
-        currentCoordinates = { lat: e.latlng.lat, lng: e.latlng.lng };
-        updateMapPill();
+        setDeliveryLocation(e.latlng.lat, e.latlng.lng);
       });
+      updateMapPill();
+      updateMapLink();
     } catch (e) {
       console.warn('Map initialization note:', e);
     }
   }
 
+  function setDeliveryLocation(lat, lng, zoom) {
+    if (!isValidCoordinates(lat, lng)) return;
+    currentCoordinates = { lat: Number(lat), lng: Number(lng) };
+    hasSelectedCoordinates = true;
+    if (activeMap && activeMarker) {
+      activeMarker.setLatLng([currentCoordinates.lat, currentCoordinates.lng]);
+      if (zoom) activeMap.setView([currentCoordinates.lat, currentCoordinates.lng], zoom);
+    }
+    updateMapPill();
+    updateMapLink();
+    persistCheckoutState();
+  }
+
   function updateMapPill() {
     const pill = document.getElementById('map-status-pill');
     if (pill) {
-      pill.textContent = `تم تحديد الموقع (${currentCoordinates.lat.toFixed(3)}, ${currentCoordinates.lng.toFixed(3)}) ✓`;
-      pill.style.color = '#10B981';
+      pill.textContent = hasSelectedCoordinates
+        ? `${t('map_location_selected', 'Location selected')} (${currentCoordinates.lat.toFixed(4)}, ${currentCoordinates.lng.toFixed(4)}) ✓`
+        : t('map_pin_instruction', 'Click the map or search for a delivery location.');
+      pill.style.color = hasSelectedCoordinates ? '#10B981' : '';
+    }
+  }
+
+  function updateMapLink() {
+    const url = currentMapUrl();
+    const hiddenInput = document.getElementById('checkout-map-url');
+    const link = document.getElementById('checkout-map-link');
+    if (hiddenInput) hiddenInput.value = url;
+    if (link) {
+      link.href = url || '#';
+      link.classList.toggle('hidden', !url);
+    }
+  }
+
+  window.addEventListener('lorin:langchange', () => {
+    updateMapPill();
+    updateMapSearchLabels();
+  });
+
+  function updateMapSearchLabels() {
+    const searchInput = document.getElementById('delivery-map-search');
+    const results = document.getElementById('map-search-results');
+    const button = document.getElementById('delivery-map-search-button');
+    if (searchInput) searchInput.setAttribute('aria-label', t('map_search_label', 'Search for a delivery location'));
+    if (results) results.setAttribute('aria-label', t('map_search_results', 'Location search results'));
+    if (button && !button.disabled) button.textContent = t('map_search_button', 'Search');
+  }
+
+  async function searchDeliveryLocation() {
+    const input = document.getElementById('delivery-map-search');
+    const results = document.getElementById('map-search-results');
+    const button = document.getElementById('delivery-map-search-button');
+    const query = input ? input.value.trim() : '';
+    if (!query || !results || !button) return;
+
+    if (mapSearchController) mapSearchController.abort();
+    const controller = new AbortController();
+    mapSearchController = controller;
+    button.disabled = true;
+    button.textContent = t('map_searching', 'Searching for the location...');
+    input.setAttribute('aria-label', t('map_search_label', 'Search for a delivery location'));
+    results.textContent = t('map_searching', 'Searching for the location...');
+    results.classList.remove('hidden');
+
+    const url = new URL('https://nominatim.openstreetmap.org/search');
+    url.searchParams.set('format', 'jsonv2');
+    url.searchParams.set('addressdetails', '1');
+    url.searchParams.set('limit', '5');
+    url.searchParams.set('q', query);
+
+    try {
+      const response = await fetch(url.toString(), {
+        headers: { 'Accept-Language': document.documentElement.lang || 'en' },
+        signal: controller.signal
+      });
+      if (!response.ok) throw new Error(`Location search failed with status ${response.status}`);
+      const locations = await response.json();
+      results.replaceChildren();
+
+      const validLocations = Array.isArray(locations)
+        ? locations.filter((location) => isValidCoordinates(location.lat, location.lon))
+        : [];
+      if (!validLocations.length) {
+        results.textContent = t('map_search_empty', 'No locations found.');
+        return;
+      }
+
+      validLocations.forEach((location) => {
+        const address = String(location.display_name || location.name || query);
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'map-search-result';
+        option.setAttribute('role', 'option');
+        option.textContent = address;
+        option.addEventListener('click', () => {
+          setDeliveryLocation(location.lat, location.lon, 16);
+          const addressInput = document.getElementById('receiver-full-address');
+          if (addressInput) addressInput.value = address;
+          results.classList.add('hidden');
+          input.value = address;
+          persistCheckoutState();
+        });
+        results.appendChild(option);
+      });
+    } catch (error) {
+      if (error.name === 'AbortError') return;
+      console.warn('Map location search failed:', error);
+      results.textContent = t('map_search_error', 'Unable to search for this location. Please try again.');
+    } finally {
+      if (mapSearchController === controller) {
+        mapSearchController = null;
+        button.disabled = false;
+        button.textContent = t('map_search_button', 'Search');
+      }
     }
   }
 
@@ -1640,11 +2044,10 @@
       return;
     }
     navigator.geolocation.getCurrentPosition((pos) => {
-      currentCoordinates = { lat: pos.coords.latitude, lng: pos.coords.longitude };
       if (activeMap && activeMarker) {
-        activeMap.setView([currentCoordinates.lat, currentCoordinates.lng], 15);
-        activeMarker.setLatLng([currentCoordinates.lat, currentCoordinates.lng]);
-        updateMapPill();
+        setDeliveryLocation(pos.coords.latitude, pos.coords.longitude, 15);
+      } else {
+        setDeliveryLocation(pos.coords.latitude, pos.coords.longitude);
       }
     }, () => {
       showToastNotification('تعذر جلب موقعك الحالي تلقائياً. يمكنك النقر على الخريطة لتحديده.', { type: 'warning' });
@@ -1665,6 +2068,8 @@
 
   // Page Load
   document.addEventListener('DOMContentLoaded', async () => {
+    const hasSavedCheckoutState = restoreCheckoutState();
+
     if (window.LorinStoreSettings) {
       await window.LorinStoreSettings.load(supabaseClient);
     }
@@ -1681,7 +2086,7 @@
           const nameInput = document.getElementById('receiver-name');
           if (nameInput && !nameInput.value) nameInput.value = meta.full_name;
         }
-        if (meta.country_code && typeof selectRecipientCountry === 'function') {
+        if (!hasSavedCheckoutState && meta.country_code && typeof selectRecipientCountry === 'function') {
           selectRecipientCountry(meta.country_code);
         }
         if (meta.phone || meta.jordanian_phone) {
@@ -1696,9 +2101,14 @@
       }
     }
 
+    bindCheckoutStatePersistence();
     initMap();
+    updateMapSearchLabels();
+    updateMapPill();
+    updateMapLink();
     renderOrderSummary();
     updateCartBadges();
+    persistCheckoutState();
   });
 </script>
 

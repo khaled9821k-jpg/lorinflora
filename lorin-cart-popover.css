@@ -1,0 +1,42 @@
+.lorin-header-cart-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.lorin-header-cart-popover {
+  position: absolute;
+  z-index: 1200;
+  inset-inline-end: 0;
+  top: calc(100% + 12px);
+  width: min(280px, calc(100vw - 32px));
+  padding: 18px;
+  color: #0c2b33;
+  background: #faf8f5;
+  border: 1px solid rgba(12, 43, 51, .16);
+  border-radius: 14px;
+  box-shadow: 0 16px 38px rgba(12, 43, 51, .18);
+  text-align: start;
+  direction: inherit;
+}
+
+.lorin-header-cart-popover[hidden] { display: none; }
+
+.lorin-header-cart-popover p {
+  margin: 0 0 14px;
+  color: #0c2b33;
+  font: 500 14px/1.6 "Tajawal", "Cairo", Arial, sans-serif;
+}
+
+.lorin-header-cart-popover button {
+  width: 100%;
+  padding: 10px 14px;
+  color: #faf8f5;
+  background: #0c2b33;
+  border: 1px solid #0c2b33;
+  border-radius: 9px;
+  font: 600 13px/1.3 "Tajawal", "Cairo", Arial, sans-serif;
+  cursor: pointer;
+  transition: background .16s ease;
+}
+
+.lorin-header-cart-popover button:hover { background: #17434c; }
