@@ -14,14 +14,62 @@
 
   // Internal state
   let currentUser = null;
-  let authStep = 1; // 1: Email/Social, 2: Name & Password, 3: Phone, 4: OTP, 5: Success, 6: Password Sign In
+  let authStep = 1; // 1: Email/Social, 2: Name & Password, 3: Phone, 4: OTP (Legacy/Bypassed), 5: Success, 6: Password Sign In
   let pendingEmail = '';
   let pendingName = '';
   let pendingPassword = '';
   let pendingPhone = '';
-  let otpTimerInterval = null;
-  let otpTimeRemaining = 57;
   let redirectAfterAuth = null;
+
+  // Country Directory fallback if lorin-countries.js isn't already loaded
+  const DEFAULT_COUNTRIES = [
+    { code: 'JO', nameAr: 'الأردن', nameEn: 'Jordan', dial: '+962', flag: '🇯🇴', placeholder: '7XXXXXXXX' },
+    { code: 'SA', nameAr: 'المملكة العربية السعودية', nameEn: 'Saudi Arabia', dial: '+966', flag: '🇸🇦', placeholder: '5XXXXXXXX' },
+    { code: 'AE', nameAr: 'الإمارات العربية المتحدة', nameEn: 'United Arab Emirates', dial: '+971', flag: '🇦🇪', placeholder: '5XXXXXXXX' },
+    { code: 'KW', nameAr: 'الكويت', nameEn: 'Kuwait', dial: '+965', flag: '🇰🇼', placeholder: 'XXXXXXXX' },
+    { code: 'QA', nameAr: 'قطر', nameEn: 'Qatar', dial: '+974', flag: '🇶🇦', placeholder: 'XXXXXXXX' },
+    { code: 'BH', nameAr: 'البحرين', nameEn: 'Bahrain', dial: '+973', flag: '🇧🇭', placeholder: 'XXXXXXXX' },
+    { code: 'OM', nameAr: 'عُمان', nameEn: 'Oman', dial: '+968', flag: '🇴🇲', placeholder: 'XXXXXXXX' },
+    { code: 'PS', nameAr: 'فلسطين', nameEn: 'Palestine', dial: '+970', flag: '🇵🇸', placeholder: '5XXXXXXXX' },
+    { code: 'EG', nameAr: 'مصر', nameEn: 'Egypt', dial: '+20', flag: '🇪🇬', placeholder: '1XXXXXXXXX' },
+    { code: 'LB', nameAr: 'لبنان', nameEn: 'Lebanon', dial: '+961', flag: '🇱🇧', placeholder: 'XXXXXXXX' },
+    { code: 'IQ', nameAr: 'العراق', nameEn: 'Iraq', dial: '+964', flag: '🇮🇶', placeholder: '7XXXXXXXXX' },
+    { code: 'SY', nameAr: 'سوريا', nameEn: 'Syria', dial: '+963', flag: '🇸🇾', placeholder: '9XXXXXXXX' },
+    { code: 'YE', nameAr: 'اليمن', nameEn: 'Yemen', dial: '+967', flag: '🇾🇪', placeholder: '7XXXXXXXX' },
+    { code: 'MA', nameAr: 'المغرب', nameEn: 'Morocco', dial: '+212', flag: '🇲🇦', placeholder: '6XXXXXXXX' },
+    { code: 'DZ', nameAr: 'الجزائر', nameEn: 'Algeria', dial: '+213', flag: '🇩🇿', placeholder: 'XXXXXXXXX' },
+    { code: 'TN', nameAr: 'تونس', nameEn: 'Tunisia', dial: '+216', flag: '🇹🇳', placeholder: 'XXXXXXXX' },
+    { code: 'LY', nameAr: 'ليبيا', nameEn: 'Libya', dial: '+218', flag: '🇱🇾', placeholder: '9XXXXXXXX' },
+    { code: 'SD', nameAr: 'السودان', nameEn: 'Sudan', dial: '+249', flag: '🇸🇩', placeholder: '9XXXXXXXX' },
+    { code: 'US', nameAr: 'الولايات المتحدة', nameEn: 'United States', dial: '+1', flag: '🇺🇸', placeholder: 'XXXXXXXXXX' },
+    { code: 'GB', nameAr: 'المملكة المتحدة', nameEn: 'United Kingdom', dial: '+44', flag: '🇬🇧', placeholder: '7XXXXXXXXX' },
+    { code: 'CA', nameAr: 'كندا', nameEn: 'Canada', dial: '+1', flag: '🇨🇦', placeholder: 'XXXXXXXXXX' },
+    { code: 'TR', nameAr: 'تركيا', nameEn: 'Turkey', dial: '+90', flag: '🇹🇷', placeholder: '5XXXXXXXXX' },
+    { code: 'DE', nameAr: 'ألمانيا', nameEn: 'Germany', dial: '+49', flag: '🇩🇪', placeholder: '1XXXXXXXXXX' },
+    { code: 'FR', nameAr: 'فرنسا', nameEn: 'France', dial: '+33', flag: '🇫🇷', placeholder: '6XXXXXXXX' },
+    { code: 'IT', nameAr: 'إيطاليا', nameEn: 'Italy', dial: '+39', flag: '🇮🇹', placeholder: '3XXXXXXXXX' },
+    { code: 'ES', nameAr: 'إسبانيا', nameEn: 'Spain', dial: '+34', flag: '🇪🇸', placeholder: '6XXXXXXXX' },
+    { code: 'NL', nameAr: 'هولندا', nameEn: 'Netherlands', dial: '+31', flag: '🇳🇱', placeholder: '6XXXXXXXX' },
+    { code: 'SE', nameAr: 'السويد', nameEn: 'Sweden', dial: '+46', flag: '🇸🇪', placeholder: '7XXXXXXXX' },
+    { code: 'CH', nameAr: 'سويسرا', nameEn: 'Switzerland', dial: '+41', flag: '🇨🇭', placeholder: '7XXXXXXXX' },
+    { code: 'AU', nameAr: 'أستراليا', nameEn: 'Australia', dial: '+61', flag: '🇦🇺', placeholder: '4XXXXXXXX' },
+    { code: 'IN', nameAr: 'الهند', nameEn: 'India', dial: '+91', flag: '🇮🇳', placeholder: '9XXXXXXXXX' },
+    { code: 'PK', nameAr: 'باكستان', nameEn: 'Pakistan', dial: '+92', flag: '🇵🇰', placeholder: '3XXXXXXXXX' },
+    { code: 'CY', nameAr: 'قبرص', nameEn: 'Cyprus', dial: '+357', flag: '🇨🇾', placeholder: '9XXXXXXX' },
+    { code: 'GR', nameAr: 'اليونان', nameEn: 'Greece', dial: '+30', flag: '🇬🇷', placeholder: '69XXXXXXXX' },
+    { code: 'MY', nameAr: 'ماليزيا', nameEn: 'Malaysia', dial: '+60', flag: '🇲🇾', placeholder: '1XXXXXXXX' },
+    { code: 'ID', nameAr: 'إندونيسيا', nameEn: 'Indonesia', dial: '+62', flag: '🇮🇩', placeholder: '8XXXXXXXXX' },
+    { code: 'PH', nameAr: 'الفلبين', nameEn: 'Philippines', dial: '+63', flag: '🇵🇭', placeholder: '9XXXXXXXXX' },
+    { code: 'BR', nameAr: 'البرازيل', nameEn: 'Brazil', dial: '+55', flag: '🇧🇷', placeholder: 'XXXXXXXXXXX' },
+    { code: 'RU', nameAr: 'روسيا', nameEn: 'Russia', dial: '+7', flag: '🇷🇺', placeholder: '9XXXXXXXXX' },
+    { code: 'CN', nameAr: 'الصين', nameEn: 'China', dial: '+86', flag: '🇨🇳', placeholder: '1XXXXXXXXXX' }
+  ];
+
+  let selectedSenderCountry = DEFAULT_COUNTRIES[0]; // Jordan (+962)
+
+  function getCountriesList() {
+    return window.LORIN_COUNTRIES || DEFAULT_COUNTRIES;
+  }
 
   function t(key, fallback) {
     if (window.LorinI18n && typeof window.LorinI18n.t === 'function') {
@@ -31,7 +79,10 @@
   }
 
   function isRtl() {
-    return document.documentElement.dir === 'rtl';
+    if (window.LorinI18n && typeof window.LorinI18n.getLang === 'function') {
+      return window.LorinI18n.getLang() === 'ar';
+    }
+    return document.documentElement.dir === 'rtl' || document.documentElement.lang === 'ar';
   }
 
   // Inject Luxury Auth & Dropdown Styles
@@ -71,7 +122,7 @@
         visibility: visible;
       }
 
-      /* Centered Auth Card (Matching Screenshots 1, 2, 3, 4, 7, 9) */
+      /* Centered Auth Card */
       .lorin-auth-card {
         background: #FFFFFF;
         width: 100%;
@@ -79,7 +130,7 @@
         border-radius: 12px;
         box-shadow: 0 16px 40px rgba(0, 49, 60, 0.12), 0 2px 6px rgba(0,0,0,0.04);
         border: 1px solid var(--lorin-border);
-        padding: 40px 36px;
+        padding: 38px 32px;
         position: relative;
         transform: translateY(16px) scale(0.98);
         transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -124,7 +175,7 @@
 
       .lorin-auth-title {
         font-family: "Cormorant Garamond", Georgia, "Tajawal", serif;
-        font-size: 28px;
+        font-size: 27px;
         font-weight: 600;
         color: #111827;
         text-align: center;
@@ -136,12 +187,12 @@
         font-size: 13px;
         color: #6B7280;
         text-align: center;
-        margin: 0 0 28px 0;
+        margin: 0 0 24px 0;
         line-height: 1.45;
       }
 
       .lorin-field-group {
-        margin-bottom: 20px;
+        margin-bottom: 18px;
         text-align: ${isRtl() ? 'right' : 'left'};
       }
 
@@ -200,7 +251,7 @@
         cursor: not-allowed;
       }
 
-      /* Social OAuth Buttons */
+      /* Social OAuth Button (Google) */
       .lorin-social-btn {
         width: 100%;
         background: #FFFFFF;
@@ -248,9 +299,9 @@
         padding: 0 12px;
       }
 
-      /* Password Strength Checklist (Screenshot 9) */
+      /* Password Strength Checklist */
       .lorin-pwd-checklist {
-        margin: 14px 0 22px 0;
+        margin: 14px 0 20px 0;
         text-align: ${isRtl() ? 'right' : 'left'};
       }
       .lorin-pwd-checklist-title {
@@ -288,25 +339,40 @@
         color: #FFFFFF;
       }
 
-      /* Phone Input with Jordan Flag (Screenshot 2) */
+      /* Phone Input with Global Country Selector */
       .lorin-phone-wrapper {
         display: flex;
         border: 1px solid #D1D5DB;
         border-radius: 6px;
-        overflow: hidden;
         background: #FFFFFF;
+        position: relative;
+        transition: border-color 0.2s, box-shadow 0.2s;
       }
-      .lorin-phone-prefix {
+      .lorin-phone-wrapper:focus-within {
+        border-color: var(--lorin-brand);
+        box-shadow: 0 0 0 3px rgba(0, 49, 60, 0.08);
+      }
+      .lorin-phone-prefix-btn {
         display: flex;
         align-items: center;
         gap: 6px;
         background: #F9FAFB;
+        border: none;
         border-${isRtl() ? 'left' : 'right'}: 1px solid #E5E7EB;
         padding: 0 12px;
         font-size: 13px;
         font-weight: 600;
         color: #374151;
+        cursor: pointer;
+        transition: background 0.15s;
+        font-family: inherit;
+        border-top-${isRtl() ? 'right' : 'left'}-radius: 5px;
+        border-bottom-${isRtl() ? 'right' : 'left'}-radius: 5px;
         user-select: none;
+        white-space: nowrap;
+      }
+      .lorin-phone-prefix-btn:hover {
+        background: #F3F4F6;
       }
       .lorin-phone-input {
         flex: 1;
@@ -316,47 +382,106 @@
         color: #111827;
         outline: none;
         font-family: inherit;
+        border-top-${isRtl() ? 'left' : 'right'}-radius: 5px;
+        border-bottom-${isRtl() ? 'left' : 'right'}-radius: 5px;
       }
 
-      /* OTP Box (Screenshot 7) */
-      .lorin-otp-inputs {
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-        margin: 24px 0 20px 0;
-        direction: ltr;
+      /* Global Country Dropdown Menu */
+      .lorin-country-menu {
+        position: absolute;
+        top: calc(100% + 6px);
+        ${isRtl() ? 'right: 0;' : 'left: 0;'};
+        width: 320px;
+        max-width: 90vw;
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 10px;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0,0,0,0.04);
+        z-index: 999999;
+        overflow: hidden;
+        animation: lorinFadeIn 0.15s ease forwards;
+        box-sizing: border-box;
       }
-      .lorin-otp-box {
-        width: 52px;
-        height: 56px;
+      .lorin-country-search-wrap {
+        padding: 10px;
+        border-bottom: 1px solid #F3F4F6;
+        background: #FAFAFA;
+      }
+      .lorin-country-search-input {
+        width: 100%;
+        padding: 8px 12px;
         border: 1px solid #D1D5DB;
-        border-radius: 8px;
-        text-align: center;
-        font-size: 22px;
-        font-weight: 700;
-        color: #111827;
+        border-radius: 6px;
+        font-size: 12px;
         outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        box-sizing: border-box;
+        font-family: inherit;
       }
-      .lorin-otp-box:focus {
+      .lorin-country-search-input:focus {
         border-color: var(--lorin-brand);
-        box-shadow: 0 0 0 3px rgba(0, 49, 60, 0.1);
       }
-
-      /* Success Screen (Screenshot 4) */
-      .lorin-success-icon-wrap {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 20px auto;
-        background: #F0FDF4;
-        border: 1px solid #DCFCE7;
-        border-radius: 20px;
+      .lorin-country-list {
+        max-height: 220px;
+        overflow-y: auto;
+        padding: 4px 0;
+      }
+      .lorin-country-item {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
+        padding: 8px 14px;
+        font-size: 12px;
+        color: #374151;
+        cursor: pointer;
+        transition: background 0.12s;
+        text-align: ${isRtl() ? 'right' : 'left'};
+      }
+      .lorin-country-item:hover, .lorin-country-item.is-selected {
+        background: #F3F4F6;
+        color: #111827;
+      }
+      .lorin-country-item-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        overflow: hidden;
+      }
+      .lorin-country-flag {
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+      .lorin-country-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .lorin-country-dial {
+        font-size: 11px;
+        font-weight: 700;
+        color: #6B7280;
+        direction: ltr;
+        flex-shrink: 0;
+        margin-${isRtl() ? 'right' : 'left'}: 8px;
       }
 
-      /* Header Account Dropdown (Matching Screenshot 8) */
+      /* Forgot Password Link */
+      .lorin-forgot-pwd-link {
+        background: none;
+        border: none;
+        color: var(--lorin-brand);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0;
+        text-decoration: underline;
+        transition: color 0.15s;
+        font-family: inherit;
+      }
+      .lorin-forgot-pwd-link:hover {
+        color: #07515b;
+      }
+
+      /* Header Account Dropdown */
       .lorin-account-dropdown-menu {
         display: none;
         position: absolute;
@@ -464,12 +589,13 @@
         color: #DC2626 !important;
       }
 
-      /* Slide-out Drawer for Account Details (Orders, Profile, Addresses) */
+      /* Slide-out Drawer & Legal Overlay */
       .lorin-drawer-backdrop {
         position: fixed;
         inset: 0;
-        z-index: 999992;
-        background: rgba(0, 0, 0, 0.4);
+        z-index: 999995;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(2px);
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.3s;
@@ -482,12 +608,12 @@
         position: fixed;
         top: 0;
         ${isRtl() ? 'left: 0;' : 'right: 0;'};
-        width: 440px;
-        max-width: 90vw;
+        width: 520px;
+        max-width: 92vw;
         height: 100vh;
         background: #FFFFFF;
-        z-index: 999993;
-        box-shadow: 0 0 30px rgba(0,0,0,0.15);
+        z-index: 999996;
+        box-shadow: 0 0 30px rgba(0,0,0,0.18);
         display: flex;
         flex-direction: column;
         transform: translateX(${isRtl() ? '-100%' : '100%'});
@@ -528,7 +654,7 @@
   function closeModal() {
     const backdrop = document.getElementById('lorin-auth-modal-backdrop');
     if (backdrop) backdrop.classList.remove('is-active');
-    if (otpTimerInterval) clearInterval(otpTimerInterval);
+    closeCountryDropdown();
   }
 
   // Open Auth Modal
@@ -547,7 +673,7 @@
     if (!container) return;
 
     if (authStep === 1) {
-      // Step 1: Email + Social (Screenshot 1)
+      // Step 1: Email + Google (Apple removed per specification)
       container.innerHTML = `
         <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">✕</button>
         <h2 class="lorin-auth-title">${t('auth_title_login_signup', 'Login or Create Account')}</h2>
@@ -568,16 +694,11 @@
           <span>${t('auth_google', 'CONTINUE WITH GOOGLE')}</span>
         </button>
 
-        <button type="button" class="lorin-social-btn" onclick="LorinAuth.handleAppleAuth()">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.85c.67-.82 1.13-1.96.99-3.12-1 .04-2.18.66-2.87 1.48-.61.71-1.14 1.88-.99 3 1.11.09 2.22-.55 2.87-1.36z"/></svg>
-          <span>${t('auth_apple', 'CONTINUE WITH APPLE')}</span>
-        </button>
-
         <p style="font-size: 11px; color: #9CA3AF; text-align: center; margin: 24px 0 0 0; line-height: 1.5;">
           ${t('auth_terms_prefix', 'By proceeding, you agree to our ')}
-          <a href="#" style="color: #4B5563; text-decoration: underline;">${t('auth_privacy_policy', 'Privacy policy')}</a>
+          <a href="privacy-policy.html" target="_blank" onclick="LorinAuth.openLegalModal('privacy', event)" style="color: #4B5563; text-decoration: underline;">${t('auth_privacy_policy', 'Privacy policy')}</a>
           ${t('auth_terms_and', ' and ')}
-          <a href="#" style="color: #4B5563; text-decoration: underline;">${t('auth_terms_conditions', 'Terms & Conditions')}</a>
+          <a href="terms-and-conditions.html" target="_blank" onclick="LorinAuth.openLegalModal('terms', event)" style="color: #4B5563; text-decoration: underline;">${t('auth_terms_conditions', 'Terms & Conditions')}</a>
         </p>
 
         <p style="font-size: 10px; color: #9CA3AF; text-align: center; margin: 12px 0 0 0; line-height: 1.4;">
@@ -585,7 +706,7 @@
         </p>
       `;
     } else if (authStep === 2) {
-      // Step 2: Sign Up (Name & Password with visual checklist - Screenshots 3 & 9)
+      // Step 2: Sign Up (Name & Password with visual checklist)
       container.innerHTML = `
         <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">✕</button>
         <button class="lorin-auth-back-btn" onclick="LorinAuth.setStep(1)">
@@ -630,7 +751,8 @@
       `;
       validateStep2();
     } else if (authStep === 3) {
-      // Step 3: Phone Number with +962 Jordan flag (Screenshot 2)
+      // Step 3: Sender Phone with Searchable Global Country Selector
+      const c = selectedSenderCountry || DEFAULT_COUNTRIES[0];
       container.innerHTML = `
         <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">✕</button>
         <button class="lorin-auth-back-btn" onclick="LorinAuth.setStep(2)">
@@ -638,17 +760,28 @@
         </button>
 
         <h2 class="lorin-auth-title">${t('auth_phone_title', 'Lastly, Your Phone Number')}</h2>
-        <p class="lorin-auth-subtitle">${t('auth_phone_subtitle', 'We will send a one time code to verify your phone number')}</p>
+        <p class="lorin-auth-subtitle">${t('auth_phone_subtitle', 'We will link your phone number to your account for orders and updates')}</p>
 
         <form id="lorin-step3-form" onsubmit="LorinAuth.handleStep3Submit(event)">
           <div class="lorin-field-group">
             <label class="lorin-field-label">${t('auth_phone_label', 'Phone Number')}</label>
-            <div class="lorin-phone-wrapper">
-              <div class="lorin-phone-prefix">
-                <span>🇯🇴</span>
-                <span>+962 ▾</span>
+            <div class="lorin-phone-wrapper" id="sender-phone-wrapper">
+              <button type="button" class="lorin-phone-prefix-btn" id="sender-country-trigger" onclick="LorinAuth.toggleCountryDropdown(event)">
+                <span id="sender-flag">${c.flag}</span>
+                <span id="sender-dial" dir="ltr">${c.dial}</span>
+                <span style="font-size: 10px; color: #9CA3AF;">▾</span>
+              </button>
+              <input type="tel" id="auth-phone-input" class="lorin-phone-input" placeholder="${c.placeholder || '7XXXXXXXX'}" value="${pendingPhone}" required dir="ltr">
+
+              <!-- Country Dropdown Menu -->
+              <div id="sender-country-dropdown" class="lorin-country-menu" style="display: none;">
+                <div class="lorin-country-search-wrap">
+                  <input type="text" id="sender-country-search" class="lorin-country-search-input" placeholder="${t('search_country', 'Search country or code...')}" oninput="LorinAuth.filterCountries(this.value)">
+                </div>
+                <div class="lorin-country-list" id="sender-country-list">
+                  <!-- Injected via renderCountryList() -->
+                </div>
               </div>
-              <input type="tel" id="auth-phone-input" class="lorin-phone-input" placeholder="789719084" value="${pendingPhone}" required dir="ltr" maxlength="10">
             </div>
           </div>
 
@@ -659,52 +792,8 @@
           ${t('auth_recaptcha_notice', 'This page is protected by reCAPTCHA and is subject to the Google Privacy policy and Terms of Service.')}
         </p>
       `;
-    } else if (authStep === 4) {
-      // Step 4: OTP Verification Screen (Screenshot 7)
-      startOtpTimer();
-      container.innerHTML = `
-        <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">✕</button>
-        <button class="lorin-auth-back-btn" onclick="LorinAuth.setStep(3)">
-          <span>‹</span> <span>${t('auth_back', 'Back')}</span>
-        </button>
-
-        <h2 class="lorin-auth-title">${t('auth_otp_title', 'Verify Your Phone Number')}</h2>
-        <p class="lorin-auth-subtitle" style="margin-bottom: 8px;">${t('auth_otp_subtitle', 'We sent a verification code via SMS to:')}</p>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
-          <strong dir="ltr" style="font-size: 14px; color: #111;">+962${pendingPhone}</strong>
-          <button type="button" onclick="LorinAuth.setStep(3)" style="background: none; border: none; color: #0284C7; font-size: 11px; font-weight: 700; cursor: pointer;">${t('auth_change', 'CHANGE')}</button>
-        </div>
-
-        <form id="lorin-otp-form" onsubmit="LorinAuth.handleOtpSubmit(event)">
-          <div class="lorin-otp-inputs">
-            <input type="text" maxlength="1" class="lorin-otp-box" data-idx="0" autofocus oninput="LorinAuth.handleOtpInput(this, event)">
-            <input type="text" maxlength="1" class="lorin-otp-box" data-idx="1" oninput="LorinAuth.handleOtpInput(this, event)">
-            <input type="text" maxlength="1" class="lorin-otp-box" data-idx="2" oninput="LorinAuth.handleOtpInput(this, event)">
-            <input type="text" maxlength="1" class="lorin-otp-box" data-idx="3" oninput="LorinAuth.handleOtpInput(this, event)">
-          </div>
-
-          <button type="submit" class="lorin-btn-primary" id="btn-auth-otp">${t('auth_verify', 'VERIFY')}</button>
-        </form>
-
-        <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #6B7280;">
-          <span id="otp-timer-text">${t('auth_resend_timer', 'Request a new code in')} <b id="otp-countdown">00:57</b></span>
-          <button type="button" id="btn-resend-otp" onclick="LorinAuth.resendOtp()" style="display: none; background: none; border: none; color: var(--lorin-brand); font-weight: 700; cursor: pointer; text-decoration: underline;">${t('auth_resend_action', 'Resend code now')}</button>
-        </div>
-      `;
-    } else if (authStep === 5) {
-      // Step 5: Verification Successful (Screenshot 4)
-      container.innerHTML = `
-        <div class="lorin-success-icon-wrap">
-          <svg style="width: 36px; height: 36px; color: #10B981;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        </div>
-
-        <h2 class="lorin-auth-title">${t('auth_success_title', 'Verification Successful')}</h2>
-        <p class="lorin-auth-subtitle">${t('auth_success_subtitle', 'Your Phone Number is now verified.')}</p>
-
-        <button type="button" class="lorin-btn-primary" onclick="LorinAuth.finishAuth()">${t('auth_done', 'DONE')}</button>
-      `;
     } else if (authStep === 6) {
-      // Step 6: Existing User Password Sign In
+      // Step 6: Existing User Password Sign In with Prominent Forgot Password Link
       container.innerHTML = `
         <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">✕</button>
         <button class="lorin-auth-back-btn" onclick="LorinAuth.setStep(1)">
@@ -716,20 +805,110 @@
 
         <form id="lorin-signin-form" onsubmit="LorinAuth.handleSignInSubmit(event)">
           <div class="lorin-field-group">
-            <label class="lorin-field-label">${t('auth_password_label', 'Password')}</label>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="lorin-field-label" style="margin-bottom: 0;">${t('auth_password_label', 'Password')}</label>
+              <button type="button" class="lorin-forgot-pwd-link" onclick="LorinAuth.handleForgotPassword(event)">
+                ${t('auth_forgot_password', 'Forgot Password? / نسيت كلمة المرور؟')}
+              </button>
+            </div>
             <div style="position: relative;">
               <input type="password" id="auth-signin-pwd" class="lorin-text-input" placeholder="${t('auth_password_placeholder', 'Enter your password')}" required autofocus style="padding-${isRtl() ? 'left' : 'right'}: 40px;">
               <button type="button" onclick="LorinAuth.togglePasswordVisibility('auth-signin-pwd', this)" style="position: absolute; top: 50%; ${isRtl() ? 'left: 12px;' : 'right: 12px;'}; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6B7280; font-size: 15px;">👁</button>
             </div>
           </div>
 
-          <div id="signin-error-msg" style="display: none; color: #DC2626; font-size: 12px; margin-bottom: 12px; font-weight: 600;"></div>
+          <div id="signin-feedback-msg" style="display: none; padding: 10px 14px; border-radius: 6px; font-size: 12px; margin-bottom: 14px; line-height: 1.45;"></div>
 
           <button type="submit" class="lorin-btn-primary" id="btn-auth-signin">${t('auth_continue', 'CONTINUE')}</button>
         </form>
       `;
     }
   }
+
+  // Country selector methods
+  function toggleCountryDropdown(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    const dropdown = document.getElementById('sender-country-dropdown');
+    if (!dropdown) return;
+    const isVisible = dropdown.style.display === 'block';
+    if (isVisible) {
+      dropdown.style.display = 'none';
+    } else {
+      dropdown.style.display = 'block';
+      renderCountryList('');
+      const searchInput = document.getElementById('sender-country-search');
+      if (searchInput) {
+        searchInput.value = '';
+        setTimeout(() => searchInput.focus(), 50);
+      }
+    }
+  }
+
+  function closeCountryDropdown() {
+    const dropdown = document.getElementById('sender-country-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+  }
+
+  function renderCountryList(query = '') {
+    const listEl = document.getElementById('sender-country-list');
+    if (!listEl) return;
+    const q = (query || '').trim().toLowerCase();
+    const countries = getCountriesList();
+    const isAr = isRtl();
+
+    const filtered = countries.filter(c => {
+      if (!q) return true;
+      return (
+        c.nameAr.toLowerCase().includes(q) ||
+        c.nameEn.toLowerCase().includes(q) ||
+        c.dial.includes(q) ||
+        c.code.toLowerCase().includes(q)
+      );
+    });
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = `<div style="padding: 16px; text-align: center; color: #9CA3AF; font-size: 12px;">No countries found</div>`;
+      return;
+    }
+
+    listEl.innerHTML = filtered.map(c => `
+      <div class="lorin-country-item ${c.code === selectedSenderCountry.code ? 'is-selected' : ''}" onclick="LorinAuth.selectCountry('${c.code}')">
+        <span class="lorin-country-item-left">
+          <span class="lorin-country-flag">${c.flag}</span>
+          <span class="lorin-country-name">${isAr ? c.nameAr : c.nameEn}</span>
+        </span>
+        <span class="lorin-country-dial">${c.dial}</span>
+      </div>
+    `).join('');
+  }
+
+  function filterCountries(val) {
+    renderCountryList(val);
+  }
+
+  function selectCountry(code) {
+    const countries = getCountriesList();
+    const match = countries.find(c => c.code === code) || countries[0];
+    selectedSenderCountry = match;
+
+    const flagEl = document.getElementById('sender-flag');
+    const dialEl = document.getElementById('sender-dial');
+    const phoneInput = document.getElementById('auth-phone-input');
+
+    if (flagEl) flagEl.textContent = match.flag;
+    if (dialEl) dialEl.textContent = match.dial;
+    if (phoneInput && match.placeholder) phoneInput.placeholder = match.placeholder;
+
+    closeCountryDropdown();
+    if (phoneInput) phoneInput.focus();
+  }
+
+  // Close dropdown on click outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#sender-phone-wrapper')) {
+      closeCountryDropdown();
+    }
+  });
 
   // Password validation in Step 2
   function validateStep2() {
@@ -769,7 +948,7 @@
     }
   }
 
-  // Handlers
+  // Step 1: Smart Email Detection
   async function handleStep1Submit(e) {
     e.preventDefault();
     const emailInput = document.getElementById('auth-email-input');
@@ -778,15 +957,48 @@
     if (!pendingEmail) return;
 
     const btn = document.getElementById('btn-auth-step1');
-    btn.disabled = true;
-    btn.textContent = t('loading_wait', 'Processing...');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = t('loading_wait', 'Processing...');
+    }
 
-    // Check if user exists or proceed to step 2 for clean signup
-    // In Supabase, signInWithPassword test allows detecting if account is existing or fresh
-    authStep = 2;
-    renderCurrentStep();
+    let emailExists = false;
+    if (client) {
+      try {
+        const { data, error } = await client.rpc('check_email_exists', { email_input: pendingEmail });
+        if (!error && typeof data === 'boolean') {
+          emailExists = data;
+        } else if (error) {
+          console.warn('RPC check_email_exists note:', error.message);
+          // Fallback to checking profiles table if present
+          try {
+            const { data: pData, error: pErr } = await client
+              .from('profiles')
+              .select('id')
+              .eq('email', pendingEmail)
+              .maybeSingle();
+            if (!pErr && pData) {
+              emailExists = true;
+            }
+          } catch (_) {}
+        }
+      } catch (rpcErr) {
+        console.warn('check_email_exists error:', rpcErr);
+      }
+    }
+
+    if (emailExists) {
+      // Existing user -> Password sign in with prominent Forgot Password link
+      authStep = 6;
+      renderCurrentStep();
+    } else {
+      // New user -> Name & Password step
+      authStep = 2;
+      renderCurrentStep();
+    }
   }
 
+  // Step 2: Name & Password -> Proceed to Phone
   function handleStep2Submit(e) {
     e.preventDefault();
     const nameInput = document.getElementById('auth-name-input');
@@ -799,140 +1011,108 @@
     renderCurrentStep();
   }
 
+  // Step 3: Phone -> Instant Sign Up (No SMS OTP or Email Confirmation Blocking)
   async function handleStep3Submit(e) {
     e.preventDefault();
     const phoneInput = document.getElementById('auth-phone-input');
     if (!phoneInput) return;
 
-    let phone = phoneInput.value.replace(/\D/g, '');
-    if (phone.startsWith('962')) phone = phone.slice(3);
-    if (phone.startsWith('0')) phone = phone.slice(1);
-
-    if (phone.length < 8) {
-      alert(t('msg_invalid_phone', 'Please enter a valid Jordanian phone number'));
+    let rawPhone = phoneInput.value.replace(/\D/g, '');
+    if (rawPhone.length < 6) {
+      alert(t('msg_invalid_phone', 'Please enter a valid phone number'));
       return;
     }
 
-    pendingPhone = phone;
-    const btn = document.getElementById('btn-auth-step3');
-    btn.disabled = true;
-    btn.textContent = t('loading_wait', 'Processing...');
+    const c = selectedSenderCountry || DEFAULT_COUNTRIES[0];
+    const fullPhone = c.dial + rawPhone;
+    pendingPhone = rawPhone;
 
-    // Attempt Supabase Sign Up or Sign In
+    const btn = document.getElementById('btn-auth-step3');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = t('loading_wait', 'Creating account...');
+    }
+
     if (client) {
       try {
-        const { data, error } = await client.auth.signUp({
+        const { data: sData, error: sErr } = await client.auth.signUp({
           email: pendingEmail,
           password: pendingPassword,
           options: {
             data: {
               full_name: pendingName,
-              phone: '+962' + pendingPhone,
-              jordanian_phone: '+962' + pendingPhone
+              phone: fullPhone,
+              country_code: c.code,
+              dial_code: c.dial
             }
           }
         });
 
-        if (error && /already registered|already in use/i.test(error.message)) {
-          // Switch to Step 6 (Sign In)
-          authStep = 6;
-          renderCurrentStep();
-          return;
+        if (sErr) {
+          if (/already registered|already in use/i.test(sErr.message)) {
+            authStep = 6;
+            renderCurrentStep();
+            const feedback = document.getElementById('signin-feedback-msg');
+            if (feedback) {
+              feedback.style.display = 'block';
+              feedback.style.background = '#FEF2F2';
+              feedback.style.color = '#DC2626';
+              feedback.style.border = '1px solid #FEE2E2';
+              feedback.textContent = t('auth_email_exists_notice', 'هذا البريد مسجل مسبقاً، يرجى إدخال كلمة المرور للمتابعة');
+            }
+            return;
+          } else {
+            alert(sErr.message);
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = t('auth_continue', 'CONTINUE');
+            }
+            return;
+          }
+        }
+
+        // Ensure session is signed in immediately
+        if (!sData?.session) {
+          try {
+            await client.auth.signInWithPassword({
+              email: pendingEmail,
+              password: pendingPassword
+            });
+          } catch (_) {}
         }
       } catch (err) {
-        console.warn('Auth note:', err);
+        console.warn('Sign up error:', err);
       }
     }
 
-    // Advance to OTP verification screen
-    authStep = 4;
-    renderCurrentStep();
-  }
-
-  function handleOtpInput(input, event) {
-    const val = input.value.replace(/\D/g, '');
-    input.value = val;
-    const idx = parseInt(input.getAttribute('data-idx') || '0', 10);
-    const boxes = document.querySelectorAll('.lorin-otp-box');
-
-    if (val && idx < boxes.length - 1) {
-      boxes[idx + 1].focus();
-    } else if (!val && event.inputType === 'deleteContentBackward' && idx > 0) {
-      boxes[idx - 1].focus();
-    }
-  }
-
-  function startOtpTimer() {
-    if (otpTimerInterval) clearInterval(otpTimerInterval);
-    otpTimeRemaining = 57;
-    otpTimerInterval = setInterval(() => {
-      otpTimeRemaining--;
-      const el = document.getElementById('otp-countdown');
-      if (el) {
-        const m = Math.floor(otpTimeRemaining / 60);
-        const s = otpTimeRemaining % 60;
-        el.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-      }
-      if (otpTimeRemaining <= 0) {
-        clearInterval(otpTimerInterval);
-        const timerText = document.getElementById('otp-timer-text');
-        const resendBtn = document.getElementById('btn-resend-otp');
-        if (timerText) timerText.style.display = 'none';
-        if (resendBtn) resendBtn.style.display = 'inline-block';
-      }
-    }, 1000);
-  }
-
-  function resendOtp() {
-    alert(t('auth_otp_title', 'Verify Your Phone Number') + ': ' + t('loading_wait', 'Code sent!'));
-    startOtpTimer();
-    const timerText = document.getElementById('otp-timer-text');
-    const resendBtn = document.getElementById('btn-resend-otp');
-    if (timerText) timerText.style.display = 'inline-block';
-    if (resendBtn) resendBtn.style.display = 'none';
-  }
-
-  async function handleOtpSubmit(e) {
-    e.preventDefault();
-    const boxes = Array.from(document.querySelectorAll('.lorin-otp-box'));
-    const code = boxes.map((b) => b.value).join('');
-
-    if (code.length < 4) {
-      alert(t('msg_fill_required', 'Please fill in verification code'));
-      return;
-    }
-
-    const btn = document.getElementById('btn-auth-otp');
-    btn.disabled = true;
-    btn.textContent = t('loading_wait', 'Processing...');
-
-    // If verification token check is required
-    if (client) {
-      try {
-        await client.auth.verifyOtp({
-          email: pendingEmail,
-          token: code,
-          type: 'signup'
-        });
-      } catch (_) {}
-    }
-
-    // Refresh user session & advance to Success
     await syncUser();
-    authStep = 5;
-    renderCurrentStep();
+
+    // Instant redirect straight to Checkout Step 1 ("Delivery Details") without SMS OTP blocking
+    closeModal();
+    updateHeaderAccount();
+
+    if (window.location.pathname.endsWith('checkout.html') || window.location.pathname.includes('checkout')) {
+      const nameInput = document.getElementById('receiver-name');
+      if (nameInput && !nameInput.value) nameInput.value = pendingName;
+      const phoneInputEl = document.getElementById('receiver-phone');
+      if (phoneInputEl && !phoneInputEl.value) phoneInputEl.value = pendingPhone;
+      if (typeof goToStep === 'function') goToStep(1);
+    } else {
+      window.location.href = 'checkout.html';
+    }
   }
 
+  // Step 6: Password Sign In
   async function handleSignInSubmit(e) {
     e.preventDefault();
     const pwdInput = document.getElementById('auth-signin-pwd');
-    const errBox = document.getElementById('signin-error-msg');
+    const feedback = document.getElementById('signin-feedback-msg');
     const btn = document.getElementById('btn-auth-signin');
     if (!pwdInput) return;
 
     btn.disabled = true;
     btn.textContent = t('loading_wait', 'Processing...');
-    if (errBox) errBox.style.display = 'none';
+    if (feedback) feedback.style.display = 'none';
 
     if (client) {
       try {
@@ -942,18 +1122,24 @@
         });
 
         if (error) {
-          if (errBox) {
-            errBox.textContent = error.message;
-            errBox.style.display = 'block';
+          if (feedback) {
+            feedback.style.display = 'block';
+            feedback.style.background = '#FEF2F2';
+            feedback.style.color = '#DC2626';
+            feedback.style.border = '1px solid #FEE2E2';
+            feedback.textContent = error.message;
           }
           btn.disabled = false;
           btn.textContent = t('auth_continue', 'CONTINUE');
           return;
         }
       } catch (err) {
-        if (errBox) {
-          errBox.textContent = err.message;
-          errBox.style.display = 'block';
+        if (feedback) {
+          feedback.style.display = 'block';
+          feedback.style.background = '#FEF2F2';
+          feedback.style.color = '#DC2626';
+          feedback.style.border = '1px solid #FEE2E2';
+          feedback.textContent = err.message;
         }
         btn.disabled = false;
         btn.textContent = t('auth_continue', 'CONTINUE');
@@ -965,13 +1151,64 @@
     finishAuth();
   }
 
+  // Forgot Password Trigger
+  async function handleForgotPassword(e) {
+    if (e) e.preventDefault();
+    if (!pendingEmail) {
+      alert('Please enter your email first');
+      return;
+    }
+
+    const feedback = document.getElementById('signin-feedback-msg');
+    if (feedback) {
+      feedback.style.display = 'block';
+      feedback.style.background = '#EFF6FF';
+      feedback.style.color = '#1E40AF';
+      feedback.style.border = '1px solid #DBEAFE';
+      feedback.textContent = t('loading_wait', 'Sending password reset link...');
+    }
+
+    if (client) {
+      try {
+        const resetRedirect = window.location.origin + '/reset-password.html';
+        const { error } = await client.auth.resetPasswordForEmail(pendingEmail, {
+          redirectTo: resetRedirect
+        });
+
+        if (error) {
+          if (feedback) {
+            feedback.style.background = '#FEF2F2';
+            feedback.style.color = '#DC2626';
+            feedback.style.border = '1px solid #FEE2E2';
+            feedback.textContent = error.message;
+          }
+        } else {
+          if (feedback) {
+            feedback.style.background = '#F0FDF4';
+            feedback.style.color = '#166534';
+            feedback.style.border = '1px solid #DCFCE7';
+            feedback.innerHTML = `✓ ${t('auth_reset_sent_msg', 'تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني بنجاح. يرجى مراجعة صندوق الوارد.')}`;
+          }
+        }
+      } catch (err) {
+        if (feedback) {
+          feedback.style.background = '#FEF2F2';
+          feedback.style.color = '#DC2626';
+          feedback.style.border = '1px solid #FEE2E2';
+          feedback.textContent = err.message || 'Error sending reset email';
+        }
+      }
+    }
+  }
+
+  // Google OAuth (redirects directly to checkout.html preserving cart)
   async function handleGoogleAuth() {
     if (!client) return;
     try {
       const { error } = await client.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + window.location.pathname
+          redirectTo: window.location.origin + '/checkout.html'
         }
       });
       if (error) {
@@ -979,23 +1216,6 @@
       }
     } catch (e) {
       alert('Google Sign-In note: ' + e.message);
-    }
-  }
-
-  async function handleAppleAuth() {
-    if (!client) return;
-    try {
-      const { error } = await client.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo: window.location.origin + window.location.pathname
-        }
-      });
-      if (error) {
-        alert('Apple Sign-In note: ' + error.message);
-      }
-    } catch (e) {
-      alert('Apple Sign-In note: ' + e.message);
     }
   }
 
@@ -1007,6 +1227,11 @@
       const dest = redirectAfterAuth;
       redirectAfterAuth = null;
       window.location.href = dest;
+    } else if (window.location.pathname.endsWith('checkout.html') || window.location.pathname.includes('checkout')) {
+      if (typeof renderOrderSummary === 'function') renderOrderSummary();
+      if (typeof goToStep === 'function') goToStep(1);
+    } else {
+      window.location.href = 'checkout.html';
     }
   }
 
@@ -1027,8 +1252,9 @@
     return currentUser;
   }
 
-  function getUser() {
-    return currentUser;
+  async function getUser() {
+    if (currentUser) return currentUser;
+    return await syncUser();
   }
 
   function getUserDisplayName() {
@@ -1037,11 +1263,10 @@
     return meta.full_name || meta.name || currentUser.email.split('@')[0] || '';
   }
 
-  // Header Dropdown Setup (Screenshot 8)
+  // Header Dropdown Setup
   function setupHeaderAccount() {
     injectStyles();
 
-    // Find account trigger buttons on the page
     const accountButtons = document.querySelectorAll('.floward-right-group a, a.floward-btn-link');
     accountButtons.forEach((link) => {
       const text = (link.textContent || '').trim().toLowerCase();
@@ -1074,7 +1299,6 @@
       }
     });
 
-    // Close any open dropdown on body click
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.lorin-account-trigger') && !e.target.closest('.lorin-account-dropdown-menu')) {
         closeAccountDropdown();
@@ -1084,10 +1308,8 @@
 
   function onAccountClick(triggerEl) {
     if (!currentUser) {
-      // Unauthenticated -> Open multi-step auth modal
       openModal(1);
     } else {
-      // Authenticated -> Toggle dropdown matching Screenshot 8
       toggleAccountDropdown(triggerEl);
     }
   }
@@ -1109,8 +1331,6 @@
     const name = getUserDisplayName() || t('account_guest', 'Guest');
     const email = currentUser ? currentUser.email : '';
 
-    // STRICT FILTER: View/Edit Profile, My Orders, My Subscriptions, Notifications, My Addresses, Favourite
-    // EXCLUDES: VIP, Points, Referrals, Invoices, Occasions & Network
     dropdown.innerHTML = `
       <div class="lorin-acc-header">
         <p class="lorin-acc-greeting">${t('account_greeting_prefix', 'Hi')} ${name}</p>
@@ -1179,7 +1399,6 @@
       </div>
     `;
 
-    // Position dropdown under trigger element
     const rect = triggerEl.getBoundingClientRect();
     dropdown.style.position = 'fixed';
     dropdown.style.top = `${rect.bottom + 8}px`;
@@ -1232,7 +1451,7 @@
           </div>
           <div>
             <label class="lorin-field-label">${t('auth_phone_label', 'Phone Number')}</label>
-            <input type="tel" id="edit-profile-phone" class="lorin-text-input" value="${meta.phone || meta.jordanian_phone || ''}" dir="ltr">
+            <input type="tel" id="edit-profile-phone" class="lorin-text-input" value="${meta.phone || ''}" dir="ltr">
           </div>
           <div>
             <label class="lorin-field-label">${t('auth_email_label', 'Email address')}</label>
@@ -1300,6 +1519,140 @@
     if (drawer) drawer.classList.remove('is-active');
   }
 
+  // Non-destructive Legal Modal (preserves typed auth data without leaving screen)
+  function openLegalModal(type, e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    createLegalDrawer();
+    const titleEl = document.getElementById('lorin-legal-title');
+    const bodyEl = document.getElementById('lorin-legal-body');
+    const backdrop = document.getElementById('lorin-legal-backdrop');
+    const drawer = document.getElementById('lorin-legal-drawer');
+    if (!titleEl || !bodyEl || !drawer) return;
+
+    const isAr = isRtl();
+
+    if (type === 'privacy') {
+      titleEl.textContent = isAr ? 'سياسة الخصوصية — متجر Lorin' : 'Privacy Policy — Lorin Flora';
+      bodyEl.innerHTML = isAr ? `
+        <div style="line-height: 1.8; color: #374151; font-size: 13px;">
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 0 0 8px 0;">1. حماية بيانات الحساب وتسجيل الدخول</h4>
+          <p>في متجر Lorin للزهور والهدايا (عمان، الأردن)، نولي خصوصيتك أعلى درجات الأمان. تُحفظ بياناتك الشخصية (البريد الإلكتروني، الاسم، وكلمات المرور المشفرة) عبر خوادم آمنة مع تشفير قياسي، ولا تتم مشاركتها مع أي جهات خارجية غير مخولة.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">2. بيانات المستلم والتوصيل الفاخر</h4>
+          <p>تُستخدم بيانات المستلم (الاسم، رقم الهاتف، وإحداثيات الموقع أو التواصل عبر واتساب) حصرياً لغايات تنسيق تسليم باقة الزهور في الوقت المحدد وبأعلى معايير اللباقة والاحترافية.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">3. ميزة إخفاء الهوية (الإهداء السري 🤫)</h4>
+          <p>عند تفعيل خيار "إخفاء هويتي عن المستلم"، نتعهد تماماً بعدم الكشف عن هوية المشتري أو اسمه أو رقم هاتفه للمستلم، وتبقى المفاجأة سرية بالكامل.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">4. الزهور الطبيعية وسياسة التبديل والتوصيل</h4>
+          <p>نحرص على انتقاء أجود أنواع الزهور الطبيعية يومياً. نظراً للطبيعة الموسمية للزهور، قد يتم استبدال نوع معين بآخر من نفس القيمة الرفيعة والتناغم اللوني في حال عدم توفره، مع الالتزام التام برونق التصميم.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">5. فترات التوصيل والتوصيل السريع خلال 120 دقيقة</h4>
+          <p>نوفر خدمة التوصيل السريع خلال 120 دقيقة داخل العاصمة عمان، إضافة إلى مواعيد التوصيل المجدولة وفق اختياركم.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">6. أمان المدفوعات والبطاقات</h4>
+          <p>يتم الدفع بواسطة بوابات دفع مصرفية مشفرة بالكامل (Apple Pay، فيزا، ماستركارد، وCliQ الأردن، والدفع عند الاستلام). نحن لا نقوم بتخزين أي أرقام بطاقات أو رموز أمان على خوادمنا.</p>
+        </div>
+      ` : `
+        <div style="line-height: 1.8; color: #374151; font-size: 13px;">
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 0 0 8px 0;">1. Account & Login Data Privacy</h4>
+          <p>At Lorin Flora (Amman, Jordan), your personal privacy is paramount. Your email, name, phone, and securely hashed passwords are safeguarded using enterprise-level encryption and are never shared or sold to unauthorized third parties.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">2. Recipient Delivery Details</h4>
+          <p>Recipient information (name, phone number, and GPS/map location) is utilized strictly to coordinate seamless, polite, and timely floral deliveries across Amman and Jordan.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">3. Anonymous Gifting (Secret Identity 🤫)</h4>
+          <p>When selecting "Keep my identity a secret", we guarantee that no sender details, names, or contact numbers are disclosed to the recipient.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">4. Fresh Flower Sourcing & Substitution Policy</h4>
+          <p>Due to the seasonal nature of fresh blooms, subtle substitutions of equal or higher luxury value and matching palette may occur to ensure peak floral freshness.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">5. Delivery Slots & 120-Minute Express Service</h4>
+          <p>We provide rapid 120-minute express courier delivery across Amman, Jordan, alongside customized same-day and scheduled delivery slots.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">6. Payment Security</h4>
+          <p>All payments via Apple Pay, Credit/Debit Cards, Jordan's CliQ network, and Cash on Delivery are processed securely without storing sensitive card details on our servers.</p>
+        </div>
+      `;
+    } else {
+      titleEl.textContent = isAr ? 'الشروط والأحكام — متجر Lorin' : 'Terms & Conditions — Lorin Flora';
+      bodyEl.innerHTML = isAr ? `
+        <div style="line-height: 1.8; color: #374151; font-size: 13px;">
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 0 0 8px 0;">1. قبول الشروط والطلبات</h4>
+          <p>باستخدامك لموقع متجر Lorin، فإنك توافق على الالتزام بكافة الشروط والأحكام المعمول بها داخل المملكة الأردنية الهاشمية.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">2. دقة بيانات الطلب والمستلم</h4>
+          <p>يتحمل المشتري مسؤولية تقديم معلومات اتصال صحيحة ودقيقة للمستلم لتجنب أي تأخير في مواعيد التسليم.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">3. خدمة التوصيل السريع (120 دقيقة)</h4>
+          <p>تخضع خدمة التوصيل السريع لجاهزية المستلم للتنسيق ووضوح العنوان في نطاق التغطية داخل العاصمة عمان.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">4. سياسة الإلغاء والتعديل</h4>
+          <p>نظراً لطبيعة الزهور القابلة للتلف وسرعة تجهيز الباقات الطبيعية المخصصة، يمكن تعديل أو إلغاء الطلبات قبل بدء تنسيق الزهور بواسطة فريقنا.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">5. العملة والأسعار</h4>
+          <p>كافة الأسعار الموضحة على الموقع بالدينار الأردني (JOD / د.أ) وتشمل التجهيز الفاخر الموضح في صفحة المنتج.</p>
+        </div>
+      ` : `
+        <div style="line-height: 1.8; color: #374151; font-size: 13px;">
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 0 0 8px 0;">1. Acceptance of Terms</h4>
+          <p>By accessing Lorin Flora and placing orders, you agree to comply with our terms and applicable laws of the Hashemite Kingdom of Jordan.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">2. Order Accuracy & Recipient Availability</h4>
+          <p>Customers must provide accurate recipient contact details to ensure punctual delivery without courier disruptions.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">3. Express 120-Minute Delivery</h4>
+          <p>Express 120-minute delivery is available across eligible zones in Amman and is contingent upon recipient responsiveness.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">4. Cancellation & Fresh Perishables</h4>
+          <p>Because bespoke floral arrangements consist of perishable blooms prepared on demand, cancellations or modifications must be made before floral assembly begins.</p>
+
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">5. Currency & Pricing</h4>
+          <p>All prices are quoted in Jordanian Dinars (JOD / د.أ) inclusive of presentation standards shown on each product page.</p>
+        </div>
+      `;
+    }
+
+    backdrop.classList.add('is-active');
+    drawer.classList.add('is-active');
+  }
+
+  function createLegalDrawer() {
+    if (document.getElementById('lorin-legal-backdrop')) return;
+    const backdrop = document.createElement('div');
+    backdrop.id = 'lorin-legal-backdrop';
+    backdrop.className = 'lorin-drawer-backdrop';
+
+    const drawer = document.createElement('div');
+    drawer.id = 'lorin-legal-drawer';
+    drawer.className = 'lorin-slide-drawer';
+    drawer.innerHTML = `
+      <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #F3F4F6;">
+        <h3 id="lorin-legal-title" style="margin: 0; font-size: 17px; font-weight: 700; color: #00313C;"></h3>
+        <button type="button" onclick="LorinAuth.closeLegalDrawer()" style="background: none; border: none; font-size: 20px; color: #9CA3AF; cursor: pointer;">✕</button>
+      </div>
+      <div id="lorin-legal-body" style="flex: 1; overflow-y: auto; padding-top: 20px;"></div>
+      <div style="padding-top: 14px; border-top: 1px solid #F3F4F6; text-align: center;">
+        <button type="button" class="lorin-btn-primary" onclick="LorinAuth.closeLegalDrawer()" style="padding: 10px 20px;">${t('auth_done', 'Done')}</button>
+      </div>
+    `;
+
+    backdrop.addEventListener('click', closeLegalDrawer);
+    document.body.appendChild(backdrop);
+    document.body.appendChild(drawer);
+  }
+
+  function closeLegalDrawer() {
+    const backdrop = document.getElementById('lorin-legal-backdrop');
+    const drawer = document.getElementById('lorin-legal-drawer');
+    if (backdrop) backdrop.classList.remove('is-active');
+    if (drawer) drawer.classList.remove('is-active');
+  }
+
   async function saveProfile(e) {
     e.preventDefault();
     const name = document.getElementById('edit-profile-name').value.trim();
@@ -1320,10 +1673,6 @@
     if (!client) return;
 
     try {
-      const meta = (currentUser && currentUser.user_metadata) || {};
-      const userPhone = meta.phone || meta.jordanian_phone || '';
-      const cleanPhone = userPhone.replace(/\D/g, '');
-
       let query = client.from('orders').select('*').order('created_at', { ascending: false }).limit(10);
       const { data: orders, error } = await query;
 
@@ -1377,14 +1726,16 @@
     handleStep1Submit,
     handleStep2Submit,
     handleStep3Submit,
-    handleOtpSubmit,
-    handleOtpInput,
-    resendOtp,
     handleSignInSubmit,
+    handleForgotPassword,
     handleGoogleAuth,
-    handleAppleAuth,
     validateStep2,
     togglePasswordVisibility,
+    toggleCountryDropdown,
+    filterCountries,
+    selectCountry,
+    openLegalModal,
+    closeLegalDrawer,
     finishAuth,
     getUser,
     getUserDisplayName,

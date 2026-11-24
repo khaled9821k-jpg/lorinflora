@@ -19,6 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="lorin-store-settings.js"></script>
   <script src="lorin-i18n.js"></script>
+  <script src="lorin-countries.js"></script>
   <script src="lorin-auth.js"></script>
 
   <!-- Leaflet Map for Interactive Delivery Location Picker -->
@@ -223,13 +224,13 @@
       box-shadow: 0 0 0 3px rgba(0, 49, 60, 0.08);
     }
 
-    /* Phone Input with +962 Flag */
+    /* Phone Input with Global Country Selector */
     .lorin-checkout-phone-wrap {
       display: flex;
       border: 1px solid var(--lorin-border);
       border-radius: 6px;
-      overflow: hidden;
       background: #FFFFFF;
+      position: relative;
       transition: border-color 0.15s;
     }
     .lorin-checkout-phone-wrap:focus-within {
@@ -241,12 +242,22 @@
       align-items: center;
       gap: 6px;
       background: #F9FAFB;
+      border: none;
       border-inline-end: 1px solid var(--lorin-border);
       padding: 0 12px;
       font-size: 13px;
       font-weight: 600;
       color: #374151;
+      cursor: pointer;
       user-select: none;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: background 0.15s;
+      border-start-start-radius: 5px;
+      border-end-start-radius: 5px;
+    }
+    .lorin-checkout-flag:hover {
+      background: #F3F4F6;
     }
     .lorin-checkout-phone-input {
       flex: 1;
@@ -256,6 +267,83 @@
       color: #111827;
       outline: none;
       font-family: inherit;
+      border-start-end-radius: 5px;
+      border-end-end-radius: 5px;
+    }
+    .lorin-country-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      inset-inline-start: 0;
+      width: 320px;
+      max-width: 90vw;
+      background: #FFFFFF;
+      border: 1px solid var(--lorin-border);
+      border-radius: 10px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0,0,0,0.04);
+      z-index: 999999;
+      overflow: hidden;
+      animation: lorinFadeIn 0.15s ease forwards;
+      box-sizing: border-box;
+    }
+    .lorin-country-search-wrap {
+      padding: 10px;
+      border-bottom: 1px solid #F3F4F6;
+      background: #FAFAFA;
+    }
+    .lorin-country-search-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #D1D5DB;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+    .lorin-country-search-input:focus {
+      border-color: var(--lorin-brand);
+    }
+    .lorin-country-list {
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 4px 0;
+    }
+    .lorin-country-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      font-size: 12px;
+      color: #374151;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .lorin-country-item:hover, .lorin-country-item.is-selected {
+      background: #F3F4F6;
+      color: #111827;
+    }
+    .lorin-country-item-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .lorin-country-flag {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .lorin-country-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lorin-country-dial {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6B7280;
+      direction: ltr;
+      flex-shrink: 0;
+      margin-inline-start: 8px;
     }
 
     /* Toggle Switch (Screenshot 5) */
@@ -590,12 +678,23 @@
                   <label class="lorin-input-label mb-0" data-i18n="recipient_phone_label">رقم هاتف المستلم (واتساب)</label>
                   <span class="text-[11px] text-gray-400" title="للتواصل مع المستلم لتسليم الهدية">ⓘ</span>
                 </div>
-                <div class="lorin-checkout-phone-wrap">
-                  <div class="lorin-checkout-flag">
-                    <span>🇯🇴</span>
-                    <span>+962 ▾</span>
+                <div class="lorin-checkout-phone-wrap" id="recipient-phone-wrap">
+                  <button type="button" class="lorin-checkout-flag" id="recipient-country-trigger" onclick="toggleRecipientCountryDropdown(event)">
+                    <span id="recipient-flag">🇯🇴</span>
+                    <span id="recipient-dial" dir="ltr">+962</span>
+                    <span style="font-size: 10px; color: #9CA3AF;">▾</span>
+                  </button>
+                  <input type="tel" id="receiver-phone" required placeholder="7XXXXXXXX" class="lorin-checkout-phone-input" dir="ltr">
+
+                  <!-- Searchable Country Dropdown Menu -->
+                  <div id="recipient-country-dropdown" class="lorin-country-menu" style="display: none;">
+                    <div class="lorin-country-search-wrap">
+                      <input type="text" id="recipient-country-search" class="lorin-country-search-input" placeholder="Search country or code / ابحث عن الدولة..." oninput="filterRecipientCountries(this.value)">
+                    </div>
+                    <div class="lorin-country-list" id="recipient-country-list">
+                      <!-- Injected via renderRecipientCountryList() -->
+                    </div>
                   </div>
-                  <input type="tel" id="receiver-phone" required placeholder="7XXXXXXXX" class="lorin-checkout-phone-input" dir="ltr" maxlength="10">
                 </div>
               </div>
 
@@ -930,6 +1029,8 @@
       <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.7);">
         <li><a href="index.html" style="color: inherit; text-decoration: none;">الرئيسية</a></li>
         <li><a href="cart.html" style="color: inherit; text-decoration: none;">سلة المشتريات</a></li>
+        <li><a href="privacy-policy.html" style="color: inherit; text-decoration: none;" data-i18n="auth_privacy_policy">سياسة الخصوصية</a></li>
+        <li><a href="terms-and-conditions.html" style="color: inherit; text-decoration: none;" data-i18n="auth_terms_conditions">الشروط والأحكام</a></li>
       </ul>
     </div>
   </div>
@@ -952,6 +1053,92 @@
   let activeMap = null;
   let activeMarker = null;
   let currentCoordinates = { lat: 31.9539, lng: 35.9106 };
+
+  // Recipient Country Code Selector
+  let selectedRecipientCountry = (window.LORIN_COUNTRIES && window.LORIN_COUNTRIES[0]) || { code: 'JO', nameAr: 'الأردن', nameEn: 'Jordan', dial: '+962', flag: '🇯🇴', placeholder: '7XXXXXXXX' };
+
+  function toggleRecipientCountryDropdown(e) {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    const dropdown = document.getElementById('recipient-country-dropdown');
+    if (!dropdown) return;
+    const isVisible = dropdown.style.display === 'block';
+    if (isVisible) {
+      dropdown.style.display = 'none';
+    } else {
+      dropdown.style.display = 'block';
+      renderRecipientCountryList('');
+      const searchInput = document.getElementById('recipient-country-search');
+      if (searchInput) {
+        searchInput.value = '';
+        setTimeout(() => searchInput.focus(), 50);
+      }
+    }
+  }
+
+  function closeRecipientCountryDropdown() {
+    const dropdown = document.getElementById('recipient-country-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+  }
+
+  function renderRecipientCountryList(query = '') {
+    const listEl = document.getElementById('recipient-country-list');
+    if (!listEl) return;
+    const q = (query || '').trim().toLowerCase();
+    const countries = window.LORIN_COUNTRIES || [selectedRecipientCountry];
+    const isAr = document.documentElement.dir === 'rtl' || (window.LorinI18n && window.LorinI18n.getLang() === 'ar');
+
+    const filtered = countries.filter(c => {
+      if (!q) return true;
+      return (
+        c.nameAr.toLowerCase().includes(q) ||
+        c.nameEn.toLowerCase().includes(q) ||
+        c.dial.includes(q) ||
+        c.code.toLowerCase().includes(q)
+      );
+    });
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = `<div style="padding: 14px; text-align: center; color: #9CA3AF; font-size: 12px;">${isAr ? 'لا توجد نتائج' : 'No countries found'}</div>`;
+      return;
+    }
+
+    listEl.innerHTML = filtered.map(c => `
+      <div class="lorin-country-item ${c.code === selectedRecipientCountry.code ? 'is-selected' : ''}" onclick="selectRecipientCountry('${c.code}')">
+        <span class="lorin-country-item-left">
+          <span class="lorin-country-flag">${c.flag}</span>
+          <span class="lorin-country-name">${isAr ? c.nameAr : c.nameEn}</span>
+        </span>
+        <span class="lorin-country-dial">${c.dial}</span>
+      </div>
+    `).join('');
+  }
+
+  function filterRecipientCountries(val) {
+    renderRecipientCountryList(val);
+  }
+
+  function selectRecipientCountry(code) {
+    const countries = window.LORIN_COUNTRIES || [selectedRecipientCountry];
+    const match = countries.find(c => c.code === code) || countries[0];
+    selectedRecipientCountry = match;
+
+    const flagEl = document.getElementById('recipient-flag');
+    const dialEl = document.getElementById('recipient-dial');
+    const phoneInput = document.getElementById('receiver-phone');
+
+    if (flagEl) flagEl.textContent = match.flag;
+    if (dialEl) dialEl.textContent = match.dial;
+    if (phoneInput && match.placeholder) phoneInput.placeholder = match.placeholder;
+
+    closeRecipientCountryDropdown();
+    if (phoneInput) phoneInput.focus();
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#recipient-phone-wrap')) {
+      closeRecipientCountryDropdown();
+    }
+  });
 
   function t(key, fallback) {
     if (window.LorinI18n) return window.LorinI18n.t(key, fallback);
@@ -1278,7 +1465,7 @@
     const address = document.getElementById('receiver-full-address').value.trim();
 
     document.getElementById('summary-rec-name').textContent = name;
-    document.getElementById('summary-rec-phone').textContent = '+962 ' + phone.replace(/\D/g, '');
+    document.getElementById('summary-rec-phone').textContent = selectedRecipientCountry.dial + ' ' + phone.replace(/\D/g, '');
 
     // Date & Time Summary
     let slotText = 'اليوم | توصيل سريع (120 دقيقة)';
@@ -1355,17 +1542,20 @@
 
     const totals = computeTotals();
 
+    const cleanPhone = phone.replace(/\D/g, '');
+    const fullRecipientPhone = selectedRecipientCountry.dial + cleanPhone;
+
     // Prepare clean Supabase insert (strictly matching table schema)
     try {
       const { error: dbError } = await supabaseClient
         .from('orders')
         .insert([{
           customer_name: isSecretIdentity ? 'عميل سري (مفاجأة 🤫)' : name,
-          customer_phone: phone,
+          customer_phone: fullRecipientPhone,
           shipping_address: shippingDesc + (driverNote ? ` [ملاحظة للمندوب: ${driverNote}]` : ''),
           total_price: totals.total,
           items: cart,
-          recipient_phone: phone,
+          recipient_phone: fullRecipientPhone,
           gift_card_message: cardMsg
         }]);
 
@@ -1380,7 +1570,7 @@
     const activeSettings = window.LorinStoreSettings ? window.LorinStoreSettings.get() : {};
     let wa = `🌸 *طلب جديد من متجر Lorin* 🌸%0A%0A`;
     wa += `👤 *المستلم:* ${encodeURIComponent(name)}%0A`;
-    wa += `📞 *الهاتف:* ${encodeURIComponent('+962' + phone.replace(/\D/g, ''))}%0A`;
+    wa += `📞 *الهاتف:* ${encodeURIComponent(fullRecipientPhone)}%0A`;
     wa += `📍 *العنوان:* ${encodeURIComponent(shippingDesc)}%0A`;
     wa += `⏰ *الموعد:* ${encodeURIComponent(document.getElementById('summary-rec-datetime').textContent)}%0A`;
     if (isSecretIdentity) wa += `🤫 *ملاحظة:* المشتري يرغب بإخفاء هويته عن المستلم (مفاجأة)%0A`;
@@ -1489,10 +1679,17 @@
           const nameInput = document.getElementById('receiver-name');
           if (nameInput && !nameInput.value) nameInput.value = meta.full_name;
         }
+        if (meta.country_code && typeof selectRecipientCountry === 'function') {
+          selectRecipientCountry(meta.country_code);
+        }
         if (meta.phone || meta.jordanian_phone) {
           const phoneInput = document.getElementById('receiver-phone');
-          const clean = (meta.phone || meta.jordanian_phone).replace(/\D/g, '');
-          if (phoneInput && !phoneInput.value) phoneInput.value = clean.startsWith('962') ? clean.slice(3) : clean;
+          let raw = (meta.phone || meta.jordanian_phone).replace(/\D/g, '');
+          if (selectedRecipientCountry && selectedRecipientCountry.dial) {
+            const dialClean = selectedRecipientCountry.dial.replace(/\D/g, '');
+            if (raw.startsWith(dialClean)) raw = raw.slice(dialClean.length);
+          }
+          if (phoneInput && !phoneInput.value) phoneInput.value = raw;
         }
       }
     }
