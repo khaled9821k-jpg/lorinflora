@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+  <link rel="stylesheet" href="../lorin-notifications.css">
+  <script src="../lorin-notifications.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lorin Studio 🌸 — لوحة التحكم وتخصيص المتجر</title>
@@ -191,8 +193,6 @@
       <button type="button" id="logout-btn" class="bg-[#2c2f33] hover:bg-red-600/80 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">خروج</button>
     </div>
   </header>
-
-  <div id="toast-banner" class="fixed bottom-5 left-5 z-[9999] hidden px-4 py-3 rounded-xl shadow-lg text-xs font-bold text-white transition-all"></div>
 
   <div id="workspace-grid" class="workspace-grid">
 
@@ -1103,12 +1103,7 @@
     }
 
     function showToast(msg, type = 'success') {
-      const el = document.getElementById('toast-banner');
-      el.textContent = msg;
-      el.className = `fixed bottom-5 left-5 z-[9999] px-4 py-3 rounded-xl shadow-lg text-xs font-bold text-white transition-all max-w-md ${type === 'error' ? 'bg-red-600' : type === 'warn' ? 'bg-amber-600' : 'bg-[#00313C]'}`;
-      el.classList.remove('hidden');
-      clearTimeout(el._timer);
-      el._timer = setTimeout(() => el.classList.add('hidden'), type === 'success' ? 3500 : 7000);
+      showToastNotification(msg, { type: type === 'warn' ? 'warning' : type });
     }
 
     async function sbDelete(table, id, col = 'id') {
@@ -1862,8 +1857,8 @@
       container.appendChild(row);
     }
 
-    function addNewCustomGroup(groupTitle = '') {
-      const title = groupTitle || prompt('أدخل اسم مجموعة التخصيص الجديدة:');
+    async function addNewCustomGroup(groupTitle = '') {
+      const title = groupTitle || await showPromptModal('أدخل اسم مجموعة التخصيص الجديدة:');
       if (!title || !title.trim()) return;
       const clean = cleanOptText(title);
       if (!clean) return;
@@ -2453,7 +2448,7 @@
       `).join('') : `<div class="text-xs text-gray-400 text-center py-3">لا توجد رسائل مضافة لهذه المناسبة واللغة.</div>`;
     }
 
-    document.getElementById('admin-sm-items-list').addEventListener('click', function(e) {
+    document.getElementById('admin-sm-items-list').addEventListener('click', async function(e) {
       const btn = e.target.closest('button');
       if (!btn) return;
       const occ = currentOccKey();
@@ -2464,7 +2459,7 @@
         list.splice(Number(btn.dataset.smDel), 1);
       } else if (btn.dataset.smEdit !== undefined) {
         const idx = Number(btn.dataset.smEdit);
-        const next = prompt('عدّل الرسالة:', list[idx]);
+        const next = await showPromptModal('عدّل الرسالة:', list[idx]);
         if (next === null) return;
         const v = next.trim();
         if (!v) return;
@@ -2500,8 +2495,8 @@
       return k;
     }
 
-    function addAdminOccasion() {
-      const label = prompt('اسم المناسبة الجديدة (يظهر للعميل، مثال: Anniversary):');
+    async function addAdminOccasion() {
+      const label = await showPromptModal('اسم المناسبة الجديدة (يظهر للعميل، مثال: Anniversary):');
       if (!label || !label.trim()) return;
       const key = uniqueOccasionKey(label);
       adminSuggestedData[key] = { label: label.trim(), EN: [], AR: [] };
@@ -2512,9 +2507,9 @@
       markSmDirty();
     }
 
-    function renameAdminOccasion() {
+    async function renameAdminOccasion() {
       const occ = currentOccKey();
-      const label = prompt('الاسم الجديد للمناسبة:', adminSuggestedData[occ].label || occ);
+      const label = await showPromptModal('الاسم الجديد للمناسبة:', adminSuggestedData[occ].label || occ);
       if (!label || !label.trim()) return;
       adminSuggestedData[occ].label = label.trim();
       renderAdminSuggestedList();
@@ -2522,18 +2517,18 @@
       markSmDirty();
     }
 
-    function deleteAdminOccasion() {
+    async function deleteAdminOccasion() {
       const occ = currentOccKey();
       if (occ === 'general') { showToast('لا يمكن حذف المناسبة الأساسية general (يمكنك إفراغ رسائلها).', 'warn'); return; }
-      if (!confirm(`حذف المناسبة "${adminSuggestedData[occ].label || occ}" وكل رسائلها؟`)) return;
+      if (!await showConfirmModal(`حذف المناسبة "${adminSuggestedData[occ].label || occ}" وكل رسائلها؟`)) return;
       delete adminSuggestedData[occ];
       renderAdminSuggestedList();
       syncJsonFromSuggested();
       markSmDirty();
     }
 
-    function resetAdminSuggestedDefaults() {
-      if (!confirm('استبدال كل الرسائل المقترحة بالقائمة الافتراضية؟ (لن يُحفظ شيء حتى تضغط حفظ)')) return;
+    async function resetAdminSuggestedDefaults() {
+      if (!await showConfirmModal('استبدال كل الرسائل المقترحة بالقائمة الافتراضية؟ (لن يُحفظ شيء حتى تضغط حفظ)')) return;
       adminSuggestedData = normalizeSuggested(cloneDefaultSuggested());
       renderAdminSuggestedList();
       syncJsonFromSuggested();
@@ -3206,7 +3201,7 @@
         document.getElementById('hero-form-title').textContent = 'تعديل شريحة البنر';
         document.getElementById('hero-cancel-btn').classList.remove('hidden');
       } else if (target.dataset.delHero) {
-        if (!confirm('حذف هذه الشريحة؟')) return;
+        if (!await showConfirmModal('حذف هذه الشريحة؟')) return;
         if (await sbDelete('custom_media', target.dataset.delHero)) {
           await fetchHeroSlides(); refreshStorePreview(false); showToast('تم حذف الشريحة');
         }
@@ -3219,7 +3214,7 @@
         document.getElementById('cat-form-title').textContent = 'تعديل التصنيف الرئيسي';
         document.getElementById('cat-cancel-btn').classList.remove('hidden');
       } else if (target.dataset.delCat) {
-        if (!confirm('حذف التصنيف الرئيسي؟')) return;
+        if (!await showConfirmModal('حذف التصنيف الرئيسي؟')) return;
         if (await sbDelete('categories', target.dataset.delCat)) {
           await fetchAdminCategories(); renderCategoryDescriptionsEditor(); updateOverviewStats(); refreshStorePreview(false);
         }
@@ -3232,7 +3227,7 @@
         document.getElementById('subcat-form-title').textContent = 'تعديل التصنيف الفرعي';
         document.getElementById('subcat-cancel-btn').classList.remove('hidden');
       } else if (target.dataset.delSubcat) {
-        if (!confirm('حذف التصنيف الفرعي؟')) return;
+        if (!await showConfirmModal('حذف التصنيف الفرعي؟')) return;
         if (await sbDelete('sub_categories', target.dataset.delSubcat)) {
           await fetchAdminSubCategories(); renderCategoryDescriptionsEditor(); refreshStorePreview(false);
         }
@@ -3250,7 +3245,7 @@
         document.getElementById('section-form-title').textContent = 'تعديل قسم المنتجات';
         document.getElementById('sec-cancel-btn').classList.remove('hidden');
       } else if (target.dataset.delSec) {
-        if (!confirm('حذف هذا القسم؟')) return;
+        if (!await showConfirmModal('حذف هذا القسم؟')) return;
         if (await sbDelete('store_sections', target.dataset.delSec)) {
           await fetchAdminSections(); updateOverviewStats(); refreshStorePreview(false);
         }
@@ -3262,14 +3257,14 @@
         changePreviewPage(`product.html?id=${encodeURIComponent(target.dataset.previewProd)}`);
         showToast('تم فتح المنتج في المعاينة الحية');
       } else if (target.dataset.delProd) {
-        if (!confirm('هل أنت متأكد من حذف هذا المنتج؟ سيتم حذف صوره وارتباطاته أيضاً.')) return;
+        if (!await showConfirmModal('هل أنت متأكد من حذف هذا المنتج؟ سيتم حذف صوره وارتباطاته أيضاً.')) return;
         if (await deleteProductCascade(target.dataset.delProd)) {
           await fetchAdminProducts(); await fetchCartExtrasAdmin(); refreshStorePreview(false); showToast('تم حذف المنتج');
         }
       } else if (target.dataset.editGc) {
         editGiftCard(target.dataset.editGc);
       } else if (target.dataset.delGc) {
-        if (!confirm('حذف تصميم البطاقة؟')) return;
+        if (!await showConfirmModal('حذف تصميم البطاقة؟')) return;
         if (await sbDelete('gift_card_designs', target.dataset.delGc)) {
           await fetchCartExtrasAdmin();
           if (currentPreviewPage.includes('cart.html')) refreshStorePreview(false);
@@ -3287,7 +3282,7 @@
           showToast('تمت الإزالة من السلة');
         }
       } else if (target.dataset.delOrder) {
-        if (!confirm('حذف هذا الطلب؟')) return;
+        if (!await showConfirmModal('حذف هذا الطلب؟')) return;
         if (await sbDelete('orders', target.dataset.delOrder)) {
           await fetchAdminOrders(); showToast('تم حذف الطلب');
         }

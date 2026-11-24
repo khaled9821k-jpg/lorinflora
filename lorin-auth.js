@@ -1019,7 +1019,7 @@
 
     let rawPhone = phoneInput.value.replace(/\D/g, '');
     if (rawPhone.length < 6) {
-      alert(t('msg_invalid_phone', 'Please enter a valid phone number'));
+      showToastNotification(t('msg_invalid_phone', 'Please enter a valid phone number'), { type: 'warning' });
       return;
     }
 
@@ -1062,7 +1062,7 @@
             }
             return;
           } else {
-            alert(sErr.message);
+            showToastNotification(sErr.message, { type: 'error' });
             if (btn) {
               btn.disabled = false;
               btn.textContent = t('auth_continue', 'CONTINUE');
@@ -1155,7 +1155,7 @@
   async function handleForgotPassword(e) {
     if (e) e.preventDefault();
     if (!pendingEmail) {
-      alert('Please enter your email first');
+      showToastNotification('Please enter your email first', { type: 'warning' });
       return;
     }
 
@@ -1212,10 +1212,10 @@
         }
       });
       if (error) {
-        alert('Google Sign-In note: ' + error.message);
+        showToastNotification('Google Sign-In note: ' + error.message, { type: 'error' });
       }
     } catch (e) {
-      alert('Google Sign-In note: ' + e.message);
+      showToastNotification('Google Sign-In note: ' + e.message, { type: 'error' });
     }
   }
 
@@ -1425,7 +1425,7 @@
     }
     currentUser = null;
     updateHeaderAccount();
-    alert(t('msg_signed_out', 'Signed out successfully.'));
+    showToastNotification(t('msg_signed_out', 'Signed out successfully.'), { type: 'info' });
   }
 
   // Account Slide-out Views
@@ -1663,7 +1663,7 @@
         data: { full_name: name, phone: phone }
       });
       await syncUser();
-      alert('تم حفظ البيانات بنجاح 🌸');
+      showToastNotification('تم حفظ البيانات بنجاح 🌸');
       closeAccountDrawer();
     }
   }

@@ -48,7 +48,7 @@ async function fetchProductDetails() {
 }
 
 function addToCart(productId) {
-    alert('تم إضافة المنتج إلى السلة بنجاح!');
+    showToastNotification('تم إضافة المنتج إلى السلة بنجاح!');
 }
 
 // تشغيل الدالة تلقائياً عند تحميل صفحة المنتج

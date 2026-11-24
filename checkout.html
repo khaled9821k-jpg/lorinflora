@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+  <link rel="stylesheet" href="lorin-notifications.css">
+  <script src="lorin-notifications.js"></script>
   <script src="lorin-preloader.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -797,7 +799,7 @@
                 <span>⚡</span>
                 <span data-i18n="express_banner_text">أدخل عنوان المستلم وسنضمن وصول هديتك الفاخرة خلال 120 دقيقة!</span>
               </div>
-              <a href="#" onclick="alert('خدمة التوصيل السريع من Lorin تضمن توصيل الباقات المنسقة طازجة خلال ساعتين في عمان.'); return false;" class="text-[11px] underline text-gray-300 hover:text-white" data-i18n="express_banner_link">تعرف أكثر</a>
+              <a href="#" onclick="showToastNotification('خدمة التوصيل السريع من Lorin تضمن توصيل الباقات المنسقة طازجة خلال ساعتين في عمان.', { type: 'info' }); return false;" class="text-[11px] underline text-gray-300 hover:text-white" data-i18n="express_banner_link">تعرف أكثر</a>
             </div>
           </div>
 
@@ -1422,19 +1424,19 @@
     const address = document.getElementById('receiver-full-address').value.trim();
 
     if (!name) {
-      alert(t('msg_fill_required', 'يرجى إدخال اسم المستلم'));
+      showToastNotification(t('msg_fill_required', 'يرجى إدخال اسم المستلم'), { type: 'warning' });
       document.getElementById('receiver-name').focus();
       return false;
     }
 
     if (!phone || phone.replace(/\D/g, '').length < 8) {
-      alert(t('msg_invalid_phone', 'يرجى إدخال رقم هاتف صحيح للمستلم'));
+      showToastNotification(t('msg_invalid_phone', 'يرجى إدخال رقم هاتف صحيح للمستلم'), { type: 'warning' });
       document.getElementById('receiver-phone').focus();
       return false;
     }
 
     if (!isCollectAddress && !address) {
-      alert(t('msg_fill_required', 'يرجى تعبئة العنوان بالتفصيل'));
+      showToastNotification(t('msg_fill_required', 'يرجى تعبئة العنوان بالتفصيل'), { type: 'warning' });
       document.getElementById('receiver-full-address').focus();
       return false;
     }
@@ -1516,7 +1518,7 @@
   async function submitFinalOrder() {
     const cart = getCart();
     if (cart.length === 0) {
-      alert(t('cart_empty', 'سلة المشتريات فارغة!'));
+      showToastNotification(t('cart_empty', 'سلة المشتريات فارغة!'), { type: 'warning' });
       return;
     }
 
@@ -1591,8 +1593,8 @@
     const waNum = String(activeSettings.checkout_whatsapp || '962700000000').replace(/\D/g, '') || '962700000000';
     window.open(`https://wa.me/${waNum}?text=${wa}`, '_blank');
 
-    alert(t('msg_order_success', 'تم تأكيد طلبك بنجاح! شكراً لاختيارك Lorin 🌸'));
-    window.location.href = 'index.html';
+    showToastNotification(t('msg_order_success', 'تم تأكيد طلبك بنجاح! شكراً لاختيارك Lorin 🌸'));
+    window.setTimeout(() => { window.location.href = 'index.html'; }, 3000);
   }
 
   // Map Initialization (Leaflet)
@@ -1634,7 +1636,7 @@
 
   function locateUserGps() {
     if (!navigator.geolocation) {
-      alert('خدمة تحديد الموقع غير مفعلة في متصفحك.');
+      showToastNotification('خدمة تحديد الموقع غير مفعلة في متصفحك.', { type: 'warning' });
       return;
     }
     navigator.geolocation.getCurrentPosition((pos) => {
@@ -1645,7 +1647,7 @@
         updateMapPill();
       }
     }, () => {
-      alert('تعذر جلب موقعك الحالي تلقائياً. يمكنك النقر على الخريطة لتحديده.');
+      showToastNotification('تعذر جلب موقعك الحالي تلقائياً. يمكنك النقر على الخريطة لتحديده.', { type: 'warning' });
     });
   }
 
