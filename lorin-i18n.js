@@ -23,6 +23,7 @@
       card_preview_link_attached: 'تم إرفاق رابط',
       card_preview_no_design: 'لم يتم اختيار تصميم البطاقة',
       card_preview_message_placeholder: 'ستظهر رسالتك هنا',
+      card_editor_open: 'تخصيص بطاقة الإهداء',
       country_name: 'الأردن',
       currency_code: 'د.أ',
 
@@ -208,6 +209,7 @@
       card_preview_link_attached: 'Link attached',
       card_preview_no_design: 'No card design selected',
       card_preview_message_placeholder: 'Your message will appear here',
+      card_editor_open: 'Personalize your gift card',
       country_name: 'Jordan',
       currency_code: 'JOD',
 

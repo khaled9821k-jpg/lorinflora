@@ -88,7 +88,6 @@ const LINE = "#E8E4DE";
 const PAPER = "#F6F3EE";
 const IVORY = "#FBF8F1"; // gift card paper
 const IVORY_LINE = "#E3D9C6"; // gift card outer frame
-const IVORY_INNER = "#D2C4A5"; // gift card inner frame
 const GOLD = "#9A8A63"; // gift card small caps / ornament
 const SANS = "-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
 const SERIF = "Georgia,'Times New Roman',serif";
@@ -312,7 +311,8 @@ function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, fallbackSender: st
   const message = (c.message ?? "").trim();
   const signature = c.signature;
   const signatureValue = String(signature?.value ?? "").trim();
-  const signatureImage = signature?.type === "handwritten" ? safeUrl(signatureValue) : "";
+  const inlineSignature = /^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/i.test(signatureValue) ? signatureValue : "";
+  const signatureImage = signature?.type === "handwritten" ? safeUrl(signatureValue) || inlineSignature : "";
   const signatureText = signature?.type !== "handwritten" ? signatureValue : "";
   const senderName = (c.senderName ?? "").trim() || fallbackSender;
   const rawQrUrl = validUrl(c.qrUrl);
@@ -341,8 +341,8 @@ function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, fallbackSender: st
       ? `<span dir="auto" style="font-family:${SERIF};font-size:17px;font-style:italic;">${esc(signatureText || text.handwrittenSignature)}</span>`
       : "";
   const qrCell = qrImageUrl
-    ? `<td width="130" valign="middle" align="center" style="padding:12px;">
-        <img src="${qrImageUrl}" width="100" height="100" alt="QR code" style="display:block;width:100px;height:100px;border:0;">
+    ? `<td class="card-qr-cell" width="130" valign="middle" align="center" style="padding:12px;">
+        <img src="${qrImageUrl}" width="104" height="104" alt="QR code" style="display:block;width:104px;height:104px;border:0;">
         <div style="font-family:${SANS};font-size:10px;color:${GOLD};padding-top:6px;">${esc(text.linkAttached)}</div>
       </td>`
     : "";
@@ -352,28 +352,34 @@ function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, fallbackSender: st
 
   return `
     <tr><td style="padding:0 0 4px 0;">
-      <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${IVORY}" style="background:${IVORY};border:1px solid ${IVORY_LINE};border-radius:8px;">
-        <tr><td style="padding:10px;">
-          <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid ${IVORY_INNER};border-radius:4px;">
-            <tr><td colspan="${qrCell ? 2 : 1}" dir="auto" style="padding:16px 18px 8px;font-family:${SANS};font-size:12px;color:${GOLD};">
-              <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;">${esc(text.cardDesign)}${name ? ` · ${esc(name)}` : ""}${c.selected ? ` · ${esc(text.selected)}` : ""}</div>
-              ${img ? `<img src="${img}" width="76" alt="${esc(name || text.card)}" style="display:block;width:76px;height:auto;max-height:68px;object-fit:cover;border:1px solid ${IVORY_LINE};border-radius:3px;margin-top:8px;">` : ""}
-              <div style="padding-top:10px;color:${INK};">${esc(text.recipient)}: <strong>${esc(c.recipientName || "")}</strong></div>
-            </td></tr>
-            <tr>
-              <td valign="middle" align="center" style="padding:24px 18px;${qrCell ? "width:70%;" : ""}">
-                <div style="font-family:${SERIF};font-size:14px;color:${GOLD};padding-bottom:10px;line-height:1;">&#10022;</div>
-                ${messageHtml}
-                ${linkLine}
-              </td>
-              ${qrCell}
-            </tr>
-            <tr><td colspan="${qrCell ? 2 : 1}" dir="auto" style="padding:12px 18px 16px;border-top:1px solid ${IVORY_INNER};font-family:${SANS};font-size:12px;color:${INK};">
-              ${esc(text.sender)}: <strong>${esc(senderName)}</strong>
-              ${signatureHtml ? `<div style="padding-top:6px;">${signatureHtml}</div>` : ""}
-            </td></tr>
-          </table>
-        </td></tr>
+      <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${IVORY}" style="background:${IVORY};border:1px solid ${IVORY_LINE};border-radius:10px;border-collapse:separate;page-break-inside:avoid;">
+        <tr>
+          <td colspan="${qrCell ? 2 : 1}" dir="auto" style="padding:16px 18px 12px;font-family:${SANS};font-size:12px;color:${GOLD};">
+            <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td valign="top">
+                  <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;">${esc(text.cardDesign)}${name ? ` · ${esc(name)}` : ""}${c.selected ? ` · ${esc(text.selected)}` : ""}</div>
+                  <div style="padding-top:9px;color:${INK};">${esc(text.recipient)}: <strong>${esc(c.recipientName || "")}</strong></div>
+                </td>
+                ${img ? `<td width="52" valign="top" align="${dir === "rtl" ? "left" : "right"}" style="padding-left:${dir === "rtl" ? "0" : "10px"};padding-right:${dir === "rtl" ? "10px" : "0"};"><img src="${img}" width="44" height="44" alt="${esc(name || text.card)}" style="display:block;width:44px;height:44px;object-fit:cover;border:1px solid ${IVORY_LINE};border-radius:6px;"></td>` : ""}
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td class="card-message-cell" valign="middle" align="center" style="padding:24px 18px;${qrCell ? "width:65%;" : ""}">
+            <div style="font-family:${SERIF};font-size:14px;color:${GOLD};padding-bottom:10px;line-height:1;">&#10022;</div>
+            ${messageHtml}
+            ${linkLine}
+          </td>
+          ${qrCell}
+        </tr>
+        <tr>
+          <td colspan="${qrCell ? 2 : 1}" dir="auto" style="padding:12px 18px 16px;border-top:1px solid ${IVORY_LINE};font-family:${SANS};font-size:12px;color:${INK};">
+            ${esc(text.sender)}: <strong>${esc(senderName)}</strong>
+            ${signatureHtml ? `<div style="padding-top:6px;">${signatureHtml}</div>` : ""}
+          </td>
+        </tr>
       </table>
     </td></tr>`;
 }
@@ -533,10 +539,9 @@ export function renderOrderEmail(o: OrderEmailData): { subject: string; html: st
       /* Consistent mobile gutter for every section (desktop is 40px) */
       .px{padding-left:20px!important;padding-right:20px!important}
       .outer{padding:0!important}
-      /* Gift card: stack thumbnail above message */
-      .stack{display:block!important;width:100%!important;box-sizing:border-box!important}
-      .card-thumb{padding:22px 22px 0 22px!important}
-      .card-body{padding:22px 20px 26px 20px!important}
+      .card-message-cell,.card-qr-cell{display:block!important;width:100%!important;box-sizing:border-box!important}
+      .card-qr-cell{padding-top:0!important}
+      .card-qr-cell img{margin:0 auto!important}
     }
   </style>
 </head>
