@@ -1,7 +1,6 @@
 /**
- * Lorin — order notification email template shared by the Supabase Edge Function.
- * - renderOrderEmail(order)  -> { subject, html, text }
- * - sendOrderEmail(order, to) -> sends through Resend
+ * Lorin — order notification email template used by the Supabase Edge Function.
+ * - renderOrderEmail(order) -> { subject, html, text }
  *
  * Email-safe: table layout, inline CSS, no JS, no web-font dependency
  * (Georgia/serif for the brand mark, system sans for body).
@@ -347,11 +346,13 @@ function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, fallbackSender: st
     : signatureValue
       ? `<span dir="auto" style="font-family:${SERIF};font-size:17px;font-style:italic;">${esc(signatureText || text.handwrittenSignature)}</span>`
       : "";
-  const linkLine = linkTargetUrl
-    ? `<div style="font-family:${SANS};font-size:11px;line-height:1.5;padding-top:6px;"><a href="${linkTargetUrl}" target="_blank" style="color:${BRAND};text-decoration:underline;">${esc(text.openLink)}: ${esc(linkTarget)}</a></div>`
-    : "";
-  const qrHtml = qrImageUrl
-    ? `<img src="${qrImageUrl}" width="72" height="72" alt="QR code" style="display:block;width:72px;height:72px;margin:12px auto 0;border:0;">`
+  const linkBlock = linkTargetUrl
+    ? `<div style="padding-top:14px;text-align:center;">
+        ${qrImageUrl ? `<img src="${qrImageUrl}" width="160" height="160" alt="QR code" style="display:block;width:160px;height:160px;margin:0 auto 8px;border:0;">` : ""}
+        <div dir="auto" style="font-family:${SANS};font-size:11px;line-height:1.5;color:${MUTED};">
+          ${esc(text.linkAttached)}: <a href="${linkTargetUrl}" target="_blank" rel="noopener noreferrer" style="color:${BRAND};text-decoration:underline;">${esc(linkTarget)}</a>
+        </div>
+      </div>`
     : "";
 
   return `
@@ -365,15 +366,14 @@ function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, fallbackSender: st
                 ${name ? `<div style="font-family:${SANS};font-size:11px;letter-spacing:.6px;color:${GOLD};padding-top:10px;text-align:center;">${esc(name)}</div>` : ""}
               </td>
               <td class="stack card-body" valign="middle" align="center" style="padding:30px 28px;">
-                <div dir="auto" style="font-family:${SANS};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${GOLD};">${esc(text.message)}</div>
                 ${recipientHtml}
+                <div dir="auto" style="font-family:${SANS};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${GOLD};">${esc(text.message)}</div>
                 <div style="font-family:${SERIF};font-size:14px;color:${GOLD};padding:12px 0 14px 0;line-height:1;">&#10022;</div>
                 ${messageHtml}
+                ${linkBlock}
                 <div style="width:36px;height:1px;background:#D2C4A5;margin:20px auto 0 auto;line-height:1px;font-size:1px;">&nbsp;</div>
                 <div dir="auto" style="font-family:${SANS};font-size:12px;color:${INK};padding-top:10px;">${esc(text.sender)}: <strong>${esc(senderName)}</strong></div>
                 ${signatureHtml ? `<div style="padding-top:6px;">${signatureHtml}</div>` : ""}
-                ${linkLine}
-                ${qrHtml}
               </td>
             </tr>
           </table>
