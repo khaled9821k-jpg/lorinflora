@@ -1,5 +1,7 @@
 import { renderOrderEmail, type OrderEmailData } from "../_shared/order-email.ts";
 
+export { renderOrderEmail };
+
 const defaultOrigins = [
   "https://www.lorinflora.com",
   "https://lorinflora.com",
@@ -53,7 +55,7 @@ function isOrderPayload(value: unknown): value is OrderEmailData {
     typeof order.paymentMethod === "string";
 }
 
-Deno.serve(async (request) => {
+export async function sendOrderEmailHandler(request: Request): Promise<Response> {
   const origin = request.headers.get("Origin");
   const origins = allowedOrigins();
   if (origin && !origins.has(origin)) {
@@ -121,4 +123,6 @@ Deno.serve(async (request) => {
 
   const result = await resendResponse.json();
   return jsonResponse({ id: result.id }, 200, origin);
-});
+}
+
+Deno.serve(sendOrderEmailHandler);
