@@ -1861,8 +1861,14 @@
 
     try {
       const emailData = await buildOrderEmailData(cart, extras, totals, recipientData, orderRecord);
-      const { error: emailError } = await supabaseClient.functions.invoke('send-order-email', { body: emailData });
-      if (emailError) throw emailError;
+      const emailResponse = await fetch('/api/send-order-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emailData)
+      });
+      if (!emailResponse.ok) {
+        throw new Error(`Order email request failed with status ${emailResponse.status}`);
+      }
     } catch (error) {
       console.error('Order email notification failed:', error);
       showToastNotification(t('order_email_failed', 'The order was placed, but the store email notification could not be sent.'), { type: 'error' });
