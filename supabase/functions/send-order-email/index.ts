@@ -110,6 +110,11 @@ const validUrl = (u?: string): string => {
   }
 };
 
+const validHttpsUrl = (u?: string): string => {
+  const url = validUrl(u);
+  return url.startsWith("https://") ? url : "";
+};
+
 const safeUrl = (u?: string): string => {
   const url = validUrl(u);
   return url ? esc(url) : "";
@@ -311,11 +316,10 @@ function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, dir: "ltr" | "rtl"
   const message = (c.message ?? "").trim();
   const signature = c.signature;
   const signatureValue = String(signature?.value ?? "").trim();
-  const inlineSignature = /^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/i.test(signatureValue) ? signatureValue : "";
-  const signatureImage = signature?.type === "handwritten" ? safeUrl(signatureValue) || inlineSignature : "";
+  const signatureImage = signature?.type === "handwritten" ? safeUrl(validHttpsUrl(signatureValue)) : "";
   const signatureText = signature?.type !== "handwritten" ? signatureValue : "";
   const senderName = (c.senderName ?? "").trim();
-  const signatureActive = !!signatureValue;
+  const signatureActive = !!(signatureImage || signatureText);
   const rawQrUrl = validUrl(c.qrUrl);
   let linkTarget = validUrl(c.linkUrl) || validUrl(c.mediaUrl);
   if (!linkTarget && rawQrUrl) {
@@ -529,6 +533,9 @@ export function renderOrderEmail(o: OrderEmailData): { subject: string; html: st
     validUrl(card.linkUrl) || validUrl(card.qrUrl) || validUrl(card.mediaUrl)));
   const cardLink = card ? validUrl(card.linkUrl) || validUrl(card.mediaUrl) || validUrl(card.qrUrl) : "";
   const mapsLink = googleMapsUrl(o.recipient);
+  const cardSenderText = card?.signature?.type === "handwritten"
+    ? (validHttpsUrl(card.signature.value) ? text.handwrittenSignature : card?.senderName || "")
+    : card?.signature?.value || card?.senderName || "";
 
   const html = `<!DOCTYPE html>
 <html lang="${locale}" dir="${dir}" xmlns="http://www.w3.org/1999/xhtml">
@@ -604,7 +611,7 @@ export function renderOrderEmail(o: OrderEmailData): { subject: string; html: st
       `${text.card}${card?.designName ? ` (${card.designName})` : ""}${card?.selected ? ` — ${text.selected}` : ""}`,
       card?.recipientName || r.name || "",
       card?.message || text.noMessage,
-      card?.signature?.value ? (card.signature.type === "handwritten" ? text.handwrittenSignature : card.signature.value) : card?.senderName || "",
+      cardSenderText,
       cardLink ? `${text.linkAttached}: ${cardLink}` : "",
     ].filter(Boolean).join("\n") : "",
     "",

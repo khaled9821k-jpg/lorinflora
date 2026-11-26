@@ -1075,6 +1075,7 @@
   const PROMO_KEY = 'lorin_promo';
   const CHECKOUT_STATE_KEY = 'lorin_checkout_state';
   const PHOTO_STICK_FEE = 2.5;
+  const STORAGE_BUCKET = 'store-assets';
 
   let currentStep = 1;
   let selectedSlotType = 'express';
@@ -1710,6 +1711,56 @@
     })).filter((entry) => entry.value);
   }
 
+  function isPublicSignatureUrl(value) {
+    if (typeof value !== 'string') return false;
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' &&
+        url.origin === SUPABASE_URL &&
+        url.pathname.startsWith(`/storage/v1/object/public/${STORAGE_BUCKET}/`) &&
+        !url.search &&
+        !url.hash;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async function persistHandwrittenSignature(signature) {
+    if (!signature || signature.type !== 'handwritten' || typeof signature.value !== 'string' || !signature.value.trim()) {
+      return signature;
+    }
+    if (isPublicSignatureUrl(signature.value)) return signature;
+
+    const source = signature.value.trim();
+    if (!/^data:image\//i.test(source) && !/^https?:\/\//i.test(source)) {
+      throw new Error('Handwritten signature must be an image or an HTTP(S) URL.');
+    }
+
+    const response = await fetch(source);
+    if (!response.ok) throw new Error(`Could not read the handwritten signature image (${response.status}).`);
+    const blob = await response.blob();
+    const contentType = (blob.type || '').split(';')[0].toLowerCase();
+    const extension = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[contentType];
+    if (!extension || !blob.size || blob.size > 1024 * 1024) {
+      throw new Error('Handwritten signature must be a PNG, JPEG, or WEBP image under 1 MB.');
+    }
+
+    const path = `gift-card-signatures/${crypto.randomUUID()}.${extension}`;
+    const bucket = supabaseClient.storage.from(STORAGE_BUCKET);
+    const { error } = await bucket.upload(path, blob, {
+      cacheControl: '31536000',
+      upsert: false,
+      contentType
+    });
+    if (error) throw error;
+
+    const publicUrl = bucket.getPublicUrl(path).data.publicUrl;
+    if (!isPublicSignatureUrl(publicUrl)) {
+      throw new Error('Could not create a public HTTPS URL for the handwritten signature.');
+    }
+    return { ...signature, value: publicUrl };
+  }
+
   async function buildOrderEmailData(cart, extras, totals, recipientData, orderRecord) {
     const user = window.LorinAuth ? await window.LorinAuth.getUser() : null;
     const metadata = user && user.user_metadata ? user.user_metadata : {};
@@ -1719,6 +1770,21 @@
     const promo = totals.promo && totals.promo.status === 'applied' ? totals.promo : null;
     const currencyLocale = document.documentElement.lang.toLowerCase().startsWith('ar') ? 'ar' : 'en';
     const card = extras.card;
+    if (card && card.signature && typeof card.signature.value === 'string' && card.signature.value.trim()) {
+      const signatureValue = card.signature.value;
+      const signature = await persistHandwrittenSignature(card.signature);
+      const shouldPersist = signature.value !== signatureValue || !!card.senderName;
+      card.signature = signature;
+      card.senderName = '';
+      if (shouldPersist) {
+        extras.updatedAt = new Date().toISOString();
+        try {
+          localStorage.setItem(GIFT_KEY, JSON.stringify(extras));
+        } catch (error) {
+          console.warn('Could not cache the public gift-card signature URL:', error);
+        }
+      }
+    }
     const cardLinkUrl = card ? String(card.linkUrl || card.mediaUrl || '') : '';
     const cardQrUrl = card
       ? String(card.qrUrl || (cardLinkUrl ? `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(cardLinkUrl)}` : ''))
