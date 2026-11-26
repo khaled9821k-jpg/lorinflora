@@ -333,10 +333,13 @@ function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, fallbackSender: st
       ? safeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(linkTarget)}`)
       : "";
   const imageHtml = img
-    ? `<img src="${img}" width="124" alt="${esc(name || text.card)}" style="display:block;width:124px;max-width:100%;height:auto;border-radius:3px;border:1px solid ${IVORY_LINE};background:#FFFFFF;">`
+    ? `<img src="${img}" width="88" alt="${esc(name || text.card)}" style="display:block;width:88px;max-width:100%;height:auto;border-radius:3px;border:1px solid ${IVORY_LINE};background:#FFFFFF;">`
     : "";
+  const referenceHtml = imageHtml || (name
+    ? `<div style="font-family:${SANS};font-size:11px;line-height:1.5;color:${MUTED};text-align:center;">${esc(name)}</div>`
+    : "");
   const recipientHtml = recipientName
-    ? `<div dir="auto" style="font-family:${SANS};font-size:12px;color:${MUTED};padding-top:12px;">${esc(text.recipient)}: <strong style="color:${INK};">${esc(recipientName)}</strong></div>`
+    ? `<div dir="auto" style="font-family:${SANS};font-size:12px;color:${MUTED};padding-bottom:18px;text-align:center;">${esc(recipientName)}</div>`
     : "";
   const messageHtml = message
     ? `<div dir="auto" style="font-family:${SERIF};font-size:18px;line-height:1.8;color:${INK};font-style:italic;text-align:center;">${multiline(message)}</div>`
@@ -349,35 +352,30 @@ function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, fallbackSender: st
   const linkBlock = linkTargetUrl
     ? `<div style="padding-top:14px;text-align:center;">
         ${qrImageUrl ? `<img src="${qrImageUrl}" width="160" height="160" alt="QR code" style="display:block;width:160px;height:160px;margin:0 auto 8px;border:0;">` : ""}
-        <div dir="auto" style="font-family:${SANS};font-size:11px;line-height:1.5;color:${MUTED};">
-          ${esc(text.linkAttached)}: <a href="${linkTargetUrl}" target="_blank" rel="noopener noreferrer" style="color:${BRAND};text-decoration:underline;">${esc(linkTarget)}</a>
+        <div dir="auto" style="font-family:${SANS};font-size:11px;line-height:1.5;color:${MUTED};word-break:break-all;">
+          <a href="${linkTargetUrl}" target="_blank" rel="noopener noreferrer" style="color:${BRAND};text-decoration:underline;">${esc(linkTarget)}</a>
         </div>
       </div>`
     : "";
 
   return `
     <tr><td style="padding:0 0 4px 0;">
-      <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${IVORY}" style="background:${IVORY};border:1px solid ${IVORY_LINE};border-radius:8px;">
-        <tr><td style="padding:10px;">
-          <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #D2C4A5;border-radius:4px;">
-            <tr>
-              <td class="stack card-thumb" width="148" valign="middle" align="center" style="padding:22px 0 22px 22px;">
-                ${imageHtml}
-                ${name ? `<div style="font-family:${SANS};font-size:11px;letter-spacing:.6px;color:${GOLD};padding-top:10px;text-align:center;">${esc(name)}</div>` : ""}
-              </td>
-              <td class="stack card-body" valign="middle" align="center" style="padding:30px 28px;">
+      <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          ${referenceHtml ? `<td class="stack card-reference" width="112" valign="middle" align="center" style="padding:8px 14px 8px 0;">${referenceHtml}</td>` : ""}
+          <td class="stack" valign="middle" style="padding:0;">
+            <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${IVORY}" style="background:${IVORY};border:1px solid ${IVORY_LINE};border-radius:8px;">
+              <tr><td class="card-body" valign="middle" align="center" style="padding:30px 28px;">
                 ${recipientHtml}
-                <div dir="auto" style="font-family:${SANS};font-size:10px;letter-spacing:3px;text-transform:uppercase;color:${GOLD};">${esc(text.message)}</div>
-                <div style="font-family:${SERIF};font-size:14px;color:${GOLD};padding:12px 0 14px 0;line-height:1;">&#10022;</div>
                 ${messageHtml}
                 ${linkBlock}
                 <div style="width:36px;height:1px;background:#D2C4A5;margin:20px auto 0 auto;line-height:1px;font-size:1px;">&nbsp;</div>
-                <div dir="auto" style="font-family:${SANS};font-size:12px;color:${INK};padding-top:10px;">${esc(text.sender)}: <strong>${esc(senderName)}</strong></div>
+                <div dir="auto" style="font-family:${SANS};font-size:12px;color:${INK};padding-top:10px;">${esc(senderName)}</div>
                 ${signatureHtml ? `<div style="padding-top:6px;">${signatureHtml}</div>` : ""}
-              </td>
-            </tr>
-          </table>
-        </td></tr>
+              </td></tr>
+            </table>
+          </td>
+        </tr>
       </table>
     </td></tr>`;
 }
@@ -538,7 +536,7 @@ export function renderOrderEmail(o: OrderEmailData): { subject: string; html: st
       .px{padding-left:20px!important;padding-right:20px!important}
       .outer{padding:0!important}
       .stack{display:block!important;width:100%!important;box-sizing:border-box!important}
-      .card-thumb{padding:22px 22px 0 22px!important}
+      .card-reference{padding:12px 8px!important}
       .card-body{padding:22px 20px 26px 20px!important}
     }
   </style>
