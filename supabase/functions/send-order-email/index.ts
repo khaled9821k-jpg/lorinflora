@@ -304,7 +304,7 @@ function itemsHtml(o: OrderEmailData, cur: string, dir: "ltr" | "rtl", text: Ret
   </td></tr>`;
 }
 
-function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, fallbackSender: string, dir: "ltr" | "rtl", text: ReturnType<typeof labels>): string {
+function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, dir: "ltr" | "rtl", text: ReturnType<typeof labels>): string {
   const img = safeUrl(c.designImageUrl);
   const name = (c.designName ?? "").trim();
   const recipientName = (c.recipientName ?? "").trim();
@@ -314,7 +314,8 @@ function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, fallbackSender: st
   const inlineSignature = /^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/i.test(signatureValue) ? signatureValue : "";
   const signatureImage = signature?.type === "handwritten" ? safeUrl(signatureValue) || inlineSignature : "";
   const signatureText = signature?.type !== "handwritten" ? signatureValue : "";
-  const senderName = (c.senderName ?? "").trim() || fallbackSender;
+  const senderName = (c.senderName ?? "").trim();
+  const signatureActive = !!signatureValue;
   const rawQrUrl = validUrl(c.qrUrl);
   let linkTarget = validUrl(c.linkUrl) || validUrl(c.mediaUrl);
   if (!linkTarget && rawQrUrl) {
@@ -345,18 +346,27 @@ function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, fallbackSender: st
     ? `<div dir="auto" style="font-family:${SERIF};font-size:18px;line-height:1.8;color:${INK};font-style:italic;text-align:center;">${multiline(message)}</div>`
     : `<div style="font-family:${SERIF};font-size:15px;line-height:1.8;color:${GOLD};font-style:italic;text-align:center;">${esc(text.noMessage)}</div>`;
   const signatureHtml = signatureImage
-    ? `<img src="${signatureImage}" width="110" alt="${esc(text.handwrittenSignature)}" style="display:block;max-width:110px;max-height:34px;object-fit:contain;">`
-    : signatureValue
-      ? `<span dir="auto" style="font-family:${SERIF};font-size:17px;font-style:italic;">${esc(signatureText || text.handwrittenSignature)}</span>`
+    ? `<img src="${signatureImage}" width="110" alt="${esc(text.handwrittenSignature)}" style="display:block;max-width:110px;max-height:34px;margin:0 auto;object-fit:contain;">`
+    : signatureText
+      ? `<span dir="auto" style="font-family:${SERIF};font-size:17px;font-style:italic;">${esc(signatureText)}</span>`
       : "";
-  const linkBlock = linkTargetUrl
-    ? `<div style="padding-top:14px;text-align:center;">
-        ${qrImageUrl ? `<img src="${qrImageUrl}" width="160" height="160" alt="QR code" style="display:block;width:160px;height:160px;margin:0 auto 8px;border:0;">` : ""}
-        <div dir="auto" style="font-family:${SANS};font-size:11px;line-height:1.5;color:${MUTED};word-break:break-all;">
-          <a href="${linkTargetUrl}" target="_blank" rel="noopener noreferrer" style="color:${BRAND};text-decoration:underline;">${esc(linkTarget)}</a>
-        </div>
-      </div>`
+  const senderHtml = signatureActive
+    ? signatureHtml
+    : senderName
+      ? `<div dir="auto" style="font-family:${SANS};font-size:12px;color:${INK};">${esc(senderName)}</div>`
+      : "";
+  const qrHtml = linkTargetUrl && qrImageUrl
+    ? `<img src="${qrImageUrl}" width="72" height="72" alt="QR code" style="display:block;width:72px;height:72px;border:0;">`
     : "";
+  const footerHtml = qrHtml
+    ? `<table role="presentation" dir="ltr" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+        <td width="72" valign="bottom"></td>
+        <td align="center" valign="bottom">${senderHtml}</td>
+        <td width="72" align="right" valign="bottom">${qrHtml}</td>
+      </tr></table>`
+    : senderHtml
+      ? `<div style="text-align:center;">${senderHtml}</div>`
+      : "";
 
   return `
     <tr><td style="padding:0 0 4px 0;">
@@ -365,13 +375,12 @@ function giftCardHtml(c: NonNullable<OrderEmailData["card"]>, fallbackSender: st
           ${referenceHtml ? `<td class="stack card-reference" width="112" valign="middle" align="center" style="padding:8px 14px 8px 0;">${referenceHtml}</td>` : ""}
           <td class="stack" valign="middle" style="padding:0;">
             <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${IVORY}" style="background:${IVORY};border:1px solid ${IVORY_LINE};border-radius:8px;">
-              <tr><td class="card-body" valign="middle" align="center" style="padding:30px 28px;">
-                ${recipientHtml}
-                ${messageHtml}
-                ${linkBlock}
-                <div style="width:36px;height:1px;background:#D2C4A5;margin:20px auto 0 auto;line-height:1px;font-size:1px;">&nbsp;</div>
-                <div dir="auto" style="font-family:${SANS};font-size:12px;color:${INK};padding-top:10px;">${esc(senderName)}</div>
-                ${signatureHtml ? `<div style="padding-top:6px;">${signatureHtml}</div>` : ""}
+              <tr><td class="card-body" valign="middle" align="center" style="padding:24px 28px;">
+                <table role="presentation" dir="${dir}" width="100%" height="240" cellpadding="0" cellspacing="0" border="0">
+                  <tr><td valign="top" align="center">${recipientHtml}</td></tr>
+                  <tr><td valign="middle" align="center">${messageHtml}</td></tr>
+                  <tr><td valign="bottom" align="center">${footerHtml ? `<div style="width:100%;padding-top:16px;">${footerHtml}</div>` : ""}</td></tr>
+                </table>
               </td></tr>
             </table>
           </td>
@@ -408,7 +417,7 @@ function addOnsHtml(o: OrderEmailData, cur: string, dir: "ltr" | "rtl", text: Re
 
   const c = o.card;
   if (c && (c.selected || c.designId || (c.message ?? "").trim() || (c.designName ?? "").trim() || safeUrl(c.designImageUrl) || (c.recipientName ?? "").trim() || (c.senderName ?? "").trim() || validUrl(c.linkUrl) || validUrl(c.qrUrl) || validUrl(c.mediaUrl))) {
-    blocks.push(giftCardHtml(c, o.sender.name, dir, text));
+    blocks.push(giftCardHtml(c, dir, text));
   }
 
   if (!blocks.length) return "";
@@ -593,9 +602,9 @@ export function renderOrderEmail(o: OrderEmailData): { subject: string; html: st
     hasPhoto ? `${text.photoStick}: ${validUrl(o.photoStickIn?.downloadUrl) || photoUrl}` : "",
     hasCard ? [
       `${text.card}${card?.designName ? ` (${card.designName})` : ""}${card?.selected ? ` — ${text.selected}` : ""}`,
-      `${text.recipient}: ${card?.recipientName || r.name || ""}`,
-      `${text.message}: ${card?.message || text.noMessage}`,
-      `${text.sender}: ${card?.senderName || o.sender.name}${card?.signature?.value ? ` / ${card.signature.type === "handwritten" ? text.handwrittenSignature : card.signature.value}` : ""}`,
+      card?.recipientName || r.name || "",
+      card?.message || text.noMessage,
+      card?.signature?.value ? (card.signature.type === "handwritten" ? text.handwrittenSignature : card.signature.value) : card?.senderName || "",
       cardLink ? `${text.linkAttached}: ${cardLink}` : "",
     ].filter(Boolean).join("\n") : "",
     "",

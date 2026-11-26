@@ -166,6 +166,11 @@
         .card-preview-recipient b.is-placeholder, .card-preview-sender b.is-placeholder { color: #9a9186; font-weight: 400; }
         .card-preview-message { flex: 1; display: flex; align-items: center; justify-content: center; color: #1f292e; font-family: Georgia, 'Times New Roman', serif; font-size: 16px; font-weight: 500; line-height: 1.65; text-align: center; white-space: pre-wrap; overflow-wrap: anywhere; }
         .card-preview-signature { display: block; max-width: 105px; max-height: 28px; margin: 4px auto 0; object-fit: contain; }
+        .card-preview-footer { width: 100%; display: flex; align-items: end; justify-content: center; direction: ltr; }
+        .card-preview-footer.has-qr { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; gap: 4px; }
+        .card-preview-footer.has-qr .card-preview-sender { grid-column: 2; grid-row: 1; }
+        .card-preview-footer.has-qr .card-preview-qr { grid-column: 3; grid-row: 1; justify-self: end; }
+        .card-preview-qr { display: block; width: 48px; height: 48px; object-fit: contain; }
         .card-preview-link-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 12px; padding: 9px 11px; border: 1px solid #dfe9e1; background: #f6faf6; color: #245c3e; font-size: 12px; }
         .card-preview-link-actions a, .card-preview-link-actions button { color: #245c3e; font: inherit; text-decoration: underline; text-underline-offset: 3px; }
         .card-preview-link-actions button { padding: 0; border: 0; background: none; cursor: pointer; }
@@ -175,6 +180,7 @@
         @media (max-width: 480px) {
           .card-live-preview { gap: 10px; }
           .card-preview-card { padding: 12px; }
+          .card-preview-qr { width: 40px; height: 40px; }
         }
 
         /* Floward-style Modal & Sub-views */
@@ -1161,7 +1167,7 @@
      Shape (consumed by checkout.html):
        { photoStickIn: {selected, imageUrl, downloadUrl, fileName, path} | null,
          card: {selected, designId, designName, designImageUrl, price, recipientName,
-                senderName, message, signature:{type,value}|null, linkUrl, qrUrl, mediaUrl} | null,
+                senderName, message, signature:{type,value}|null (mutually exclusive with senderName), linkUrl, qrUrl, mediaUrl} | null,
          photoStickInFee, giftCardFee, summary:{photoStickInFee, giftCardFee, totalExtrasFee}, updatedAt }
   ===================================================== */
   function getExtras() {
@@ -1171,9 +1177,24 @@
     out.photoStickIn = (p && p.selected && (p.imageUrl || p.downloadUrl)) ? p : null;
     const c = out.card;
     out.card = (c && typeof c === 'object') ? c : null;
+    const storedSignature = out.card && out.card.signature;
+    if (out.card && !CARD_OPTIONS_CONFIG.enableSignature && storedSignature) {
+      out.card.signature = null;
+      saveExtras(out);
+    } else if (out.card && CARD_OPTIONS_CONFIG.enableSignature && storedSignature &&
+      typeof storedSignature.value === 'string' && storedSignature.value.trim() && out.card.senderName) {
+      out.card.senderName = '';
+      saveExtras(out);
+    }
     return out;
   }
   function saveExtras(extras) {
+    const cardSignature = CARD_OPTIONS_CONFIG.enableSignature && extras.card && extras.card.signature;
+    if (cardSignature && typeof cardSignature.value === 'string' && cardSignature.value.trim()) {
+      extras.card.senderName = '';
+    } else if (extras.card && !CARD_OPTIONS_CONFIG.enableSignature) {
+      extras.card.signature = null;
+    }
     const photoFee = (CART_CFG.photoEnabled && extras.photoStickIn && extras.photoStickIn.selected) ? num(PHOTO_FEE) : 0;
     const cardFee = (extras.card && extras.card.selected) ? Math.max(0, num(extras.card.price)) : 0;
     extras.photoStickInFee = photoFee;
@@ -1373,14 +1394,16 @@
     const design = saved
       ? { id: matched.id, name: matched.name, imageUrl: matched.imageUrl, price: num(matched.price) }
       : (storedDesign || (CARD_DESIGNS[0] ? { id: CARD_DESIGNS[0].id, name: CARD_DESIGNS[0].name, imageUrl: CARD_DESIGNS[0].imageUrl, price: num(CARD_DESIGNS[0].price) } : null));
+    const signature = CARD_OPTIONS_CONFIG.enableSignature && c && c.signature &&
+      typeof c.signature.value === 'string' && c.signature.value.trim() ? c.signature : null;
     return {
       design,
       designName: (c && typeof c.designName === 'string' && c.designName.trim()) ? c.designName : (saved && matched ? matched.name : ''),
       designImageUrl: (c && typeof c.designImageUrl === 'string' && c.designImageUrl.trim()) ? c.designImageUrl : (saved && matched ? matched.imageUrl : ''),
       recipientName: (c && typeof c.recipientName === 'string') ? c.recipientName : '',
-      senderName: (c && typeof c.senderName === 'string') ? c.senderName : '',
+      senderName: signature ? '' : (c && typeof c.senderName === 'string') ? c.senderName : '',
       message: (c && typeof c.message === 'string') ? c.message : '',
-      signature: (c && c.signature) ? c.signature : null,
+      signature,
       linkUrl: cardLinkTarget(c),
       mediaUrl: (c && typeof (c.linkUrl || c.mediaUrl) === 'string') ? (c.linkUrl || c.mediaUrl) : '',
       saved
@@ -1407,7 +1430,7 @@
     const headerFeeLabel = saved && design && num(design.price) > 0 ? `+ ${money(design.price)}` : 'Free';
     const isArabic = document.documentElement.lang === 'ar';
     const personalizeLabel = isArabic ? 'تخصيص البطاقة' : 'PERSONALIZE CARD';
-    const safeLinkUrl = getSafeCardLinkUrl(linkUrl);
+    const safeLinkUrl = CARD_OPTIONS_CONFIG.enableLink ? getSafeCardLinkUrl(linkUrl) : '';
     const linkLabel = safeLinkUrl ? getCardLinkLabel(safeLinkUrl) : '';
 
     el.innerHTML = `
@@ -1415,7 +1438,7 @@
         <h3 class="lc-h">${esc(CART_CFG.cardTitle)}</h3>
         <span class="lc-free">${esc(headerFeeLabel)}</span>
       </div>
-      ${buildCardAndMessagePreviewHTML(design, designName, message, recipientName, senderName, signature, cartText('card_preview_message_placeholder', 'Your message will appear here'))}
+      ${buildCardAndMessagePreviewHTML(design, designName, message, recipientName, senderName, signature, cartText('card_preview_message_placeholder', 'Your message will appear here'), linkUrl)}
       <button type="button" class="card-edit-button" id="card-edit-button" dir="${isArabic ? 'rtl' : 'ltr'}">
         <span>${esc(personalizeLabel)}</span>
       </button>
@@ -1913,6 +1936,24 @@
     }
   }
 
+  function clearSenderNameForSignature() {
+    const senderInput = document.getElementById('card-modal-from');
+    if (senderInput) senderInput.value = '';
+  }
+
+  function handleSenderNameInput() {
+    const senderInput = document.getElementById('card-modal-from');
+    if (senderInput && senderInput.value.trim()) {
+      const signatureInput = document.getElementById('sig-text-input');
+      if (draftSignature || hasDrawnSig || (signatureInput && signatureInput.value.trim())) {
+        draftSignature = null;
+        clearSignatureCanvas();
+        renderSignatureBadge();
+      }
+    }
+    renderCardModalPreview();
+  }
+
   function renderLinkBadge() {
     const box = document.getElementById('link-attached-box');
     const urlEl = document.getElementById('link-attached-url');
@@ -1929,20 +1970,30 @@
     if (lbl) lbl.textContent = 'EDIT WEB LINK';
   }
 
-  function buildCardAndMessagePreviewHTML(design, designName, message, toName, fromName, signature, placeholder) {
+  function buildCardAndMessagePreviewHTML(design, designName, message, toName, fromName, signature, placeholder, linkUrl) {
     const text = String(message || '').trim();
     const fontSize = text.length > 120 ? 13 : text.length > 60 ? 14 : 16;
     const isArabic = document.documentElement.lang === 'ar';
     const recipient = String(toName || '').trim();
-    const sender = String(fromName || '').trim();
+    const activeSignature = CARD_OPTIONS_CONFIG.enableSignature && signature && typeof signature.value === 'string' && signature.value.trim()
+      ? signature
+      : null;
+    const sender = activeSignature ? '' : String(fromName || '').trim();
     const recipientPlaceholder = isArabic ? 'اسم المستلم' : 'Recipient Name';
     const senderPlaceholder = isArabic ? 'اسم المرسل' : 'Sender Name';
 
-    const sigHtml = signature && signature.value && CARD_OPTIONS_CONFIG.enableSignature
-      ? (signature.type === 'handwritten'
-          ? `<img class="card-preview-signature" src="${esc(signature.value)}" alt="Signature">`
-          : `<span style="font-family:'Dancing Script',cursive;font-size:18px;">${esc(signature.value)}</span>`)
+    const sigHtml = activeSignature
+      ? (activeSignature.type === 'handwritten'
+          ? `<img class="card-preview-signature" src="${esc(activeSignature.value)}" alt="Signature">`
+          : `<span style="font-family:'Dancing Script',cursive;font-size:16px;">${esc(activeSignature.value)}</span>`)
       : '';
+    const safeLinkUrl = CARD_OPTIONS_CONFIG.enableLink ? getSafeCardLinkUrl(linkUrl) : '';
+    const qrHtml = safeLinkUrl
+      ? `<img class="card-preview-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&amp;data=${encodeURIComponent(safeLinkUrl)}" alt="QR code">`
+      : '';
+    const senderHtml = activeSignature
+      ? sigHtml
+      : `<b class="${sender ? '' : 'is-placeholder'}">${esc(sender || senderPlaceholder)}</b>`;
 
     const designVisual = design && design.imageUrl
       ? `<img src="${esc(design.imageUrl)}" alt="${esc(designName || design.name || 'Card design')}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'">`
@@ -1953,9 +2004,10 @@
       <div class="card-preview-card" dir="auto">
         <div class="card-preview-recipient" dir="auto"><b class="${recipient ? '' : 'is-placeholder'}">${esc(recipient || recipientPlaceholder)}</b></div>
         <div class="card-preview-message" style="${text ? '' : 'opacity:.48;'}font-size:${fontSize}px">${esc(text || placeholder)}</div>
-        <div class="card-preview-sender" dir="auto">
-          <b class="${sender ? '' : 'is-placeholder'}">${esc(sender || senderPlaceholder)}</b>
-          ${sigHtml}
+        <div class="card-preview-footer${qrHtml ? ' has-qr' : ''}">
+          ${qrHtml ? '<span aria-hidden="true"></span>' : ''}
+          <div class="card-preview-sender" dir="auto">${senderHtml}</div>
+          ${qrHtml}
         </div>
       </div>
     </div>`;
@@ -1967,7 +2019,7 @@
     const toName = document.getElementById('card-modal-to').value.trim();
     const fromName = document.getElementById('card-modal-from').value.trim();
     document.getElementById('card-modal-preview-wrap').innerHTML =
-      buildCardAndMessagePreviewHTML(design, design ? design.name : draftDesignName, msg, toName, fromName, draftSignature, 'Your message will appear here');
+      buildCardAndMessagePreviewHTML(design, design ? design.name : draftDesignName, msg, toName, fromName, draftSignature, 'Your message will appear here', draftMediaUrl);
   }
 
   function openCardModal(initialTab = 'card') {
@@ -2193,6 +2245,7 @@
       if (!txt) return;
       draftSignature = { type: 'text', value: txt };
     }
+    clearSenderNameForSignature();
     renderSignatureBadge();
     renderCardModalPreview();
     showCardSubView('main');
@@ -2227,8 +2280,9 @@
     const design = getDraftDesign();
     const recipientName = document.getElementById('card-modal-to').value.trim();
     const message = document.getElementById('card-modal-message').value.slice(0, MESSAGE_MAX).trim();
-    const senderName = document.getElementById('card-modal-from').value.trim();
+    const enteredSenderName = document.getElementById('card-modal-from').value.trim();
     const signature = (CARD_OPTIONS_CONFIG.enableSignature && draftSignature && draftSignature.value) ? draftSignature : null;
+    const senderName = signature ? '' : enteredSenderName;
     const mediaUrl = CARD_OPTIONS_CONFIG.enableLink ? (draftMediaUrl || '') : '';
     const qrUrl = mediaUrl
       ? `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(mediaUrl)}`
@@ -2377,7 +2431,7 @@
       renderCardModalPreview();
     });
     document.getElementById('card-modal-to').addEventListener('input', renderCardModalPreview);
-    document.getElementById('card-modal-from').addEventListener('input', renderCardModalPreview);
+    document.getElementById('card-modal-from').addEventListener('input', handleSenderNameInput);
     document.getElementById('card-save-btn').addEventListener('click', saveCardFromModal);
 
     document.getElementById('fw-preview-btn').addEventListener('click', () => {
@@ -2404,6 +2458,7 @@
     });
     document.getElementById('sig-clear-btn').addEventListener('click', () => {
       draftSignature = null;
+      clearSignatureCanvas();
       renderSignatureBadge();
       renderCardModalPreview();
     });
