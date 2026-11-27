@@ -151,21 +151,33 @@
 
     /* Step Indicator Bar (Screenshots 5, 6, 10) */
     .checkout-step-stepper {
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      width: 100%;
+      max-width: 860px;
       margin-bottom: 24px;
-      font-family: 'Cormorant Garamond', 'Tajawal', Georgia, serif;
+      font-family: 'Tajawal', Arial, sans-serif;
     }
     .checkout-step-item {
+      min-width: 0;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 26px;
+      justify-content: flex-start;
+      gap: 8px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      text-align: start;
+      font: inherit;
+      font-size: 16px;
       font-weight: 600;
       color: #9CA3AF;
       transition: color 0.2s;
+      cursor: pointer;
     }
+    .checkout-step-item [data-i18n] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .checkout-step-item.is-active {
       color: var(--lorin-brand);
       font-weight: 700;
@@ -177,18 +189,31 @@
     .checkout-step-check {
       width: 18px;
       height: 18px;
+      box-sizing: border-box;
+      flex: 0 0 18px;
       border-radius: 50%;
-      background: #10B981;
+      border: 1.5px solid #9CA3AF;
+      background: transparent;
       color: #FFFFFF;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
-      font-weight: bold;
     }
+    .checkout-step-check svg { display: none; }
+    .checkout-step-item.is-active .checkout-step-check {
+      border-color: #00313C;
+      box-shadow: 0 0 0 2px rgba(0, 49, 60, 0.12);
+    }
+    .checkout-step-item.is-completed .checkout-step-check {
+      border-color: #16A34A;
+      background: #16A34A;
+    }
+    .checkout-step-item.is-completed .checkout-step-check svg { display: block; }
     .checkout-step-divider {
-      color: #9CA3AF;
-      font-size: 22px;
+      display: block;
+      width: 100%;
+      height: 1px;
+      background: #D1D5DB;
     }
 
     /* Cards & Containers */
@@ -843,6 +868,68 @@
       .mobile-sticky-checkout { display: flex; }
       body { padding-bottom: 80px; }
     }
+    @media (max-width: 480px) {
+      .header--floward-style {
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+        column-gap: 6px;
+        padding: 8px 12px !important;
+        box-sizing: border-box;
+      }
+      .floward-left-group {
+        min-width: 0;
+        gap: 0 !important;
+        justify-self: start;
+      }
+      .floward-center-group {
+        min-width: 0;
+        justify-self: center;
+      }
+      .floward-center-group img {
+        display: block;
+        width: auto;
+        height: 30px !important;
+        max-height: 32px;
+      }
+      .floward-right-group {
+        min-width: 0;
+        max-width: 100%;
+        justify-self: end;
+        gap: 8px !important;
+      }
+      .floward-btn-link {
+        min-width: 0;
+        flex-shrink: 0;
+        gap: 4px !important;
+        font-size: 12px !important;
+        white-space: nowrap;
+      }
+      .floward-svg-icon { width: 18px !important; height: 18px !important; }
+      .floward-right-group .lorin-account-trigger { max-width: 82px; }
+      .floward-right-group .lorin-account-trigger .btn-label {
+        display: block;
+        max-width: 54px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .floward-right-group > a[href="cart.html"] > span[data-i18n="nav_cart"] { display: none !important; }
+      #cart-counter-badge { right: auto !important; inset-inline-end: -6px; top: -5px; }
+      .checkout-step-stepper {
+        grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
+        gap: 6px;
+      }
+      .checkout-step-item {
+        gap: 6px;
+        font-size: 13px;
+        line-height: 1.2;
+      }
+      .checkout-step-check {
+        width: 18px;
+        height: 18px;
+        flex-basis: 18px;
+      }
+      .checkout-step-divider { min-width: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -914,16 +1001,19 @@
     
     <!-- Step Indicator Bar (Screenshots 5, 6, 10) -->
     <div class="checkout-step-stepper" id="checkout-stepper">
-      <div class="checkout-step-item is-active" id="step-indicator-delivery" onclick="goToStep(1)">
-        <span id="step-check-delivery" class="checkout-step-check hidden" aria-hidden="true">
+      <button type="button" class="checkout-step-item is-active" id="step-indicator-delivery" aria-current="step" onclick="goToStep(1)">
+        <span id="step-check-delivery" class="checkout-step-check" aria-hidden="true">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 12 4.5 4.5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </span>
         <span data-i18n="step_delivery">تفاصيل التوصيل</span>
-      </div>
-      <span class="checkout-step-divider">—</span>
-      <div class="checkout-step-item" id="step-indicator-payment" onclick="goToStep(2)">
+      </button>
+      <span class="checkout-step-divider" aria-hidden="true"></span>
+      <button type="button" class="checkout-step-item" id="step-indicator-payment" onclick="goToStep(2)">
+        <span id="step-check-payment" class="checkout-step-check" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 12 4.5 4.5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
         <span data-i18n="step_payment">الدفع وتأكيد الطلب</span>
-      </div>
+      </button>
     </div>
 
     <!-- شبكة من عمودين: العمود الرئيسي (62%) + الملخص الجانبي (38%) -->
@@ -1370,6 +1460,7 @@
   const NOMINATIM_MIN_INTERVAL_MS = 1100;
 
   let currentStep = 1;
+  let checkoutOrderCompleted = false;
   let selectedSlotType = 'sameday';
   let selectedPayment = 'apple_pay';
   let modalLeafletMap = null;
@@ -1468,6 +1559,7 @@
     closeRecipientCountryDropdown();
     if (shouldFocus !== false && phoneInput) phoneInput.focus();
     persistCheckoutState();
+    updateCheckoutStepper();
   }
 
   document.addEventListener('click', (e) => {
@@ -1598,8 +1690,12 @@
       'toggle-collect-address', 'check-secret-identity'].forEach((id) => {
       const field = document.getElementById(id);
       if (field) {
-        field.addEventListener('input', persistCheckoutState);
-        field.addEventListener('change', persistCheckoutState);
+        const persistAndUpdateStepper = () => {
+          persistCheckoutState();
+          updateCheckoutStepper();
+        };
+        field.addEventListener('input', persistAndUpdateStepper);
+        field.addEventListener('change', persistAndUpdateStepper);
         if (id === 'receiver-area') {
           field.addEventListener('change', () => {
             updateExpressDeliveryAvailability();
@@ -1938,6 +2034,7 @@
     }
     if (!enabled) window.setTimeout(updateMapPreview, 0);
     persistCheckoutState();
+    updateCheckoutStepper();
   }
 
   // Delivery Slots (Express or Same-Day / Scheduled)
@@ -1947,6 +2044,7 @@
     updateExpressDeliveryAvailability();
     renderOrderSummary();
     persistCheckoutState();
+    updateCheckoutStepper();
   }
 
   // Payment Options (Screenshot 10)
@@ -1964,6 +2062,49 @@
       }
     }
     persistCheckoutState();
+    updateCheckoutStepper();
+  }
+
+  function isDeliveryStepComplete() {
+    const name = document.getElementById('receiver-name');
+    const phone = document.getElementById('receiver-phone');
+    const collectAddress = document.getElementById('toggle-collect-address');
+    const area = document.getElementById('receiver-area');
+    const address = document.getElementById('receiver-full-address');
+    if (!name || !name.value.trim() || !phone || phone.value.replace(/\D/g, '').length < 8) return false;
+
+    if (!collectAddress || !collectAddress.checked) {
+      if (!area || !area.value.trim() || !address || !address.value.trim()) return false;
+    }
+
+    if (selectedSlotType === 'express') return isAmmanAreaSelected();
+
+    const dateInput = document.getElementById('custom-date-input');
+    const timeSelect = document.getElementById('sameday-slot-select');
+    const today = localDateInputValue(new Date());
+    const validTime = !!(timeSelect && Array.from(timeSelect.options).some((option) => option.value === timeSelect.value));
+    return !!(dateInput && dateInput.value && dateInput.value >= today && validTime);
+  }
+
+  function updateCheckoutStepper() {
+    const deliveryIndicator = document.getElementById('step-indicator-delivery');
+    const paymentIndicator = document.getElementById('step-indicator-payment');
+    if (!deliveryIndicator || !paymentIndicator) return;
+
+    const deliveryComplete = isDeliveryStepComplete();
+    const paymentComplete = checkoutOrderCompleted;
+    deliveryIndicator.classList.toggle('is-completed', deliveryComplete);
+    deliveryIndicator.classList.toggle('is-active', currentStep === 1 && !deliveryComplete);
+    paymentIndicator.classList.toggle('is-completed', paymentComplete);
+    paymentIndicator.classList.toggle('is-active', currentStep === 2 && !paymentComplete);
+
+    if (currentStep === 1) {
+      deliveryIndicator.setAttribute('aria-current', 'step');
+      paymentIndicator.removeAttribute('aria-current');
+    } else {
+      paymentIndicator.setAttribute('aria-current', 'step');
+      deliveryIndicator.removeAttribute('aria-current');
+    }
   }
 
   // Step Navigation
@@ -1978,29 +2119,19 @@
     currentStep = step;
     const step1El = document.getElementById('checkout-step-1');
     const step2El = document.getElementById('checkout-step-2');
-    const indDelivery = document.getElementById('step-indicator-delivery');
-    const indPayment = document.getElementById('step-indicator-payment');
-    const checkDelivery = document.getElementById('step-check-delivery');
     const sidebarCta = document.getElementById('sidebar-cta-btn');
 
     if (step === 1) {
       step1El.classList.remove('hidden');
       step2El.classList.add('hidden');
-      indDelivery.classList.add('is-active');
-      indDelivery.classList.remove('is-completed');
-      indPayment.classList.remove('is-active');
-      checkDelivery.classList.add('hidden');
       if (sidebarCta) sidebarCta.innerHTML = `${t('btn_proceed_to_payment', 'المتابعة إلى الدفع')} · <span class="cta-price-holder">${computeTotals().total.toFixed(2)} د.أ</span>`;
     } else {
       step1El.classList.add('hidden');
       step2El.classList.remove('hidden');
-      indDelivery.classList.remove('is-active');
-      indDelivery.classList.add('is-completed');
-      indPayment.classList.add('is-active');
-      checkDelivery.classList.remove('hidden');
       if (sidebarCta) sidebarCta.innerHTML = `${t('btn_place_order', 'تأكيد وإرسال الطلب')} · <span class="cta-price-holder">${computeTotals().total.toFixed(2)} د.أ</span>`;
     }
 
+    updateCheckoutStepper();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -2474,6 +2605,8 @@
         ? returnedOrderNumber
         : createFallbackOrderNumber();
       if (emailData) emailData.orderNumber = orderRecord.id;
+      checkoutOrderCompleted = true;
+      updateCheckoutStepper();
     } catch (err) {
       console.error('Order could not be saved to Supabase:', err);
       showToastNotification(mapText(
@@ -3092,6 +3225,7 @@
         areaSelect.dispatchEvent(new Event('change', { bubbles: true }));
       }
       if (details) applyMapAddressToInput(details.cleanAddress || details.formatted);
+      updateCheckoutStepper();
 
       updateMapPreview();
       persistCheckoutState();
@@ -3233,6 +3367,7 @@
     }
 
     bindCheckoutStatePersistence();
+    updateCheckoutStepper();
     updateMapPickerLabels();
     updateMapPreview();
     renderOrderSummary();

@@ -290,7 +290,7 @@
 
       // Checkout Stepper
       step_delivery: 'Delivery Details',
-      step_payment: 'Payment',
+      step_payment: 'Payment & Order Confirmation',
 
       // Step 1: Delivery Details
       collect_address_title: 'Collect the address',
