@@ -2326,6 +2326,59 @@
     updateAreaOptionLabels();
   }
 
+  function addResilientTileLayer(map) {
+    const providers = [
+      {
+        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '&copy; OpenStreetMap contributors'
+      },
+      {
+        url: 'https://tile.openstreetmap.de/{z}/{x}/{y}.png',
+        attribution: '&copy; OpenStreetMap contributors'
+      },
+      {
+        url: 'https://a.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+        attribution: '&copy; OpenStreetMap contributors &middot; Tiles by OpenStreetMap France'
+      }
+    ];
+    let providerIndex = 0;
+    let activeLayer = null;
+    let consecutiveTileErrors = 0;
+
+    function activateProvider(index) {
+      if (activeLayer) map.removeLayer(activeLayer);
+      providerIndex = index;
+      consecutiveTileErrors = 0;
+      const provider = providers[providerIndex];
+      const layer = L.tileLayer(provider.url, {
+        attribution: provider.attribution,
+        maxZoom: 19
+      });
+      activeLayer = layer;
+      layer.on('tileload', () => {
+        if (activeLayer === layer) consecutiveTileErrors = 0;
+      });
+      layer.on('tileerror', () => {
+        if (activeLayer !== layer) return;
+        consecutiveTileErrors += 1;
+        if (consecutiveTileErrors < 3) return;
+
+        if (providerIndex < providers.length - 1) {
+          console.warn(`Map tiles failed from ${provider.url}; switching to a free OSM tile host.`);
+          activateProvider(providerIndex + 1);
+          return;
+        }
+
+        map.removeLayer(layer);
+        activeLayer = null;
+        console.error('All configured free OSM tile hosts failed to load map tiles.');
+      });
+      layer.addTo(map);
+    }
+
+    activateProvider(providerIndex);
+  }
+
   function initMapPreview() {
     const mapEl = document.getElementById('recipient-map-preview-map');
     if (!mapEl || previewLeafletMap || !window.L) return;
@@ -2343,11 +2396,7 @@
         [currentCoordinates.lat, currentCoordinates.lng],
         hasSelectedCoordinates ? 15 : 14
       );
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-        subdomains: 'abcd',
-        maxZoom: 20
-      }).addTo(previewLeafletMap);
+      addResilientTileLayer(previewLeafletMap);
       updateMapPreview();
     } catch (error) {
       console.warn('Checkout map preview could not be initialized:', error);
@@ -2393,11 +2442,7 @@
       scrollWheelZoom: true,
       attributionControl: true
     }).setView([draftCoordinates.lat, draftCoordinates.lng], 15);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-      subdomains: 'abcd',
-      maxZoom: 20
-    }).addTo(modalLeafletMap);
+    addResilientTileLayer(modalLeafletMap);
     modalLeafletMap.on('moveend', updateDraftFromMapCenter);
     window.setTimeout(() => modalLeafletMap.invalidateSize(), 50);
   }
