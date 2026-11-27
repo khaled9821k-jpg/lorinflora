@@ -996,6 +996,7 @@
                     <option value="عمان - الجبيهة" data-area-en="Amman - Jubaiha" data-area-aliases="الجبيهة|جبيهة|الجبيهه|jubaiha|jubeiha|jubayha|al jubeiha">عمان - الجبيهة</option>
                     <option value="عمان - تلاع العلي" data-area-en="Amman - Tlaa Al Ali" data-area-aliases="تلاع العلي|تلاعالعلي|تلاع علي|tlaa al ali|tla al ali|tlaa al-ali|tlaa el ali|talat al ali">عمان - تلاع العلي</option>
                     <option value="عمان - وادي السير" data-area-en="Amman - Wadi Al Seer" data-area-aliases="وادي السير|واد السير|wadi al seer|wadi seer|wadi as seer|wadi al-seer">عمان - وادي السير</option>
+                    <option value="عمان - ماركا" data-area-en="Amman - Marka" data-area-aliases="ماركا|ماركة|ماركا الشمالية|ماركا الجنوبية|منطقة طارق|حي طارق|طارق|marka|marka district|marka sub-district|marka subdistrict|marka north|marka south|marka shamaliyeh|marka janubiyeh|marqa|markah|tareq|tariq|tareq district|tariq district|jabal tareq|jabal tariq|al marka">عمان - ماركا</option>
                     <option value="الزرقاء" data-area-en="Zarqa" data-area-aliases="الزرقاء|zarqa|az zarqa">الزرقاء</option>
                     <option value="إربد" data-area-en="Irbid" data-area-aliases="إربد|اربد|irbid">إربد</option>
                     <option value="السلط" data-area-en="Salt" data-area-aliases="السلط|salt|as salt">السلط</option>
@@ -2598,6 +2599,8 @@
       address.suburb,
       address.quarter,
       address.city_district,
+      address.sub_district,
+      address.subdistrict,
       address.district,
       address.borough,
       address.residential
@@ -2624,6 +2627,8 @@
         address.village,
         address.county,
         address.state_district,
+        address.display_name,
+        result.display_name,
         result.name
       ])
     };
@@ -2662,9 +2667,20 @@
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/ـ/g, '')
       .replace(/[أإآ]/g, 'ا')
       .replace(/ى/g, 'ي')
       .replace(/[^\w\u0600-\u06FF]+/g, ' ')
+      .trim();
+  }
+
+  function normalizeAreaMatchText(value) {
+    return normalizeMapMatchText(value)
+      .replace(/\bsub\s*district\b/g, ' ')
+      .replace(/\b(?:district|area|neighborhood|neighbourhood|governorate|amman|jordan)\b/g, ' ')
+      .replace(/(^|\s)(?:منطقة|المنطقة|المنطقه|حي|الحي|الحى|حارة|الحارة|لواء|قضاء|عمان|الاردن|الأردن)(?=\s|$)/g, ' ')
+      .replace(/ماركه/g, 'ماركا')
+      .replace(/\s+/g, ' ')
       .trim();
   }
 
@@ -2672,11 +2688,11 @@
     const select = document.getElementById('receiver-area');
     if (!select || !details) return null;
     const candidates = uniqueAddressParts(details.areaCandidates || [])
-      .map(normalizeMapMatchText)
+      .map(normalizeAreaMatchText)
       .filter(Boolean)
       .map((text, index) => ({ text, priority: Math.max(0, 100 - index * 3) }));
     [details.cleanAddress, details.formatted].forEach((value, index) => {
-      const text = normalizeMapMatchText(value);
+      const text = normalizeAreaMatchText(value);
       if (text && !candidates.some((candidate) => candidate.text === text)) {
         candidates.push({ text, priority: index === 0 ? 20 : 0 });
       }
@@ -2687,7 +2703,7 @@
       const aliases = (option.dataset.areaAliases || '')
         .split('|')
         .concat([option.value, option.dataset.areaEn || ''])
-        .map(normalizeMapMatchText)
+        .map(normalizeAreaMatchText)
         .filter(Boolean);
       aliases.forEach((alias) => {
         if (alias.length < 3) return;
@@ -2753,8 +2769,8 @@
 
       const matchingArea = matchAreaFromLocation(details);
       const areaSelect = document.getElementById('receiver-area');
-      if (matchingArea && areaSelect) {
-        areaSelect.value = matchingArea.value;
+      if (areaSelect) {
+        areaSelect.value = matchingArea ? matchingArea.value : '';
         areaSelect.dispatchEvent(new Event('change', { bubbles: true }));
       }
       if (details) applyMapAddressToInput(details.cleanAddress || details.formatted);
