@@ -299,7 +299,48 @@
     let selectedCustomizations = {};
     let baseProductPrice = 0;
     const productText = (key, fallback) => window.LorinI18n ? window.LorinI18n.t(key, fallback) : fallback;
-    const productField = (item, field) => window.LorinI18n ? window.LorinI18n.pick(item, field) : (item && item[field]) || '';
+    const productField = (item, field) => {
+        if (!item || typeof item !== 'object' || typeof field !== 'string') return '';
+
+        const isArabic = window.LorinI18n && window.LorinI18n.getLang() === 'ar';
+        const nonEmpty = (value) => value !== null && value !== undefined && String(value).trim() !== '';
+        const findValue = (keys) => keys.map(key => item[key]).find(nonEmpty);
+
+        if (isArabic) {
+            if (field === 'name') {
+                return findValue(['name_ar', 'nameAr', 'title_ar', 'titleAr'])
+                    || findValue(['name_en', 'nameEn', 'title_en', 'titleEn', 'name', 'title'])
+                    || '';
+            }
+            if (field === 'description') {
+                return findValue(['description_ar', 'descriptionAr', 'desc_ar', 'descAr'])
+                    || findValue(['description_en', 'descriptionEn', 'desc_en', 'descEn', 'description', 'desc'])
+                    || '';
+            }
+            if (field === 'category') {
+                return findValue(['category_ar', 'categoryAr'])
+                    || findValue(['category_en', 'categoryEn', 'category'])
+                    || '';
+            }
+        }
+
+        if (field === 'name') {
+            return findValue(['name_en', 'nameEn', 'title_en', 'titleEn', 'name', 'title'])
+                || findValue(['name_ar', 'nameAr', 'title_ar', 'titleAr'])
+                || '';
+        }
+        if (field === 'description') {
+            return findValue(['description_en', 'descriptionEn', 'desc_en', 'descEn', 'description', 'desc'])
+                || findValue(['description_ar', 'descriptionAr', 'desc_ar', 'descAr'])
+                || '';
+        }
+        if (field === 'category') {
+            return findValue(['category_en', 'categoryEn', 'category'])
+                || findValue(['category_ar', 'categoryAr'])
+                || '';
+        }
+        return findValue([`${field}_ar`, `${field}Ar`, `${field}_en`, `${field}En`, field]) || '';
+    };
 
     function applyProductLanguage() {
         if (!currentProduct) return;
@@ -307,6 +348,8 @@
         const category = productField(currentProduct, 'category');
         const description = productField(currentProduct, 'description');
         document.getElementById('page-title').textContent = `${name} | Lorin`;
+        const metaDescription = document.getElementById('meta-description');
+        if (metaDescription) metaDescription.setAttribute('content', description || name);
         document.getElementById('breadcrumb-name').textContent = name;
         if (category) document.getElementById('breadcrumb-cat').textContent = category;
         const title = document.querySelector('#product-details-container .product-title-text');
@@ -322,6 +365,18 @@
         if (paymentLabel) paymentLabel.textContent = productText('product_payment_methods', 'Available payment methods');
         const descriptionEl = document.getElementById('product-desc-content');
         if (descriptionEl) descriptionEl.textContent = description || productText('product_no_description', 'A description is not available for this product yet.');
+        const customizationOptions = currentProduct.customization_options || {};
+        document.querySelectorAll('#dynamic-customization-groups > div').forEach((groupElement) => {
+            const groupName = groupElement.dataset.groupName;
+            const options = customizationOptions[groupName] || [];
+            groupElement.querySelectorAll('.custom-opt-card').forEach((card, index) => {
+                const optionNameElement = card.querySelector('.opt-title');
+                const option = options[index];
+                if (optionNameElement && option) {
+                    optionNameElement.textContent = productField(option, 'name') || option.name || '';
+                }
+            });
+        });
         document.querySelectorAll('#product-details-container img').forEach((img) => { img.alt = name; });
         const search = document.getElementById('live-search-input');
         if (search && search.value.trim()) performLiveSearch(search.value);
@@ -483,16 +538,20 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
             selectedCustomizations.additionalPrice += optionsList[0].price || 0;
 
             const groupDiv = document.createElement('div');
+            groupDiv.dataset.groupName = groupName;
             groupDiv.style.marginBottom = '12px';
             groupDiv.innerHTML = `
                 <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">${groupName} *</label>
                 <div style="display: grid; grid-template-columns: repeat(${Math.min(optionsList.length, 3)}, 1fr); gap: 8px;">
-                    ${optionsList.map((opt, idx) => `
-                        <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" onclick="selectCustomOption('${groupName}', '${opt.name}', ${opt.price}, this)">
-                            <div class="opt-title">${opt.name}</div>
-                            <div class="opt-price">${opt.price > 0 ? '+' + opt.price + ' JOD' : 'Included'}</div>
-                        </div>
-                    `).join('')}
+                    ${optionsList.map((opt, idx) => {
+                        const optionName = productField(opt, 'name') || opt.name || '';
+                        return `
+                            <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" onclick="selectCustomOption('${groupName}', '${opt.name}', ${opt.price}, this)">
+                                <div class="opt-title">${optionName}</div>
+                                <div class="opt-price">${opt.price > 0 ? '+' + opt.price + ' JOD' : productText('product_option_included', 'Included')}</div>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
             `;
             container.appendChild(groupDiv);
