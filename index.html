@@ -507,6 +507,18 @@
             }
             .floward-scroll-indicator-bar { display: block !important; }
         }
+        html[dir="rtl"] .scrollable-section-wrapper,
+        html[dir="rtl"] .floward-section-box {
+            direction: rtl;
+            text-align: start;
+        }
+        html[dir="rtl"] .floward-section-top {
+            flex-direction: row-reverse;
+        }
+        html[dir="rtl"] .promo-content-box {
+            direction: rtl;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -659,7 +671,7 @@
 
 <!-- القسم الأول: التصنيفات الرئيسية -->
 <div class="scrollable-section-wrapper">
-  <h3 id="header-title-1" class="section-header-left">Gifts for Every Moment</h3>
+  <h3 id="header-title-1" class="section-header-left" data-i18n="home_primary_categories_title">Gifts for Every Moment</h3>
   <div id="circular-categories-container" class="categories-scroll-container">
     <p style="text-align: center; color: #888; width: 100%;"></p>
   </div>
@@ -670,7 +682,7 @@
 
 <!-- القسم الثاني: التصنيفات الإضافية/الفرعية -->
 <div class="scrollable-section-wrapper" style="border-top: 1px dashed #eee; padding-top: 25px;">
-  <h3 id="header-title-2" class="section-header-left">Order By Category</h3>
+  <h3 id="header-title-2" class="section-header-left" data-i18n="home_subcategories_title">Order By Category</h3>
   <div id="sub-categories-container" class="categories-scroll-container">
     <p style="text-align: center; color: #888; width: 100%;"></p>
   </div>
@@ -696,6 +708,125 @@
     let promoSlideIndex = 0;
     let promoSlideTimer = null;
 
+    function homeText(key) {
+      return window.LorinI18n ? window.LorinI18n.t(key) : key;
+    }
+
+    function escapeHomeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[character]);
+    }
+
+    const homeCuratedKeys = {
+      heading: {
+        'discover the perfect birthday gift!': 'home_promo_birthday_heading'
+      },
+      button_label: {
+        'gift now': 'home_promo_gift_now'
+      },
+      section_title: {
+        'best sellers': 'home_section_best_sellers',
+        'something precious': 'home_section_something_precious',
+        'order by occasion': 'home_section_order_by_occasion'
+      },
+      setting_value: {
+        'best sellers': 'home_section_best_sellers',
+        'something precious': 'home_section_something_precious',
+        'order by occasion': 'home_section_order_by_occasion'
+      },
+      title: {
+        'happy birthday': 'home_category_happy_birthday',
+        'i love you': 'home_category_i_love_you',
+        'get well soon': 'home_category_get_well_soon',
+        'new born': 'home_category_new_born',
+        graduation: 'home_category_graduation',
+        anniversary: 'home_category_anniversary',
+        wedding: 'home_category_wedding',
+        housewarming: 'home_category_housewarming',
+        'thank you': 'home_category_thank_you',
+        cake: 'home_category_cake',
+        'hand bouquets': 'home_category_hand_bouquets',
+        'flowers in vases': 'home_category_flowers_in_vases',
+        plants: 'home_category_plants',
+        chocolates: 'home_category_chocolates',
+        perfumes: 'home_category_perfumes',
+        jewellery: 'home_category_jewellery',
+        'arabian sweets': 'home_category_arabian_sweets',
+        watches: 'home_category_watches',
+        'skincare & cosmetics': 'home_category_skincare_cosmetics',
+        "men's gifting": 'home_category_mens_gifting',
+        "women's gifting": 'home_category_womens_gifting',
+        'all flowers': 'home_category_all_flowers',
+        'view all': 'home_category_view_all'
+      },
+      name: {
+        'pastel grace flower vase': 'home_product_pastel_grace_flower_vase',
+        'lorin jumilia romance box': 'home_product_lorin_jumilia_romance_box',
+        'eternal love heart box with orchids': 'home_product_eternal_love_heart_box',
+        'enchanting flower garden bowl': 'home_product_enchanting_flower_garden_bowl',
+        'classic romance rose basket': 'home_product_classic_romance_rose_basket',
+        'red roses glass bowl vase': 'home_product_red_roses_glass_bowl_vase',
+        'lorin double chocolate cake': 'home_product_lorin_double_chocolate_cake',
+        '100 red roses bouquet': 'home_product_100_red_roses_bouquet'
+      }
+    };
+
+    function getHomeTranslationPair(record, field, fallbackKey) {
+      const source = record || {};
+      const translations = window.LorinI18n && window.LorinI18n.translations;
+      const base = String(source[field] || source[`${field}_en`] || source[`${field}En`] || '').trim();
+      const curatedKey = homeCuratedKeys[field] && homeCuratedKeys[field][base.toLowerCase()];
+      const resolvedFallbackKey = curatedKey || fallbackKey;
+      const englishFallback = resolvedFallbackKey && translations ? translations.en[resolvedFallbackKey] || '' : '';
+      const arabicFallback = resolvedFallbackKey && translations ? translations.ar[resolvedFallbackKey] || '' : '';
+      const englishValue = String(source[`${field}_en`] || source[`${field}En`] || '');
+      const arabicValue = String(source[`${field}_ar`] || source[`${field}Ar`] || '');
+      const normalizedBase = base.toLowerCase();
+      const english = englishValue ||
+        (normalizedBase === arabicFallback.toLowerCase() ? englishFallback : base) || englishFallback;
+      const arabic = (arabicValue && arabicValue.toLowerCase() !== normalizedBase ? arabicValue : '') ||
+        (normalizedBase === englishFallback.toLowerCase() ? arabicFallback : base) || arabicFallback;
+      return { en: english, ar: arabic };
+    }
+
+    function homeLocalizedText(record, field, fallbackKey) {
+      const pair = getHomeTranslationPair(record, field, fallbackKey);
+      return window.LorinI18n && window.LorinI18n.getLang() === 'ar' ? pair.ar : pair.en;
+    }
+
+    function homeTranslationAttributes(record, field, fallbackKey) {
+      const pair = getHomeTranslationPair(record, field, fallbackKey);
+      return `data-i18n-en="${escapeHomeHtml(pair.en)}" data-i18n-ar="${escapeHomeHtml(pair.ar)}"`;
+    }
+
+    function setHomeLocalizedText(element, record, field, fallbackKey) {
+      if (!element) return;
+      const pair = getHomeTranslationPair(record, field, fallbackKey);
+      element.setAttribute('data-i18n-en', pair.en);
+      element.setAttribute('data-i18n-ar', pair.ar);
+      window.LorinI18n.applyLang(window.LorinI18n.getLang(), element);
+    }
+
+    function homeAltTranslationAttributes(record, field, fallbackKey) {
+      const pair = getHomeTranslationPair(record, field, fallbackKey);
+      return `data-i18n-alt-en="${escapeHomeHtml(pair.en)}" data-i18n-alt-ar="${escapeHomeHtml(pair.ar)}"`;
+    }
+
+    function homeAriaTranslationAttributes(record, field, fallbackKey) {
+      const pair = getHomeTranslationPair(record, field, fallbackKey);
+      return `data-i18n-aria-en="${escapeHomeHtml(pair.en)}" data-i18n-aria-ar="${escapeHomeHtml(pair.ar)}"`;
+    }
+
+    function homeMoney(value) {
+      return `${value} ${homeText('currency_code')}`;
+    }
+
+    function homeMoneyAttributes(value) {
+      const translations = window.LorinI18n.translations;
+      return `data-i18n-en="${escapeHomeHtml(`${value} ${translations.en.currency_code}`)}" data-i18n-ar="${escapeHomeHtml(`${value} ${translations.ar.currency_code}`)}"`;
+    }
+
     async function loadCustomMediaSection() {
       const container = document.getElementById('custom-media-container');
       if (!container) return;
@@ -718,32 +849,41 @@
 
         const slidesHtml = mediaItems.map((item, index) => {
           const url = String(item.media_url || '');
+          const escapedUrl = escapeHomeHtml(url);
           const isVideo = (item.media_type && String(item.media_type).toLowerCase().includes('video')) ||
             /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url);
+          const mediaLabelKey = isVideo ? 'home_promo_video_aria' : 'home_promo_image_aria';
+          const mediaLabel = homeLocalizedText(item, 'heading', mediaLabelKey);
           const mediaHtml = isVideo
-            ? `<video ${index === 0 ? 'autoplay' : ''} muted loop playsinline preload="${index === 0 ? 'auto' : 'metadata'}" aria-label="${item.heading || 'Lorin promotional video'}"><source src="${url}"></video>`
-            : `<img src="${url}" alt="${item.heading || 'Lorin promotional media'}" ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>`;
+            ? `<video ${index === 0 ? 'autoplay' : ''} muted loop playsinline preload="${index === 0 ? 'auto' : 'metadata'}" ${homeAriaTranslationAttributes(item, 'heading', mediaLabelKey)} aria-label="${escapeHomeHtml(mediaLabel)}"><source src="${escapedUrl}"></video>`
+            : `<img src="${escapedUrl}" ${homeAltTranslationAttributes(item, 'heading', mediaLabelKey)} alt="${escapeHomeHtml(mediaLabel)}" ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>`;
 
-          const heading = item.heading || '';
-          const subheading = item.subheading || '';
-          const buttonHtml = item.button_label
-            ? `<a href="${item.button_link || '#'}" style="display:inline-block;background:#fff;color:#00313C;padding:13px 34px;border-radius:32px;font-weight:700;font-size:15px;text-decoration:none;margin-top:16px;box-shadow:0 4px 15px rgba(0,0,0,.15);">${item.button_label}</a>`
+          const heading = homeLocalizedText(item, 'heading');
+          const subheading = homeLocalizedText(item, 'subheading');
+          const buttonLabel = homeLocalizedText(item, 'button_label');
+          const buttonHtml = buttonLabel
+            ? `<a ${homeTranslationAttributes(item, 'button_label')} href="${escapeHomeHtml(item.button_link || '#')}" style="display:inline-block;background:#fff;color:#00313C;padding:13px 34px;border-radius:32px;font-weight:700;font-size:15px;text-decoration:none;margin-top:16px;box-shadow:0 4px 15px rgba(0,0,0,.15);">${escapeHomeHtml(buttonLabel)}</a>`
             : '';
 
           return `
             <div class="promo-slide ${index === 0 ? 'is-active' : ''}" data-slide="${index}" aria-hidden="${index === 0 ? 'false' : 'true'}">
               ${mediaHtml}
               <div class="promo-content-box">
-                ${heading ? `<h2 class="promo-heading-el">${heading}</h2>` : ''}
-                ${subheading ? `<p class="promo-subtext-el">${subheading}</p>` : ''}
+                ${heading ? `<h2 class="promo-heading-el" ${homeTranslationAttributes(item, 'heading')}>${escapeHomeHtml(heading)}</h2>` : ''}
+                ${subheading ? `<p class="promo-subtext-el" ${homeTranslationAttributes(item, 'subheading')}>${escapeHomeHtml(subheading)}</p>` : ''}
                 ${buttonHtml}
               </div>
             </div>`;
         }).join('');
 
+        const englishSlideLabel = window.LorinI18n.translations.en.home_promo_slide_aria;
+        const arabicSlideLabel = window.LorinI18n.translations.ar.home_promo_slide_aria;
+        const currentSlideLabel = homeText('home_promo_slide_aria');
+        const englishIndicatorsLabel = window.LorinI18n.translations.en.home_promo_indicators_aria;
+        const arabicIndicatorsLabel = window.LorinI18n.translations.ar.home_promo_indicators_aria;
         const indicatorsHtml = mediaItems.length > 0
-          ? `<div class="promo-indicators" aria-label="اختيار الوسائط">${mediaItems.map((_, i) =>
-              `<button type="button" class="promo-indicator ${i === 0 ? 'is-active' : ''}" data-promo-index="${i}" aria-label="عرض الوسيط ${i + 1}" aria-pressed="${i === 0 ? 'true' : 'false'}"></button>`
+          ? `<div class="promo-indicators" data-i18n-aria-en="${escapeHomeHtml(englishIndicatorsLabel)}" data-i18n-aria-ar="${escapeHomeHtml(arabicIndicatorsLabel)}" aria-label="${escapeHomeHtml(homeText('home_promo_indicators_aria'))}">${mediaItems.map((_, i) =>
+              `<button type="button" class="promo-indicator ${i === 0 ? 'is-active' : ''}" data-promo-index="${i}" data-i18n-aria-en="${escapeHomeHtml(englishSlideLabel)} ${i + 1}" data-i18n-aria-ar="${escapeHomeHtml(arabicSlideLabel)} ${i + 1}" aria-label="${escapeHomeHtml(currentSlideLabel)} ${i + 1}" aria-pressed="${i === 0 ? 'true' : 'false'}"></button>`
             ).join('')}</div>`
           : '';
 
@@ -801,13 +941,16 @@
     async function loadCircularCategories() {
       const container = document.getElementById('circular-categories-container');
       const { data } = await supabaseClient.from('categories').select('*');
-      if (!data || data.length === 0) { container.innerHTML = '<p style="color:#888; text-align:center;">لا توجد تصنيفات رئيسية.</p>'; return; }
+      if (!data || data.length === 0) {
+        container.innerHTML = `<p data-i18n="home_no_primary_categories" style="color:#888; text-align:center;">${escapeHomeHtml(homeText('home_no_primary_categories'))}</p>`;
+        return;
+      }
       container.innerHTML = data.map(cat => `
         <a href="category.html?name=${encodeURIComponent(cat.title)}">
           <div>
-            <img src="${cat.image_url}" alt="${cat.title}">
+            <img src="${escapeHomeHtml(cat.image_url)}" ${homeAltTranslationAttributes(cat, 'title')} alt="${escapeHomeHtml(homeLocalizedText(cat, 'title'))}">
           </div>
-          <span>${cat.title}</span>
+          <span ${homeTranslationAttributes(cat, 'title')}>${escapeHomeHtml(homeLocalizedText(cat, 'title'))}</span>
         </a>`).join('');
       setupScrollIndicator(container, document.getElementById('thumb-categories'));
     }
@@ -815,13 +958,16 @@
     async function loadSubCategories() {
       const container = document.getElementById('sub-categories-container');
       const { data } = await supabaseClient.from('sub_categories').select('*');
-      if (!data || data.length === 0) { container.innerHTML = '<p style="color:#888; text-align:center;">لا توجد تصنيفات إضافية.</p>'; return; }
+      if (!data || data.length === 0) {
+        container.innerHTML = `<p data-i18n="home_no_subcategories" style="color:#888; text-align:center;">${escapeHomeHtml(homeText('home_no_subcategories'))}</p>`;
+        return;
+      }
       container.innerHTML = data.map(sub => `
         <a href="category.html?name=${encodeURIComponent(sub.title)}">
           <div>
-            <img src="${sub.image_url}" alt="${sub.title}">
+            <img src="${escapeHomeHtml(sub.image_url)}" ${homeAltTranslationAttributes(sub, 'title')} alt="${escapeHomeHtml(homeLocalizedText(sub, 'title'))}">
           </div>
-          <span>${sub.title}</span>
+          <span ${homeTranslationAttributes(sub, 'title')}>${escapeHomeHtml(homeLocalizedText(sub, 'title'))}</span>
         </a>`).join('');
       setupScrollIndicator(container, document.getElementById('thumb-subcategories'));
     }
@@ -860,7 +1006,7 @@
         });
 
         if (!sections || sections.length === 0) {
-            container.innerHTML = '<p style="text-align:left; padding:30px; color:#888;">لم تقم بإنشاء أي أقسام منتجات من لوحة التحكم بعد.</p>';
+            container.innerHTML = `<p data-i18n="home_no_product_sections" style="text-align:start; padding:30px; color:#888;">${escapeHomeHtml(homeText('home_no_product_sections'))}</p>`;
             return;
         }
 
@@ -878,20 +1024,20 @@
             if (filtered.length === 0) return '';
 
             const itemsHtml = filtered.map(p => `
-                <a href="product.html?slug=${p.slug}" class="floward-item-card">
+                <a href="product.html?slug=${encodeURIComponent(p.slug || '')}" class="floward-item-card">
                     <div class="floward-item-img">
-                        <img src="${p.image_url}" alt="${p.name}">
+                        <img src="${escapeHomeHtml(p.image_url)}" ${homeAltTranslationAttributes(p, 'name')} alt="${escapeHomeHtml(homeLocalizedText(p, 'name'))}">
                     </div>
-                    <div class="floward-item-price">${p.price} JD</div>
-                    <div class="floward-item-name">${p.name}</div>
+                    <div class="floward-item-price" ${homeMoneyAttributes(p.price)}>${escapeHomeHtml(homeMoney(p.price))}</div>
+                    <div class="floward-item-name" ${homeTranslationAttributes(p, 'name')}>${escapeHomeHtml(homeLocalizedText(p, 'name'))}</div>
                 </a>
             `).join('');
 
             return `
                 <div class="floward-section-box">
                     <div class="floward-section-top">
-                        <h2 class="floward-sec-title" style="color: ${sec.title_color || '#07515b'}; font-family: ${sec.title_font || '"Cormorant Garamond", Georgia, serif'}; font-size: ${sec.title_size || '34px'};">${sec.section_title}</h2>
-                        <a href="category.html?name=${encodeURIComponent(sec.category_filter)}" class="floward-sec-btn">${sec.button_text || 'Choose Gifts Now'}</a>
+                        <h2 class="floward-sec-title" ${homeTranslationAttributes(sec, 'section_title')} style="color: ${sec.title_color || '#07515b'}; font-family: ${sec.title_font || '"Cormorant Garamond", Georgia, serif'}; font-size: ${sec.title_size || '34px'};">${escapeHomeHtml(homeLocalizedText(sec, 'section_title'))}</h2>
+                        <a href="category.html?name=${encodeURIComponent(sec.category_filter)}" class="floward-sec-btn" ${homeTranslationAttributes(sec, 'button_text', 'home_choose_gifts')}>${escapeHomeHtml(homeLocalizedText(sec, 'button_text', 'home_choose_gifts'))}</a>
                     </div>
                     <div class="floward-horizontal-track">
                         ${itemsHtml}
@@ -908,7 +1054,7 @@
         data.forEach(item => {
           if (item.key_name === 'set-title-1') {
             const el = document.getElementById('header-title-1');
-            if (el) el.textContent = item.setting_value;
+            setHomeLocalizedText(el, item, 'setting_value', 'home_primary_categories_title');
           }
           if (item.key_name === 'set-font-1') {
             const el = document.getElementById('header-title-1');
@@ -924,7 +1070,7 @@
           }
           if (item.key_name === 'set-title-2') {
             const el = document.getElementById('header-title-2');
-            if (el) el.textContent = item.setting_value;
+            setHomeLocalizedText(el, item, 'setting_value', 'home_subcategories_title');
           }
           if (item.key_name === 'set-font-2') {
             const el = document.getElementById('header-title-2');
@@ -948,14 +1094,24 @@
       const resultsContainer = document.getElementById('live-search-results');
       const q = query.trim().toLowerCase();
       if (!q) { resultsContainer.innerHTML = ''; return; }
-      const filtered = allStoreProducts.filter(p => p.name.toLowerCase().includes(q) || (p.category && p.category.toLowerCase().includes(q)));
-      if (filtered.length === 0) { resultsContainer.innerHTML = '<p style="text-align:center; color:#888; font-size:14px; padding:10px;">عذراً، لم نجد أي منتج يطابق بحثك.</p>'; return; }
+      const filtered = allStoreProducts.filter(p => {
+        const englishName = String(p.name_en || p.nameEn || p.name || '').toLowerCase();
+        const arabicName = String(p.name_ar || p.nameAr || '').toLowerCase();
+        const category = String(p.category_en || p.categoryEn || p.category || '').toLowerCase();
+        const arabicCategory = String(p.category_ar || p.categoryAr || '').toLowerCase();
+        return englishName.includes(q) || arabicName.includes(q) ||
+          category.includes(q) || arabicCategory.includes(q);
+      });
+      if (filtered.length === 0) {
+        resultsContainer.innerHTML = `<p data-i18n="home_search_no_results" style="text-align:center; color:#888; font-size:14px; padding:10px;">${escapeHomeHtml(homeText('home_search_no_results'))}</p>`;
+        return;
+      }
       resultsContainer.innerHTML = filtered.map(p => `
-        <a href="product.html?slug=${p.slug}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb; transition: background 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
-          <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;" alt="${p.name}">
+        <a href="product.html?slug=${encodeURIComponent(p.slug || '')}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb; transition: background 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
+          <img src="${escapeHomeHtml(p.image_url)}" ${homeAltTranslationAttributes(p, 'name')} style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;" alt="${escapeHomeHtml(homeLocalizedText(p, 'name'))}">
           <div style="flex: 1; text-align: right;">
-            <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${p.name}</div>
-            <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${p.price} د.أ</div>
+            <div ${homeTranslationAttributes(p, 'name')} style="font-size: 14px; font-weight: bold; color: #2c3e50;">${escapeHomeHtml(homeLocalizedText(p, 'name'))}</div>
+            <div ${homeMoneyAttributes(p.price)} style="font-size: 12px; color: #e74c3c; font-weight: bold;">${escapeHomeHtml(homeMoney(p.price))}</div>
           </div>
         </a>`).join('');
     }

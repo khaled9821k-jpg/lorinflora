@@ -22,6 +22,53 @@
       nav_cart: 'السلة',
       search_products_placeholder: 'ابحث عن الزهور والهدايا...',
       store_title: 'Lorin | زهور وهدايا تُقدّم بمحبة',
+      home_primary_categories_title: 'هدايا لكل لحظة',
+      home_subcategories_title: 'تسوقي حسب التصنيف',
+      home_no_primary_categories: 'لا توجد تصنيفات رئيسية حالياً.',
+      home_no_subcategories: 'لا توجد تصنيفات إضافية حالياً.',
+      home_no_product_sections: 'لا توجد أقسام منتجات متاحة حالياً.',
+      home_search_no_results: 'لم نعثر على منتجات تطابق بحثك.',
+      home_choose_gifts: 'اختاري هديتك',
+      home_promo_indicators_aria: 'اختيار الشريحة الترويجية',
+      home_promo_slide_aria: 'عرض الشريحة',
+      home_promo_video_aria: 'فيديو ترويجي من Lorin',
+      home_promo_image_aria: 'صورة ترويجية من Lorin',
+      home_promo_birthday_heading: 'اكتشفي الهدية المثالية لعيد الميلاد!',
+      home_promo_gift_now: 'أهدي الآن',
+      home_section_best_sellers: 'الأكثر مبيعاً',
+      home_section_something_precious: 'اختيارات مميزة',
+      home_section_order_by_occasion: 'تسوقي حسب المناسبة',
+      home_category_happy_birthday: 'عيد ميلاد سعيد',
+      home_category_i_love_you: 'أحبك',
+      home_category_get_well_soon: 'أطيب التمنيات بالشفاء',
+      home_category_new_born: 'مولود جديد',
+      home_category_graduation: 'التخرج',
+      home_category_anniversary: 'ذكرى سنوية',
+      home_category_wedding: 'زفاف',
+      home_category_housewarming: 'منزل جديد',
+      home_category_thank_you: 'شكراً لك',
+      home_category_cake: 'كعك',
+      home_category_hand_bouquets: 'باقات يد',
+      home_category_flowers_in_vases: 'زهور في مزهريات',
+      home_category_plants: 'نباتات',
+      home_category_chocolates: 'شوكولاتة',
+      home_category_perfumes: 'عطور',
+      home_category_jewellery: 'مجوهرات',
+      home_category_arabian_sweets: 'حلويات عربية',
+      home_category_watches: 'ساعات',
+      home_category_skincare_cosmetics: 'العناية بالبشرة ومستحضرات التجميل',
+      home_category_mens_gifting: 'هدايا رجالية',
+      home_category_womens_gifting: 'هدايا نسائية',
+      home_category_all_flowers: 'جميع الزهور',
+      home_category_view_all: 'عرض الكل',
+      home_product_pastel_grace_flower_vase: 'مزهرية أناقة الباستيل',
+      home_product_lorin_jumilia_romance_box: 'صندوق لورين جوميليا الرومانسي',
+      home_product_eternal_love_heart_box: 'صندوق قلب الحب الأبدي مع الأوركيد',
+      home_product_enchanting_flower_garden_bowl: 'وعاء حديقة الزهور الساحر',
+      home_product_classic_romance_rose_basket: 'سلة ورود كلاسيكية بطابع رومانسي',
+      home_product_red_roses_glass_bowl_vase: 'مزهرية زجاجية بالورود الحمراء',
+      home_product_lorin_double_chocolate_cake: 'كعكة لورين بالشوكولاتة المزدوجة',
+      home_product_100_red_roses_bouquet: 'باقة من 100 وردة حمراء',
       checkout_title: 'إتمام الطلب | Lorin',
       cart_title: 'سلة المشتريات | Lorin',
       category_label: 'التصنيف',
@@ -325,6 +372,53 @@
       nav_cart: 'Cart',
       search_products_placeholder: 'Search flowers and gifts...',
       store_title: 'Lorin | Flowers and gifts, thoughtfully delivered',
+      home_primary_categories_title: 'Gifts for Every Moment',
+      home_subcategories_title: 'Order by Category',
+      home_no_primary_categories: 'No main categories are available right now.',
+      home_no_subcategories: 'No additional categories are available right now.',
+      home_no_product_sections: 'No product sections are available right now.',
+      home_search_no_results: 'No products match your search.',
+      home_choose_gifts: 'Choose Gifts Now',
+      home_promo_indicators_aria: 'Choose a promotional slide',
+      home_promo_slide_aria: 'Show slide',
+      home_promo_video_aria: 'Lorin promotional video',
+      home_promo_image_aria: 'Lorin promotional image',
+      home_promo_birthday_heading: 'Discover the Perfect Birthday Gift!',
+      home_promo_gift_now: 'Gift Now',
+      home_section_best_sellers: 'Best Sellers',
+      home_section_something_precious: 'Something Precious',
+      home_section_order_by_occasion: 'Order By Occasion',
+      home_category_happy_birthday: 'Happy Birthday',
+      home_category_i_love_you: 'I Love You',
+      home_category_get_well_soon: 'Get Well Soon',
+      home_category_new_born: 'New Born',
+      home_category_graduation: 'Graduation',
+      home_category_anniversary: 'Anniversary',
+      home_category_wedding: 'Wedding',
+      home_category_housewarming: 'Housewarming',
+      home_category_thank_you: 'Thank You',
+      home_category_cake: 'cake',
+      home_category_hand_bouquets: 'Hand Bouquets',
+      home_category_flowers_in_vases: 'Flowers in Vases',
+      home_category_plants: 'Plants',
+      home_category_chocolates: 'Chocolates',
+      home_category_perfumes: 'Perfumes',
+      home_category_jewellery: 'Jewellery',
+      home_category_arabian_sweets: 'Arabian Sweets',
+      home_category_watches: 'Watches',
+      home_category_skincare_cosmetics: 'Skincare & Cosmetics',
+      home_category_mens_gifting: "Men's gifting",
+      home_category_womens_gifting: "Women's Gifting",
+      home_category_all_flowers: 'All Flowers',
+      home_category_view_all: 'View All',
+      home_product_pastel_grace_flower_vase: 'Pastel Grace Flower Vase',
+      home_product_lorin_jumilia_romance_box: 'Lorin Jumilia Romance Box',
+      home_product_eternal_love_heart_box: 'Eternal Love Heart Box with Orchids',
+      home_product_enchanting_flower_garden_bowl: 'Enchanting Flower Garden Bowl',
+      home_product_classic_romance_rose_basket: 'Classic Romance Rose Basket',
+      home_product_red_roses_glass_bowl_vase: 'Red Roses Glass Bowl Vase',
+      home_product_lorin_double_chocolate_cake: 'Lorin Double Chocolate Cake',
+      home_product_100_red_roses_bouquet: '100 Red Roses Bouquet',
       checkout_title: 'Checkout | Lorin',
       cart_title: 'Your cart | Lorin',
       category_label: 'Category',
@@ -649,6 +743,7 @@
     let pagePath = arabicPath ? pathname.replace(/^\/ar(?=\/|$)/, '') : pathname;
     if (!pagePath) pagePath = '/';
     if (pagePath === '/index.html' || pagePath === '/index') pagePath = '/';
+    if (pagePath === '/product.html' || pagePath === '/product/') pagePath = '/product';
     if (lang === 'ar') return pagePath === '/' ? '/ar' : `/ar${pagePath}`;
     return pagePath;
   }
@@ -687,15 +782,26 @@
 
   function translateElement(el) {
     if (!(el instanceof Element)) return;
+    const lang = getLang();
+    const localizedText = el.getAttribute(`data-i18n-${lang}`);
     const textKey = el.getAttribute('data-i18n');
-    if (textKey) {
+    if (localizedText !== null && localizedText !== '') {
+      if (el.textContent !== localizedText) el.textContent = localizedText;
+    } else if (textKey) {
       const translated = t(textKey);
       if (el.textContent !== translated) el.textContent = translated;
     }
     const placeholderKey = el.getAttribute('data-i18n-placeholder');
     if (placeholderKey) el.setAttribute('placeholder', t(placeholderKey));
+    const localizedAria = el.getAttribute(`data-i18n-aria-${lang}`);
     const ariaKey = el.getAttribute('data-i18n-aria');
-    if (ariaKey) el.setAttribute('aria-label', t(ariaKey));
+    if (localizedAria !== null && localizedAria !== '') {
+      el.setAttribute('aria-label', localizedAria);
+    } else if (ariaKey) {
+      el.setAttribute('aria-label', t(ariaKey));
+    }
+    const localizedAlt = el.getAttribute(`data-i18n-alt-${lang}`);
+    if (localizedAlt !== null && localizedAlt !== '') el.setAttribute('alt', localizedAlt);
     if (el.matches('.pill-btn--lang')) {
       const label = t('switch_lang_label');
       const span = el.querySelector('span');
@@ -722,7 +828,7 @@
     }
 
     if (root instanceof Element) translateElement(root);
-    root.querySelectorAll('[data-i18n], [data-i18n-placeholder], [data-i18n-aria], .pill-btn--lang')
+    root.querySelectorAll('[data-i18n], [data-i18n-en], [data-i18n-ar], [data-i18n-placeholder], [data-i18n-aria], [data-i18n-aria-en], [data-i18n-aria-ar], [data-i18n-alt-en], [data-i18n-alt-ar], .pill-btn--lang')
       .forEach(translateElement);
 
     const title = document.querySelector('title[data-i18n]');
