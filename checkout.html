@@ -997,11 +997,18 @@
                     <option value="عمان - تلاع العلي" data-area-en="Amman - Tlaa Al Ali" data-area-aliases="تلاع العلي|تلاعالعلي|تلاع علي|tlaa al ali|tla al ali|tlaa al-ali|tlaa el ali|talat al ali">عمان - تلاع العلي</option>
                     <option value="عمان - وادي السير" data-area-en="Amman - Wadi Al Seer" data-area-aliases="وادي السير|واد السير|wadi al seer|wadi seer|wadi as seer|wadi al-seer">عمان - وادي السير</option>
                     <option value="عمان - ماركا" data-area-en="Amman - Marka" data-area-aliases="ماركا|ماركة|ماركا الشمالية|ماركا الجنوبية|منطقة طارق|حي طارق|طارق|marka|marka district|marka sub-district|marka subdistrict|marka north|marka south|marka shamaliyeh|marka janubiyeh|marqa|markah|tareq|tariq|tareq district|tariq district|jabal tareq|jabal tariq|al marka">عمان - ماركا</option>
-                    <option value="الزرقاء" data-area-en="Zarqa" data-area-aliases="الزرقاء|zarqa|az zarqa">الزرقاء</option>
-                    <option value="إربد" data-area-en="Irbid" data-area-aliases="إربد|اربد|irbid">إربد</option>
+                    <option value="الزرقاء" data-area-en="Zarqa" data-area-kind="governorate" data-area-aliases="الزرقاء|الزرقا|زرقاء|zarqa|az zarqa|al zarqa|zarqa governorate">الزرقاء</option>
+                    <option value="إربد" data-area-en="Irbid" data-area-kind="governorate" data-area-aliases="إربد|اربد|irbid|irbid governorate">إربد</option>
                     <option value="السلط" data-area-en="Salt" data-area-aliases="السلط|salt|as salt">السلط</option>
-                    <option value="العقبة" data-area-en="Aqaba" data-area-aliases="العقبة|aqaba|al aqabah">العقبة</option>
-                    <option value="مادبا" data-area-en="Madaba" data-area-aliases="مادبا|madaba">مادبا</option>
+                    <option value="العقبة" data-area-en="Aqaba" data-area-kind="governorate" data-area-aliases="العقبة|عقبة|aqaba|al aqabah|aqaba governorate">العقبة</option>
+                    <option value="مادبا" data-area-en="Madaba" data-area-kind="governorate" data-area-aliases="مادبا|مادبة|madaba|madaba governorate">مادبا</option>
+                    <option value="المفرق" data-area-en="Mafraq" data-area-kind="governorate" data-area-aliases="المفرق|مفرق|mafraq|al mafraq|mafraq governorate">المفرق</option>
+                    <option value="جرش" data-area-en="Jerash" data-area-kind="governorate" data-area-aliases="جرش|jerash|jarash|gerasa|jerash governorate">جرش</option>
+                    <option value="عجلون" data-area-en="Ajloun" data-area-kind="governorate" data-area-aliases="عجلون|ajloun|ajlun|ajloun governorate">عجلون</option>
+                    <option value="البلقاء" data-area-en="Balqa" data-area-kind="governorate" data-area-aliases="البلقاء|البلقا|بلقاء|balqa|al balqa|balqa governorate|السلط|salt|as salt">البلقاء</option>
+                    <option value="الكرك" data-area-en="Karak" data-area-kind="governorate" data-area-aliases="الكرك|كرك|karak|kerak|al karak|karak governorate">الكرك</option>
+                    <option value="الطفيلة" data-area-en="Tafilah" data-area-kind="governorate" data-area-aliases="الطفيلة|الطفيله|طفيلة|طفيله|tafilah|tafila|at tafilah|tafilah governorate">الطفيلة</option>
+                    <option value="معان" data-area-en="Ma'an" data-area-kind="governorate" data-area-aliases="معان|maan|ma an|ma'an|ma an governorate|maan governorate">معان</option>
                   </select>
                 </div>
 
@@ -2627,9 +2634,29 @@
         address.village,
         address.county,
         address.state_district,
+        address.governorate,
+        address.state,
+        address.province,
+        address.region,
         address.display_name,
         result.display_name,
         result.name
+      ]),
+      governorateCandidates: uniqueAddressParts([
+        address.governorate,
+        address.state,
+        address.province,
+        address.region,
+        address.state_district,
+        address.county,
+        address.city_district,
+        address.municipality,
+        address.city,
+        address.town,
+        address.village,
+        result.name,
+        address.display_name,
+        result.display_name
       ])
     };
   }
@@ -2677,28 +2704,20 @@
   function normalizeAreaMatchText(value) {
     return normalizeMapMatchText(value)
       .replace(/\bsub\s*district\b/g, ' ')
-      .replace(/\b(?:district|area|neighborhood|neighbourhood|governorate|amman|jordan)\b/g, ' ')
-      .replace(/(^|\s)(?:منطقة|المنطقة|المنطقه|حي|الحي|الحى|حارة|الحارة|لواء|قضاء|عمان|الاردن|الأردن)(?=\s|$)/g, ' ')
+      .replace(/\b(?:district|area|neighborhood|neighbourhood|governorate|province|state|region|amman|jordan)\b/g, ' ')
+      .replace(/(^|\s)(?:منطقة|المنطقة|المنطقه|حي|الحي|الحى|حارة|الحارة|لواء|قضاء|محافظة|محافظه|عمان|الاردن|الأردن)(?=\s|$)/g, ' ')
       .replace(/ماركه/g, 'ماركا')
       .replace(/\s+/g, ' ')
       .trim();
   }
 
-  function matchAreaFromLocation(details) {
-    const select = document.getElementById('receiver-area');
-    if (!select || !details) return null;
-    const candidates = uniqueAddressParts(details.areaCandidates || [])
+  function matchAreaOptions(options, candidateValues) {
+    const candidates = uniqueAddressParts(candidateValues || [])
       .map(normalizeAreaMatchText)
       .filter(Boolean)
       .map((text, index) => ({ text, priority: Math.max(0, 100 - index * 3) }));
-    [details.cleanAddress, details.formatted].forEach((value, index) => {
-      const text = normalizeAreaMatchText(value);
-      if (text && !candidates.some((candidate) => candidate.text === text)) {
-        candidates.push({ text, priority: index === 0 ? 20 : 0 });
-      }
-    });
     const matches = [];
-    Array.from(select.options).forEach((option) => {
+    options.forEach((option) => {
       if (!option.value) return;
       const aliases = (option.dataset.areaAliases || '')
         .split('|')
@@ -2720,6 +2739,33 @@
     });
     matches.sort((a, b) => b.score - a.score);
     return matches.length ? matches[0].option : null;
+  }
+
+  function matchAreaFromLocation(details) {
+    const select = document.getElementById('receiver-area');
+    if (!select || !details) return null;
+    const options = Array.from(select.options);
+    const generalCandidates = [
+      ...(details.areaCandidates || []),
+      details.cleanAddress,
+      details.formatted
+    ];
+    const ammanOptions = options.filter((option) => option.value.indexOf('عمان - ') === 0);
+    const ammanMatch = matchAreaOptions(ammanOptions, generalCandidates);
+    if (ammanMatch) return ammanMatch;
+
+    const governorateOptions = options.filter((option) => option.dataset.areaKind === 'governorate');
+    const governorateCandidates = [
+      ...(details.governorateCandidates || []),
+      details.formatted
+    ];
+    const governorateMatch = matchAreaOptions(governorateOptions, governorateCandidates);
+    if (governorateMatch) return governorateMatch;
+
+    const legacyOptions = options.filter((option) =>
+      option.value && option.value.indexOf('عمان - ') !== 0 && option.dataset.areaKind !== 'governorate'
+    );
+    return matchAreaOptions(legacyOptions, generalCandidates);
   }
 
   function applyMapAddressToInput(address) {
