@@ -130,7 +130,7 @@
       map_search_error: 'تعذر البحث عن الموقع. حاول مرة أخرى.',
       map_location_selected: 'تم تحديد الموقع',
       order_email_failed: 'تم إرسال الطلب، لكن تعذر إرسال إشعار البريد الإلكتروني إلى المتجر.',
-      btn_use_current_location: 'موقعي الحالي 📍',
+      btn_use_current_location: 'موقعي الحالي',
       area_label: 'المنطقة',
       area_placeholder: 'اختر المنطقة / الحي',
       full_address_label: 'العنوان التفصيلي (الشارع، رقم البناية، المعلم)',
@@ -144,7 +144,7 @@
       express_banner_text: 'أدخل عنوان المستلم وسنضمن وصول هديتك الفاخرة خلال 120 دقيقة!',
       express_banner_link: 'تعرف أكثر على التوصيل السريع',
 
-      secret_identity_title: 'إخفاء هويتي عن المستلم (مفاجأة 🤫)',
+      secret_identity_title: 'إخفاء هويتي عن المستلم (مفاجأة)',
       secret_identity_desc: 'عند تفعيل هذا الخيار، لن نشارك أي معلومات شخصية عنك مع المستلم وسيبقى اسمك سراً.',
 
       // Step 2: Payment & Review
@@ -167,7 +167,7 @@
       order_summary_title: 'ملخص الطلب',
       subtotal: 'المجموع الفرعي',
       delivery_charges: 'رسوم التوصيل',
-      delivery_free: 'مجاناً 🌸',
+      delivery_free: 'مجاناً',
       delivery_disclaimer: 'يرجى العلم بأن بعض المناطق البعيدة أو التوصيل السريع الفوري قد يترتب عليها رسوم توصيل إضافية.',
       discount: 'الخصم',
       total: 'المجموع الكلي',
@@ -186,7 +186,7 @@
       // Messages & Validations
       msg_fill_required: 'يرجى تعبئة الحقول المطلوبة للمتابعة.',
       msg_invalid_phone: 'يرجى إدخال رقم هاتف أردني صحيح (يبدأ بـ 7 ويتكون من 8 خانات).',
-      msg_order_success: 'تم تأكيد طلبك بنجاح! شكرًا لاختيارك Lorin 🌸',
+      msg_order_success: 'تم تأكيد طلبك بنجاح! شكرًا لاختيارك Lorin.',
       msg_auth_required_checkout: 'يرجى تسجيل الدخول أو إنشاء حساب لمتابعة طلبك وحفظ بياناتك بأمان.',
       msg_signed_out: 'تم تسجيل الخروج بنجاح.'
     },
@@ -316,7 +316,7 @@
       map_search_error: 'Unable to search for this location. Please try again.',
       map_location_selected: 'Location selected',
       order_email_failed: 'The order was placed, but the store email notification could not be sent.',
-      btn_use_current_location: 'Current Location 📍',
+      btn_use_current_location: 'Current Location',
       area_label: 'Area',
       area_placeholder: 'Select Area',
       full_address_label: 'Full Address',
@@ -353,7 +353,7 @@
       order_summary_title: 'Order Summary',
       subtotal: 'Subtotal',
       delivery_charges: 'Delivery charges',
-      delivery_free: 'Free 🌸',
+      delivery_free: 'Free',
       delivery_disclaimer: 'Please note that specific regions and express delivery may incur extra delivery fees.',
       discount: 'Discount',
       total: 'Total',
@@ -372,7 +372,7 @@
       // Messages & Validations
       msg_fill_required: 'Please fill in all required fields to continue.',
       msg_invalid_phone: 'Please enter a valid Jordanian phone number (starts with 7 and has 8 digits).',
-      msg_order_success: 'Your order has been confirmed successfully! Thank you for choosing Lorin 🌸',
+      msg_order_success: 'Your order has been confirmed successfully! Thank you for choosing Lorin.',
       msg_auth_required_checkout: 'Please sign in or create an account to proceed with your order securely.',
       msg_signed_out: 'Signed out successfully.'
     }

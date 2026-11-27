@@ -7,7 +7,7 @@
   <script src="lorin-preloader.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>إتمام الطلب - Lorin 🌸 | Checkout</title>
+  <title>إتمام الطلب - Lorin | Checkout</title>
 
   <link rel="icon" type="image/png" href="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png">
   
@@ -262,6 +262,21 @@
     .lorin-checkout-flag:hover {
       background: #F3F4F6;
     }
+    .country-selector-chevron,
+    .checkout-disclosure-chevron {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      flex: 0 0 auto;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      transform: rotate(45deg);
+      margin-top: -3px;
+    }
+    details[open] .checkout-disclosure-chevron {
+      transform: rotate(225deg);
+      margin-top: 3px;
+    }
     .lorin-checkout-phone-input {
       flex: 1;
       border: none;
@@ -332,7 +347,9 @@
       overflow: hidden;
     }
     .lorin-country-flag {
-      font-size: 16px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
       flex-shrink: 0;
     }
     .lorin-country-name {
@@ -837,7 +854,7 @@
       <div class="pill-dropdown-wrapper" style="position: relative;">
         <button type="button" class="pill-btn" onclick="togglePillDropdown('country-dropdown')">
           <span>الأردن (Jordan)</span>
-          <span style="font-size: 9px; color: #6c757d;">▾</span>
+          <span class="country-selector-chevron" aria-hidden="true"></span>
         </button>
         <div id="country-dropdown" class="pill-dropdown-menu">
           <button type="button" class="pill-dropdown-item active"><span>الأردن</span></button>
@@ -847,7 +864,7 @@
       <div class="pill-dropdown-wrapper" style="position: relative;">
         <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
           <span>JOD (د.أ)</span>
-          <span style="font-size: 9px; color: #6c757d;">▾</span>
+          <span class="country-selector-chevron" aria-hidden="true"></span>
         </button>
         <div id="currency-dropdown" class="pill-dropdown-menu">
           <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span style="font-size: 11px; color: #868e96;">(JOD)</span></button>
@@ -898,7 +915,9 @@
     <!-- Step Indicator Bar (Screenshots 5, 6, 10) -->
     <div class="checkout-step-stepper" id="checkout-stepper">
       <div class="checkout-step-item is-active" id="step-indicator-delivery" onclick="goToStep(1)">
-        <span id="step-check-delivery" class="checkout-step-check hidden">✓</span>
+        <span id="step-check-delivery" class="checkout-step-check hidden" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 12 4.5 4.5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
         <span data-i18n="step_delivery">تفاصيل التوصيل</span>
       </div>
       <span class="checkout-step-divider">—</span>
@@ -943,13 +962,13 @@
               <div>
                 <div class="flex items-center justify-between mb-1">
                   <label class="lorin-input-label mb-0" data-i18n="recipient_phone_label">رقم هاتف المستلم (واتساب)</label>
-                  <span class="text-[11px] text-gray-400" title="للتواصل مع المستلم لتسليم الهدية">ⓘ</span>
+                  <span class="text-[11px] text-gray-400" title="للتواصل مع المستلم لتسليم الهدية">i</span>
                 </div>
                 <div class="lorin-checkout-phone-wrap" id="recipient-phone-wrap">
                   <button type="button" class="lorin-checkout-flag" id="recipient-country-trigger" onclick="toggleRecipientCountryDropdown(event)">
-                    <span id="recipient-flag">🇯🇴</span>
+                    <span id="recipient-flag">JO</span>
                     <span id="recipient-dial" dir="ltr">+962</span>
-                    <span style="font-size: 10px; color: #9CA3AF;">▾</span>
+                    <span class="country-selector-chevron" aria-hidden="true"></span>
                   </button>
                   <input type="tel" id="receiver-phone" required placeholder="7XXXXXXXX" class="lorin-checkout-phone-input" dir="ltr">
 
@@ -967,7 +986,7 @@
 
               <!-- Contextual Notice (Screenshot 6) -->
               <div id="contextual-address-notice" class="hidden p-3 bg-amber-50/70 border border-amber-200 rounded-lg text-xs text-amber-900 leading-relaxed" data-i18n="context_gift_self_notice">
-                ⓘ بما أن هذا الطلب لك شخصياً، سنحتاج عنوان التوصيل الكامل أدناه لتأكيد الموعد.
+                بما أن هذا الطلب لك شخصياً، سنحتاج عنوان التوصيل الكامل أدناه لتأكيد الموعد.
               </div>
             </div>
           </div>
@@ -1069,7 +1088,6 @@
             <!-- Black Express Banner (Screenshot 5) -->
             <div id="express-info-banner" class="lorin-express-banner">
               <div class="flex items-center gap-2">
-                <span>⚡</span>
                 <span data-i18n="express_banner_text">أدخل عنوان المستلم وسنضمن وصول هديتك الفاخرة خلال 120 دقيقة!</span>
               </div>
               <a href="#" onclick="showToastNotification('خدمة التوصيل السريع من Lorin تضمن توصيل الباقات المنسقة طازجة خلال ساعتين في عمان.', { type: 'info' }); return false;" class="text-[11px] underline text-gray-300 hover:text-white" data-i18n="express_banner_link">تعرف أكثر</a>
@@ -1080,7 +1098,7 @@
           <div class="lorin-checkout-card" style="background: #FFFFFF;">
             <label class="flex items-center justify-between cursor-pointer">
               <div>
-                <div class="text-xs font-bold text-gray-900" data-i18n="secret_identity_title">إخفاء هويتي عن المستلم (مفاجأة 🤫)</div>
+                <div class="text-xs font-bold text-gray-900" data-i18n="secret_identity_title">إخفاء هويتي عن المستلم (مفاجأة)</div>
                 <div class="text-[11px] text-gray-500 mt-0.5" data-i18n="secret_identity_desc">عند تفعيل هذا الخيار، لن نشارك أي معلومات شخصية عنك مع المستلم وسيبقى اسمك سراً.</div>
               </div>
               <input type="checkbox" id="check-secret-identity" class="w-4 h-4 text-[#00313C] rounded border-gray-300 focus:ring-0 cursor-pointer">
@@ -1103,7 +1121,6 @@
               <!-- Apple Pay -->
               <div class="lorin-payment-card is-selected" onclick="selectPaymentMethod('apple_pay', this)">
                 <div class="flex items-center gap-3">
-                  <span class="text-base font-bold">Pay</span>
                   <span class="text-xs font-semibold text-gray-800" data-i18n="pay_apple">Apple pay</span>
                 </div>
                 <span class="lorin-radio-dot"></span>
@@ -1121,7 +1138,6 @@
               <!-- Credit Card -->
               <div class="lorin-payment-card" onclick="selectPaymentMethod('card', this)">
                 <div class="flex items-center gap-3">
-                  <span class="text-base">💳</span>
                   <span class="text-xs font-semibold text-gray-800" data-i18n="pay_card">بطاقة ائتمان (Visa / Mastercard)</span>
                 </div>
                 <span class="lorin-radio-dot"></span>
@@ -1130,7 +1146,6 @@
               <!-- CliQ -->
               <div class="lorin-payment-card" onclick="selectPaymentMethod('cliq', this)">
                 <div class="flex items-center gap-3">
-                  <span class="text-base">⚡</span>
                   <span class="text-xs font-semibold text-gray-800" data-i18n="pay_cliq">تحويل فوري عبر CliQ (الأردن)</span>
                 </div>
                 <span class="lorin-radio-dot"></span>
@@ -1139,7 +1154,6 @@
               <!-- Cash On Delivery -->
               <div class="lorin-payment-card" onclick="selectPaymentMethod('cod', this)">
                 <div class="flex items-center gap-3">
-                  <span class="text-base">💵</span>
                   <span class="text-xs font-semibold text-gray-800" data-i18n="pay_cod">الدفع عند الاستلام (نقداً)</span>
                 </div>
                 <span class="lorin-radio-dot"></span>
@@ -1151,7 +1165,6 @@
           <div class="lorin-checkout-card">
             <div class="flex items-center justify-between gap-4">
               <div class="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                <span>🏷️</span>
                 <span id="promo-status-label" data-i18n="promo_available_label">عروض وخصومات متاحة</span>
               </div>
               <div class="flex items-center gap-2">
@@ -1167,7 +1180,7 @@
             <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-2">
               <h3 class="font-serif text-lg font-bold text-gray-900" data-i18n="deliver_to_title">بيانات التوصيل المختارة</h3>
               <span class="text-xs text-gray-500 font-semibold flex items-center gap-1.5">
-                <span>🇯🇴</span>
+                <span>JO</span>
                 <span id="deliver-to-city-tag">Amman</span>
               </span>
             </div>
@@ -1206,10 +1219,9 @@
             <details class="group cursor-pointer">
               <summary class="flex items-center justify-between text-xs font-bold text-gray-800 list-none">
                 <span class="flex items-center gap-2">
-                  <span>✏️</span>
                   <span data-i18n="delivery_team_note_title">إضافة ملاحظة لفريق التوصيل</span>
                 </span>
-                <span class="text-gray-400 group-open:rotate-180 transition-transform">▾</span>
+                <span class="checkout-disclosure-chevron" aria-hidden="true"></span>
               </summary>
               <div class="pt-3 mt-2 border-t border-gray-100">
                 <textarea id="delivery-driver-note" rows="2" placeholder="اكتب أي ملاحظة خاصة بفريق التوصيل (مثال: عدم رن الجرس، ترك الطلب عند الباب)..." class="lorin-input-field text-xs" data-i18n-placeholder="delivery_team_note_placeholder"></textarea>
@@ -1298,7 +1310,7 @@
   <div style="max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; padding-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
     <div>
       <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 36px; filter: brightness(0) invert(1); object-fit: contain; margin-bottom: 16px;">
-      <p style="font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6;">متجر Lorin للزهور والهدايا الفاخرة - توصيل فوري داخل الأردن 🌸</p>
+      <p style="font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6;">متجر Lorin للزهور والهدايا الفاخرة - توصيل فوري داخل الأردن.</p>
     </div>
     <div>
       <div style="font-size: 13px; font-weight: 700; color: #ffffff; margin-bottom: 14px;">روابط سريعة</div>
@@ -1378,7 +1390,7 @@
   let nominatimLastRequestAt = 0;
 
   // Recipient Country Code Selector
-  let selectedRecipientCountry = (window.LORIN_COUNTRIES && window.LORIN_COUNTRIES[0]) || { code: 'JO', nameAr: 'الأردن', nameEn: 'Jordan', dial: '+962', flag: '🇯🇴', placeholder: '7XXXXXXXX' };
+  let selectedRecipientCountry = (window.LORIN_COUNTRIES && window.LORIN_COUNTRIES[0]) || { code: 'JO', nameAr: 'الأردن', nameEn: 'Jordan', dial: '+962', placeholder: '7XXXXXXXX' };
 
   function toggleRecipientCountryDropdown(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
@@ -1428,7 +1440,7 @@
     listEl.innerHTML = filtered.map(c => `
       <div class="lorin-country-item ${c.code === selectedRecipientCountry.code ? 'is-selected' : ''}" onclick="selectRecipientCountry('${c.code}')">
         <span class="lorin-country-item-left">
-          <span class="lorin-country-flag">${c.flag}</span>
+          <span class="lorin-country-flag">${c.code}</span>
           <span class="lorin-country-name">${isAr ? c.nameAr : c.nameEn}</span>
         </span>
         <span class="lorin-country-dial">${c.dial}</span>
@@ -1449,7 +1461,7 @@
     const dialEl = document.getElementById('recipient-dial');
     const phoneInput = document.getElementById('receiver-phone');
 
-    if (flagEl) flagEl.textContent = match.flag;
+    if (flagEl) flagEl.textContent = match.code;
     if (dialEl) dialEl.textContent = match.dial;
     if (phoneInput && match.placeholder) phoneInput.placeholder = match.placeholder;
 
@@ -1824,10 +1836,10 @@
             <div class="flex-1 min-w-0">
               <div class="font-bold text-gray-900 truncate">${item.name}</div>
             <div class="text-[11px] text-gray-400 mt-0.5">${selectedSlotType === 'express'
-              ? `⚡ ${mapText('express_delivery', 'Express Delivery', 'توصيل سريع')}`
+              ? mapText('express_delivery', 'Express Delivery', 'توصيل سريع')
               : mapText('standard_scheduled_delivery', 'Same-Day / Scheduled Delivery', 'توصيل في نفس اليوم أو تاريخ محدد')}</div>
               <div class="lorin-qty-stepper mt-1.5">
-                <button type="button" class="lorin-qty-btn" onclick="updateItemQuantity(${idx}, -1)">${qty === 1 ? '🗑' : '-'}</button>
+                <button type="button" class="lorin-qty-btn" onclick="updateItemQuantity(${idx}, -1)">${qty === 1 ? 'Remove' : '-'}</button>
                 <span class="lorin-qty-val">${qty}</span>
                 <button type="button" class="lorin-qty-btn" onclick="updateItemQuantity(${idx}, 1)">+</button>
               </div>
@@ -1842,10 +1854,10 @@
     const extras = getGiftExtras();
     const detailLines = [];
     if (totals.hasPhoto) {
-      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>📷 صورة إضافية مرفقة</span><span>+${totals.photoFee.toFixed(2)} د.أ</span></div>`);
+      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>صورة إضافية مرفقة</span><span>+${totals.photoFee.toFixed(2)} د.أ</span></div>`);
     }
     if (totals.cardObj && totals.cardObj.selected) {
-      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>💌 ${totals.cardObj.designName || 'بطاقة إهداء'}</span><span>${totals.cardFee > 0 ? '+' + totals.cardFee.toFixed(2) + ' د.أ' : 'مجاناً'}</span></div>`);
+      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>${totals.cardObj.designName || 'بطاقة إهداء'}</span><span>${totals.cardFee > 0 ? '+' + totals.cardFee.toFixed(2) + ' د.أ' : 'مجاناً'}</span></div>`);
       if (totals.cardObj.message) {
         detailLines.push(`<div class="text-gray-600 bg-white p-2 rounded border border-gray-100">"${totals.cardObj.message}"</div>`);
       }
@@ -2088,7 +2100,7 @@
 
     // Address Summary
     if (isCollectAddress) {
-      document.getElementById('summary-rec-address').textContent = 'سوف يتم أخذ العنوان من المستلم مباشرة نيابة عنك 🌸';
+      document.getElementById('summary-rec-address').textContent = 'سوف يتم أخذ العنوان من المستلم مباشرة نيابة عنك.';
     } else {
       document.getElementById('summary-rec-address').textContent = `${areaLabel} - ${address}`;
     }
@@ -2114,11 +2126,11 @@
 
     if (val === 'LORIN10') {
       localStorage.setItem(PROMO_KEY, JSON.stringify({ code: 'LORIN10', type: 'percent', value: 10, status: 'applied' }));
-      msg.textContent = 'تم تطبيق خصم 10% بنجاح! 🌸';
+      msg.textContent = 'تم تطبيق خصم 10% بنجاح.';
       msg.className = 'text-[11px] mt-2 text-emerald-700 font-bold block';
     } else if (val === 'WELCOME2') {
       localStorage.setItem(PROMO_KEY, JSON.stringify({ code: 'WELCOME2', type: 'fixed', value: 2, status: 'applied' }));
-      msg.textContent = 'تم تطبيق خصم 2 د.أ بنجاح! 🌸';
+      msg.textContent = 'تم تطبيق خصم 2 د.أ بنجاح.';
       msg.className = 'text-[11px] mt-2 text-emerald-700 font-bold block';
     } else {
       msg.textContent = 'عذراً، كود الخصم غير صالح.';
@@ -2441,7 +2453,7 @@
       const { data: generatedOrderNumber, error: dbError } = await supabaseClient
         .rpc('create_order_with_number', {
           p_order: {
-            customer_name: isSecretIdentity ? 'عميل سري (مفاجأة 🤫)' : name,
+            customer_name: isSecretIdentity ? 'عميل سري (مفاجأة)' : name,
             customer_phone: fullRecipientPhone,
             shipping_address: shippingDesc + (driverNote ? ` [ملاحظة للمندوب: ${driverNote}]` : ''),
             total_price: totals.total,

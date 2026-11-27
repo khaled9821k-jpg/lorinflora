@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <!-- منع الزوم التلقائي عند التركيز على الحقول في الهواتف -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lorin 🌸 - متجر الزهور والهدايا</title>
+    <title>Lorin - متجر الزهور والهدايا</title>
 
     <link rel="icon" type="image/png" href="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/WhatsApp_Image_nn_2x.png">
     
@@ -364,7 +364,7 @@
         }
 
         /* --------------------------------------------------------- */
-        /* 📱 إعدادات وتنسيقات الهواتف المحمولة المستقلة (Mobile Only)   */
+        /* إعدادات وتنسيقات الهواتف المحمولة المستقلة (Mobile Only) */
         /* --------------------------------------------------------- */
         @media screen and (max-width: 768px) {
             .header--floward-style {
@@ -515,7 +515,7 @@
     <div class="pill-dropdown-wrapper" style="position: relative;">
       <button type="button" class="pill-btn" onclick="togglePillDropdown('country-dropdown')">
         <span>الأردن (Jordan)</span>
-        <span class="pill-arrow">▾</span>
+        <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
       </button>
       <div id="country-dropdown" class="pill-dropdown-menu">
         <button type="button" class="pill-dropdown-item active"><span>الأردن</span></button>
@@ -525,7 +525,7 @@
     <div class="pill-dropdown-wrapper" style="position: relative;">
       <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
         <span>JOD (د.أ)</span>
-        <span class="pill-arrow">▾</span>
+        <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
       </button>
       <div id="currency-dropdown" class="pill-dropdown-menu">
         <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
@@ -643,7 +643,7 @@
       <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" style="height: 30px;">
       <span style="font-size: 1.5rem; font-weight: 700; color: #00313C;">Lorin</span>
     </div>
-    <button type="button" id="btn-close-menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
+    <button type="button" id="btn-close-menu" aria-label="Close menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">x</button>
   </div>
   <div style="padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
     <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الرئيسية</a>

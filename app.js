@@ -37,7 +37,7 @@ async function fetchProductDetails() {
                     <h1 class="product-title" style="font-size: 28px; color: #2c3e50; margin: 0;">${product.name}</h1>
                     <div class="product-price" style="font-size: 24px; color: #e74c3c; font-weight: bold;">${product.price} دينار</div>
                     <div class="product-description" style="font-size: 16px; color: #666; line-height: 1.6;">${product.description || 'لا يوجد وصف متاح لهذا المنتج حالياً.'}</div>
-                    <button class="add-to-cart-btn" onclick="addToCart(${product.id})" style="background: #27ae60; color: white; border: none; padding: 12px 25px; font-size: 18px; border-radius: 6px; cursor: pointer; width: fit-content;">أضف إلى السلة 🛍️</button>
+                    <button class="add-to-cart-btn" onclick="addToCart(${product.id})" style="background: #27ae60; color: white; border: none; padding: 12px 25px; font-size: 18px; border-radius: 6px; cursor: pointer; width: fit-content;">أضف إلى السلة</button>
                 </div>
             </div>
         `;

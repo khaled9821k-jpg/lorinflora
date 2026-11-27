@@ -7,7 +7,7 @@
     <script src="lorin-preloader.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="page-title">تصنيف المنتجات - Lorin 🌸</title>
+    <title id="page-title">تصنيف المنتجات - Lorin</title>
 
     <link rel="icon" type="image/png" href="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png">
     
@@ -130,7 +130,7 @@
       <div class="pill-dropdown-wrapper" style="position: relative;">
         <button type="button" class="pill-btn" onclick="togglePillDropdown('country-dropdown')">
           <span>الأردن (Jordan)</span>
-          <span class="pill-arrow">▾</span>
+          <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
         </button>
         <div id="country-dropdown" class="pill-dropdown-menu">
           <button type="button" class="pill-dropdown-item active"><span>الأردن</span></button>
@@ -139,7 +139,7 @@
       <div class="pill-dropdown-wrapper" style="position: relative;">
         <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
           <span>JOD (د.أ)</span>
-          <span class="pill-arrow">▾</span>
+          <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
         </button>
         <div id="currency-dropdown" class="pill-dropdown-menu">
           <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
@@ -217,7 +217,7 @@
         <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" style="height: 30px;">
         <span style="font-size: 1.5rem; font-weight: 700; color: #00313C;">Lorin</span>
       </div>
-      <button type="button" id="btn-close-menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
+      <button type="button" id="btn-close-menu" aria-label="Close menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">x</button>
     </div>
     <div style="padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
       <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الرئيسية</a>
@@ -249,11 +249,11 @@
   <div class="category-layout-grid">
       <aside class="filters-sidebar">
           <div class="filter-group">
-              <div class="filter-group-title"><span>Category</span> <span>▾</span></div>
+              <div class="filter-group-title"><span>Category</span> <span aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span></div>
               <div id="sidebar-categories-filter" class="filter-options"></div>
           </div>
           <div class="filter-group">
-              <div class="filter-group-title"><span>Price (JD)</span> <span>▾</span></div>
+              <div class="filter-group-title"><span>Price (JD)</span> <span aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span></div>
               <div class="filter-options">
                   <label class="filter-label"><input type="checkbox"> Under 25 JD</label>
                   <label class="filter-label"><input type="checkbox"> 25 JD to 50 JD</label>
@@ -286,7 +286,7 @@
         
         document.getElementById('category-title-text').textContent = categoryName;
         document.getElementById('breadcrumb-current').textContent = categoryName;
-        document.getElementById('page-title').textContent = `${categoryName} - Lorin 🌸`;
+        document.getElementById('page-title').textContent = `${categoryName} - Lorin`;
 
         let loadedSettings = null;
         if (window.LorinStoreSettings) {

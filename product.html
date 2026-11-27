@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <title id="page-title">تفاصيل المنتج - Lorin 🌸</title>
+    <title id="page-title">تفاصيل المنتج - Lorin</title>
     <meta id="meta-description" name="description" content="متجر مختص بتنسيق الورود والهدايا الفاخرة في الأردن">
     <link id="canonical-url" rel="canonical" href="">
 
@@ -123,7 +123,7 @@
       <div class="pill-dropdown-wrapper" style="position: relative;">
         <button type="button" class="pill-btn" onclick="togglePillDropdown('country-dropdown')">
           <span>الأردن (Jordan)</span>
-          <span class="pill-arrow">▾</span>
+          <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
         </button>
         <div id="country-dropdown" class="pill-dropdown-menu">
           <button type="button" class="pill-dropdown-item active"><span>الأردن</span></button>
@@ -133,7 +133,7 @@
       <div class="pill-dropdown-wrapper" style="position: relative;">
         <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
           <span>JOD (د.أ)</span>
-          <span class="pill-arrow">▾</span>
+          <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
         </button>
         <div id="currency-dropdown" class="pill-dropdown-menu">
           <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
@@ -223,7 +223,7 @@
         <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" style="height: 30px;">
         <span style="font-size: 1.5rem; font-weight: 700; color: #00313C;">Lorin</span>
       </div>
-      <button type="button" id="btn-close-menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
+      <button type="button" id="btn-close-menu" aria-label="Close menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">x</button>
     </div>
     <div style="padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
       <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الرئيسية</a>
@@ -267,10 +267,10 @@
                 <h3 style="font-size: 20px; font-weight: 700; color: #111; margin: 0 0 4px 0;">You’ve added items to your cart</h3>
                 <div id="modal-subtotal-text" style="font-size: 13px; color: #666;">Cart Subtotal: JOD 0</div>
             </div>
-            <button onclick="closeUpsellModal()" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666;">✕</button>
+            <button onclick="closeUpsellModal()" aria-label="Close" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666;">x</button>
         </div>
 
-        <div style="font-size: 15px; font-weight: 700; color: #111; margin-bottom: 12px;">Make it perfect ✨</div>
+        <div style="font-size: 15px; font-weight: 700; color: #111; margin-bottom: 12px;">Make it perfect</div>
         
         <div id="upsell-products-container" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none;">
             <p style="color: #888; font-size: 13px;"></p>
@@ -391,7 +391,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                     </div>
 
                     <div id="product-customization-section" class="customization-box" style="display: none;">
-                        <h3 style="font-size: 13px; font-weight: 700; color: #00313C; margin-bottom: 12px;">Customize Your Order ✨</h3>
+                        <h3 style="font-size: 13px; font-weight: 700; color: #00313C; margin-bottom: 12px;">Customize Your Order</h3>
                         <div id="dynamic-customization-groups" class="space-y-4"></div>
                     </div>
 

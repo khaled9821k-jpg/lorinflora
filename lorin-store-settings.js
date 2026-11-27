@@ -16,11 +16,11 @@
     product_tax_note_enabled: true,
     product_tax_note_text: 'الأسعار شاملة الضرائب',
     product_desc_tab_label: 'Description',
-    product_customize_title: 'Customize Your Order ✨',
+    product_customize_title: 'Customize Your Order',
     product_fbt_enabled: true,
     product_fbt_title: 'يقوم المستخدمون بشراء هذه المنتجات سوياً',
     product_upsell_modal_title: 'You’ve added items to your cart',
-    product_upsell_title: 'Make it perfect ✨',
+    product_upsell_title: 'Make it perfect',
     product_payment_enabled: true,
     product_payment_logo_url: '',
 
@@ -34,7 +34,7 @@
     category_grid_columns: '',
 
     // إعدادات إتمام الطلب (checkout.html)
-    checkout_page_title: 'إتمام طلب الهدية 🎁',
+    checkout_page_title: 'إتمام طلب الهدية',
     checkout_cities: ['عمان', 'الزرقاء', 'إربد', 'السلط', 'العقبة', 'مادبا'],
     checkout_whatsapp: '962700000000',
     checkout_delivery_fee: 0,
@@ -42,7 +42,7 @@
     checkout_gift_note_enabled: true,
     checkout_gift_note_label: 'بطاقة هدية / ملاحظات (اختياري)',
     checkout_gift_note_placeholder: 'اكتب عبارة الهدية إذا كنت تريد إرفاقها مع الزهور...',
-    checkout_submit_label: 'تأكيد وإرسال الطلب عبر واتساب 📲'
+    checkout_submit_label: 'تأكيد وإرسال الطلب عبر واتساب'
   };
 
   function toBool(val, fallback) {

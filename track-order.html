@@ -574,7 +574,9 @@
           const state = index < currentIndex ? 'is-complete' : index === currentIndex ? 'is-current' : '';
           const timestamp = getStatusTimestamp(order, status);
           return `<div class="step ${state}">
-            <span class="step-dot" aria-hidden="true">${index < currentIndex ? '&#10003;' : index + 1}</span>
+            <span class="step-dot" aria-hidden="true">${index < currentIndex
+              ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m5 12 4.5 4.5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+              : index + 1}</span>
             <span class="step-title">${escapeHtml(t('steps')[index])}</span>
             <span class="step-time">${escapeHtml(timestamp || t('stepDescriptions')[index])}</span>
           </div>`;

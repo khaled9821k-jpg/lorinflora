@@ -5,7 +5,7 @@
   <script src="../lorin-notifications.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lorin Studio 🌸 — لوحة التحكم وتخصيص المتجر</title>
+  <title>Lorin Studio — لوحة التحكم وتخصيص المتجر</title>
   <link rel="icon" type="image/png" href="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/WhatsApp_Image_nn_2x.png">
 
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&family=Amiri:wght@400;700&family=Poppins:wght@400;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
@@ -149,7 +149,9 @@
   <!-- Top Customizer Bar -->
   <header class="h-14 bg-[#1a1c1e] text-white px-4 flex items-center justify-between border-b border-gray-800 shrink-0 z-50">
     <div class="flex items-center gap-3">
-      <button type="button" id="mobile-menu-btn" class="md:hidden p-1.5 rounded-lg hover:bg-gray-800 text-gray-200" aria-label="القائمة">☰</button>
+      <button type="button" id="mobile-menu-btn" class="md:hidden p-1.5 rounded-lg hover:bg-gray-800 text-gray-200" aria-label="القائمة">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
       <div class="flex items-center gap-2.5">
         <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" class="h-7 object-contain brightness-0 invert">
         <span class="text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">Live Customizer</span>
@@ -160,21 +162,23 @@
       <div class="hidden sm:flex items-center bg-[#2c2f33] rounded-lg p-1 border border-gray-700">
         <span class="text-[11px] text-gray-400 px-2">الصفحة:</span>
         <select id="preview-page-select" onchange="changePreviewPage(this.value)" class="bg-transparent text-white text-xs font-bold outline-none cursor-pointer pr-1 pl-2">
-          <option value="index.html" class="text-gray-900">🏠 الصفحة الرئيسية (index.html)</option>
-          <option value="cart.html" class="text-gray-900">🛒 السلة والإضافات (cart.html)</option>
-          <option value="checkout.html" class="text-gray-900">🧾 إتمام الطلب (checkout.html)</option>
-          <option value="product.html" class="text-gray-900">🌸 صفحة المنتج (product.html)</option>
-          <option value="category.html" class="text-gray-900">📂 صفحة التصنيف (category.html)</option>
+          <option value="index.html" class="text-gray-900">الصفحة الرئيسية (index.html)</option>
+          <option value="cart.html" class="text-gray-900">السلة والإضافات (cart.html)</option>
+          <option value="checkout.html" class="text-gray-900">إتمام الطلب (checkout.html)</option>
+          <option value="product.html" class="text-gray-900">صفحة المنتج (product.html)</option>
+          <option value="category.html" class="text-gray-900">صفحة التصنيف (category.html)</option>
         </select>
       </div>
 
       <div class="hidden md:flex items-center bg-[#2c2f33] rounded-lg p-1 border border-gray-700">
-        <button type="button" id="btn-device-desktop" onclick="setPreviewDevice('desktop')" class="px-2.5 py-1 rounded text-xs font-bold bg-white text-gray-900 transition" title="عرض سطح المكتب">🖥️ سطح المكتب</button>
-        <button type="button" id="btn-device-mobile" onclick="setPreviewDevice('mobile')" class="px-2.5 py-1 rounded text-xs font-bold text-gray-300 hover:text-white transition" title="عرض الجوال">📱 الجوال</button>
+        <button type="button" id="btn-device-desktop" onclick="setPreviewDevice('desktop')" class="px-2.5 py-1 rounded text-xs font-bold bg-white text-gray-900 transition" title="عرض سطح المكتب">سطح المكتب</button>
+        <button type="button" id="btn-device-mobile" onclick="setPreviewDevice('mobile')" class="px-2.5 py-1 rounded text-xs font-bold text-gray-300 hover:text-white transition" title="عرض الجوال">الجوال</button>
       </div>
 
       <button type="button" onclick="refreshStorePreview(true)" class="bg-[#2c2f33] hover:bg-[#383c42] text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition" title="تحديث المعاينة الحية">
-        <span id="sync-icon">🔄</span>
+        <span id="sync-icon" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 7v5h-5M4 17v-5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9A7 7 0 0 1 17 6l3 6M18.5 15A7 7 0 0 1 7 18l-3-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
         <span class="hidden sm:inline">مزامنة المعاينة</span>
       </button>
     </div>
@@ -186,9 +190,9 @@
         <button type="button" id="mode-preview" onclick="setWorkspaceMode('preview-focus')" class="px-2.5 py-1 rounded font-bold text-gray-300 hover:text-white">معاينة كاملة</button>
       </div>
 
-      <button type="button" id="mobile-preview-toggle" onclick="toggleMobilePreview()" class="lg:hidden bg-[#00313C] text-white px-3 py-1.5 rounded-lg text-xs font-bold">👁️ المعاينة</button>
+      <button type="button" id="mobile-preview-toggle" onclick="toggleMobilePreview()" class="lg:hidden bg-[#00313C] text-white px-3 py-1.5 rounded-lg text-xs font-bold">المعاينة</button>
 
-      <a href="index.html" target="_blank" class="bg-white text-[#00313C] hover:bg-gray-100 px-3 py-1.5 rounded-lg text-xs font-bold transition">فتح المتجر ↗</a>
+      <a href="index.html" target="_blank" class="bg-white text-[#00313C] hover:bg-gray-100 px-3 py-1.5 rounded-lg text-xs font-bold transition">فتح المتجر</a>
       <span id="admin-email-chip" class="hidden xl:inline text-[11px] text-gray-400 font-mono max-w-[140px] truncate" dir="ltr"></span>
       <button type="button" id="logout-btn" class="bg-[#2c2f33] hover:bg-red-600/80 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold transition">خروج</button>
     </div>
@@ -203,10 +207,10 @@
           <div class="px-3 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">نظرة عامة والطلبات</div>
           <div class="space-y-1 mt-1">
             <button type="button" onclick="switchSection('overview')" id="nav-overview" class="nav-item active">
-              <span class="flex items-center gap-2.5"><span>📊</span> لوحة المتجر</span>
+              <span class="flex items-center gap-2.5">لوحة المتجر</span>
             </button>
             <button type="button" onclick="switchSection('orders')" id="nav-orders" class="nav-item">
-              <span class="flex items-center gap-2.5"><span>🛍️</span> الطلبات الواردة</span>
+              <span class="flex items-center gap-2.5">الطلبات الواردة</span>
               <span id="badge-orders-count" class="bg-gray-100 text-gray-700 text-[11px] px-2 py-0.5 rounded-full">0</span>
             </button>
           </div>
@@ -215,10 +219,10 @@
         <div class="border-t border-gray-100 pt-3">
           <div class="px-3 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">أقسام الواجهة الرئيسية</div>
           <div class="space-y-1 mt-1">
-            <button type="button" onclick="switchSection('hero')" id="nav-hero" class="nav-item"><span class="flex items-center gap-2.5"><span>🎬</span> البنر والفيديو الرئيسي</span></button>
-            <button type="button" onclick="switchSection('categories')" id="nav-categories" class="nav-item"><span class="flex items-center gap-2.5"><span>⚪</span> التصنيفات الرئيسية</span></button>
-            <button type="button" onclick="switchSection('subcategories')" id="nav-subcategories" class="nav-item"><span class="flex items-center gap-2.5"><span>🔵</span> التصنيفات الفرعية</span></button>
-            <button type="button" onclick="switchSection('sections')" id="nav-sections" class="nav-item"><span class="flex items-center gap-2.5"><span>📑</span> أقسام المنتجات</span></button>
+            <button type="button" onclick="switchSection('hero')" id="nav-hero" class="nav-item"><span class="flex items-center gap-2.5">البنر والفيديو الرئيسي</span></button>
+            <button type="button" onclick="switchSection('categories')" id="nav-categories" class="nav-item"><span class="flex items-center gap-2.5">التصنيفات الرئيسية</span></button>
+            <button type="button" onclick="switchSection('subcategories')" id="nav-subcategories" class="nav-item"><span class="flex items-center gap-2.5">التصنيفات الفرعية</span></button>
+            <button type="button" onclick="switchSection('sections')" id="nav-sections" class="nav-item"><span class="flex items-center gap-2.5">أقسام المنتجات</span></button>
           </div>
         </div>
 
@@ -226,26 +230,26 @@
           <div class="px-3 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">الكتالوج والسلة</div>
           <div class="space-y-1 mt-1">
             <button type="button" onclick="switchSection('products')" id="nav-products" class="nav-item">
-              <span class="flex items-center gap-2.5"><span>📦</span> إدارة المنتجات</span>
+              <span class="flex items-center gap-2.5">إدارة المنتجات</span>
               <span id="badge-products-count" class="bg-gray-100 text-gray-700 text-[11px] px-2 py-0.5 rounded-full">0</span>
             </button>
-            <button type="button" onclick="switchSection('cart-extras')" id="nav-cart-extras" class="nav-item"><span class="flex items-center gap-2.5"><span>💌</span> السلة وإضافات الهدايا</span></button>
+            <button type="button" onclick="switchSection('cart-extras')" id="nav-cart-extras" class="nav-item"><span class="flex items-center gap-2.5">السلة وإضافات الهدايا</span></button>
           </div>
         </div>
 
         <div class="border-t border-gray-100 pt-3">
           <div class="px-3 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">صفحات المتجر</div>
           <div class="space-y-1 mt-1">
-            <button type="button" onclick="openPageSection('product-page')" id="nav-product-page" class="nav-item"><span class="flex items-center gap-2.5"><span>🌸</span> صفحة المنتج</span></button>
-            <button type="button" onclick="openPageSection('category-page')" id="nav-category-page" class="nav-item"><span class="flex items-center gap-2.5"><span>📂</span> صفحة التصنيف</span></button>
-            <button type="button" onclick="openPageSection('checkout-page')" id="nav-checkout-page" class="nav-item"><span class="flex items-center gap-2.5"><span>🧾</span> إتمام الطلب</span></button>
+            <button type="button" onclick="openPageSection('product-page')" id="nav-product-page" class="nav-item"><span class="flex items-center gap-2.5">صفحة المنتج</span></button>
+            <button type="button" onclick="openPageSection('category-page')" id="nav-category-page" class="nav-item"><span class="flex items-center gap-2.5">صفحة التصنيف</span></button>
+            <button type="button" onclick="openPageSection('checkout-page')" id="nav-checkout-page" class="nav-item"><span class="flex items-center gap-2.5">إتمام الطلب</span></button>
           </div>
         </div>
 
         <div class="border-t border-gray-100 pt-3">
           <div class="px-3 py-1 text-[11px] font-bold text-gray-400 uppercase tracking-wider">الهوية والإعدادات</div>
           <div class="space-y-1 mt-1">
-            <button type="button" onclick="switchSection('theme')" id="nav-theme" class="nav-item"><span class="flex items-center gap-2.5"><span>🎨</span> النصوص والخطوط والروابط</span></button>
+            <button type="button" onclick="switchSection('theme')" id="nav-theme" class="nav-item"><span class="flex items-center gap-2.5">النصوص والخطوط والروابط</span></button>
           </div>
         </div>
       </div>
@@ -271,7 +275,7 @@
             <h1 class="text-lg font-bold text-gray-900">نظرة عامة على متجر Lorin</h1>
             <p class="text-xs text-gray-500">اضغط على أي قسم داخل المعاينة الحية أو من القائمة الجانبية لتعديله فوراً.</p>
           </div>
-          <button type="button" onclick="fetchAllAdminData(true)" class="sp-btn-secondary">تحديث البيانات ↻</button>
+          <button type="button" onclick="fetchAllAdminData(true)" class="sp-btn-secondary">تحديث البيانات</button>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -284,13 +288,13 @@
         <div class="sp-card p-5 space-y-3">
           <h2 class="text-sm font-bold text-gray-800">اختصارات التخصيص السريع</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <button type="button" onclick="switchSection('products')" class="sp-btn-secondary justify-between"><span>➕ إضافة منتج جديد للكتالوج</span><span>←</span></button>
-            <button type="button" onclick="switchSection('hero')" class="sp-btn-secondary justify-between"><span>🎬 تعديل فيديو/بنر الواجهة</span><span>←</span></button>
-            <button type="button" onclick="switchSection('sections')" class="sp-btn-secondary justify-between"><span>📑 ترتيب صفوف المنتجات</span><span>←</span></button>
-            <button type="button" onclick="switchSection('cart-extras'); changePreviewPage('cart.html')" class="sp-btn-secondary justify-between"><span>💌 تخصيص السلة وكروت الإهداء</span><span>←</span></button>
-            <button type="button" onclick="openPageSection('product-page')" class="sp-btn-secondary justify-between"><span>🌸 إعدادات صفحة المنتج</span><span>←</span></button>
-            <button type="button" onclick="openPageSection('category-page')" class="sp-btn-secondary justify-between"><span>📂 إعدادات صفحة التصنيف</span><span>←</span></button>
-            <button type="button" onclick="openPageSection('checkout-page')" class="sp-btn-secondary justify-between"><span>🧾 إعدادات إتمام الطلب</span><span>←</span></button>
+            <button type="button" onclick="switchSection('products')" class="sp-btn-secondary justify-between"><span>إضافة منتج جديد للكتالوج</span></button>
+            <button type="button" onclick="switchSection('hero')" class="sp-btn-secondary justify-between"><span>تعديل فيديو/بنر الواجهة</span></button>
+            <button type="button" onclick="switchSection('sections')" class="sp-btn-secondary justify-between"><span>ترتيب صفوف المنتجات</span></button>
+            <button type="button" onclick="switchSection('cart-extras'); changePreviewPage('cart.html')" class="sp-btn-secondary justify-between"><span>تخصيص السلة وكروت الإهداء</span></button>
+            <button type="button" onclick="openPageSection('product-page')" class="sp-btn-secondary justify-between"><span>إعدادات صفحة المنتج</span></button>
+            <button type="button" onclick="openPageSection('category-page')" class="sp-btn-secondary justify-between"><span>إعدادات صفحة التصنيف</span></button>
+            <button type="button" onclick="openPageSection('checkout-page')" class="sp-btn-secondary justify-between"><span>إعدادات إتمام الطلب</span></button>
           </div>
         </div>
       </div>
@@ -316,7 +320,7 @@
               <div><label class="sp-label">أو رابط مباشر للوسائط (Media URL)</label><input type="url" id="hero-media-url" placeholder="https://..." class="sp-input" dir="ltr"></div>
             </div>
             <div class="flex gap-2 pt-2">
-              <button type="submit" id="hero-submit-btn" class="sp-btn-primary flex-1">حفظ الشريحة 🎬</button>
+              <button type="submit" id="hero-submit-btn" class="sp-btn-primary flex-1">حفظ الشريحة</button>
               <button type="button" id="hero-cancel-btn" onclick="resetHeroForm()" class="sp-btn-secondary hidden">إلغاء</button>
             </div>
           </form>
@@ -343,7 +347,7 @@
             </div>
             <div><label class="sp-label">صورة التصنيف الدائرية</label><input type="file" id="cat-image-file" accept="image/*" class="sp-input text-xs"></div>
             <div class="flex gap-2">
-              <button type="submit" id="cat-submit-btn" class="sp-btn-primary flex-1">حفظ التصنيف الرئيسي 🌸</button>
+              <button type="submit" id="cat-submit-btn" class="sp-btn-primary flex-1">حفظ التصنيف الرئيسي</button>
               <button type="button" id="cat-cancel-btn" onclick="resetCategoryForm()" class="sp-btn-secondary hidden">إلغاء</button>
             </div>
           </form>
@@ -372,7 +376,7 @@
             </div>
             <div><label class="sp-label">صورة التصنيف الفرعي</label><input type="file" id="subcat-image-file" accept="image/*" class="sp-input text-xs"></div>
             <div class="flex gap-2">
-              <button type="submit" id="subcat-submit-btn" class="sp-btn-primary flex-1">حفظ التصنيف الفرعي 🌿</button>
+              <button type="submit" id="subcat-submit-btn" class="sp-btn-primary flex-1">حفظ التصنيف الفرعي</button>
               <button type="button" id="subcat-cancel-btn" onclick="resetSubcatForm()" class="sp-btn-secondary hidden">إلغاء</button>
             </div>
           </form>
@@ -415,7 +419,7 @@
               <div><label class="sp-label">حجم الخط</label><input type="text" id="sec-title-size" value="34px" class="sp-input" dir="ltr"></div>
             </div>
             <div class="flex gap-2 pt-2">
-              <button type="submit" id="sec-submit-btn" class="sp-btn-primary flex-1">حفظ القسم 💾</button>
+              <button type="submit" id="sec-submit-btn" class="sp-btn-primary flex-1">حفظ القسم</button>
               <button type="button" id="sec-cancel-btn" onclick="resetSectionForm()" class="sp-btn-secondary hidden">إلغاء</button>
             </div>
           </form>
@@ -458,7 +462,7 @@
               <label class="sp-label">التصنيفات المرتبطة</label>
               <button type="button" onclick="toggleDropdown('category-dropdown-menu', event)" class="sp-input text-right flex justify-between items-center cursor-pointer">
                 <span id="selected-categories-label" class="text-gray-500 text-xs">اختر التصنيفات...</span>
-                <span class="text-xs text-gray-400">▼</span>
+                <span class="text-xs text-gray-400" aria-hidden="true"></span>
               </button>
               <div id="category-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-3 max-h-56 overflow-y-auto space-y-2">
                 <div class="pb-2 border-b border-gray-100 flex gap-2">
@@ -472,7 +476,7 @@
 
             <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl flex items-center justify-between">
               <div>
-                <div class="font-bold text-xs text-[#00313C]">إخفاء المنتج من التصفح العام (Ghost Product) 👻</div>
+                <div class="font-bold text-xs text-[#00313C]">إخفاء المنتج من التصفح العام (Ghost Product)</div>
                 <div class="text-[11px] text-gray-500">يظهر فقط كـ Upsell أو إضافة دون ظهوره في قوائم المتجر.</div>
               </div>
               <label class="relative inline-flex items-center cursor-pointer">
@@ -488,8 +492,8 @@
 
             <div id="product-images-manager-wrapper" class="hidden bg-gray-50 p-3.5 rounded-xl border border-gray-200">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-[#00313C]">ترتيب الصور (اسحب لتغيير الصورة الرئيسية 🌟)</span>
-                <button type="button" onclick="saveImagesNewOrder()" class="bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-emerald-700">حفظ الترتيب ✅</button>
+                <span class="text-xs font-bold text-[#00313C]">ترتيب الصور (اسحب لتغيير الصورة الرئيسية)</span>
+                <button type="button" onclick="saveImagesNewOrder()" class="bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-emerald-700">حفظ الترتيب</button>
               </div>
               <div id="admin-sortable-images-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-2.5"></div>
             </div>
@@ -497,7 +501,7 @@
             <div class="bg-[#faf9f6] border border-[#ebe6d8] p-4 rounded-xl space-y-3">
               <div class="flex items-center justify-between">
                 <div>
-                  <div class="font-bold text-xs text-[#00313C]">خيارات التخصيص (Customization Options) ✨</div>
+                  <div class="font-bold text-xs text-[#00313C]">خيارات التخصيص (Customization Options)</div>
                   <div class="text-[11px] text-gray-500">الأحجام، الفازات، أو مجموعات مخصصة إضافية. تُحفظ في <code class="bg-gray-200 px-1 rounded">products.customization_options</code> وتُعرض في product.html.</div>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
@@ -536,10 +540,10 @@
             </div>
 
             <div class="bg-[#faf9f6] border border-[#ebe6d8] p-4 rounded-xl space-y-2.5">
-              <div class="font-bold text-xs text-[#00313C]">منتجات النافذة المنبثقة (Upsells) 🎁</div>
+              <div class="font-bold text-xs text-[#00313C]">منتجات النافذة المنبثقة (Upsells)</div>
               <div class="relative">
                 <button type="button" onclick="toggleDropdown('upsell-dropdown-menu', event)" class="sp-input text-right flex justify-between items-center cursor-pointer text-xs">
-                  <span class="text-gray-500">🔍 اختر منتجات الـ Upsell...</span><span>▼</span>
+                  <span class="text-gray-500">اختر منتجات الـ Upsell...</span><span aria-hidden="true"></span>
                 </button>
                 <div id="upsell-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-2.5 space-y-2">
                   <input type="text" id="upsell-search-input" placeholder="بحث..." oninput="filterUpsellDropdownList()" class="sp-input py-1.5 text-xs">
@@ -552,7 +556,7 @@
             <div class="bg-[#faf9f6] border border-[#ebe6d8] p-4 rounded-xl space-y-2.5">
               <div class="flex items-center justify-between">
                 <div>
-                  <div class="font-bold text-xs text-[#00313C]">الشراء المشترك (Frequently Bought Together - FBT) 🔗</div>
+                  <div class="font-bold text-xs text-[#00313C]">الشراء المشترك (Frequently Bought Together - FBT)</div>
                   <div class="text-[11px] text-gray-500">عند إيقاف الخيار تُحذف ارتباطات FBT لهذا المنتج عند الحفظ.</div>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
@@ -562,7 +566,7 @@
               </div>
               <div class="relative">
                 <button type="button" onclick="toggleDropdown('fbt-dropdown-menu', event)" class="sp-input text-right flex justify-between items-center cursor-pointer text-xs">
-                  <span class="text-gray-500">🔍 اختر منتجات الشراء المشترك...</span><span>▼</span>
+                  <span class="text-gray-500">اختر منتجات الشراء المشترك...</span><span aria-hidden="true"></span>
                 </button>
                 <div id="fbt-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-2.5 space-y-2">
                   <input type="text" id="fbt-search-input" placeholder="بحث..." oninput="filterFbtDropdownList()" class="sp-input py-1.5 text-xs">
@@ -573,7 +577,7 @@
             </div>
 
             <div class="flex gap-2 pt-2">
-              <button type="submit" id="submit-product-btn" class="sp-btn-primary flex-1">حفظ المنتج ✨</button>
+              <button type="submit" id="submit-product-btn" class="sp-btn-primary flex-1">حفظ المنتج</button>
               <button type="button" id="cancel-product-edit" onclick="resetProductForm()" class="sp-btn-secondary hidden">إلغاء التعديل</button>
             </div>
           </form>
@@ -602,7 +606,7 @@
             <h1 class="text-lg font-bold text-gray-900">السلة وإضافات الهدايا (Cart & Gift Extras)</h1>
             <p class="text-xs text-gray-500">كل ما يظهر في cart.html يُدار من هنا: نصوص السلة، بطاقات الإهداء، الرسائل المقترحة، واللمسة الأخيرة.</p>
           </div>
-          <button type="button" onclick="changePreviewPage('cart.html')" class="sp-btn-secondary shrink-0">معاينة السلة 🛒</button>
+          <button type="button" onclick="changePreviewPage('cart.html')" class="sp-btn-secondary shrink-0">معاينة السلة</button>
         </div>
 
         <!-- Block 1: cart texts & options -->
@@ -611,7 +615,7 @@
             <div class="flex items-center gap-2 border-b pb-2">
               <span class="step-badge">1</span>
               <div>
-                <h3 class="text-sm font-bold text-[#00313C]">نصوص وخيارات صفحة السلة ⚙️</h3>
+                <h3 class="text-sm font-bold text-[#00313C]">نصوص وخيارات صفحة السلة</h3>
                 <p class="text-[11px] text-gray-500">عنوان الصفحة، سعر وعناوين Photo Stick-In، أكواد الخصم، إظهار/إخفاء الأقسام. (<code class="bg-gray-200 px-1 rounded">site_settings</code> بالبادئة <code class="bg-gray-200 px-1 rounded">cart_</code>)</p>
               </div>
             </div>
@@ -620,7 +624,7 @@
               أكواد الخصم تُحسب في المتصفح للعرض فقط. يجب إعادة التحقق من الكود والسعر ورسوم الإضافات داخل checkout / قاعدة البيانات قبل اعتماد الطلب.
             </div>
           </div>
-          <button type="submit" class="sp-btn-primary w-full py-3 page-save-btn">حفظ إعدادات السلة 💾</button>
+          <button type="submit" class="sp-btn-primary w-full py-3 page-save-btn">حفظ إعدادات السلة</button>
         </form>
 
         <!-- Block 2: Card Designs CRUD -->
@@ -628,7 +632,7 @@
           <div class="flex items-center justify-between pb-2 border-b">
             <div class="flex items-center gap-2">
               <span class="step-badge">2</span>
-              <h3 id="gc-form-heading" class="text-sm font-bold text-gray-800">إضافة تصميم بطاقة إهداء جديدة 💌</h3>
+              <h3 id="gc-form-heading" class="text-sm font-bold text-gray-800">إضافة تصميم بطاقة إهداء جديدة</h3>
             </div>
             <span id="gc-count-badge" class="text-[11px] font-bold bg-[#e6f0f2] text-[#00313C] px-2.5 py-0.5 rounded-full">0 تصاميم</span>
           </div>
@@ -653,7 +657,7 @@
               </div>
             </div>
             <div class="flex gap-2 pt-1">
-              <button type="submit" id="gc-submit-btn" class="sp-btn-primary flex-1">حفظ تصميم البطاقة 💌</button>
+              <button type="submit" id="gc-submit-btn" class="sp-btn-primary flex-1">حفظ تصميم البطاقة</button>
               <button type="button" id="gc-cancel-btn" onclick="resetGiftCardForm()" class="sp-btn-secondary hidden">إلغاء التعديل</button>
             </div>
           </form>
@@ -666,7 +670,7 @@
             <div class="flex items-center gap-2">
               <span class="step-badge">3</span>
               <div>
-                <h3 class="text-sm font-bold text-[#00313C]">نافذة الرسالة والتوقيع والرسائل المقترحة ✨</h3>
+                <h3 class="text-sm font-bold text-[#00313C]">نافذة الرسالة والتوقيع والرسائل المقترحة</h3>
                 <p class="text-[11px] text-gray-500">تحكم في أزرار النافذة وأدر عبارات الإهداء الجاهزة حسب المناسبة واللغة.</p>
               </div>
             </div>
@@ -724,9 +728,9 @@
 
               <div class="flex flex-wrap gap-2">
                 <button type="button" onclick="addAdminOccasion()" class="sp-btn-secondary py-1 px-2.5 text-[11px]">+ مناسبة جديدة</button>
-                <button type="button" onclick="renameAdminOccasion()" class="sp-btn-secondary py-1 px-2.5 text-[11px]">✎ إعادة تسمية المناسبة</button>
-                <button type="button" onclick="deleteAdminOccasion()" class="sp-btn-secondary py-1 px-2.5 text-[11px] text-red-600">🗑 حذف المناسبة</button>
-                <button type="button" onclick="resetAdminSuggestedDefaults()" class="sp-btn-secondary py-1 px-2.5 text-[11px]">↺ استعادة الافتراضي</button>
+                <button type="button" onclick="renameAdminOccasion()" class="sp-btn-secondary py-1 px-2.5 text-[11px]">إعادة تسمية المناسبة</button>
+                <button type="button" onclick="deleteAdminOccasion()" class="sp-btn-secondary py-1 px-2.5 text-[11px] text-red-600">حذف المناسبة</button>
+                <button type="button" onclick="resetAdminSuggestedDefaults()" class="sp-btn-secondary py-1 px-2.5 text-[11px]">استعادة الافتراضي</button>
               </div>
 
               <div class="flex gap-2">
@@ -741,7 +745,7 @@
             <details class="sm-json bg-gray-50 border border-gray-200 rounded-xl">
               <summary class="px-4 py-2.5 text-xs font-bold text-gray-700 flex items-center justify-between">
                 <span>عرض/تحرير JSON الكامل (متقدم)</span>
-                <span id="sm-json-status" class="text-[11px] font-bold text-emerald-700">✓ صالح</span>
+                <span id="sm-json-status" class="text-[11px] font-bold text-emerald-700">صالح</span>
               </summary>
               <div class="p-4 pt-1 space-y-2">
                 <textarea id="gc-suggested-json" rows="8" class="sp-input font-mono text-[11px]" dir="ltr" oninput="onSuggestedJsonInput()" onchange="syncSuggestedFromJson()"></textarea>
@@ -754,7 +758,7 @@
               </div>
             </details>
 
-            <button type="submit" id="save-card-modal-settings-btn" class="sp-btn-primary w-full py-2.5">حفظ إعدادات نافذة البطاقة والرسائل 💾</button>
+            <button type="submit" id="save-card-modal-settings-btn" class="sp-btn-primary w-full py-2.5">حفظ إعدادات نافذة البطاقة والرسائل</button>
           </form>
         </div>
 
@@ -762,7 +766,7 @@
         <div class="sp-card p-5 space-y-4">
           <div class="flex items-center gap-2 pb-2 border-b">
             <span class="step-badge">4</span>
-            <h3 class="text-sm font-bold text-gray-800">اللمسة الأخيرة في السلة (Finishing Touch) 🎈</h3>
+            <h3 class="text-sm font-bold text-gray-800">اللمسة الأخيرة في السلة (Finishing Touch)</h3>
           </div>
           <div class="bg-sky-50 border border-sky-200 text-sky-900 text-[11px] rounded-xl p-3 leading-relaxed">
             عند ربط منتج واحد على الأقل تعرض السلة المنتجات المربوطة فقط (حسب التبويب). وإذا لم يوجد أي ربط تعود السلة للقائمة التلقائية.
@@ -787,7 +791,7 @@
           <div id="ft-edit-panel" class="hidden bg-amber-50/70 border border-amber-200 rounded-xl p-3.5 space-y-3">
             <div class="flex items-center justify-between">
               <span id="ft-edit-title" class="text-xs font-bold text-[#00313C]">تعديل عنصر اللمسة الأخيرة</span>
-              <button type="button" onclick="cancelEditFinishingTouch()" class="text-[11px] font-bold text-gray-600 hover:text-gray-900">إلغاء ✕</button>
+              <button type="button" onclick="cancelEditFinishingTouch()" class="text-[11px] font-bold text-gray-600 hover:text-gray-900">إلغاء</button>
             </div>
             <form id="ft-edit-form" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
               <input type="hidden" id="ft-edit-id">
@@ -806,7 +810,7 @@
                 <label class="sp-label">المنتج الجديد</label>
                 <select id="ft-edit-product-select" class="sp-input"></select>
               </div>
-              <button type="submit" id="ft-edit-submit-btn" class="sp-btn-primary">حفظ التعديل 💾</button>
+              <button type="submit" id="ft-edit-submit-btn" class="sp-btn-primary">حفظ التعديل</button>
             </form>
           </div>
 
@@ -818,10 +822,10 @@
       <div id="sec-orders" class="editor-section space-y-5">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-lg font-bold text-gray-900">إدارة الطلبات الواردة 🛍️</h1>
+            <h1 class="text-lg font-bold text-gray-900">إدارة الطلبات الواردة</h1>
             <p class="text-xs text-gray-500">متابعة بيانات الزبائن، العناوين، ورسائل كروت الإهداء.</p>
           </div>
-          <button type="button" onclick="fetchAdminOrders()" class="sp-btn-secondary">تحديث الطلبات ↻</button>
+          <button type="button" onclick="fetchAdminOrders()" class="sp-btn-secondary">تحديث الطلبات</button>
         </div>
         <div class="sp-card overflow-hidden">
           <div class="overflow-x-auto">
@@ -838,7 +842,7 @@
       <!-- 9. THEME / SITE SETTINGS -->
       <div id="sec-theme" class="editor-section space-y-5">
         <div>
-          <h1 class="text-lg font-bold text-gray-900">إعدادات النصوص والخطوط والروابط 🎨</h1>
+          <h1 class="text-lg font-bold text-gray-900">إعدادات النصوص والخطوط والروابط</h1>
           <p class="text-xs text-gray-500">تحديث عناوين أقسام الرئيسية، خطوطها، ألوانها، وروابط التواصل الاجتماعي (<code class="bg-gray-200 px-1 rounded">site_settings</code>).</p>
         </div>
         <form id="settings-form" class="space-y-4">
@@ -886,7 +890,7 @@
             </div>
           </div>
 
-          <button type="submit" id="save-settings-btn" class="sp-btn-primary w-full py-3">حفظ جميع إعدادات الهوية والمزامنة 💾</button>
+          <button type="submit" id="save-settings-btn" class="sp-btn-primary w-full py-3">حفظ جميع إعدادات الهوية والمزامنة</button>
         </form>
       </div>
 
@@ -894,10 +898,10 @@
       <div id="sec-product-page" class="editor-section space-y-5">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-lg font-bold text-gray-900">صفحة المنتج (product.html) 🌸</h1>
+            <h1 class="text-lg font-bold text-gray-900">صفحة المنتج (product.html)</h1>
             <p class="text-xs text-gray-500">نصوص وصناديق الصفحة، النافذة المنبثقة (Upsell)، وقسم FBT. تُحفظ في <code class="bg-gray-200 px-1 rounded">site_settings</code> بالبادئة <code class="bg-gray-200 px-1 rounded">product_</code>.</p>
           </div>
-          <button type="button" onclick="openPageSection('product-page')" class="sp-btn-secondary">معاينة ↻</button>
+          <button type="button" onclick="openPageSection('product-page')" class="sp-btn-secondary">معاينة</button>
         </div>
 
         <form class="page-settings-form space-y-4" data-page="product">
@@ -905,7 +909,7 @@
             <h3 class="text-sm font-bold text-[#00313C] border-b pb-2">النصوص والعناصر الظاهرة</h3>
             <div id="fields-product" class="space-y-3"></div>
           </div>
-          <button type="submit" class="sp-btn-primary w-full py-3 page-save-btn">حفظ إعدادات صفحة المنتج 💾</button>
+          <button type="submit" class="sp-btn-primary w-full py-3 page-save-btn">حفظ إعدادات صفحة المنتج</button>
         </form>
 
         <div class="sp-card overflow-hidden">
@@ -925,10 +929,10 @@
       <div id="sec-category-page" class="editor-section space-y-5">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-lg font-bold text-gray-900">صفحة التصنيف (category.html) 📂</h1>
+            <h1 class="text-lg font-bold text-gray-900">صفحة التصنيف (category.html)</h1>
             <p class="text-xs text-gray-500">وصف كل تصنيف، الفلاتر، شريط التصنيفات وعدد الأعمدة. البادئة <code class="bg-gray-200 px-1 rounded">category_</code>.</p>
           </div>
-          <button type="button" onclick="openPageSection('category-page')" class="sp-btn-secondary">معاينة ↻</button>
+          <button type="button" onclick="openPageSection('category-page')" class="sp-btn-secondary">معاينة</button>
         </div>
 
         <form class="page-settings-form space-y-4" data-page="category">
@@ -941,7 +945,7 @@
             <p class="text-[11px] text-gray-500">اترك الحقل فارغاً لاستخدام الوصف الافتراضي أعلاه.</p>
             <div id="category-descriptions-editor" class="space-y-2.5"></div>
           </div>
-          <button type="submit" class="sp-btn-primary w-full py-3 page-save-btn">حفظ إعدادات صفحة التصنيف 💾</button>
+          <button type="submit" class="sp-btn-primary w-full py-3 page-save-btn">حفظ إعدادات صفحة التصنيف</button>
         </form>
       </div>
 
@@ -949,10 +953,10 @@
       <div id="sec-checkout-page" class="editor-section space-y-5">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-lg font-bold text-gray-900">إتمام الطلب (checkout.html) 🧾</h1>
+            <h1 class="text-lg font-bold text-gray-900">إتمام الطلب (checkout.html)</h1>
             <p class="text-xs text-gray-500">المدن، رقم واتساب، رسوم التوصيل، وحقل بطاقة الإهداء. البادئة <code class="bg-gray-200 px-1 rounded">checkout_</code>.</p>
           </div>
-          <button type="button" onclick="openPageSection('checkout-page')" class="sp-btn-secondary">معاينة ↻</button>
+          <button type="button" onclick="openPageSection('checkout-page')" class="sp-btn-secondary">معاينة</button>
         </div>
 
         <div class="bg-amber-50 border border-amber-200 text-amber-900 text-[11px] rounded-xl p-3 leading-relaxed">
@@ -964,7 +968,7 @@
             <h3 class="text-sm font-bold text-[#00313C] border-b pb-2">إعدادات صفحة الدفع</h3>
             <div id="fields-checkout" class="space-y-3"></div>
           </div>
-          <button type="submit" class="sp-btn-primary w-full py-3 page-save-btn">حفظ إعدادات إتمام الطلب 💾</button>
+          <button type="submit" class="sp-btn-primary w-full py-3 page-save-btn">حفظ إعدادات إتمام الطلب</button>
         </form>
       </div>
 
@@ -980,7 +984,7 @@
         </div>
         <div class="flex items-center gap-2">
           <button type="button" id="btn-toggle-inspector" onclick="togglePreviewInspector()" class="bg-[#e6f0f2] text-[#00313C] border border-[#00313C]/20 px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition" title="اضغط على أي عنصر في المعاينة لفتح إعداداته">
-            <span>🎯</span><span>تحديد تفاعلي: مُفعّل</span>
+            <span>تحديد تفاعلي: مُفعّل</span>
           </button>
           <select id="mobile-page-select" onchange="changePreviewPage(this.value)" class="sm:hidden border border-gray-200 rounded px-2 py-1 text-xs font-bold bg-gray-50">
             <option value="index.html">index.html</option>
@@ -989,7 +993,7 @@
             <option value="product.html">product.html</option>
             <option value="category.html">category.html</option>
           </select>
-          <button type="button" onclick="refreshStorePreview(true)" class="text-xs text-[#00313C] font-bold hover:underline">تحديث ↻</button>
+          <button type="button" onclick="refreshStorePreview(true)" class="text-xs text-[#00313C] font-bold hover:underline">تحديث</button>
         </div>
       </div>
       <div class="preview-stage">
@@ -1211,7 +1215,7 @@
       const grid = document.getElementById('workspace-grid');
       if (grid.classList.contains('mobile-show-preview')) {
         grid.classList.remove('mobile-show-preview');
-        document.getElementById('mobile-preview-toggle').textContent = '👁️ المعاينة';
+        document.getElementById('mobile-preview-toggle').textContent = 'المعاينة';
       }
       if (grid.classList.contains('mode-preview-focus')) setWorkspaceMode('split');
       document.getElementById('sidebar-pane').classList.remove('mobile-open');
@@ -1247,7 +1251,7 @@
       const grid = document.getElementById('workspace-grid');
       const btn = document.getElementById('mobile-preview-toggle');
       const showing = grid.classList.toggle('mobile-show-preview');
-      btn.textContent = showing ? '✏️ المحرر' : '👁️ المعاينة';
+      btn.textContent = showing ? 'المحرر' : 'المعاينة';
     }
 
     function setPreviewDevice(device) {
@@ -1281,7 +1285,7 @@
       if (!iframe) return;
       const sep = currentPreviewPage.includes('?') ? '&' : '?';
       iframe.src = `${currentPreviewPage}${sep}_preview_ts=${Date.now()}`;
-      if (notify) showToast('تمت مزامنة المعاينة الحية ✨');
+      if (notify) showToast('تمت مزامنة المعاينة الحية');
     }
 
     // ================= CLICK-TO-EDIT LIVE PREVIEW INSPECTOR =================
@@ -1290,11 +1294,11 @@
       const btn = document.getElementById('btn-toggle-inspector');
       if (inspectorEnabled) {
         btn.className = 'bg-[#e6f0f2] text-[#00313C] border border-[#00313C]/20 px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition';
-        btn.innerHTML = '<span>🎯</span><span>تحديد تفاعلي: مُفعّل</span>';
+        btn.textContent = 'تحديد تفاعلي: مُفعّل';
         showToast('تم تفعيل التحديد التفاعلي: اضغط على أي عنصر في المتجر لتعديله');
       } else {
         btn.className = 'bg-gray-100 text-gray-600 border border-gray-200 px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition';
-        btn.innerHTML = '<span>🖱️</span><span>تصفح عادي</span>';
+        btn.textContent = 'تصفح عادي';
         showToast('تم تفعيل التصفح العادي داخل المعاينة');
       }
       attachPreviewClickInspector();
@@ -1416,7 +1420,7 @@
           if (info) {
             lastHovered = e.target;
             e.target.classList.add('__lorin-hover-target');
-            badge.textContent = `✏️ ${info.label}`;
+            badge.textContent = info.label;
             badge.style.display = 'block';
             badge.style.left = Math.min(e.clientX + 12, doc.documentElement.clientWidth - 200) + 'px';
             badge.style.top = Math.max(e.clientY - 28, 8) + 'px';
@@ -1501,7 +1505,7 @@
           <div class="p-3.5 flex items-center justify-between gap-3 hover:bg-gray-50">
             <div class="flex items-center gap-3 min-w-0">
               ${isVideo
-                ? `<div class="w-16 h-12 rounded-lg bg-gray-900 text-white flex items-center justify-center text-xs font-bold shrink-0">🎬 VIDEO</div>`
+                ? `<div class="w-16 h-12 rounded-lg bg-gray-900 text-white flex items-center justify-center text-xs font-bold shrink-0">VIDEO</div>`
                 : `<img src="${escapeHtml(item.media_url)}" class="w-16 h-12 object-cover rounded-lg border shrink-0" alt="">`}
               <div class="min-w-0">
                 <div class="text-xs font-bold text-gray-800 truncate">${escapeHtml(item.heading || 'بدون عنوان')}</div>
@@ -1542,7 +1546,7 @@
         resetHeroForm();
         await fetchHeroSlides();
         refreshStorePreview(false);
-        showToast('تم حفظ شريحة البنر وتحديث المعاينة 🎬');
+        showToast('تم حفظ شريحة البنر وتحديث المعاينة');
       } catch (err) {
         showToast(friendlyError(err), 'error');
       } finally {
@@ -1603,7 +1607,7 @@
         renderCategoryDescriptionsEditor();
         updateOverviewStats();
         refreshStorePreview(false);
-        showToast('تم حفظ التصنيف الرئيسي 🌸');
+        showToast('تم حفظ التصنيف الرئيسي');
       } catch (err) {
         showToast(friendlyError(err), 'error');
       } finally {
@@ -1661,7 +1665,7 @@
         await fetchAdminSubCategories();
         renderCategoryDescriptionsEditor();
         refreshStorePreview(false);
-        showToast('تم حفظ التصنيف الفرعي 🌿');
+        showToast('تم حفظ التصنيف الفرعي');
       } catch (err) {
         showToast(friendlyError(err), 'error');
       } finally {
@@ -1723,7 +1727,7 @@
         await fetchAdminSections();
         updateOverviewStats();
         refreshStorePreview(false);
-        showToast('تم حفظ قسم المنتجات 💾');
+        showToast('تم حفظ قسم المنتجات');
       } catch (err) {
         showToast(friendlyError(err), 'error');
       } finally {
@@ -1852,7 +1856,7 @@
         <input type="text" placeholder="اسم الخيار (مثال: Large)" value="${escapeHtml(data.option_label || '')}" class="opt-label sp-input py-1 text-xs flex-1">
         <input type="number" step="0.01" min="0" placeholder="+ السعر" value="${escapeHtml(data.extra_price ?? 0)}" class="opt-price sp-input py-1 text-xs w-24">
         <input type="text" placeholder="رابط صورة (اختياري)" value="${escapeHtml(data.image_url || '')}" class="opt-img sp-input py-1 text-xs flex-1" dir="ltr">
-        <button type="button" class="opt-remove text-red-500 hover:bg-red-50 px-2 py-1 rounded text-xs font-bold">✕</button>`;
+        <button type="button" class="opt-remove text-red-500 hover:bg-red-50 px-2 py-1 rounded text-xs font-bold" aria-label="Remove option">x</button>`;
       row.querySelector('.opt-remove').addEventListener('click', () => row.remove());
       container.appendChild(row);
     }
@@ -1896,7 +1900,7 @@
         return `
           <span class="inline-flex items-center gap-1.5 bg-[#e6f0f2] text-[#00313C] px-2.5 py-1 rounded-full text-[11px] font-bold">
             ${escapeHtml(name)}
-            <button type="button" onclick="${removeFnName}('${escapeHtml(id)}')" class="text-red-600 hover:text-red-800">✕</button>
+            <button type="button" onclick="${removeFnName}('${escapeHtml(id)}')" class="text-red-600 hover:text-red-800" aria-label="Remove">x</button>
           </span>`;
       }).join('');
     }
@@ -1994,7 +1998,7 @@
             <td class="p-3 font-bold text-[#00313C] whitespace-nowrap">${Number(p.price || 0).toFixed(2)} JOD</td>
             <td class="p-3 whitespace-nowrap">
               ${p.is_hidden
-                ? `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold">مخفي 👻</span>`
+                ? `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full text-[10px] font-bold">مخفي</span>`
                 : `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[10px] font-bold">نشط</span>`}
             </td>
             <td class="p-3 text-center whitespace-nowrap space-x-1 space-x-reverse">
@@ -2033,7 +2037,7 @@
       grid.innerHTML = images.map((img, idx) => `
         <div class="image-card relative bg-white border rounded-lg p-1.5 shadow-sm" data-img-id="${escapeHtml(img.id)}">
           <img src="${escapeHtml(img.image_url)}" class="w-full h-20 object-cover rounded" alt="">
-          <span class="absolute top-2 right-2 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">${idx === 0 ? 'رئيسية 🌟' : '#' + (idx + 1)}</span>
+          <span class="absolute top-2 right-2 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">${idx === 0 ? 'رئيسية' : '#' + (idx + 1)}</span>
           <button type="button" onclick="deleteProductImage('${escapeHtml(img.id)}')" class="mt-1 w-full bg-red-50 text-red-600 hover:bg-red-100 text-[10px] font-bold py-0.5 rounded">حذف</button>
         </div>`).join('');
       initSortableImages();
@@ -2066,7 +2070,7 @@
         const refreshed = currentProducts.find(p => String(p.id) === String(prodId));
         if (refreshed) renderProductImagesManager(refreshed.product_images || []);
         refreshStorePreview(false);
-        showToast('تم حفظ ترتيب الصور بنجاح ✅');
+        showToast('تم حفظ ترتيب الصور بنجاح');
       } catch (err) {
         showToast(friendlyError(err), 'error');
       }
@@ -2125,7 +2129,7 @@
       renderSelectedPills('selected-fbts-pills-container', selectedFbtIds, 'toggleFbtSelection');
 
       document.getElementById('product-form-title').textContent = `تعديل المنتج: ${prod.name}`;
-      document.getElementById('submit-product-btn').textContent = 'تحديث المنتج 💾';
+      document.getElementById('submit-product-btn').textContent = 'تحديث المنتج';
       document.getElementById('cancel-product-edit').classList.remove('hidden');
       document.getElementById('editor-pane').scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -2149,7 +2153,7 @@
       renderSelectedPills('selected-upsells-pills-container', [], 'toggleUpsellSelection');
       renderSelectedPills('selected-fbts-pills-container', [], 'toggleFbtSelection');
       document.getElementById('product-form-title').textContent = 'إضافة منتج جديد';
-      document.getElementById('submit-product-btn').textContent = 'حفظ المنتج ✨';
+      document.getElementById('submit-product-btn').textContent = 'حفظ المنتج';
       document.getElementById('cancel-product-edit').classList.add('hidden');
     }
 
@@ -2232,7 +2236,7 @@
         resetProductForm();
         await fetchAdminProducts();
         refreshStorePreview(false);
-        showToast(warnings.length ? ('تم الحفظ مع تنبيه: ' + warnings.join(' / ')) : 'تم حفظ المنتج وجميع ارتباطاته بنجاح ✨');
+        showToast(warnings.length ? ('تم الحفظ مع تنبيه: ' + warnings.join(' / ')) : 'تم حفظ المنتج وجميع ارتباطاته بنجاح');
       } catch (err) {
         showToast(friendlyError(err), 'error');
       } finally {
@@ -2299,7 +2303,7 @@
         document.getElementById('gc-local-preview-box').classList.remove('hidden');
       }
       document.getElementById('gc-form-heading').textContent = `تعديل البطاقة: ${label}`;
-      document.getElementById('gc-submit-btn').textContent = 'تحديث البطاقة والسعر 💾';
+      document.getElementById('gc-submit-btn').textContent = 'تحديث البطاقة والسعر';
       document.getElementById('gc-cancel-btn').classList.remove('hidden');
     }
 
@@ -2309,8 +2313,8 @@
       document.getElementById('gc-existing-url').value = '';
       document.getElementById('gc-price').value = '0.00';
       document.getElementById('gc-local-preview-box').classList.add('hidden');
-      document.getElementById('gc-form-heading').textContent = 'إضافة تصميم بطاقة إهداء جديدة 💌';
-      document.getElementById('gc-submit-btn').textContent = 'حفظ تصميم البطاقة 💌';
+      document.getElementById('gc-form-heading').textContent = 'إضافة تصميم بطاقة إهداء جديدة';
+      document.getElementById('gc-submit-btn').textContent = 'حفظ تصميم البطاقة';
       document.getElementById('gc-cancel-btn').classList.add('hidden');
     }
 
@@ -2338,7 +2342,7 @@
     function setJsonStatus(ok, msg) {
       const el = document.getElementById('sm-json-status');
       if (!el) return;
-      el.textContent = ok ? '✓ صالح' : ('✗ ' + msg);
+      el.textContent = ok ? 'صالح' : ('غير صالح: ' + msg);
       el.className = 'text-[11px] font-bold ' + (ok ? 'text-emerald-700' : 'text-red-600');
     }
 
@@ -2563,7 +2567,7 @@
         syncJsonFromSuggested();
         markSmDirty(false);
         if (currentPreviewPage.includes('cart.html')) refreshStorePreview(false);
-        showToast('تم حفظ إعدادات نافذة البطاقة والرسائل المقترحة 💌');
+        showToast('تم حفظ إعدادات نافذة البطاقة والرسائل المقترحة');
       } catch (err) {
         showToast(friendlyError(err), 'error');
       } finally {
@@ -2652,7 +2656,7 @@
       if (!currentProducts.length) return '<option value="">لا توجد منتجات</option>';
       return currentProducts.map(p => {
         const sel = String(p.id) === String(selectedId) ? 'selected' : '';
-        return `<option value="${escapeHtml(p.id)}" ${sel}>${escapeHtml(p.name)} (${Number(p.price || 0).toFixed(2)} JOD)${p.is_hidden ? ' 👻' : ''}</option>`;
+        return `<option value="${escapeHtml(p.id)}" ${sel}>${escapeHtml(p.name)} (${Number(p.price || 0).toFixed(2)} JOD)${p.is_hidden ? ' (hidden)' : ''}</option>`;
       }).join('');
     }
 
@@ -2726,7 +2730,7 @@
         cancelEditFinishingTouch();
         await fetchCartExtrasAdmin();
         if (currentPreviewPage.includes('cart.html')) refreshStorePreview(false);
-        showToast('تم تحديث عنصر اللمسة الأخيرة بنجاح 🎈');
+        showToast('تم تحديث عنصر اللمسة الأخيرة بنجاح');
       } catch (err) {
         showToast(friendlyError(err), 'error');
       } finally {
@@ -2785,7 +2789,7 @@
         if (usedPayload && !('price' in usedPayload) && cleanPrice > 0) {
           showToast('تم حفظ البطاقة لكن بدون السعر: جدول gift_card_designs لا يحتوي عمود price. شغّل ملف SQL ثم أعد الحفظ.', 'warn');
         } else {
-          showToast(editId ? 'تم تحديث البطاقة والسعر بنجاح 💌' : 'تمت إضافة تصميم بطاقة الإهداء بنجاح 💌');
+          showToast(editId ? 'تم تحديث البطاقة والسعر بنجاح' : 'تمت إضافة تصميم بطاقة الإهداء بنجاح');
         }
       } catch (err) {
         showToast(friendlyError(err), 'error');
@@ -2808,7 +2812,7 @@
       if (error) return showToast(friendlyError(error), 'error');
       await fetchCartExtrasAdmin();
       if (currentPreviewPage.includes('cart.html')) refreshStorePreview(false);
-      showToast('تم ربط المنتج بالسلة بنجاح 🎈');
+      showToast('تم ربط المنتج بالسلة بنجاح');
     });
 
     // ================= 6. ORDERS =================
@@ -2856,11 +2860,11 @@
             <td class="p-3">
               <div class="font-bold text-gray-900">${escapeHtml(o.customer_name || o.recipient_name || '-')}</div>
               <div class="text-gray-600" dir="ltr">${escapeHtml(phone || '-')}</div>
-              ${wa ? `<a href="${escapeHtml(wa)}" target="_blank" rel="noopener" class="inline-block mt-1 text-[11px] font-bold text-emerald-700 hover:underline">واتساب ↗</a>` : ''}
+              ${wa ? `<a href="${escapeHtml(wa)}" target="_blank" rel="noopener" class="inline-block mt-1 text-[11px] font-bold text-emerald-700 hover:underline">واتساب</a>` : ''}
             </td>
             <td class="p-3 max-w-[220px]">
               <div class="text-gray-700">${escapeHtml(o.shipping_address || o.address || o.delivery_address || '-')}</div>
-              ${gift ? `<div class="mt-1 text-[11px] bg-amber-50 text-amber-900 p-1.5 rounded">💌 "${escapeHtml(gift)}"</div>` : ''}
+              ${gift ? `<div class="mt-1 text-[11px] bg-amber-50 text-amber-900 p-1.5 rounded">"${escapeHtml(gift)}"</div>` : ''}
             </td>
             <td class="p-3 font-bold text-[#00313C] whitespace-nowrap">${Number(o.total_price || o.total || 0).toFixed(2)} JOD</td>
             <td class="p-3">${itemsHtml}</td>
@@ -2917,7 +2921,7 @@
         if (error) throw error;
         rows.forEach(r => { siteSettings[r.setting_key] = r.setting_value; });
         refreshStorePreview(false);
-        showToast('تم حفظ إعدادات الهوية وتحديث المعاينة 🎨');
+        showToast('تم حفظ إعدادات الهوية وتحديث المعاينة');
       } catch (err) {
         showToast(friendlyError(err), 'error');
       } finally {
@@ -2947,11 +2951,11 @@
         { key: 'product_tax_note_enabled', type: 'toggle', label: 'إظهار ملاحظة الضرائب تحت السعر', def: true },
         { key: 'product_tax_note_text', type: 'text', label: 'نص ملاحظة الضرائب', def: 'الأسعار شاملة الضرائب' },
         { key: 'product_desc_tab_label', type: 'text', label: 'عنوان تبويب الوصف', def: 'Description' },
-        { key: 'product_customize_title', type: 'text', label: 'عنوان صندوق التخصيص', def: 'Customize Your Order ✨' },
+        { key: 'product_customize_title', type: 'text', label: 'عنوان صندوق التخصيص', def: 'Customize Your Order' },
         { key: 'product_fbt_enabled', type: 'toggle', label: 'إظهار قسم الشراء المشترك (FBT)', def: true },
         { key: 'product_fbt_title', type: 'text', label: 'عنوان قسم FBT', def: 'يقوم المستخدمون بشراء هذه المنتجات سوياً' },
         { key: 'product_upsell_modal_title', type: 'text', label: 'عنوان النافذة المنبثقة بعد الإضافة للسلة', def: 'You’ve added items to your cart' },
-        { key: 'product_upsell_title', type: 'text', label: 'عنوان قسم الـ Upsell داخل النافذة', def: 'Make it perfect ✨' },
+        { key: 'product_upsell_title', type: 'text', label: 'عنوان قسم الـ Upsell داخل النافذة', def: 'Make it perfect' },
         { key: 'product_payment_enabled', type: 'toggle', label: 'إظهار طرق الدفع', def: true },
         { key: 'product_payment_logo_url', type: 'image', label: 'شعار طريقة الدفع (رفع صورة أو رابط)', def: '' }
       ],
@@ -2963,7 +2967,7 @@
         { key: 'category_grid_columns', type: 'select', label: 'عدد أعمدة المنتجات (سطح المكتب)', def: '', options: [['', 'تلقائي (الحالي)'], ['3', '3 أعمدة'], ['4', '4 أعمدة'], ['5', '5 أعمدة']] }
       ],
       checkout: [
-        { key: 'checkout_page_title', type: 'text', label: 'عنوان الصفحة', def: 'إتمام طلب الهدية 🎁' },
+        { key: 'checkout_page_title', type: 'text', label: 'عنوان الصفحة', def: 'إتمام طلب الهدية' },
         { key: 'checkout_cities', type: 'lines', label: 'المدن المتاحة للتوصيل (مدينة في كل سطر)', def: ['عمان', 'الزرقاء', 'إربد', 'السلط', 'العقبة', 'مادبا'] },
         { key: 'checkout_whatsapp', type: 'tel', label: 'رقم واتساب استقبال الطلبات (بصيغة دولية، مثال: 9627XXXXXXXX)', def: '962700000000' },
         { key: 'checkout_delivery_fee', type: 'number', label: 'رسوم التوصيل (JOD) — 0 = مجاناً', def: 0 },
@@ -2971,7 +2975,7 @@
         { key: 'checkout_gift_note_enabled', type: 'toggle', label: 'إظهار حقل بطاقة الهدية / الملاحظات', def: true },
         { key: 'checkout_gift_note_label', type: 'text', label: 'عنوان حقل الهدية', def: 'بطاقة هدية / ملاحظات (اختياري)' },
         { key: 'checkout_gift_note_placeholder', type: 'text', label: 'النص التوضيحي لحقل الهدية', def: 'اكتب عبارة الهدية إذا كنت تريد إرفاقها مع الزهور...' },
-        { key: 'checkout_submit_label', type: 'text', label: 'نص زر التأكيد', def: 'تأكيد وإرسال الطلب عبر واتساب 📲' }
+        { key: 'checkout_submit_label', type: 'text', label: 'نص زر التأكيد', def: 'تأكيد وإرسال الطلب عبر واتساب' }
       ]
     };
 
@@ -3115,7 +3119,7 @@
         if (error) throw error;
         rows.forEach(r => { siteSettings[r.setting_key] = r.setting_value; });
         refreshStorePreview(false);
-        showToast('تم حفظ الإعدادات وتحديث المعاينة ✨');
+        showToast('تم حفظ الإعدادات وتحديث المعاينة');
       } catch (err) {
         showToast(friendlyError(err), 'error');
       } finally {

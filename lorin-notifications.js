@@ -25,7 +25,7 @@
     const icon = document.createElement('span');
     const text = document.createElement('span');
     const close = document.createElement('button');
-    const icons = { success: '✓', error: '!', warning: 'i', info: '✦' };
+    const indicators = { success: 'OK', error: '!', warning: '!', info: 'i' };
 
     toast.className = 'lorin-toast';
     toast.dataset.type = type;
@@ -35,7 +35,7 @@
 
     icon.className = 'lorin-toast__icon';
     icon.setAttribute('aria-hidden', 'true');
-    icon.textContent = icons[type] || icons.success;
+    icon.textContent = indicators[type] || indicators.success;
 
     text.className = 'lorin-toast__message';
     text.textContent = String(message);
@@ -43,7 +43,7 @@
     close.className = 'lorin-toast__close';
     close.type = 'button';
     close.setAttribute('aria-label', isArabic() ? 'إغلاق الإشعار' : 'Dismiss notification');
-    close.textContent = '×';
+    close.textContent = 'x';
     close.addEventListener('click', dismiss);
 
     toast.append(icon, text, close);

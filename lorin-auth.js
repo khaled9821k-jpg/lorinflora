@@ -21,48 +21,48 @@
   let pendingPhone = '';
   let redirectAfterAuth = null;
 
-  // Country Directory fallback if lorin-countries.js isn't already loaded
+  // Country directory fallback if lorin-countries.js isn't already loaded
   const DEFAULT_COUNTRIES = [
-    { code: 'JO', nameAr: 'الأردن', nameEn: 'Jordan', dial: '+962', flag: '🇯🇴', placeholder: '7XXXXXXXX' },
-    { code: 'SA', nameAr: 'المملكة العربية السعودية', nameEn: 'Saudi Arabia', dial: '+966', flag: '🇸🇦', placeholder: '5XXXXXXXX' },
-    { code: 'AE', nameAr: 'الإمارات العربية المتحدة', nameEn: 'United Arab Emirates', dial: '+971', flag: '🇦🇪', placeholder: '5XXXXXXXX' },
-    { code: 'KW', nameAr: 'الكويت', nameEn: 'Kuwait', dial: '+965', flag: '🇰🇼', placeholder: 'XXXXXXXX' },
-    { code: 'QA', nameAr: 'قطر', nameEn: 'Qatar', dial: '+974', flag: '🇶🇦', placeholder: 'XXXXXXXX' },
-    { code: 'BH', nameAr: 'البحرين', nameEn: 'Bahrain', dial: '+973', flag: '🇧🇭', placeholder: 'XXXXXXXX' },
-    { code: 'OM', nameAr: 'عُمان', nameEn: 'Oman', dial: '+968', flag: '🇴🇲', placeholder: 'XXXXXXXX' },
-    { code: 'PS', nameAr: 'فلسطين', nameEn: 'Palestine', dial: '+970', flag: '🇵🇸', placeholder: '5XXXXXXXX' },
-    { code: 'EG', nameAr: 'مصر', nameEn: 'Egypt', dial: '+20', flag: '🇪🇬', placeholder: '1XXXXXXXXX' },
-    { code: 'LB', nameAr: 'لبنان', nameEn: 'Lebanon', dial: '+961', flag: '🇱🇧', placeholder: 'XXXXXXXX' },
-    { code: 'IQ', nameAr: 'العراق', nameEn: 'Iraq', dial: '+964', flag: '🇮🇶', placeholder: '7XXXXXXXXX' },
-    { code: 'SY', nameAr: 'سوريا', nameEn: 'Syria', dial: '+963', flag: '🇸🇾', placeholder: '9XXXXXXXX' },
-    { code: 'YE', nameAr: 'اليمن', nameEn: 'Yemen', dial: '+967', flag: '🇾🇪', placeholder: '7XXXXXXXX' },
-    { code: 'MA', nameAr: 'المغرب', nameEn: 'Morocco', dial: '+212', flag: '🇲🇦', placeholder: '6XXXXXXXX' },
-    { code: 'DZ', nameAr: 'الجزائر', nameEn: 'Algeria', dial: '+213', flag: '🇩🇿', placeholder: 'XXXXXXXXX' },
-    { code: 'TN', nameAr: 'تونس', nameEn: 'Tunisia', dial: '+216', flag: '🇹🇳', placeholder: 'XXXXXXXX' },
-    { code: 'LY', nameAr: 'ليبيا', nameEn: 'Libya', dial: '+218', flag: '🇱🇾', placeholder: '9XXXXXXXX' },
-    { code: 'SD', nameAr: 'السودان', nameEn: 'Sudan', dial: '+249', flag: '🇸🇩', placeholder: '9XXXXXXXX' },
-    { code: 'US', nameAr: 'الولايات المتحدة', nameEn: 'United States', dial: '+1', flag: '🇺🇸', placeholder: 'XXXXXXXXXX' },
-    { code: 'GB', nameAr: 'المملكة المتحدة', nameEn: 'United Kingdom', dial: '+44', flag: '🇬🇧', placeholder: '7XXXXXXXXX' },
-    { code: 'CA', nameAr: 'كندا', nameEn: 'Canada', dial: '+1', flag: '🇨🇦', placeholder: 'XXXXXXXXXX' },
-    { code: 'TR', nameAr: 'تركيا', nameEn: 'Turkey', dial: '+90', flag: '🇹🇷', placeholder: '5XXXXXXXXX' },
-    { code: 'DE', nameAr: 'ألمانيا', nameEn: 'Germany', dial: '+49', flag: '🇩🇪', placeholder: '1XXXXXXXXXX' },
-    { code: 'FR', nameAr: 'فرنسا', nameEn: 'France', dial: '+33', flag: '🇫🇷', placeholder: '6XXXXXXXX' },
-    { code: 'IT', nameAr: 'إيطاليا', nameEn: 'Italy', dial: '+39', flag: '🇮🇹', placeholder: '3XXXXXXXXX' },
-    { code: 'ES', nameAr: 'إسبانيا', nameEn: 'Spain', dial: '+34', flag: '🇪🇸', placeholder: '6XXXXXXXX' },
-    { code: 'NL', nameAr: 'هولندا', nameEn: 'Netherlands', dial: '+31', flag: '🇳🇱', placeholder: '6XXXXXXXX' },
-    { code: 'SE', nameAr: 'السويد', nameEn: 'Sweden', dial: '+46', flag: '🇸🇪', placeholder: '7XXXXXXXX' },
-    { code: 'CH', nameAr: 'سويسرا', nameEn: 'Switzerland', dial: '+41', flag: '🇨🇭', placeholder: '7XXXXXXXX' },
-    { code: 'AU', nameAr: 'أستراليا', nameEn: 'Australia', dial: '+61', flag: '🇦🇺', placeholder: '4XXXXXXXX' },
-    { code: 'IN', nameAr: 'الهند', nameEn: 'India', dial: '+91', flag: '🇮🇳', placeholder: '9XXXXXXXXX' },
-    { code: 'PK', nameAr: 'باكستان', nameEn: 'Pakistan', dial: '+92', flag: '🇵🇰', placeholder: '3XXXXXXXXX' },
-    { code: 'CY', nameAr: 'قبرص', nameEn: 'Cyprus', dial: '+357', flag: '🇨🇾', placeholder: '9XXXXXXX' },
-    { code: 'GR', nameAr: 'اليونان', nameEn: 'Greece', dial: '+30', flag: '🇬🇷', placeholder: '69XXXXXXXX' },
-    { code: 'MY', nameAr: 'ماليزيا', nameEn: 'Malaysia', dial: '+60', flag: '🇲🇾', placeholder: '1XXXXXXXX' },
-    { code: 'ID', nameAr: 'إندونيسيا', nameEn: 'Indonesia', dial: '+62', flag: '🇮🇩', placeholder: '8XXXXXXXXX' },
-    { code: 'PH', nameAr: 'الفلبين', nameEn: 'Philippines', dial: '+63', flag: '🇵🇭', placeholder: '9XXXXXXXXX' },
-    { code: 'BR', nameAr: 'البرازيل', nameEn: 'Brazil', dial: '+55', flag: '🇧🇷', placeholder: 'XXXXXXXXXXX' },
-    { code: 'RU', nameAr: 'روسيا', nameEn: 'Russia', dial: '+7', flag: '🇷🇺', placeholder: '9XXXXXXXXX' },
-    { code: 'CN', nameAr: 'الصين', nameEn: 'China', dial: '+86', flag: '🇨🇳', placeholder: '1XXXXXXXXXX' }
+    { code: 'JO', nameAr: 'الأردن', nameEn: 'Jordan', dial: '+962', placeholder: '7XXXXXXXX' },
+    { code: 'SA', nameAr: 'المملكة العربية السعودية', nameEn: 'Saudi Arabia', dial: '+966', placeholder: '5XXXXXXXX' },
+    { code: 'AE', nameAr: 'الإمارات العربية المتحدة', nameEn: 'United Arab Emirates', dial: '+971', placeholder: '5XXXXXXXX' },
+    { code: 'KW', nameAr: 'الكويت', nameEn: 'Kuwait', dial: '+965', placeholder: 'XXXXXXXX' },
+    { code: 'QA', nameAr: 'قطر', nameEn: 'Qatar', dial: '+974', placeholder: 'XXXXXXXX' },
+    { code: 'BH', nameAr: 'البحرين', nameEn: 'Bahrain', dial: '+973', placeholder: 'XXXXXXXX' },
+    { code: 'OM', nameAr: 'عُمان', nameEn: 'Oman', dial: '+968', placeholder: 'XXXXXXXX' },
+    { code: 'PS', nameAr: 'فلسطين', nameEn: 'Palestine', dial: '+970', placeholder: '5XXXXXXXX' },
+    { code: 'EG', nameAr: 'مصر', nameEn: 'Egypt', dial: '+20', placeholder: '1XXXXXXXXX' },
+    { code: 'LB', nameAr: 'لبنان', nameEn: 'Lebanon', dial: '+961', placeholder: 'XXXXXXXX' },
+    { code: 'IQ', nameAr: 'العراق', nameEn: 'Iraq', dial: '+964', placeholder: '7XXXXXXXXX' },
+    { code: 'SY', nameAr: 'سوريا', nameEn: 'Syria', dial: '+963', placeholder: '9XXXXXXXX' },
+    { code: 'YE', nameAr: 'اليمن', nameEn: 'Yemen', dial: '+967', placeholder: '7XXXXXXXX' },
+    { code: 'MA', nameAr: 'المغرب', nameEn: 'Morocco', dial: '+212', placeholder: '6XXXXXXXX' },
+    { code: 'DZ', nameAr: 'الجزائر', nameEn: 'Algeria', dial: '+213', placeholder: 'XXXXXXXXX' },
+    { code: 'TN', nameAr: 'تونس', nameEn: 'Tunisia', dial: '+216', placeholder: 'XXXXXXXX' },
+    { code: 'LY', nameAr: 'ليبيا', nameEn: 'Libya', dial: '+218', placeholder: '9XXXXXXXX' },
+    { code: 'SD', nameAr: 'السودان', nameEn: 'Sudan', dial: '+249', placeholder: '9XXXXXXXX' },
+    { code: 'US', nameAr: 'الولايات المتحدة', nameEn: 'United States', dial: '+1', placeholder: 'XXXXXXXXXX' },
+    { code: 'GB', nameAr: 'المملكة المتحدة', nameEn: 'United Kingdom', dial: '+44', placeholder: '7XXXXXXXXX' },
+    { code: 'CA', nameAr: 'كندا', nameEn: 'Canada', dial: '+1', placeholder: 'XXXXXXXXXX' },
+    { code: 'TR', nameAr: 'تركيا', nameEn: 'Turkey', dial: '+90', placeholder: '5XXXXXXXXX' },
+    { code: 'DE', nameAr: 'ألمانيا', nameEn: 'Germany', dial: '+49', placeholder: '1XXXXXXXXXX' },
+    { code: 'FR', nameAr: 'فرنسا', nameEn: 'France', dial: '+33', placeholder: '6XXXXXXXX' },
+    { code: 'IT', nameAr: 'إيطاليا', nameEn: 'Italy', dial: '+39', placeholder: '3XXXXXXXXX' },
+    { code: 'ES', nameAr: 'إسبانيا', nameEn: 'Spain', dial: '+34', placeholder: '6XXXXXXXX' },
+    { code: 'NL', nameAr: 'هولندا', nameEn: 'Netherlands', dial: '+31', placeholder: '6XXXXXXXX' },
+    { code: 'SE', nameAr: 'السويد', nameEn: 'Sweden', dial: '+46', placeholder: '7XXXXXXXX' },
+    { code: 'CH', nameAr: 'سويسرا', nameEn: 'Switzerland', dial: '+41', placeholder: '7XXXXXXXX' },
+    { code: 'AU', nameAr: 'أستراليا', nameEn: 'Australia', dial: '+61', placeholder: '4XXXXXXXX' },
+    { code: 'IN', nameAr: 'الهند', nameEn: 'India', dial: '+91', placeholder: '9XXXXXXXXX' },
+    { code: 'PK', nameAr: 'باكستان', nameEn: 'Pakistan', dial: '+92', placeholder: '3XXXXXXXXX' },
+    { code: 'CY', nameAr: 'قبرص', nameEn: 'Cyprus', dial: '+357', placeholder: '9XXXXXXX' },
+    { code: 'GR', nameAr: 'اليونان', nameEn: 'Greece', dial: '+30', placeholder: '69XXXXXXXX' },
+    { code: 'MY', nameAr: 'ماليزيا', nameEn: 'Malaysia', dial: '+60', placeholder: '1XXXXXXXX' },
+    { code: 'ID', nameAr: 'إندونيسيا', nameEn: 'Indonesia', dial: '+62', placeholder: '8XXXXXXXXX' },
+    { code: 'PH', nameAr: 'الفلبين', nameEn: 'Philippines', dial: '+63', placeholder: '9XXXXXXXXX' },
+    { code: 'BR', nameAr: 'البرازيل', nameEn: 'Brazil', dial: '+55', placeholder: 'XXXXXXXXXXX' },
+    { code: 'RU', nameAr: 'روسيا', nameEn: 'Russia', dial: '+7', placeholder: '9XXXXXXXXX' },
+    { code: 'CN', nameAr: 'الصين', nameEn: 'China', dial: '+86', placeholder: '1XXXXXXXXXX' }
   ];
 
   let selectedSenderCountry = DEFAULT_COUNTRIES[0]; // Jordan (+962)
@@ -338,6 +338,14 @@
         border-color: #10B981;
         color: #FFFFFF;
       }
+      .lorin-pwd-rule.is-valid .lorin-pwd-rule-box::after {
+        content: '';
+        width: 4px;
+        height: 7px;
+        border-right: 1.5px solid currentColor;
+        border-bottom: 1.5px solid currentColor;
+        transform: rotate(45deg) translate(-1px, -1px);
+      }
 
       /* Phone Input with Global Country Selector */
       .lorin-phone-wrapper {
@@ -447,8 +455,20 @@
         overflow: hidden;
       }
       .lorin-country-flag {
-        font-size: 16px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
         flex-shrink: 0;
+      }
+      .country-selector-chevron {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        flex: 0 0 auto;
+        border-right: 1.5px solid currentColor;
+        border-bottom: 1.5px solid currentColor;
+        transform: rotate(45deg);
+        margin-top: -3px;
       }
       .lorin-country-name {
         white-space: nowrap;
@@ -675,7 +695,7 @@
     if (authStep === 1) {
       // Step 1: Email + Google (Apple removed per specification)
       container.innerHTML = `
-        <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">✕</button>
+        <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">x</button>
         <h2 class="lorin-auth-title">${t('auth_title_login_signup', 'Login or Create Account')}</h2>
         <p class="lorin-auth-subtitle">${t('auth_subtitle_login_signup', 'Find the perfect gift for your special occasion')}</p>
 
@@ -708,9 +728,9 @@
     } else if (authStep === 2) {
       // Step 2: Sign Up (Name & Password with visual checklist)
       container.innerHTML = `
-        <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">✕</button>
+        <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">x</button>
         <button class="lorin-auth-back-btn" onclick="LorinAuth.setStep(1)">
-          <span>‹</span> <span>${t('auth_back', 'Back')}</span>
+          <span>&lt;</span> <span>${t('auth_back', 'Back')}</span>
         </button>
 
         <h2 class="lorin-auth-title">${t('auth_signup_title', 'Sign up')}</h2>
@@ -726,22 +746,22 @@
             <label class="lorin-field-label">${t('auth_password_label', 'Password')}</label>
             <div style="position: relative;">
               <input type="password" id="auth-pwd-input" class="lorin-text-input" placeholder="${t('auth_password_placeholder', 'Enter your password')}" value="${pendingPassword}" required oninput="LorinAuth.validateStep2()" style="padding-${isRtl() ? 'left' : 'right'}: 40px;">
-              <button type="button" onclick="LorinAuth.togglePasswordVisibility('auth-pwd-input', this)" style="position: absolute; top: 50%; ${isRtl() ? 'left: 12px;' : 'right: 12px;'}; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6B7280; font-size: 15px;">👁</button>
+              <button type="button" aria-label="${isRtl() ? 'إظهار كلمة المرور' : 'Show password'}" onclick="LorinAuth.togglePasswordVisibility('auth-pwd-input', this)" style="position: absolute; top: 50%; ${isRtl() ? 'left: 12px;' : 'right: 12px;'}; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6B7280; font-size: 12px;">${isRtl() ? 'إظهار' : 'Show'}</button>
             </div>
           </div>
 
           <div class="lorin-pwd-checklist">
             <div class="lorin-pwd-checklist-title">${t('auth_pwd_rule_title', 'Your password must contain:')}</div>
             <div class="lorin-pwd-rule" id="rule-lower">
-              <span class="lorin-pwd-rule-box">✓</span>
+              <span class="lorin-pwd-rule-box" aria-hidden="true"></span>
               <span>${t('auth_pwd_rule_lower', 'Lower case letter (a-z)')}</span>
             </div>
             <div class="lorin-pwd-rule" id="rule-upper">
-              <span class="lorin-pwd-rule-box">✓</span>
+              <span class="lorin-pwd-rule-box" aria-hidden="true"></span>
               <span>${t('auth_pwd_rule_upper', 'Upper case letter (A-Z)')}</span>
             </div>
             <div class="lorin-pwd-rule" id="rule-min">
-              <span class="lorin-pwd-rule-box">✓</span>
+              <span class="lorin-pwd-rule-box" aria-hidden="true"></span>
               <span>${t('auth_pwd_rule_min', 'Minimum of 8 characters')}</span>
             </div>
           </div>
@@ -754,9 +774,9 @@
       // Step 3: Sender Phone with Searchable Global Country Selector
       const c = selectedSenderCountry || DEFAULT_COUNTRIES[0];
       container.innerHTML = `
-        <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">✕</button>
+        <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">x</button>
         <button class="lorin-auth-back-btn" onclick="LorinAuth.setStep(2)">
-          <span>‹</span> <span>${t('auth_back', 'Back')}</span>
+          <span>&lt;</span> <span>${t('auth_back', 'Back')}</span>
         </button>
 
         <h2 class="lorin-auth-title">${t('auth_phone_title', 'Lastly, Your Phone Number')}</h2>
@@ -767,9 +787,9 @@
             <label class="lorin-field-label">${t('auth_phone_label', 'Phone Number')}</label>
             <div class="lorin-phone-wrapper" id="sender-phone-wrapper">
               <button type="button" class="lorin-phone-prefix-btn" id="sender-country-trigger" onclick="LorinAuth.toggleCountryDropdown(event)">
-                <span id="sender-flag">${c.flag}</span>
+                <span id="sender-flag">${c.code}</span>
                 <span id="sender-dial" dir="ltr">${c.dial}</span>
-                <span style="font-size: 10px; color: #9CA3AF;">▾</span>
+                <span class="country-selector-chevron" aria-hidden="true"></span>
               </button>
               <input type="tel" id="auth-phone-input" class="lorin-phone-input" placeholder="${c.placeholder || '7XXXXXXXX'}" value="${pendingPhone}" required dir="ltr">
 
@@ -795,9 +815,9 @@
     } else if (authStep === 6) {
       // Step 6: Existing User Password Sign In with Prominent Forgot Password Link
       container.innerHTML = `
-        <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">✕</button>
+        <button class="lorin-auth-close-btn" onclick="LorinAuth.closeModal()" aria-label="Close">x</button>
         <button class="lorin-auth-back-btn" onclick="LorinAuth.setStep(1)">
-          <span>‹</span> <span>${t('auth_back', 'Back')}</span>
+          <span>&lt;</span> <span>${t('auth_back', 'Back')}</span>
         </button>
 
         <h2 class="lorin-auth-title">${t('auth_login_tab', 'Sign In')}</h2>
@@ -813,7 +833,7 @@
             </div>
             <div style="position: relative;">
               <input type="password" id="auth-signin-pwd" class="lorin-text-input" placeholder="${t('auth_password_placeholder', 'Enter your password')}" required autofocus style="padding-${isRtl() ? 'left' : 'right'}: 40px;">
-              <button type="button" onclick="LorinAuth.togglePasswordVisibility('auth-signin-pwd', this)" style="position: absolute; top: 50%; ${isRtl() ? 'left: 12px;' : 'right: 12px;'}; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6B7280; font-size: 15px;">👁</button>
+              <button type="button" aria-label="${isRtl() ? 'إظهار كلمة المرور' : 'Show password'}" onclick="LorinAuth.togglePasswordVisibility('auth-signin-pwd', this)" style="position: absolute; top: 50%; ${isRtl() ? 'left: 12px;' : 'right: 12px;'}; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6B7280; font-size: 12px;">${isRtl() ? 'إظهار' : 'Show'}</button>
             </div>
           </div>
 
@@ -874,7 +894,7 @@
     listEl.innerHTML = filtered.map(c => `
       <div class="lorin-country-item ${c.code === selectedSenderCountry.code ? 'is-selected' : ''}" onclick="LorinAuth.selectCountry('${c.code}')">
         <span class="lorin-country-item-left">
-          <span class="lorin-country-flag">${c.flag}</span>
+          <span class="lorin-country-flag">${c.code}</span>
           <span class="lorin-country-name">${isAr ? c.nameAr : c.nameEn}</span>
         </span>
         <span class="lorin-country-dial">${c.dial}</span>
@@ -895,7 +915,7 @@
     const dialEl = document.getElementById('sender-dial');
     const phoneInput = document.getElementById('auth-phone-input');
 
-    if (flagEl) flagEl.textContent = match.flag;
+    if (flagEl) flagEl.textContent = match.code;
     if (dialEl) dialEl.textContent = match.dial;
     if (phoneInput && match.placeholder) phoneInput.placeholder = match.placeholder;
 
@@ -941,10 +961,12 @@
     if (!el) return;
     if (el.type === 'password') {
       el.type = 'text';
-      btn.textContent = '🔒';
+      btn.textContent = isRtl() ? 'إخفاء' : 'Hide';
+      btn.setAttribute('aria-label', isRtl() ? 'إخفاء كلمة المرور' : 'Hide password');
     } else {
       el.type = 'password';
-      btn.textContent = '👁';
+      btn.textContent = isRtl() ? 'إظهار' : 'Show';
+      btn.setAttribute('aria-label', isRtl() ? 'إظهار كلمة المرور' : 'Show password');
     }
   }
 
@@ -1187,7 +1209,7 @@
             feedback.style.background = '#F0FDF4';
             feedback.style.color = '#166534';
             feedback.style.border = '1px solid #DCFCE7';
-            feedback.innerHTML = `✓ ${t('auth_reset_sent_msg', 'تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني بنجاح. يرجى مراجعة صندوق الوارد.')}`;
+            feedback.textContent = `${isRtl() ? 'تم: ' : 'Success: '}${t('auth_reset_sent_msg', 'تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني بنجاح. يرجى مراجعة صندوق الوارد.')}`;
           }
         }
       } catch (err) {
@@ -1428,7 +1450,7 @@
           <svg class="lorin-acc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <span>${t('menu_profile', 'View/Edit My Profile')}</span>
         </span>
-        <span class="lorin-acc-chevron">›</span>
+        <span class="lorin-acc-chevron">&gt;</span>
       </button>
 
       <button type="button" class="lorin-acc-item" onclick="LorinAuth.openAccountView('orders')">
@@ -1436,7 +1458,7 @@
           <svg class="lorin-acc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
           <span>${t('menu_orders', 'My Orders')}</span>
         </span>
-        <span class="lorin-acc-chevron">›</span>
+        <span class="lorin-acc-chevron">&gt;</span>
       </button>
 
       <button type="button" class="lorin-acc-item" onclick="LorinAuth.openAccountView('subscriptions')">
@@ -1444,7 +1466,7 @@
           <svg class="lorin-acc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span>${t('menu_subscriptions', 'My Subscriptions')}</span>
         </span>
-        <span class="lorin-acc-chevron">›</span>
+        <span class="lorin-acc-chevron">&gt;</span>
       </button>
 
       <button type="button" class="lorin-acc-item" onclick="LorinAuth.openAccountView('notifications')">
@@ -1454,7 +1476,7 @@
         </span>
         <span style="display: flex; align-items: center;">
           <span class="lorin-acc-badge">1</span>
-          <span class="lorin-acc-chevron">›</span>
+          <span class="lorin-acc-chevron">&gt;</span>
         </span>
       </button>
 
@@ -1463,7 +1485,7 @@
           <svg class="lorin-acc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span>${t('menu_addresses', 'My Addresses')}</span>
         </span>
-        <span class="lorin-acc-chevron">›</span>
+        <span class="lorin-acc-chevron">&gt;</span>
       </button>
 
       <button type="button" class="lorin-acc-item" onclick="LorinAuth.openAccountView('favourite')">
@@ -1471,7 +1493,7 @@
           <svg class="lorin-acc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           <span>${t('menu_favourite', 'Favourite')}</span>
         </span>
-        <span class="lorin-acc-chevron">›</span>
+        <span class="lorin-acc-chevron">&gt;</span>
       </button>
 
       <div class="lorin-acc-signout-row">
@@ -1480,7 +1502,7 @@
             <svg class="lorin-acc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             <span>${t('menu_signout', 'Sign Out')}</span>
           </span>
-          <span class="lorin-acc-chevron">›</span>
+          <span class="lorin-acc-chevron">&gt;</span>
         </button>
       </div>
     `;
@@ -1553,7 +1575,7 @@
       titleEl.textContent = t('menu_addresses', 'My Addresses');
       bodyEl.innerHTML = `
         <div style="padding: 20px 0; text-align: center; color: #6B7280; font-size: 13px;">
-          <p>📍 عمان، الأردن (العنوان المسجل تلقائياً مع طلباتك)</p>
+          <p>عمان، الأردن (العنوان المسجل تلقائياً مع طلباتك)</p>
           <p style="font-size: 12px; color: #9CA3AF; margin-top: 8px;">يمكنك إضافة عناوين جديدة مباشرة أثناء إتمام طلباتك.</p>
         </div>
       `;
@@ -1562,7 +1584,7 @@
       bodyEl.innerHTML = `
         <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
           <div style="padding: 14px; background: #FAF8F5; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 12px;">
-            <div style="font-weight: 700; color: #00313C; margin-bottom: 4px;">🌸 مرحباً بك في متجر Lorin للزهور والهدايا</div>
+            <div style="font-weight: 700; color: #00313C; margin-bottom: 4px;">مرحباً بك في متجر Lorin للزهور والهدايا</div>
             <div style="color: #6B7280;">استمتع بتجربة تسوق راقية وتوصيل فوري خلال 120 دقيقة في الأردن.</div>
           </div>
         </div>
@@ -1588,7 +1610,7 @@
     drawer.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #F3F4F6;">
         <h3 id="lorin-drawer-title" style="margin: 0; font-size: 18px; font-weight: 700; color: #111;"></h3>
-        <button type="button" onclick="LorinAuth.closeAccountDrawer()" style="background: none; border: none; font-size: 20px; color: #9CA3AF; cursor: pointer;">✕</button>
+        <button type="button" onclick="LorinAuth.closeAccountDrawer()" aria-label="Close" style="background: none; border: none; font-size: 20px; color: #9CA3AF; cursor: pointer;">x</button>
       </div>
       <div id="lorin-drawer-body" style="flex: 1; overflow-y: auto; padding-top: 20px;"></div>
     `;
@@ -1631,7 +1653,7 @@
           <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">2. بيانات المستلم والتوصيل الفاخر</h4>
           <p>تُستخدم بيانات المستلم (الاسم، رقم الهاتف، وإحداثيات الموقع أو التواصل عبر واتساب) حصرياً لغايات تنسيق تسليم باقة الزهور في الوقت المحدد وبأعلى معايير اللباقة والاحترافية.</p>
 
-          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">3. ميزة إخفاء الهوية (الإهداء السري 🤫)</h4>
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">3. ميزة إخفاء الهوية (الإهداء السري)</h4>
           <p>عند تفعيل خيار "إخفاء هويتي عن المستلم"، نتعهد تماماً بعدم الكشف عن هوية المشتري أو اسمه أو رقم هاتفه للمستلم، وتبقى المفاجأة سرية بالكامل.</p>
 
           <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">4. الزهور الطبيعية وسياسة التبديل والتوصيل</h4>
@@ -1651,7 +1673,7 @@
           <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">2. Recipient Delivery Details</h4>
           <p>Recipient information (name, phone number, and GPS/map location) is utilized strictly to coordinate seamless, polite, and timely floral deliveries across Amman and Jordan.</p>
 
-          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">3. Anonymous Gifting (Secret Identity 🤫)</h4>
+          <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">3. Anonymous Gifting (Secret Identity)</h4>
           <p>When selecting "Keep my identity a secret", we guarantee that no sender details, names, or contact numbers are disclosed to the recipient.</p>
 
           <h4 style="font-size: 15px; font-weight: 700; color: #00313C; margin: 16px 0 8px 0;">4. Fresh Flower Sourcing & Substitution Policy</h4>
@@ -1719,7 +1741,7 @@
     drawer.innerHTML = `
       <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #F3F4F6;">
         <h3 id="lorin-legal-title" style="margin: 0; font-size: 17px; font-weight: 700; color: #00313C;"></h3>
-        <button type="button" onclick="LorinAuth.closeLegalDrawer()" style="background: none; border: none; font-size: 20px; color: #9CA3AF; cursor: pointer;">✕</button>
+        <button type="button" onclick="LorinAuth.closeLegalDrawer()" aria-label="Close" style="background: none; border: none; font-size: 20px; color: #9CA3AF; cursor: pointer;">x</button>
       </div>
       <div id="lorin-legal-body" style="flex: 1; overflow-y: auto; padding-top: 20px;"></div>
       <div style="padding-top: 14px; border-top: 1px solid #F3F4F6; text-align: center;">
@@ -1749,7 +1771,7 @@
         data: { full_name: name, phone: phone }
       });
       await syncUser();
-      showToastNotification('تم حفظ البيانات بنجاح 🌸');
+      showToastNotification('تم حفظ البيانات بنجاح');
       closeAccountDrawer();
     }
   }
@@ -1763,7 +1785,7 @@
       const { data: orders, error } = await query;
 
       if (error || !orders || orders.length === 0) {
-        container.innerHTML = `<p style="text-align: center; color: #9CA3AF; padding: 30px;">لم تقم بأي طلبات بعد 🌸</p>`;
+        container.innerHTML = `<p style="text-align: center; color: #9CA3AF; padding: 30px;">لم تقم بأي طلبات بعد.</p>`;
         return;
       }
 
@@ -1778,7 +1800,7 @@
         </div>
       `).join('');
     } catch (_) {
-      container.innerHTML = `<p style="text-align: center; color: #9CA3AF; padding: 30px;">لم تقم بأي طلبات بعد 🌸</p>`;
+      container.innerHTML = `<p style="text-align: center; color: #9CA3AF; padding: 30px;">لم تقم بأي طلبات بعد.</p>`;
     }
   }
 

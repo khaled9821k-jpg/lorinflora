@@ -7,7 +7,7 @@
     <script src="lorin-preloader.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سلة المشتريات - Lorin 🌸</title>
+    <title>سلة المشتريات - Lorin</title>
 
     <link rel="icon" type="image/png" href="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png">
 
@@ -359,7 +359,7 @@
       <div class="pill-dropdown-wrapper" style="position: relative;">
         <button type="button" class="pill-btn" onclick="togglePillDropdown('country-dropdown')">
           <span>الأردن (Jordan)</span>
-          <span class="pill-arrow">▾</span>
+          <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
         </button>
         <div id="country-dropdown" class="pill-dropdown-menu">
           <button type="button" class="pill-dropdown-item active"><span>الأردن</span></button>
@@ -368,7 +368,7 @@
       <div class="pill-dropdown-wrapper" style="position: relative;">
         <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
           <span>JOD (د.أ)</span>
-          <span class="pill-arrow">▾</span>
+          <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
         </button>
         <div id="currency-dropdown" class="pill-dropdown-menu">
           <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
@@ -430,7 +430,7 @@
         <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" style="height: 30px;" alt="">
         <span style="font-size: 1.5rem; font-weight: 700; color: #00313C;">Lorin</span>
       </div>
-      <button type="button" id="btn-close-menu" aria-label="Close menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">✕</button>
+      <button type="button" id="btn-close-menu" aria-label="Close menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">x</button>
     </div>
     <div style="padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
       <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الرئيسية</a>
@@ -514,12 +514,12 @@
         <h3 id="photo-modal-title" class="text-lg font-bold text-[#00313C]">Add a Photo Stick-In</h3>
         <p id="photo-modal-desc" class="text-xs text-gray-500 mt-1">Upload a photo to be printed and placed with your gift. + JOD 2.50</p>
       </div>
-      <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">✕</button>
+      <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">x</button>
     </div>
 
     <label for="photo-file-input" class="block border-2 border-dashed border-gray-300 hover:border-[#00313C] rounded-md p-4 text-center cursor-pointer transition">
       <div id="photo-modal-preview-empty" class="py-8">
-        <div class="text-3xl mb-2">📷</div>
+        <div class="text-sm mb-2">Photo</div>
         <div class="text-sm font-semibold text-gray-700">Tap to choose a photo</div>
         <div class="text-xs text-gray-400 mt-1">JPG, PNG, WEBP or GIF · up to 8 MB</div>
       </div>
@@ -543,7 +543,7 @@
     <div id="fw-main-view">
       <div class="fw-modal-header">
         <h3 id="card-modal-title" class="fw-modal-title">Gift Card &amp; Message</h3>
-        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">✕</button>
+        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">x</button>
       </div>
 
       <div class="fw-top-tabs" role="tablist">
@@ -609,7 +609,7 @@
               </button>
               <div id="link-attached-box" class="hidden fw-link-badge">
                 <span id="link-attached-url"></span>
-                <button type="button" id="link-clear-btn" class="text-red-600 font-bold shrink-0">✕</button>
+                <button type="button" id="link-clear-btn" class="text-red-600 font-bold shrink-0" aria-label="Clear link">x</button>
               </div>
             </div>
           </div>
@@ -635,10 +635,10 @@
     <div id="fw-suggested-view" class="hidden">
       <div class="fw-modal-header border-b border-gray-100">
         <h3 class="fw-modal-title">
-          <button type="button" id="sm-back-btn" class="fw-back-btn" aria-label="Back">‹</button>
+          <button type="button" id="sm-back-btn" class="fw-back-btn" aria-label="Back">Back</button>
           <span>Suggested Messages</span>
         </h3>
-        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">✕</button>
+        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">x</button>
       </div>
 
       <div id="sm-occasion-tabs" class="sm-tabs"></div>
@@ -659,16 +659,16 @@
     <div id="fw-signature-view" class="hidden">
       <div class="fw-modal-header border-b border-gray-100">
         <h3 class="fw-modal-title">
-          <button type="button" id="sig-back-btn" class="fw-back-btn" aria-label="Back">‹</button>
+          <button type="button" id="sig-back-btn" class="fw-back-btn" aria-label="Back">Back</button>
           <span>Signature</span>
         </h3>
-        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">✕</button>
+        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">x</button>
       </div>
 
       <div class="fw-body">
         <div class="sig-mode-tabs" role="tablist">
           <button type="button" id="sig-tab-hand" class="sig-mode-btn is-active" onclick="switchSignatureMode('handwritten')">
-            <span>✎ Handwritten</span>
+            <span>Handwritten</span>
           </button>
           <button type="button" id="sig-tab-text" class="sig-mode-btn" onclick="switchSignatureMode('text')">
             <span>T Text Input</span>
@@ -702,10 +702,10 @@
     <div id="fw-link-view" class="hidden">
       <div class="fw-modal-header border-b border-gray-100">
         <h3 class="fw-modal-title">
-          <button type="button" id="link-back-btn" class="fw-back-btn" aria-label="Back">‹</button>
+          <button type="button" id="link-back-btn" class="fw-back-btn" aria-label="Back">Back</button>
           <span>Add a Video or Photo</span>
         </h3>
-        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">✕</button>
+        <button type="button" data-close-modal class="fw-close-btn" aria-label="Close">x</button>
       </div>
 
       <div class="fw-body">
@@ -719,7 +719,7 @@
         </div>
 
         <div class="fw-field-row mt-4">
-          <span class="text-gray-400">🔗</span>
+          <span class="text-gray-400">Link</span>
           <input type="url" id="fw-link-input" class="fw-inline-input" placeholder="Paste your link here">
         </div>
 
@@ -1369,7 +1369,7 @@
           <span class="lc-fee">+ JOD ${esc(feeShort())}</span>
           <div class="lc-dashed-text">
             <h3>Photo Stick-In</h3>
-            <div class="lc-status">✓ Photo added</div>
+            <div class="lc-status">Photo added</div>
             <div class="lc-file">${esc(p.fileName || '')}</div>
             <div class="lc-btnrow">
               <button type="button" id="btn-change-photo" class="btn-outline">CHANGE PHOTO</button>
@@ -1532,7 +1532,7 @@
   }
 
   async function goToCheckout() {
-    if (getCart().length === 0) { toast('Your cart is empty. Add something first 🌸', true); return; }
+    if (getCart().length === 0) { toast('Your cart is empty. Add something first.', true); return; }
     if (window.LorinAuth) {
       await window.LorinAuth.requireAuthOrRedirect('checkout.html');
     } else {
@@ -1707,7 +1707,7 @@
     renderItems();
     renderSummary();
     renderFinishingTouch();
-    toast('Added ' + p.name + ' 🌸');
+    toast('Added ' + p.name + '.');
   }
 
   function adjustFinishingQty(id, delta) {
@@ -1997,7 +1997,7 @@
 
     const designVisual = design && design.imageUrl
       ? `<img src="${esc(design.imageUrl)}" alt="${esc(designName || design.name || 'Card design')}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'">`
-      : `<div class="card-design-placeholder" role="img" aria-label="${esc(cartText('card_preview_no_design', 'Card design preview'))}"><div class="card-design-placeholder-paper" aria-hidden="true">♡</div></div>`;
+      : `<div class="card-design-placeholder" role="img" aria-label="${esc(cartText('card_preview_no_design', 'Card design preview'))}"><div class="card-design-placeholder-paper" aria-hidden="true">Card</div></div>`;
 
     return `<div class="card-live-preview">
       <div class="card-design-preview">${designVisual}</div>
@@ -2317,8 +2317,8 @@
     toast(!hasAnyData
       ? 'Card details cleared'
       : design && num(design.price) > 0
-        ? `Card saved (+${money(design.price)}) 💌`
-        : 'Card saved 💌');
+        ? `Card saved (+${money(design.price)})`
+        : 'Card saved');
   }
 
   /* =====================================================
