@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <link rel="stylesheet" href="lorin-notifications.css">
     <link rel="stylesheet" href="lorin-cart-popover.css">
+    <link rel="stylesheet" href="lorin-i18n.css">
     <script src="lorin-notifications.js"></script>
     <script src="lorin-preloader.js"></script>
     <meta charset="UTF-8">
+    <script src="lorin-i18n.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <title id="page-title">تفاصيل المنتج - Lorin</title>
@@ -180,11 +182,11 @@
       <div class="floward-left-group">
         <button type="button" class="floward-btn-link" id="btn-trigger-menu">
           <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-          <span>Menu</span>
+          <span data-i18n="nav_menu">Menu</span>
         </button>
         <button type="button" class="floward-btn-link" id="btn-trigger-search">
           <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <span>Search</span>
+          <span data-i18n="nav_search">Search</span>
         </button>
       </div>
 
@@ -197,19 +199,19 @@
       <div class="floward-right-group">
         <a href="#" class="floward-btn-link">
           <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-          <span>Account</span>
+          <span data-i18n="nav_account">Account</span>
         </a>
         <a href="cart.html" class="floward-btn-link" style="position: relative; text-decoration: none;">
           <svg class="floward-svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-          <span>Cart</span>
+          <span data-i18n="nav_cart">Cart</span>
           <span id="cart-counter-badge" class="cart-counter-badge mobile-cart-count" style="display:none; position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; border-radius: 50%; font-size: 11px; width: 18px; height: 18px; font-weight: bold; align-items: center; justify-content: center;">0</span>
         </a>
       </div>
 
       <div id="box-search-overlay" class="floward-search-overlay">
         <div style="padding: 25px; max-width: 600px; margin: 0 auto;">
-          <input type="text" id="live-search-input" placeholder="ابحث عن الزهور والهدايا..." oninput="performLiveSearch(this.value)" style="width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; outline: none;">
-          <div id="live-search-results" style="margin-top: 15px; max-height: 300px; overflow-y: auto; text-align: right; display: flex; flex-direction: column; gap: 10px;"></div>
+          <input type="text" id="live-search-input" data-i18n-placeholder="search_products_placeholder" placeholder="Search flowers and gifts..." oninput="performLiveSearch(this.value)" style="width: 100%; padding: 12px 16px; border: 1px solid #ccc; border-radius: 10px; font-size: 15px; outline: none;">
+          <div id="live-search-results" style="margin-top: 15px; max-height: 300px; overflow-y: auto; text-align: start; display: flex; flex-direction: column; gap: 10px;"></div>
         </div>
       </div>
     </div>
@@ -226,15 +228,15 @@
       <button type="button" id="btn-close-menu" aria-label="Close menu" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666;">x</button>
     </div>
     <div style="padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
-      <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الرئيسية</a>
-      <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;">الزهور المنسقة</a>
+      <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;" data-i18n="nav_home">Home</a>
+      <a href="index.html" style="text-decoration: none; color: #333; font-size: 16px;" data-i18n="footer_bouquets">Curated bouquets</a>
     </div>
   </div>
 
   <!-- المحتوى الرئيسي لصفحة المنتج -->
   <main class="product-page-container">
     <div class="breadcrumb-trail">
-        <a href="index.html">الرئيسية</a> / <span id="breadcrumb-cat">التصنيف</span> / <span id="breadcrumb-name">اسم المنتج</span>
+        <a href="index.html" data-i18n="nav_home">Home</a> / <span id="breadcrumb-cat" data-i18n="category_label">Category</span> / <span id="breadcrumb-name">Product</span>
     </div>
 
     <div id="product-details-container" class="product-main-grid">
@@ -285,7 +287,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="lorin-store-settings.js"></script>
-    <script src="lorin-i18n.js"></script>
     <script src="lorin-countries.js"></script>
     <script src="lorin-auth.js"></script>
 <script>

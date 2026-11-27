@@ -1,0 +1,94 @@
+html {
+  direction: ltr;
+  text-align: start;
+}
+
+html[dir="rtl"] body {
+  font-family: "Tajawal", "Cairo", Arial, sans-serif;
+  direction: rtl;
+  text-align: start;
+}
+
+html[dir="ltr"] body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  direction: ltr;
+  text-align: start;
+}
+
+[data-i18n-directional] {
+  transition: transform .18s ease;
+}
+
+html[dir="rtl"] [data-i18n-directional] {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .floward-menu-drawer {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+  right: 0 !important;
+  left: auto !important;
+  direction: rtl;
+  transform: translateX(100%);
+}
+
+html[dir="rtl"] .floward-menu-drawer.is-open {
+  transform: translateX(0) !important;
+}
+
+html[dir="rtl"] .pill-dropdown-menu {
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+}
+
+html[dir] .floward-search-overlay,
+html[dir] .pill-dropdown-menu,
+html[dir] .pill-dropdown-item {
+  direction: inherit;
+  text-align: start;
+}
+
+html[dir] .lc-each,
+html[dir] .fw-msg-counter,
+html[dir] .fw-card-item,
+html[dir] .fbt-title,
+html[dir] .breadcrumb-trail {
+  text-align: start;
+}
+
+html[dir] [style*="text-align: right"],
+html[dir] [style*="text-align: left"] {
+  text-align: start !important;
+}
+
+html[dir] input:not([dir="ltr"]),
+html[dir] textarea:not([dir="ltr"]),
+html[dir] select:not([dir="ltr"]) {
+  text-align: start;
+}
+
+html[dir] input[type="email"],
+html[dir] input[type="tel"],
+html[dir] input[type="url"],
+html[dir] input[type="number"] {
+  direction: ltr;
+}
+
+html[dir="rtl"] .checkout-step-stepper,
+html[dir="rtl"] .content-grid,
+html[dir="rtl"] .order-grid {
+  direction: rtl;
+}
+
+html[dir="ltr"] .checkout-step-stepper,
+html[dir="ltr"] .content-grid,
+html[dir="ltr"] .order-grid {
+  direction: ltr;
+}
+
+@media (max-width: 700px) {
+  html[dir="rtl"] .floward-left-group,
+  html[dir="rtl"] .floward-right-group {
+    gap: clamp(.55rem, 3vw, 1.2rem) !important;
+  }
+}

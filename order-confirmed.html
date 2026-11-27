@@ -1,9 +1,11 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#FBF8F1">
+  <link rel="stylesheet" href="lorin-i18n.css">
+  <script src="lorin-i18n.js"></script>
   <title>Order confirmed | Lorin</title>
   <style>
     :root {
@@ -43,6 +45,19 @@
       color: #00313C;
       font: 600 19px/1 Georgia, "Times New Roman", serif;
       letter-spacing: .22em;
+    }
+
+    .language-switch {
+      margin: 0 0 20px;
+      padding: 7px 12px;
+      color: #00313C;
+      background: #FFFFFF;
+      border: 1px solid #D9D3C8;
+      border-radius: 999px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
     .check-icon {
@@ -168,6 +183,7 @@
 </head>
 <body>
   <main class="confirmation" aria-labelledby="confirmation-heading">
+    <button class="language-switch pill-btn--lang" type="button" data-i18n-aria="switch_lang_aria"><span>العربية</span></button>
     <div class="wordmark" aria-label="Lorin">LORIN</div>
     <div class="check-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none">
@@ -189,7 +205,7 @@
 
     <a class="track-button" id="track-order-button" href="track-order.html">
       <span id="track-label">تتبع طلبك</span>
-      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" data-i18n-directional>
         <path d="M5 12h13m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </a>
@@ -240,6 +256,7 @@
       }
 
       const queryOrder = new URLSearchParams(window.location.search).get('order') || '';
+      const queryTrackingToken = new URLSearchParams(window.location.search).get('token') || '';
       const rawOrderNumber = queryOrder || snapshot.orderNumber || '';
       const normalizeOrderNumber = (value) => String(value || '')
         .replace(/\s+/g, '')
@@ -247,6 +264,7 @@
         .toUpperCase()
         .slice(0, 100);
       const orderNumber = normalizeOrderNumber(rawOrderNumber);
+      const trackingToken = String(queryTrackingToken || snapshot.trackingToken || '').trim().toLowerCase();
       const snapshotOrderNumber = normalizeOrderNumber(snapshot.orderNumber);
       const lang = (() => {
         try {
@@ -271,7 +289,9 @@
       copyButton.textContent = t.copy;
       orderNumberElement.textContent = orderNumber ? `#${orderNumber}` : '#—';
       copyButton.disabled = !orderNumber;
-      trackButton.href = orderNumber ? `track-order.html?order=${encodeURIComponent(orderNumber)}` : 'track-order.html';
+      trackButton.href = /^[a-f0-9]{64}$/.test(trackingToken)
+        ? `track-order.html?token=${encodeURIComponent(trackingToken)}`
+        : 'track-order.html';
       emailNote.textContent = !!orderNumber && snapshotOrderNumber === orderNumber && snapshot.customerEmailSent === true
         ? t.emailSent
         : t.emailPending;

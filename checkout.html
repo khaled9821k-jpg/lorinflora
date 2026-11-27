@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <link rel="stylesheet" href="lorin-notifications.css">
   <link rel="stylesheet" href="lorin-cart-popover.css">
+  <link rel="stylesheet" href="lorin-i18n.css">
   <script src="lorin-notifications.js"></script>
   <script src="lorin-preloader.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>إتمام الطلب - Lorin | Checkout</title>
+  <title data-i18n="checkout_title">Checkout | Lorin</title>
 
   <link rel="icon" type="image/png" href="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png">
   
@@ -1073,7 +1074,7 @@
       </div>
 
       <div class="pill-language-wrapper">
-        <button type="button" class="pill-btn pill-btn--lang">
+        <button type="button" class="pill-btn pill-btn--lang" data-i18n-aria="switch_lang_aria">
           <span>English</span>
         </button>
       </div>
@@ -1301,7 +1302,7 @@
               <div class="flex items-center gap-2">
                 <span data-i18n="express_banner_text">أدخل عنوان المستلم وسنضمن وصول هديتك الفاخرة خلال 120 دقيقة!</span>
               </div>
-              <a href="#" onclick="showToastNotification('خدمة التوصيل السريع من Lorin تضمن توصيل الباقات المنسقة طازجة خلال ساعتين في عمان.', { type: 'info' }); return false;" class="text-[11px] underline text-gray-300 hover:text-white" data-i18n="express_banner_link">تعرف أكثر</a>
+              <a href="#" onclick="showToastNotification(t('express_delivery_toast'), { type: 'info' }); return false;" class="text-[11px] underline text-gray-300 hover:text-white" data-i18n="express_banner_link">Discover express delivery</a>
             </div>
           </div>
 
@@ -1523,7 +1524,7 @@
 
       <a id="confirmation-track-button" class="checkout-confirmation-track" href="track-order.html">
         <span data-i18n="confirmation_track">تتبع طلبك</span>
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" data-i18n-directional>
           <path d="M5 12h13m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </a>
@@ -1544,19 +1545,19 @@
 </div>
 
 <!-- Footer -->
-<footer style="background-color: #00313C; color: #ffffff; padding: 50px 20px 30px 20px; font-family: 'Tajawal', sans-serif; direction: rtl; margin-top: 50px;">
+<footer style="background-color: #00313C; color: #ffffff; padding: 50px 20px 30px 20px; font-family: 'Tajawal', sans-serif; direction: inherit; margin-top: 50px;">
   <div style="max-width: 1350px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; padding-bottom: 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
     <div>
       <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png" alt="Lorin" style="height: 36px; filter: brightness(0) invert(1); object-fit: contain; margin-bottom: 16px;">
-      <p style="font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6;">متجر Lorin للزهور والهدايا الفاخرة - توصيل فوري داخل الأردن.</p>
+      <p style="font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6;" data-i18n="footer_intro">Lorin brings you thoughtfully arranged flowers and refined gifts, delivered across Jordan.</p>
     </div>
     <div>
-      <div style="font-size: 13px; font-weight: 700; color: #ffffff; margin-bottom: 14px;">روابط سريعة</div>
+      <div style="font-size: 13px; font-weight: 700; color: #ffffff; margin-bottom: 14px;" data-i18n="footer_quick_links">Quick links</div>
       <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.7);">
-        <li><a href="index.html" style="color: inherit; text-decoration: none;">الرئيسية</a></li>
-        <li><a href="cart.html" style="color: inherit; text-decoration: none;">سلة المشتريات</a></li>
-        <li><a href="privacy-policy.html" style="color: inherit; text-decoration: none;" data-i18n="auth_privacy_policy">سياسة الخصوصية</a></li>
-        <li><a href="terms-and-conditions.html" style="color: inherit; text-decoration: none;" data-i18n="auth_terms_conditions">الشروط والأحكام</a></li>
+        <li><a href="index.html" style="color: inherit; text-decoration: none;" data-i18n="footer_home">Home</a></li>
+        <li><a href="cart.html" style="color: inherit; text-decoration: none;" data-i18n="nav_cart">Cart</a></li>
+        <li><a href="privacy-policy.html" style="color: inherit; text-decoration: none;" data-i18n="footer_privacy">Privacy policy</a></li>
+        <li><a href="terms-and-conditions.html" style="color: inherit; text-decoration: none;" data-i18n="footer_terms">Terms & conditions</a></li>
       </ul>
     </div>
   </div>
@@ -2335,7 +2336,9 @@
 
     document.getElementById('confirmation-order-number').textContent = `#${orderNumber}`;
     document.getElementById('confirmation-track-button').href =
-      `track-order.html?order=${encodeURIComponent(orderNumber)}`;
+      snapshot.trackingToken
+        ? `track-order.html?token=${encodeURIComponent(snapshot.trackingToken)}`
+        : 'track-order.html';
     document.getElementById('confirmation-copy-button').disabled = !orderNumber;
     updateConfirmationEmailNote();
     updateCheckoutStepper();
@@ -2405,7 +2408,7 @@
     }
 
     if (!isCollectAddress && !area) {
-      showToastNotification(isArabicLocale() ? 'يرجى اختيار المنطقة' : 'Please select a delivery area.', { type: 'warning' });
+      showToastNotification(t('msg_select_area'), { type: 'warning' });
       document.getElementById('receiver-area').focus();
       return false;
     }
@@ -2741,6 +2744,15 @@
     return String.fromCharCode(65 + first, 65 + second, 65 + third) + String(digits).padStart(3, '0');
   }
 
+  function createTrackingToken() {
+    if (!window.crypto || typeof window.crypto.getRandomValues !== 'function') {
+      throw new Error('Secure order tracking is unavailable in this browser.');
+    }
+    const bytes = new Uint8Array(32);
+    window.crypto.getRandomValues(bytes);
+    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  }
+
   // Final Order Submission to Supabase
   async function submitFinalOrder() {
     const cart = getCart();
@@ -2788,6 +2800,7 @@
     const fullRecipientPhone = selectedRecipientCountry.dial + cleanPhone;
     const orderRecord = {
       id: '',
+      trackingToken: '',
       created_at: new Date().toISOString()
     };
 
@@ -2831,6 +2844,9 @@
     };
 
     try {
+      const trackingToken = createTrackingToken();
+      orderRecord.trackingToken = trackingToken;
+      trackingOrderData.tracking_token = trackingToken;
       const { data: generatedOrderNumber, error: dbError } = await supabaseClient
         .rpc('create_order_with_number', {
           p_order: {
@@ -2854,7 +2870,10 @@
       orderRecord.id = /^[A-Z]{3}[0-9]{3}$/.test(returnedOrderNumber)
         ? returnedOrderNumber
         : createFallbackOrderNumber();
-      if (emailData) emailData.orderNumber = orderRecord.id;
+      if (emailData) {
+        emailData.orderNumber = orderRecord.id;
+        emailData.trackingToken = trackingToken;
+      }
       checkoutOrderCompleted = true;
       updateCheckoutStepper();
     } catch (err) {
@@ -2892,6 +2911,7 @@
 
     const confirmationSnapshot = {
       orderNumber: orderRecord.id,
+      trackingToken: orderRecord.trackingToken,
       status: 'confirmed',
       created_at: orderRecord.created_at,
       items: cart.map((item) => ({
@@ -2906,7 +2926,7 @@
       prepared_photo_url: '',
       customerEmailSent,
       customerEmail: String((emailData && emailData.customer && emailData.customer.email) || ''),
-      trackingUrl: `track-order.html?order=${encodeURIComponent(orderRecord.id)}`,
+      trackingUrl: `track-order.html?token=${encodeURIComponent(orderRecord.trackingToken)}`,
       total: totals.total,
       createdAt: orderRecord.created_at
     };

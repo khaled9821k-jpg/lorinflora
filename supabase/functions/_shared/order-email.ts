@@ -21,6 +21,7 @@ export interface OrderItem {
 
 export interface OrderEmailData {
   orderNumber: string;
+  trackingToken: string;
   createdAt: Date | string;
   locale?: "ar" | "en";
   currency?: string; // default 'JOD'

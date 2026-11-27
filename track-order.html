@@ -1,9 +1,11 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#FBF8F1">
+  <link rel="stylesheet" href="lorin-i18n.css">
+  <script src="lorin-i18n.js"></script>
   <title>Track your order | Lorin</title>
   <style>
     :root {
@@ -283,15 +285,14 @@
     <a class="brand" href="index.html" aria-label="Lorin">LORIN</a>
     <nav class="top-actions" aria-label="Page actions">
       <a class="back-link" id="back-to-store" href="index.html">Back to Store</a>
-      <button class="language-button" id="language-toggle" type="button" aria-label="Switch language">EN</button>
+      <button class="language-button pill-btn--lang" id="language-toggle" type="button" data-i18n-aria="switch_lang_aria"><span>العربية</span></button>
     </nav>
   </header>
 
   <main>
     <section class="access-card" id="access-panel" hidden aria-labelledby="access-heading">
       <h1 id="access-heading">Track your order</h1>
-      <p lang="ar" dir="rtl">يمكنك تتبع طلبك مباشرةً من زر «تتبع طلبك» في صفحة تأكيد الطلب أو رسالة التأكيد الإلكترونية.</p>
-      <p lang="en" dir="ltr">Order tracking is available directly from the “Track Your Order” button on your order confirmation or confirmation email.</p>
+      <p data-i18n="tracker_access_message">Open your order’s tracking page using the “Track Your Order” button on the confirmation page or the link in your confirmation email.</p>
       <p class="message" id="access-error" role="status" aria-live="polite" hidden></p>
       <a class="primary-button" id="return-to-store" href="https://lorinflora.com">Return to Store</a>
     </section>
@@ -361,81 +362,42 @@
       const ORDER_SNAPSHOT_KEY = 'lorin_order_confirmation';
       const POLL_INTERVAL_MS = 60000;
       const STATUS_STEPS = ['confirmed', 'preparing', 'out_for_delivery', 'delivered'];
-      const translations = {
-        ar: {
-          title: 'تتبع طلبك | Lorin',
-          back: 'العودة إلى المتجر',
-          accessHeading: 'تتبع طلبك',
-          returnToStore: 'العودة إلى المتجر',
-          orderNumber: 'رقم الطلب',
-          refresh: 'تحديث الحالة',
-          refreshing: 'جارٍ التحديث...',
-          progress: 'مراحل طلبك',
-          itemSummary: 'ملخص الطلب',
-          delivery: 'التوصيل',
-          area: 'المنطقة',
-          address: 'العنوان',
-          dateTime: 'موعد التوصيل',
-          total: 'الإجمالي',
-          quantity: 'الكمية',
-          giftCard: 'بطاقة الإهداء',
-          photoTitle: 'باقتك جاهزة الآن',
-          support: 'الدعم عبر واتساب',
-          loadError: 'تعذر تحميل حالة الطلب الآن. يرجى المحاولة مرة أخرى.',
-          configError: 'خدمة التتبع غير مهيأة بعد. يرجى التواصل مع المتجر.',
-          fallbackNotice: 'نعرض نسخة محفوظة من الطلب إلى أن تتوفر بيانات التتبع المباشرة.',
-          lastUpdated: 'آخر تحديث',
-          steps: ['تم تأكيد الطلب', 'جاري تنسيق الباقة', 'خرج للتوصيل', 'تم التوصيل'],
-          stepDescriptions: ['تم استلام طلبك', 'يتم تجهيز باقتك بعناية', 'الباقة في طريقها إليك', 'تم تسليم الطلب'],
-          email: 'سيصلك تحديث عند انتقال طلبك إلى المرحلة التالية.',
-          placeholderItem: 'منتج',
-          dateUnknown: 'سيتم تأكيده قريباً',
-          noItems: 'تفاصيل المنتجات غير متاحة.',
-          noAddress: 'سيتم تنسيق العنوان مع المستلم',
-        },
-        en: {
-          title: 'Track your order | Lorin',
-          back: 'Back to Store',
-          accessHeading: 'Track your order',
-          returnToStore: 'Return to Store',
-          orderNumber: 'Order Number',
-          refresh: 'Refresh status',
-          refreshing: 'Refreshing...',
-          progress: 'Your order progress',
-          itemSummary: 'Order summary',
-          delivery: 'Delivery',
-          area: 'Area',
-          address: 'Address',
-          dateTime: 'Delivery date & time',
-          total: 'Total',
-          quantity: 'Qty',
-          giftCard: 'Your gift card',
-          photoTitle: 'Your Arrangement Is Ready',
-          support: 'WhatsApp support',
-          loadError: 'We could not load the order status. Please try again.',
-          configError: 'Order tracking is not configured yet. Please contact the store.',
-          fallbackNotice: 'Showing a saved order summary while live tracking is unavailable.',
-          lastUpdated: 'Last updated',
-          steps: ['Order Confirmed', 'Crafting Your Arrangement', 'Out for Delivery', 'Delivered'],
-          stepDescriptions: ['Your order has been received', 'Your arrangement is being prepared', 'Your order is on its way', 'Your order has been delivered'],
-          email: 'We’ll update your order here as it moves to the next stage.',
-          placeholderItem: 'Product',
-          dateUnknown: 'To be confirmed',
-          noItems: 'Product details are not available.',
-          noAddress: 'The delivery address will be coordinated with the recipient',
-        }
+      const TRACKER_KEYS = {
+        title: 'tracker_title',
+        back: 'tracker_back',
+        accessHeading: 'tracker_access_heading',
+        returnToStore: 'tracker_return_to_store',
+        orderNumber: 'tracker_order_number',
+        refresh: 'tracker_refresh',
+        refreshing: 'tracker_refreshing',
+        progress: 'tracker_progress',
+        itemSummary: 'tracker_item_summary',
+        delivery: 'tracker_delivery',
+        area: 'tracker_area',
+        address: 'tracker_address',
+        dateTime: 'tracker_date_time',
+        total: 'tracker_total',
+        quantity: 'tracker_quantity',
+        giftCard: 'tracker_gift_card',
+        photoTitle: 'tracker_photo_title',
+        support: 'tracker_support',
+        loadError: 'tracker_load_error',
+        configError: 'tracker_config_error',
+        fallbackNotice: 'tracker_fallback_notice',
+        placeholderItem: 'tracker_placeholder_item',
+        dateUnknown: 'tracker_date_unknown',
+        noItems: 'tracker_no_items',
+        noAddress: 'tracker_no_address',
+        loading: 'tracker_loading'
       };
-
-      let language = (() => {
-        try { return localStorage.getItem('lorin_lang') === 'en' ? 'en' : 'ar'; }
-        catch (_) { return 'ar'; }
-      })();
+      let language = window.LorinI18n.getLang();
       let activeOrderNumber = '';
+      let activeTrackingToken = '';
       let pollTimer = null;
       let supabaseClient = null;
 
       const $ = (id) => document.getElementById(id);
-      const t = (key) => translations[language][key];
+      const t = (key) => window.LorinI18n.t(TRACKER_KEYS[key] || key);
 
       function escapeHtml(value) {
         return String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
@@ -457,10 +419,15 @@
         return String(value || '').replace(/\s+/g, '').replace(/^#+/, '').toUpperCase().slice(0, 100);
       }
 
+      function normalizeTrackingToken(value) {
+        const token = String(value || '').trim().toLowerCase();
+        return /^[a-f0-9]{64}$/.test(token) ? token : '';
+      }
+
       function formatMoney(value) {
         const amount = Number(value);
         if (!Number.isFinite(amount)) return '—';
-        return `${amount.toFixed(2)} JOD`;
+        return `${amount.toFixed(2)} ${t('currency_code')}`;
       }
 
       function formatDate(value) {
@@ -501,6 +468,19 @@
         return null;
       }
 
+      function getSnapshotByTrackingToken(trackingToken) {
+        if (!trackingToken) return null;
+        for (const getStorage of [() => sessionStorage, () => localStorage]) {
+          try {
+            const snapshot = JSON.parse(getStorage().getItem(ORDER_SNAPSHOT_KEY) || 'null');
+            if (snapshot && normalizeTrackingToken(snapshot.trackingToken) === trackingToken) return snapshot;
+          } catch (_) {
+            continue;
+          }
+        }
+        return null;
+      }
+
       function setMessage(element, text, kind) {
         element.textContent = text || '';
         element.dataset.kind = kind || '';
@@ -508,6 +488,7 @@
 
       function showAccessPanel(errorMessage) {
         activeOrderNumber = '';
+        activeTrackingToken = '';
         $('order-view').hidden = true;
         $('access-panel').hidden = false;
         setMessage($('access-error'), errorMessage || '', errorMessage ? 'error' : '');
@@ -516,12 +497,8 @@
 
       function setLanguage(nextLanguage) {
         language = nextLanguage === 'en' ? 'en' : 'ar';
-        document.documentElement.lang = language;
-        document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
         document.title = t('title');
         $('back-to-store').textContent = t('back');
-        $('language-toggle').textContent = language === 'ar' ? 'EN' : 'عربي';
-        $('language-toggle').setAttribute('aria-label', language === 'ar' ? 'Switch language to English' : 'التبديل إلى العربية');
         $('access-heading').textContent = t('accessHeading');
         $('return-to-store').textContent = t('returnToStore');
         $('order-overline').textContent = t('orderNumber');
@@ -556,6 +533,18 @@
       function renderTracker(order) {
         const currentStatus = getStatus(order);
         const currentIndex = STATUS_STEPS.indexOf(currentStatus);
+        const stepLabels = [
+          'tracker_step_confirmed',
+          'tracker_step_preparing',
+          'tracker_step_out_for_delivery',
+          'tracker_step_delivered'
+        ].map(t);
+        const stepDescriptions = [
+          'tracker_step_confirmed_desc',
+          'tracker_step_preparing_desc',
+          'tracker_step_out_for_delivery_desc',
+          'tracker_step_delivered_desc'
+        ].map(t);
         $('status-tracker').innerHTML = STATUS_STEPS.map((status, index) => {
           const state = index < currentIndex ? 'is-complete' : index === currentIndex ? 'is-current' : '';
           const timestamp = getStatusTimestamp(order, status);
@@ -563,8 +552,8 @@
             <span class="step-dot" aria-hidden="true">${index < currentIndex
               ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m5 12 4.5 4.5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
               : index + 1}</span>
-            <span class="step-title">${escapeHtml(t('steps')[index])}</span>
-            <span class="step-time">${escapeHtml(timestamp || t('stepDescriptions')[index])}</span>
+            <span class="step-title">${escapeHtml(stepLabels[index])}</span>
+            <span class="step-time">${escapeHtml(timestamp || stepDescriptions[index])}</span>
           </div>`;
         }).join('');
       }
@@ -695,22 +684,22 @@
         };
       }
 
-      async function loadLiveOrder(orderNumber) {
+      async function loadLiveOrder(trackingToken) {
         if (!supabaseClient) throw new Error('tracking_not_configured');
-        const { data, error } = await supabaseClient.rpc('track_order_public', {
-          p_order_number: orderNumber
+        const { data, error } = await supabaseClient.rpc('track_order_by_token', {
+          p_tracking_token: trackingToken
         });
         if (error) throw error;
         return data && typeof data === 'object' ? data : null;
       }
 
-      async function fetchOrder(orderNumber) {
+      async function fetchOrder(trackingToken) {
         const orderMessage = $('order-message');
         setMessage(orderMessage, '', '');
         try {
-          const liveOrder = await loadLiveOrder(orderNumber);
+          const liveOrder = await loadLiveOrder(trackingToken);
           if (!liveOrder) {
-            const fallback = readSnapshotOrder(getSnapshot(orderNumber));
+            const fallback = readSnapshotOrder(getSnapshotByTrackingToken(trackingToken));
             if (fallback) {
               $('access-panel').hidden = true;
               $('order-view').hidden = false;
@@ -728,7 +717,7 @@
           return true;
         } catch (error) {
           console.error('Order tracking request failed:', error);
-          const fallback = readSnapshotOrder(getSnapshot(orderNumber));
+          const fallback = readSnapshotOrder(getSnapshotByTrackingToken(trackingToken));
           if (fallback) {
             $('access-panel').hidden = true;
             $('order-view').hidden = false;
@@ -739,7 +728,7 @@
           const errorMessage = error && (
             error.message === 'tracking_not_configured' ||
             error.code === 'PGRST202' ||
-            String(error.message || '').includes('track_order_public')
+            String(error.message || '').includes('track_order_by_token')
           ) ? t('configError') : t('loadError');
           showAccessPanel(errorMessage);
           return false;
@@ -749,24 +738,22 @@
       function startPolling() {
         if (pollTimer) window.clearInterval(pollTimer);
         pollTimer = window.setInterval(() => {
-          if (activeOrderNumber && !document.hidden) fetchOrder(activeOrderNumber);
+          if (activeTrackingToken && !document.hidden) fetchOrder(activeTrackingToken);
         }, POLL_INTERVAL_MS);
       }
 
       $('refresh-order').addEventListener('click', async () => {
-        if (!activeOrderNumber) return;
+        if (!activeTrackingToken) return;
         const button = $('refresh-order');
         button.disabled = true;
         $('refresh-label').textContent = t('refreshing');
-        await fetchOrder(activeOrderNumber);
+        await fetchOrder(activeTrackingToken);
         button.disabled = false;
         $('refresh-label').textContent = t('refresh');
       });
 
-      $('language-toggle').addEventListener('click', () => {
-        const nextLanguage = language === 'ar' ? 'en' : 'ar';
-        try { localStorage.setItem('lorin_lang', nextLanguage); } catch (_) {}
-        setLanguage(nextLanguage);
+      window.addEventListener('lorin:langchange', (event) => {
+        setLanguage(event.detail && event.detail.lang ? event.detail.lang : window.LorinI18n.getLang());
       });
 
       $('ready-photo').addEventListener('click', () => {
@@ -782,24 +769,42 @@
 
       setLanguage(language);
       const searchParams = new URLSearchParams(window.location.search);
+      const hasTokenParameter = searchParams.has('token');
+      const queryToken = normalizeTrackingToken(searchParams.get('token'));
       const hasOrderParameter = searchParams.has('order');
       const queryOrder = normalizeOrderNumber(searchParams.get('order'));
-      const initialSnapshot = hasOrderParameter ? null : getLatestSnapshot();
-      const initialOrderNumber = queryOrder ||
-        (!hasOrderParameter && initialSnapshot ? normalizeOrderNumber(initialSnapshot.orderNumber) : '');
-      if (initialOrderNumber) {
-        activeOrderNumber = initialOrderNumber;
-        $('access-panel').hidden = true;
-        $('order-view').hidden = false;
-        $('order-id').textContent = `#${initialOrderNumber}`;
-        const snapshotOrder = readSnapshotOrder(getSnapshot(initialOrderNumber));
-        if (snapshotOrder) renderOrder(snapshotOrder);
-        if (window.supabase && typeof window.supabase.createClient === 'function') {
-          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const initialSnapshot = hasTokenParameter
+        ? getSnapshotByTrackingToken(queryToken)
+        : hasOrderParameter
+          ? getSnapshot(queryOrder)
+          : getLatestSnapshot();
+
+      if (hasTokenParameter && !queryToken) {
+        showAccessPanel();
+      } else if (hasTokenParameter || initialSnapshot) {
+        const snapshotToken = normalizeTrackingToken(initialSnapshot && initialSnapshot.trackingToken);
+        activeTrackingToken = queryToken || snapshotToken;
+        if (initialSnapshot) {
+          const snapshotOrder = readSnapshotOrder(initialSnapshot);
+          activeOrderNumber = normalizeOrderNumber(snapshotOrder.order_number);
+          $('access-panel').hidden = true;
+          $('order-view').hidden = false;
+          renderOrder(snapshotOrder);
+        } else {
+          $('access-panel').hidden = !activeTrackingToken;
+          $('order-view').hidden = !activeTrackingToken;
+          $('order-id').textContent = '—';
+          setMessage($('order-message'), t('loading'), '');
         }
-        fetchOrder(initialOrderNumber).finally(() => {
-          if (activeOrderNumber) startPolling();
-        });
+        $('refresh-order').hidden = !activeTrackingToken;
+        if (activeTrackingToken) {
+          if (window.supabase && typeof window.supabase.createClient === 'function') {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          }
+          fetchOrder(activeTrackingToken).finally(() => {
+            if (activeTrackingToken) startPolling();
+          });
+        }
       } else {
         showAccessPanel();
       }

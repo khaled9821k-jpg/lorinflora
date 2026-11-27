@@ -27,6 +27,8 @@ function isOrderPayload(value: unknown): value is OrderEmailData {
   const sender = isRecord(value.sender) ? value.sender : null;
   const summary = isRecord(value.summary) ? value.summary : null;
   return typeof value.orderNumber === "string" &&
+    typeof value.trackingToken === "string" &&
+    /^[a-f0-9]{64}$/i.test(value.trackingToken) &&
     typeof value.createdAt === "string" &&
     Array.isArray(value.items) &&
     value.items.every((item: unknown) => isRecord(item) &&
@@ -90,8 +92,8 @@ function renderCustomerConfirmation(order: OrderEmailData): { subject: string; h
   const isArabic = order.locale === "ar";
   const dir = isArabic ? "rtl" : "ltr";
   const orderNumber = order.orderNumber;
-  const trackUrl = `https://www.lorinflora.com/track-order.html?order=${encodeURIComponent(order.orderNumber)}`;
-  const orderConfirmedUrl = `https://www.lorinflora.com/order-confirmed.html?order=${encodeURIComponent(order.orderNumber)}`;
+  const trackUrl = `https://www.lorinflora.com/track-order.html?token=${encodeURIComponent(order.trackingToken)}`;
+  const orderConfirmedUrl = `https://www.lorinflora.com/order-confirmed.html?order=${encodeURIComponent(order.orderNumber)}&token=${encodeURIComponent(order.trackingToken)}`;
   const currency = order.currency || "JOD";
   const money = (amount: number) => `${Number(amount || 0).toFixed(2)} ${currency}`;
   const text = isArabic
@@ -276,7 +278,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     respond(res, 400, { error: "Order number must be a 6-character code or a legacy WEB-... code." });
     return;
   }
-  const order: OrderEmailData = { ...parsedOrder, orderNumber };
+  const order: OrderEmailData = {
+    ...parsedOrder,
+    orderNumber,
+    trackingToken: parsedOrder.trackingToken.toLowerCase(),
+  };
 
   const recipients = (process.env.ORDER_NOTIFICATION_EMAIL || "")
     .split(",")

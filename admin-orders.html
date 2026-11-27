@@ -1,10 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#FBF8F1">
-  <title>Admin Orders | Lorin</title>
+  <link rel="stylesheet" href="lorin-i18n.css">
+  <script src="lorin-i18n.js"></script>
+  <title data-i18n="admin_title">Order management | Lorin</title>
   <style>
     :root {
       color-scheme: light;
@@ -236,21 +238,21 @@
     <a class="brand" href="index.html" aria-label="Lorin">LORIN</a>
     <div class="top-actions">
       <span class="admin-email" id="admin-email"></span>
-      <button class="button button-lock" id="lock-button" type="button" hidden>Lock / Sign out</button>
+      <button class="button pill-btn--lang" type="button" data-i18n-aria="switch_lang_aria"><span>العربية</span></button>
+      <button class="button button-lock" id="lock-button" type="button" hidden data-i18n="admin_lock">Lock / sign out</button>
     </div>
   </header>
 
   <main>
     <div class="page-heading">
       <div>
-        <h1>Orders</h1>
-        <p class="subtitle">Review incoming orders, update progress, and add the prepared arrangement photo.</p>
+        <h1 data-i18n="admin_orders">Orders</h1>
+        <p class="subtitle" data-i18n="admin_subtitle">Review new orders, update their progress, and add a photo of each finished arrangement.</p>
       </div>
-      <a class="button" href="track-order.html">Open customer tracker</a>
     </div>
     <div class="toolbar">
-      <input class="search-input" id="order-search" type="search" placeholder="Search order number or customer / recipient name" autocomplete="off">
-      <button class="button button-primary" id="refresh-button" type="button">Refresh orders</button>
+      <input class="search-input" id="order-search" type="search" placeholder="Search by order number or customer / recipient name" data-i18n-placeholder="admin_search_placeholder" autocomplete="off">
+      <button class="button button-primary" id="refresh-button" type="button" data-i18n="admin_refresh">Refresh orders</button>
     </div>
     <p class="notice" id="page-notice" role="status" aria-live="polite"></p>
     <section class="orders-list" id="orders-list" aria-live="polite"></section>
@@ -259,19 +261,19 @@
   <div class="gate" id="admin-gate">
     <form class="gate-card" id="admin-login-form">
       <div class="gate-brand">LORIN</div>
-      <h2 class="gate-title">Admin Orders</h2>
-      <p class="gate-copy">Sign in with your authorized Supabase admin account.</p>
+      <h2 class="gate-title" data-i18n="admin_login_title">Order management</h2>
+      <p class="gate-copy" data-i18n="admin_login_copy">Sign in with your authorized administrator account.</p>
       <div class="gate-field">
-        <label for="admin-email-input">Admin email</label>
+        <label for="admin-email-input" data-i18n="admin_email">Administrator email</label>
         <input class="field-input" id="admin-email-input" type="email" autocomplete="username" required dir="ltr">
       </div>
       <div class="gate-field">
-        <label for="admin-password-input">Password</label>
+        <label for="admin-password-input" data-i18n="admin_password">Password</label>
         <input class="field-input" id="admin-password-input" type="password" autocomplete="current-password" required dir="ltr">
       </div>
       <p class="notice" id="gate-notice" role="status" aria-live="polite"></p>
-      <button class="button button-primary" id="login-button" type="submit" style="width:100%">Sign in</button>
-      <p class="gate-warning">Supabase Auth and admin RLS policies authorize all data access.</p>
+      <button class="button button-primary" id="login-button" type="submit" style="width:100%" data-i18n="admin_sign_in">Sign in</button>
+      <p class="gate-warning" data-i18n="admin_auth_note">Data access is protected by Supabase authentication and administrator policies.</p>
     </form>
   </div>
 
@@ -285,10 +287,10 @@
       const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
       const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
       const STATUS_OPTIONS = [
-        ['confirmed', 'Order Confirmed'],
-        ['preparing', 'Crafting Your Arrangement'],
-        ['out_for_delivery', 'Out for Delivery'],
-        ['delivered', 'Delivered']
+        ['confirmed', 'admin_status_confirmed'],
+        ['preparing', 'admin_status_preparing'],
+        ['out_for_delivery', 'admin_status_out_for_delivery'],
+        ['delivered', 'admin_status_delivered']
       ];
 
       const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -304,6 +306,7 @@
       const pendingFiles = new Map();
       const previewUrls = new Map();
       const $ = (id) => document.getElementById(id);
+      const t = (key) => window.LorinI18n.t(key);
 
       function escapeHtml(value) {
         return String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
@@ -342,7 +345,11 @@
       function formatDate(value) {
         if (!value) return '—';
         const date = new Date(value);
-        return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+        if (Number.isNaN(date.getTime())) return String(value);
+        return new Intl.DateTimeFormat(window.LorinI18n.getLang() === 'ar' ? 'ar-JO' : 'en-GB', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        }).format(date);
       }
 
       function getOrderDetails(order) {
@@ -367,8 +374,8 @@
         const customerPhone = String(order.customer_phone || '');
         const currentPhoto = previewUrls.get(String(order.id)) || safePhotoUrl(order.prepared_photo_url || order.ready_photo_url);
         const photoName = pendingFiles.get(String(order.id)) ? pendingFiles.get(String(order.id)).name : '';
-        const statusOptions = STATUS_OPTIONS.map(([value, label]) =>
-          `<option value="${value}"${getStatus(order) === value ? ' selected' : ''}>${label}</option>`
+        const statusOptions = STATUS_OPTIONS.map(([value, key]) =>
+          `<option value="${value}"${getStatus(order) === value ? ' selected' : ''}>${escapeHtml(t(key))}</option>`
         ).join('');
         const orderNumber = String(order.order_number || '—').replace(/\s+/g, '').toUpperCase();
         const numberText = `#${escapeHtml(orderNumber)}`;
@@ -379,7 +386,7 @@
           ? `<img class="photo-preview" data-photo-preview="${escapeHtml(order.id)}" src="${escapeHtml(currentPhoto)}" alt="Prepared arrangement preview">`
           : `<img class="photo-preview" data-photo-preview="${escapeHtml(order.id)}" alt="Prepared arrangement preview" hidden>`;
         const photoLink = safePhotoUrl(order.prepared_photo_url || order.ready_photo_url)
-          ? `<a class="photo-link" href="${escapeHtml(safePhotoUrl(order.prepared_photo_url || order.ready_photo_url))}" target="_blank" rel="noopener noreferrer">Open saved photo</a>`
+          ? `<a class="photo-link" href="${escapeHtml(safePhotoUrl(order.prepared_photo_url || order.ready_photo_url))}" target="_blank" rel="noopener noreferrer" data-i18n="admin_open_photo">${escapeHtml(t('admin_open_photo'))}</a>`
           : '';
         return `
           <article class="order-card" data-order-card="${escapeHtml(order.id)}">
@@ -388,43 +395,43 @@
                 <div class="order-number">${numberText}</div>
                 <div class="order-created">${escapeHtml(formatDate(order.created_at))}</div>
               </div>
-              <span class="status-badge">${escapeHtml(STATUS_OPTIONS.find(([value]) => value === getStatus(order))[1])}</span>
+              <span class="status-badge">${escapeHtml(t(STATUS_OPTIONS.find(([value]) => value === getStatus(order))[1]))}</span>
             </div>
             <div class="order-grid">
               <div>
-                <span class="detail-label">Customer / recipient</span>
+                <span class="detail-label" data-i18n="admin_customer_recipient">Customer / recipient</span>
                 <div class="detail-value">${escapeHtml(order.customer_name || order.recipient_name || '—')}</div>
                 ${recipientLine}
                 <div class="detail-value" dir="ltr">${escapeHtml(customerPhone || recipientPhone || '—')}</div>
                 ${customerPhone && recipientPhone && customerPhone !== recipientPhone ? `<div class="detail-value" dir="ltr">Recipient: ${escapeHtml(recipientPhone)}</div>` : ''}
               </div>
               <div>
-                <span class="detail-label">Delivery area &amp; address</span>
+                <span class="detail-label" data-i18n="admin_delivery_address">Delivery area &amp; address</span>
                 <div class="detail-value">${escapeHtml(details.deliveryAddress)}</div>
               </div>
               <div>
-                <span class="detail-label">Delivery date &amp; time</span>
+                <span class="detail-label" data-i18n="admin_delivery_schedule">Delivery date &amp; time</span>
                 <div class="detail-value">${escapeHtml(details.schedule)}</div>
               </div>
               <div>
-                <span class="detail-label">Total</span>
-                <div class="detail-value order-total">${Number(order.total_price || 0).toFixed(2)} JOD</div>
+                <span class="detail-label" data-i18n="admin_total">Total</span>
+                <div class="detail-value order-total">${Number(order.total_price || 0).toFixed(2)} ${escapeHtml(t('currency_code'))}</div>
               </div>
             </div>
             <div class="controls">
               <div>
-                <label class="control-label" for="status-${escapeHtml(order.id)}">Order status</label>
+                <label class="control-label" for="status-${escapeHtml(order.id)}" data-i18n="admin_order_status">Order status</label>
                 <select class="status-select" id="status-${escapeHtml(order.id)}" data-status-select="${escapeHtml(order.id)}">${statusOptions}</select>
               </div>
               <div>
-                <span class="control-label">Prepared arrangement photo</span>
+                <span class="control-label" data-i18n="admin_prepared_photo">Prepared arrangement photo</span>
                 <div class="photo-control">
                   <input class="photo-input" data-photo-input="${escapeHtml(order.id)}" type="file" accept="image/jpeg,image/png,image/webp">
-                  <button class="button" data-upload-photo="${escapeHtml(order.id)}" type="button">Upload photo</button>
-                  <span class="photo-hint">${escapeHtml(photoName || 'JPG, PNG or WebP; up to 10 MB')}</span>
+                  <button class="button" data-upload-photo="${escapeHtml(order.id)}" type="button" data-i18n="admin_upload_photo">${escapeHtml(t('admin_upload_photo'))}</button>
+                  <span class="photo-hint">${escapeHtml(photoName || t('admin_photo_hint'))}</span>
                 </div>
               </div>
-              <button class="button button-primary save-status" data-save-status="${escapeHtml(order.id)}" type="button">Save status</button>
+              <button class="button button-primary save-status" data-save-status="${escapeHtml(order.id)}" type="button" data-i18n="admin_save_status">${escapeHtml(t('admin_save_status'))}</button>
             </div>
             <div class="photo-preview-wrap">${photoMarkup}${photoLink}</div>
             <div class="card-feedback" data-card-feedback="${escapeHtml(order.id)}" role="status" aria-live="polite"></div>
@@ -445,7 +452,7 @@
         });
         $('orders-list').innerHTML = filtered.length
           ? filtered.map(makeOrderCard).join('')
-          : `<div class="empty-state">${orders.length ? 'No orders match your search.' : 'No orders found yet.'}</div>`;
+          : `<div class="empty-state">${escapeHtml(t(orders.length ? 'admin_empty_search' : 'admin_empty_orders'))}</div>`;
       }
 
       async function verifyAdmin() {
@@ -491,12 +498,12 @@
           showUnlocked(data.session);
         } catch (error) {
           sessionStorage.removeItem(UNLOCK_KEY);
-          setNotice($('gate-notice'), error.message || 'Could not restore the admin session.', 'error');
+          setNotice($('gate-notice'), `${t('admin_restore_failed')}: ${error.message || ''}`.trim(), 'error');
         }
       }
 
       async function loadOrders() {
-        setNotice($('page-notice'), 'Loading orders…', '');
+        setNotice($('page-notice'), t('admin_loading'), '');
         $('refresh-button').disabled = true;
         try {
           const { data, error } = await supabaseClient
@@ -505,11 +512,11 @@
             .order('created_at', { ascending: false });
           if (error) throw error;
           orders = data || [];
-          setNotice($('page-notice'), `${orders.length} order${orders.length === 1 ? '' : 's'} loaded.`, 'success');
+          setNotice($('page-notice'), `${orders.length} ${t(orders.length === 1 ? 'admin_orders_one' : 'admin_orders_many')}`, 'success');
           renderOrders();
         } catch (error) {
           console.error('Could not load admin orders:', error);
-          setNotice($('page-notice'), `Could not load orders: ${error.message || 'Unknown error'}`, 'error');
+          setNotice($('page-notice'), `${t('admin_load_failed')}: ${error.message || 'Unknown error'}`, 'error');
         } finally {
           $('refresh-button').disabled = false;
         }
@@ -522,17 +529,17 @@
         const feedback = document.querySelector(`[data-card-feedback="${CSS.escape(String(orderId))}"]`);
         if (!order || !select || !button || !feedback) return;
         button.disabled = true;
-        setNotice(feedback, 'Saving status…', '');
+        setNotice(feedback, t('admin_saving_status'), '');
         try {
           const { error } = await supabaseClient.from('orders').update({ status: select.value }).eq('id', order.id);
           if (error) throw error;
           order.status = select.value;
           const badge = document.querySelector(`[data-order-card="${CSS.escape(String(orderId))}"] .status-badge`);
-          if (badge) badge.textContent = STATUS_OPTIONS.find(([value]) => value === select.value)[1];
-          setNotice(feedback, 'Status saved.', 'success');
+          if (badge) badge.textContent = t(STATUS_OPTIONS.find(([value]) => value === select.value)[1]);
+          setNotice(feedback, t('admin_status_saved'), 'success');
         } catch (error) {
           console.error('Could not save order status:', error);
-          setNotice(feedback, `Could not save status: ${error.message || 'Unknown error'}`, 'error');
+          setNotice(feedback, `${t('admin_save_failed')}: ${error.message || 'Unknown error'}`, 'error');
         } finally {
           button.disabled = false;
         }
@@ -545,16 +552,16 @@
         if (!order || !button || !feedback) return;
         const file = pendingFiles.get(String(orderId));
         if (!file) {
-          setNotice(feedback, 'Choose an image before uploading.', 'error');
+          setNotice(feedback, t('admin_choose_image'), 'error');
           return;
         }
         if (!ALLOWED_PHOTO_TYPES.includes(file.type) || file.size > MAX_PHOTO_BYTES) {
-          setNotice(feedback, 'Choose a JPG, PNG or WebP image no larger than 10 MB.', 'error');
+          setNotice(feedback, t('admin_image_type_error'), 'error');
           return;
         }
 
         button.disabled = true;
-        setNotice(feedback, 'Uploading photo…', '');
+        setNotice(feedback, t('admin_uploading'), '');
         try {
           const extension = file.type === 'image/jpeg' ? 'jpg' : file.type.split('/')[1];
           const safeOrderPart = String(order.order_number || order.id).replace(/[^A-Za-z0-9_-]/g, '_');
@@ -580,9 +587,9 @@
           if (previewUrl) URL.revokeObjectURL(previewUrl);
           previewUrls.delete(String(orderId));
           renderOrders();
-          setNotice($('page-notice'), `Photo saved for order ${order.order_number}.`, 'success');
+          setNotice($('page-notice'), `${t('admin_photo_saved')} ${order.order_number}.`, 'success');
         } catch (error) {
-          setNotice(feedback, `Photo upload failed: ${error.message || 'Unknown error'}`, 'error');
+          setNotice(feedback, `${t('admin_upload_failed')}: ${error.message || 'Unknown error'}`, 'error');
         } finally {
           button.disabled = false;
         }
@@ -605,7 +612,7 @@
           showUnlocked(data.session);
         } catch (error) {
           await supabaseClient.auth.signOut();
-          setNotice($('gate-notice'), error.message || 'Admin sign-in failed.', 'error');
+          setNotice($('gate-notice'), `${t('admin_signin_failed')}: ${error.message || ''}`.trim(), 'error');
         } finally {
           button.disabled = false;
         }
