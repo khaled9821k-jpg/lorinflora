@@ -247,7 +247,7 @@
 
     <div class="product-tabs-section">
         <div class="tabs-header">
-            <button class="tab-btn active">Description</button>
+            <button class="tab-btn active" data-i18n="product_tab_description">Description</button>
         </div>
         <div id="product-desc-content" style="font-size: 14px; color: #555; line-height: 1.8; max-width: 900px;">
             .
@@ -255,7 +255,7 @@
     </div>
 
     <div id="fbt-section-wrapper" class="fbt-section" style="display: none;">
-        <div class="fbt-title">يقوم المستخدمون بشراء هذه المنتجات سوياً</div>
+        <div class="fbt-title" data-i18n="product_fbt_heading">Often bought together</div>
         <div id="fbt-grid-container" class="fbt-grid"></div>
     </div>
   </main>
@@ -266,21 +266,21 @@
     <div class="upsell-modal-box">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
             <div>
-                <h3 style="font-size: 20px; font-weight: 700; color: #111; margin: 0 0 4px 0;">You’ve added items to your cart</h3>
-                <div id="modal-subtotal-text" style="font-size: 13px; color: #666;">Cart Subtotal: JOD 0</div>
+                <h3 style="font-size: 20px; font-weight: 700; color: #111; margin: 0 0 4px 0;" data-i18n="product_modal_added">Items added to your cart</h3>
+                    <div id="modal-subtotal-text" style="font-size: 13px; color: #666;"><span data-i18n="product_modal_subtotal">Cart Subtotal</span>: JOD 0</div>
             </div>
-            <button onclick="closeUpsellModal()" aria-label="Close" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666;">x</button>
+                <button onclick="closeUpsellModal()" aria-label="Close" data-i18n-aria-label="checkout_map_close" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666;">x</button>
         </div>
 
-        <div style="font-size: 15px; font-weight: 700; color: #111; margin-bottom: 12px;">Make it perfect</div>
+        <div style="font-size: 15px; font-weight: 700; color: #111; margin-bottom: 12px;" data-i18n="product_modal_make_perfect">Make it perfect</div>
         
         <div id="upsell-products-container" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none;">
             <p style="color: #888; font-size: 13px;"></p>
         </div>
 
         <div style="display: flex; gap: 15px; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-            <button onclick="closeUpsellModal()" style="flex: 1; padding: 12px; border: 1px solid #ccc; background: #fff; border-radius: 10px; font-weight: 700; cursor: pointer; color: #333;">Continue Shopping</button>
-            <a href="cart.html" style="flex: 1; padding: 12px; background: #00313C; color: #fff; border-radius: 10px; font-weight: 700; text-align: center; text-decoration: none;">View Cart</a>
+            <button onclick="closeUpsellModal()" data-i18n="product_modal_continue" style="flex: 1; padding: 12px; border: 1px solid #ccc; background: #fff; border-radius: 10px; font-weight: 700; cursor: pointer; color: #333;">Continue Shopping</button>
+            <a href="cart.html" data-i18n="product_modal_view_cart" style="flex: 1; padding: 12px; background: #00313C; color: #fff; border-radius: 10px; font-weight: 700; text-align: center; text-decoration: none;">View Cart</a>
         </div>
     </div>
 </div>
@@ -298,6 +298,34 @@
     let currentProduct = null;
     let selectedCustomizations = {};
     let baseProductPrice = 0;
+    const productText = (key, fallback) => window.LorinI18n ? window.LorinI18n.t(key, fallback) : fallback;
+    const productField = (item, field) => window.LorinI18n ? window.LorinI18n.pick(item, field) : (item && item[field]) || '';
+
+    function applyProductLanguage() {
+        if (!currentProduct) return;
+        const name = productField(currentProduct, 'name') || productText('tracker_placeholder_item', 'Product');
+        const category = productField(currentProduct, 'category');
+        const description = productField(currentProduct, 'description');
+        document.getElementById('page-title').textContent = `${name} | Lorin`;
+        document.getElementById('breadcrumb-name').textContent = name;
+        if (category) document.getElementById('breadcrumb-cat').textContent = category;
+        const title = document.querySelector('#product-details-container .product-title-text');
+        if (title) title.textContent = name;
+        document.querySelectorAll('#product-details-container .floward-notice-box span').forEach((el) => {
+            el.textContent = productText('product_delivery_notice', 'You do not need to know the address; our team will coordinate directly with the recipient.');
+        });
+        const customizeTitle = document.querySelector('#product-customization-section h3');
+        if (customizeTitle) customizeTitle.textContent = productText('product_customize_title', 'Customize Your Order');
+        const addButton = document.querySelector('#product-details-container .floward-cart-btn span');
+        if (addButton) addButton.textContent = productText('product_add_to_cart', 'Add to Cart');
+        const paymentLabel = document.querySelector('#product-details-container .payment-methods-box > span');
+        if (paymentLabel) paymentLabel.textContent = productText('product_payment_methods', 'Available payment methods');
+        const descriptionEl = document.getElementById('product-desc-content');
+        if (descriptionEl) descriptionEl.textContent = description || productText('product_no_description', 'A description is not available for this product yet.');
+        document.querySelectorAll('#product-details-container img').forEach((img) => { img.alt = name; });
+        const search = document.getElementById('live-search-input');
+        if (search && search.value.trim()) performLiveSearch(search.value);
+    }
 
     async function loadProductDetails() {
         const lorinSettings = await LorinStoreSettings.load(supabaseClient);
@@ -308,7 +336,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
         const container = document.getElementById('product-details-container');
 
         if (!productSlug && !productId) {
-            container.innerHTML = '<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">معرّف المنتج غير موجود في الرابط.</div>';
+            container.textContent = productText('product_missing_id', 'The requested product was not specified.');
             return;
         }
 
@@ -333,7 +361,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                 product = data;
             }
 
-            if (!product) throw new Error('المنتج غير موجود في قاعدة البيانات.');
+            if (!product) throw new Error('product_not_found');
             currentProduct = product;
             // إصلاح قراءة السعر والتأكد من تحويله لرقم بشكل صحيح
             baseProductPrice = parseFloat(product.price) || 0;
@@ -345,16 +373,18 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
 
             allStoreProducts = products || [];
 
-            document.getElementById('page-title').textContent = `${product.name} | متجر لورين`;
-            document.getElementById('breadcrumb-name').textContent = product.name;
-            if (product.category) document.getElementById('breadcrumb-cat').textContent = product.category;
+            const productName = productField(product, 'name');
+            document.getElementById('page-title').textContent = `${productName} | Lorin`;
+            document.getElementById('breadcrumb-name').textContent = productName;
+            if (product.category) document.getElementById('breadcrumb-cat').textContent = productField(product, 'category');
 
             const descContainer = document.getElementById('product-desc-content');
             if (descContainer) {
-                if (product.description && product.description.trim() !== '') {
-                    descContainer.textContent = product.description;
+                const description = productField(product, 'description');
+                if (description && description.trim() !== '') {
+                    descContainer.textContent = description;
                 } else {
-                    descContainer.textContent = '';
+                    descContainer.textContent = productText('product_no_description', 'A description is not available for this product yet.');
                 }
             }
 
@@ -371,10 +401,10 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
             container.innerHTML = `
                 <div class="product-images-wrapper">
                     <div class="thumbs-col">
-                        ${images.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)" alt="${product.name}">`).join('')}
+                        ${images.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)" alt="${productName}">`).join('')}
                     </div>
                     <div class="main-img-container">
-                        <img id="main-product-img" src="${mainImage}" alt="${product.name}">
+                        <img id="main-product-img" src="${mainImage}" alt="${productName}">
                     </div>
                 </div>
 
@@ -384,15 +414,15 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                         <div class="product-tax-note">الأسعار شاملة الضرائب</div>
                     </div>
 
-                    <h1 class="product-title-text">${product.name}</h1>
+                    <h1 class="product-title-text">${productName}</h1>
                     
                     <div class="floward-notice-box">
                         <svg style="width:20px; height:20px; color:#00313C; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <span>لست بحاجة لمعرفة العنوان، فريقنا سيفعل ذلك نيابة عنك.</span>
+                        <span data-i18n="product_delivery_notice">You do not need to know the address; our team will coordinate directly with the recipient.</span>
                     </div>
 
                     <div id="product-customization-section" class="customization-box" style="display: none;">
-                        <h3 style="font-size: 13px; font-weight: 700; color: #00313C; margin-bottom: 12px;">Customize Your Order</h3>
+                        <h3 style="font-size: 13px; font-weight: 700; color: #00313C; margin-bottom: 12px;" data-i18n="product_customize_title">Customize Your Order</h3>
                         <div id="dynamic-customization-groups" class="space-y-4"></div>
                     </div>
 
@@ -404,12 +434,12 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                         </div>
                         <button onclick='addToCart(currentProduct)' class="floward-cart-btn" style="flex: 1;">
                             <svg style="width:20px; height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                            أضف إلى سلة التسوق
+                            <span data-i18n="product_add_to_cart">Add to Cart</span>
                         </button>
                     </div>
 
                     <div class="payment-methods-box">
-                        <span>طرق الدفع</span>
+                        <span data-i18n="product_payment_methods">Available payment methods</span>
                         <div style="background: #ffffff; padding: 4px 6px; border-radius: 6px; border: 1px solid #eee; display: flex; align-items: center; height: 26px;">
                             <img src="https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/6ee18dc6-5f9f-4183-9f19-4111e4a97a68.png" style="height: 16px; object-fit: contain;">
                         </div>
@@ -420,9 +450,13 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
             initCustomizationsUI(product);
             loadUpsellsForModal(product.id);         
             loadFrequentBoughtTogether(product);     
+            applyProductLanguage();
 
         } catch (err) {
-            container.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; color:red; padding:40px;">${err.message}</div>`;
+            const message = err.message === 'product_not_found'
+                ? productText('product_not_found', 'This product is currently unavailable.')
+                : productText('product_load_error', 'Could not load product details. Please try again later.');
+            container.textContent = message;
         }
     }
 
@@ -536,24 +570,24 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                 const bundlePrice = (baseProductPrice + addonPrice).toFixed(2);
 
                 const bundleObj = JSON.stringify({
-                    main: { id: currentProd.id, name: currentProd.name, price: baseProductPrice, image_url: currentProd.image_url },
-                    addon: { id: addon.id, name: addon.name, price: addonPrice, image_url: addonImg }
+                    main: { id: currentProd.id, name: currentProd.name, name_ar: currentProd.name_ar, description_ar: currentProd.description_ar, category_ar: currentProd.category_ar, price: baseProductPrice, image_url: currentProd.image_url },
+                    addon: { id: addon.id, name: addon.name, name_ar: addon.name_ar, description_ar: addon.description_ar, category_ar: addon.category_ar, price: addonPrice, image_url: addonImg }
                 }).replace(/"/g, '&quot;');
 
                 return `
                     <div class="fbt-card">
                         <div class="fbt-items-row">
                             <div class="fbt-item">
-                                <img src="${currentProd.image_url}" alt="${currentProd.name}">
-                                <div class="fbt-item-name">${currentProd.name}</div>
+                                <img src="${currentProd.image_url}" alt="${productField(currentProd, 'name')}">
+                                <div class="fbt-item-name">${productField(currentProd, 'name')}</div>
                             </div>
                             <div class="fbt-plus">+</div>
                             <div class="fbt-item">
-                                <img src="${addonImg}" alt="${addon.name}">
-                                <div class="fbt-item-name">${addon.name}</div>
+                                <img src="${addonImg}" alt="${productField(addon, 'name')}">
+                                <div class="fbt-item-name">${productField(addon, 'name')}</div>
                             </div>
                         </div>
-                        <button class="fbt-btn" onclick='addBundleToCart(${bundleObj})'>أضف إلى عربة التسوق مقابل ${bundlePrice} JOD</button>
+                        <button class="fbt-btn" onclick='addBundleToCart(${bundleObj})'>${productText('product_bundle_add', 'Add both items to cart for')} ${bundlePrice} JOD</button>
                     </div>
                 `;
             }).join('');
@@ -568,6 +602,9 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
         let mainItem = {
             id: bundleData.main.id,
             name: bundleData.main.name,
+            name_ar: bundleData.main.name_ar,
+            description_ar: bundleData.main.description_ar,
+            category_ar: bundleData.main.category_ar,
             price: finalItemPrice, // ضمان إرسال السعر المحسوب بشكل صحيح
             image_url: bundleData.main.image_url,
             quantity: parseInt(document.getElementById('product-qty').value) || 1,
@@ -578,6 +615,9 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
         let addonItem = {
             id: bundleData.addon.id,
             name: bundleData.addon.name,
+            name_ar: bundleData.addon.name_ar,
+            description_ar: bundleData.addon.description_ar,
+            category_ar: bundleData.addon.category_ar,
             price: parseFloat(bundleData.addon.price) || 0,
             image_url: bundleData.addon.image_url,
             quantity: 1,
@@ -625,6 +665,9 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
         let cartItem = {
             id: product.id,
             name: product.name,
+            name_ar: product.name_ar,
+            description_ar: product.description_ar,
+            category_ar: product.category_ar,
             price: finalItemPrice, // تمرير السعر الرقمي الصحيح هنا
             image_url: product.image_url,
             quantity: qty,
@@ -645,7 +688,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
             if (!upsellRelations) return;
 
             const matchedRelations = upsellRelations.filter(item => String(item.product_id) === String(currentProductId));
-            if (matchedRelations.length === 0) { container.innerHTML = '<p style="color:#888; font-size:13px;">لا توجد منتجات مقترحة.</p>'; return; }
+            if (matchedRelations.length === 0) { container.textContent = productText('product_upsell_empty', 'There are no recommended products right now.'); return; }
 
             const upsellProductIds = matchedRelations.map(r => String(r.upsell_product_id));
             let upsellProductsList = allStoreProducts.filter(p => upsellProductIds.includes(String(p.id)));
@@ -673,24 +716,24 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                 return `
                     <div style="min-width: 160px; max-width: 160px; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; background: #fff; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
-                            <img src="${itemImage}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" alt="${item.name}">
-                            <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px;">${item.name}</div>
+                            <img src="${itemImage}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" alt="${productField(item, 'name')}">
+                            <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px;">${productField(item, 'name')}</div>
                             <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">JOD ${itemPriceNum.toFixed(2)}</div>
                         </div>
                         <div id="upsell-action-area-${item.id}">
-                            ${qty > 0 ? renderQuantityControls(item.id, qty) : renderAddButton(item.id, item.name, itemPriceNum, itemImage)}
+                            ${qty > 0 ? renderQuantityControls(item.id, qty) : renderAddButton(item, itemPriceNum, itemImage)}
                         </div>
                     </div>
                 `;
             }).join('');
         } catch (err) {
-            container.innerHTML = '<p style="color:#888; font-size:13px;">عذراً، حدث خطأ.</p>';
+            container.textContent = productText('product_upsell_error', 'Sorry, something went wrong.');
         }
     }
 
-    function renderAddButton(itemId, name, price, image_url) {
-        const itemObj = JSON.stringify({id: itemId, name: name, price: price, image_url: image_url}).replace(/"/g, '&quot;');
-        return `<button onclick='handleInitialUpsellAdd(${itemObj})' style="width: 100%; padding: 8px; background: #fff; color: #00313C; border: 1px solid #00313C; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">ADD</button>`;
+    function renderAddButton(item, price, image_url) {
+        const itemObj = JSON.stringify({id: item.id, name: item.name, name_ar: item.name_ar, description_ar: item.description_ar, category_ar: item.category_ar, price: price, image_url: image_url}).replace(/"/g, '&quot;');
+        return `<button onclick='handleInitialUpsellAdd(${itemObj})' style="width: 100%; padding: 8px; background: #fff; color: #00313C; border: 1px solid #00313C; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">${productText('product_upsell_add', 'Add')}</button>`;
     }
 
     function renderQuantityControls(itemId, qty) {
@@ -735,12 +778,12 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
         const resultsContainer = document.getElementById('live-search-results');
         const q = query.trim().toLowerCase();
         if (!q) { resultsContainer.innerHTML = ''; return; }
-        const filtered = allStoreProducts.filter(p => p.name.toLowerCase().includes(q));
+        const filtered = allStoreProducts.filter(p => [productField(p, 'name'), productField(p, 'category')].some(value => String(value || '').toLowerCase().includes(q)));
         resultsContainer.innerHTML = filtered.map(p => `
             <a href="product.html?id=${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;">
               <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
               <div style="flex: 1; text-align: right;">
-                <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${p.name}</div>
+                <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${productField(p, 'name')}</div>
                 <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${p.price} د.أ</div>
               </div>
             </a>`).join('');
@@ -759,6 +802,13 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
         if (btnMenu) btnMenu.addEventListener('click', () => { menuDrawer.classList.add('is-open'); menuBackdrop.classList.add('is-open'); });
         if (menuBackdrop) menuBackdrop.addEventListener('click', () => { menuDrawer.classList.remove('is-open'); menuBackdrop.classList.remove('is-open'); });
         if (btnSearch) btnSearch.addEventListener('click', () => searchOverlay.classList.toggle('is-open'));
+    });
+
+    window.addEventListener('lorin:langchange', () => {
+        if (!currentProduct) return;
+        applyProductLanguage();
+        loadFrequentBoughtTogether(currentProduct);
+        loadUpsellsForModal(currentProduct.id);
     });
 </script>
 </body>

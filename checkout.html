@@ -1565,20 +1565,20 @@
 
 <div id="map-picker-overlay" class="map-picker-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="map-picker-title" onclick="if(event.target===this) closeMapLocationPicker()">
   <div class="map-picker-dialog">
-    <h2 id="map-picker-title" class="sr-only">Search Location</h2>
-    <div id="map-picker-map" aria-label="Interactive delivery location map"></div>
+    <h2 id="map-picker-title" class="sr-only" data-i18n="map_search_label">Search Location</h2>
+    <div id="map-picker-map" aria-label="Interactive delivery location map" data-i18n-aria-label="map_picker_label"></div>
     <div class="map-picker-toolbar">
       <div class="map-picker-search-wrap">
-        <input type="search" id="map-picker-search" class="map-picker-search" dir="auto" placeholder="Search Location" aria-label="Search Location" onkeydown="if(event.key==='Enter'){event.preventDefault();searchDeliveryLocation();}">
-        <button type="button" class="map-picker-search-submit" onclick="searchDeliveryLocation()" aria-label="Search">
+        <input type="search" id="map-picker-search" class="map-picker-search" dir="auto" placeholder="Search Location" aria-label="Search Location" data-i18n-placeholder="map_search_placeholder" data-i18n-aria-label="map_search_label" onkeydown="if(event.key==='Enter'){event.preventDefault();searchDeliveryLocation();}">
+        <button type="button" class="map-picker-search-submit" onclick="searchDeliveryLocation()" aria-label="Search" data-i18n-aria-label="map_search_button">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/>
             <path d="m16 16 4.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
           </svg>
         </button>
-        <div id="map-picker-search-results" class="map-picker-search-results hidden" role="listbox" aria-label="Search results"></div>
+        <div id="map-picker-search-results" class="map-picker-search-results hidden" role="listbox" aria-label="Search results" data-i18n-aria-label="map_search_results"></div>
       </div>
-      <button type="button" class="map-picker-close" onclick="closeMapLocationPicker()" aria-label="Close map picker">&times;</button>
+      <button type="button" class="map-picker-close" onclick="closeMapLocationPicker()" aria-label="Close map picker" data-i18n-aria-label="checkout_map_close">&times;</button>
     </div>
     <svg class="map-picker-center-pin" viewBox="0 0 40 48" fill="none" aria-hidden="true">
       <path d="M20 1.8C10.7 1.8 3.2 9.3 3.2 18.6c0 12.1 16.8 27.1 16.8 27.1s16.8-15 16.8-27.1C36.8 9.3 29.3 1.8 20 1.8Z" fill="#00313C" stroke="white" stroke-width="2"/>
@@ -1586,10 +1586,11 @@
     </svg>
     <div class="map-picker-bottom-card">
       <div class="map-picker-deliver-line">
-        <span class="map-picker-deliver-label" id="map-picker-deliver-label">Deliver to:</span>
+        <span class="map-picker-deliver-label" id="map-picker-deliver-label" data-i18n="map_deliver_to">Deliver to:</span>
         <span id="map-picker-address" class="map-picker-address" aria-live="polite">Amman, Jordan</span>
       </div>
-      <button type="button" id="map-picker-confirm" class="map-picker-confirm" onclick="confirmMapLocation()">CONFIRM</button>
+      <div class="map-picker-instruction" data-i18n="checkout_map_drag_hint">Move the map to pinpoint the delivery location.</div>
+      <button type="button" id="map-picker-confirm" class="map-picker-confirm" onclick="confirmMapLocation()" data-i18n="checkout_map_confirm">CONFIRM</button>
     </div>
   </div>
 </div>
@@ -2078,14 +2079,14 @@
         const lineTotal = (Number(item.price || 0) * qty).toFixed(2);
         return `
           <div class="flex items-center gap-3 text-xs border-b border-gray-100 pb-3">
-            <img src="${item.image_url || 'https://via.placeholder.com/80'}" class="w-14 h-14 object-cover rounded-lg flex-shrink-0 border border-gray-100">
+            <img src="${item.image_url || 'https://via.placeholder.com/80'}" alt="${window.LorinI18n.pick(item, 'name') || t('tracker_placeholder_item', 'Product')}" class="w-14 h-14 object-cover rounded-lg flex-shrink-0 border border-gray-100">
             <div class="flex-1 min-w-0">
-              <div class="font-bold text-gray-900 truncate">${item.name}</div>
+              <div class="font-bold text-gray-900 truncate">${window.LorinI18n.pick(item, 'name') || t('tracker_placeholder_item', 'Product')}</div>
             <div class="text-[11px] text-gray-400 mt-0.5">${selectedSlotType === 'express'
               ? mapText('express_delivery', 'Express Delivery', 'توصيل سريع')
               : mapText('standard_scheduled_delivery', 'Same-Day / Scheduled Delivery', 'توصيل في نفس اليوم أو تاريخ محدد')}</div>
               <div class="lorin-qty-stepper mt-1.5">
-                <button type="button" class="lorin-qty-btn" onclick="updateItemQuantity(${idx}, -1)">${qty === 1 ? 'Remove' : '-'}</button>
+                <button type="button" class="lorin-qty-btn" onclick="updateItemQuantity(${idx}, -1)">${qty === 1 ? t('cart_remove_item', 'Remove') : '-'}</button>
                 <span class="lorin-qty-val">${qty}</span>
                 <button type="button" class="lorin-qty-btn" onclick="updateItemQuantity(${idx}, 1)">+</button>
               </div>
@@ -2100,10 +2101,10 @@
     const extras = getGiftExtras();
     const detailLines = [];
     if (totals.hasPhoto) {
-      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>صورة إضافية مرفقة</span><span>+${totals.photoFee.toFixed(2)} د.أ</span></div>`);
+      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>${t('checkout_photo_attached', 'Photo stick-in')}</span><span>+${totals.photoFee.toFixed(2)} د.أ</span></div>`);
     }
     if (totals.cardObj && totals.cardObj.selected) {
-      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>${totals.cardObj.designName || 'بطاقة إهداء'}</span><span>${totals.cardFee > 0 ? '+' + totals.cardFee.toFixed(2) + ' د.أ' : 'مجاناً'}</span></div>`);
+      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>${window.LorinI18n.pick(totals.cardObj, 'designName') || t('checkout_gift_card', 'Gift card')}</span><span>${totals.cardFee > 0 ? '+' + totals.cardFee.toFixed(2) + ' د.أ' : t('delivery_free', 'Free')}</span></div>`);
       if (totals.cardObj.message) {
         detailLines.push(`<div class="text-gray-600 bg-white p-2 rounded border border-gray-100">"${totals.cardObj.message}"</div>`);
       }
@@ -2670,7 +2671,10 @@
         const quantity = Math.max(1, Math.floor(Number(item.quantity) || 1));
         const unitPrice = Number(item.price || 0);
         return {
-          name: String(item.name || item.product_name || 'Product'),
+          name: window.LorinI18n.pick(item, 'name') || String(item.name || item.product_name || 'Product'),
+          name_ar: String(item.name_ar || ''),
+          description_ar: String(item.description_ar || ''),
+          category_ar: String(item.category_ar || ''),
           imageUrl: String(item.image_url || item.imageUrl || ''),
           quantity,
           lineTotal: unitPrice * quantity,
@@ -2836,6 +2840,7 @@
       card: trackingCard && trackingCard.selected ? {
         selected: true,
         designName: String(trackingCard.designName || ''),
+        designName_ar: String(trackingCard.designName_ar || ''),
         recipientName: String(trackingCard.recipientName || name),
         message: String(trackingCard.message || ''),
         senderName: String(trackingCard.senderName || ''),
@@ -2916,6 +2921,9 @@
       created_at: orderRecord.created_at,
       items: cart.map((item) => ({
         name: String(item.name || item.product_name || 'Product'),
+        name_ar: String(item.name_ar || ''),
+        description_ar: String(item.description_ar || ''),
+        category_ar: String(item.category_ar || ''),
         quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
         lineTotal: Number(item.price || 0) * Math.max(1, Math.floor(Number(item.quantity) || 1))
       })),
@@ -3577,6 +3585,7 @@
   }
 
   window.addEventListener('lorin:langchange', () => {
+    renderOrderSummary();
     updateMapPickerLabels();
     if (checkoutOrderCompleted) updateConfirmationEmailNote();
     if (draftCoordinates && !document.getElementById('map-picker-overlay').classList.contains('hidden')) {

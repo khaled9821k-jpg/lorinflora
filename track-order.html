@@ -283,24 +283,24 @@
 <body>
   <header class="topbar">
     <a class="brand" href="index.html" aria-label="Lorin">LORIN</a>
-    <nav class="top-actions" aria-label="Page actions">
-      <a class="back-link" id="back-to-store" href="index.html">Back to Store</a>
+    <nav class="top-actions" aria-label="Page actions" data-i18n-aria-label="tracker_page_actions">
+      <a class="back-link" id="back-to-store" href="index.html" data-i18n="tracker_back">Back to Store</a>
       <button class="language-button pill-btn--lang" id="language-toggle" type="button" data-i18n-aria-label="switch_lang_aria"><span>العربية</span></button>
     </nav>
   </header>
 
   <main>
     <section class="access-card" id="access-panel" hidden aria-labelledby="access-heading">
-      <h1 id="access-heading">Track your order</h1>
+      <h1 id="access-heading" data-i18n="tracker_access_heading">Track your order</h1>
       <p data-i18n="tracker_access_message">Open your order’s tracking page using the “Track Your Order” button on the confirmation page or the link in your confirmation email.</p>
       <p class="message" id="access-error" role="status" aria-live="polite" hidden></p>
-      <a class="primary-button" id="return-to-store" href="https://lorinflora.com">Return to Store</a>
+      <a class="primary-button" id="return-to-store" href="https://lorinflora.com" data-i18n="tracker_return_to_store">Return to Store</a>
     </section>
 
     <section id="order-view" hidden aria-live="polite">
       <div class="order-header">
         <div>
-          <span class="order-overline" id="order-overline">Order number</span>
+          <span class="order-overline" id="order-overline" data-i18n="tracker_order_number">Order number</span>
           <strong class="order-id" id="order-id">#—</strong>
         </div>
         <div class="order-header-actions">
@@ -313,20 +313,20 @@
       <p class="message" id="order-message" role="status" aria-live="polite"></p>
 
       <section class="panel">
-        <h2 class="panel-heading" id="progress-heading">Your order progress</h2>
+        <h2 class="panel-heading" id="progress-heading" data-i18n="tracker_progress">Your order progress</h2>
         <div class="tracker" id="status-tracker"></div>
       </section>
 
       <div class="content-grid">
         <section class="panel" aria-labelledby="items-heading">
-          <h2 id="items-heading">Order summary</h2>
+          <h2 id="items-heading" data-i18n="tracker_item_summary">Order summary</h2>
           <ul class="item-list" id="item-list"></ul>
           <dl class="detail-list" id="order-details"></dl>
-          <div class="total-row"><span id="total-label">Total</span><strong class="ltr-value" id="order-total">—</strong></div>
+          <div class="total-row"><span id="total-label" data-i18n="tracker_total">Total</span><strong class="ltr-value" id="order-total">—</strong></div>
         </section>
 
         <section class="panel" id="gift-panel" hidden aria-labelledby="gift-heading">
-          <h2 id="gift-heading">Your gift card</h2>
+          <h2 id="gift-heading" data-i18n="tracker_gift_card">Your gift card</h2>
           <div class="gift-card">
             <div class="gift-recipient" id="gift-recipient"></div>
             <div class="gift-message" id="gift-message"></div>
@@ -336,21 +336,21 @@
       </div>
 
       <section class="panel" id="photo-panel" hidden>
-        <h2 class="photo-title" id="photo-title">Your Arrangement Is Ready</h2>
+        <h2 class="photo-title" id="photo-title" data-i18n="tracker_photo_title">Your Arrangement Is Ready</h2>
         <img class="ready-photo" id="ready-photo" alt="Your completed arrangement" loading="lazy">
       </section>
 
       <div class="support-row">
         <a class="support-button" id="support-link" href="https://wa.me/" target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.2 11.7a8.3 8.3 0 0 1-12.3 7.2L3 20l1.2-4.7a8.3 8.3 0 1 1 16-3.6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.5 8.3c.2-.4.4-.4.7-.4h.4c.2 0 .3.1.4.4l.6 1.4c.1.2.1.4 0 .5l-.5.6c-.1.1-.2.3 0 .5.3.6.9 1.2 1.5 1.5.2.1.4.1.5-.1l.6-.7c.2-.2.3-.2.5-.1l1.4.7c.2.1.3.2.3.4 0 .3-.2 1.1-.8 1.4-.5.4-1.1.5-1.8.3-.7-.2-1.6-.6-2.6-1.6-1.2-1.1-1.8-2.4-2-3.1-.2-.7 0-1.3.3-1.7Z" fill="currentColor"/></svg>
-          <span id="support-label">WhatsApp support</span>
+          <span id="support-label" data-i18n="tracker_support">WhatsApp support</span>
         </a>
       </div>
     </section>
   </main>
 
-  <div class="lightbox" id="photo-lightbox" hidden role="dialog" aria-modal="true" aria-label="Arrangement photo preview">
-    <button class="lightbox-close" id="close-lightbox" type="button" aria-label="Close preview">&times;</button>
+  <div class="lightbox" id="photo-lightbox" hidden role="dialog" aria-modal="true" aria-label="Arrangement photo preview" data-i18n-aria-label="tracker_photo_preview_alt">
+    <button class="lightbox-close" id="close-lightbox" type="button" aria-label="Close preview" data-i18n-aria-label="tracker_close_preview">&times;</button>
     <img id="lightbox-image" alt="Your completed arrangement">
   </div>
 
@@ -388,7 +388,9 @@
         dateUnknown: 'tracker_date_unknown',
         noItems: 'tracker_no_items',
         noAddress: 'tracker_no_address',
-        loading: 'tracker_loading'
+        loading: 'tracker_loading',
+        photoPreviewAlt: 'tracker_photo_preview_alt',
+        closePreview: 'tracker_close_preview'
       };
       let language = window.LorinI18n.getLang();
       let activeOrderNumber = '';
@@ -509,6 +511,9 @@
         $('gift-heading').textContent = t('giftCard');
         $('photo-title').textContent = t('photoTitle');
         $('support-label').textContent = t('support');
+        $('ready-photo').alt = t('photoPreviewAlt');
+        $('photo-lightbox').setAttribute('aria-label', t('photoPreviewAlt'));
+        $('close-lightbox').setAttribute('aria-label', t('closePreview'));
         if (activeOrderNumber) {
           const current = window.__lorinTrackedOrder;
           if (current) renderOrder(current);
@@ -574,7 +579,7 @@
             ? Number(item.total_price)
             : Number(item && item.price || 0) * quantity;
         return {
-          name: String((item && (item.name || item.product_name || item.title)) || t('placeholderItem')),
+          name: window.LorinI18n.pick(item, 'name') || String((item && (item.name || item.product_name || item.title)) || t('placeholderItem')),
           quantity,
           total: Number.isFinite(total) ? total : 0
         };

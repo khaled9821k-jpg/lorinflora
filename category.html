@@ -255,11 +255,11 @@
               <div id="sidebar-categories-filter" class="filter-options"></div>
           </div>
           <div class="filter-group">
-              <div class="filter-group-title"><span>Price (JD)</span> <span aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span></div>
+              <div class="filter-group-title"><span data-i18n="category_price_title">Price (JD)</span> <span aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span></div>
               <div class="filter-options">
-                  <label class="filter-label"><input type="checkbox"> Under 25 JD</label>
-                  <label class="filter-label"><input type="checkbox"> 25 JD to 50 JD</label>
-                  <label class="filter-label"><input type="checkbox"> Above 50 JD</label>
+                      <label class="filter-label"><input type="checkbox"><span data-i18n="category_price_under_25">Under JOD 25</span></label>
+                      <label class="filter-label"><input type="checkbox"><span data-i18n="category_price_25_50">JOD 25 to 50</span></label>
+                      <label class="filter-label"><input type="checkbox"><span data-i18n="category_price_over_50">Over JOD 50</span></label>
               </div>
           </div>
       </aside>
@@ -280,19 +280,35 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allStoreProducts = [];
+    let allStoreCategories = [];
+    let activeCategoryName = 'All';
+    let activeCategory = null;
+    const categoryText = (key, fallback) => window.LorinI18n ? window.LorinI18n.t(key, fallback) : fallback;
+    const categoryField = (item, field) => window.LorinI18n ? window.LorinI18n.pick(item, field) : (item && item[field]) || '';
+
+    function renderCategoryHeading() {
+        const title = activeCategory ? categoryField(activeCategory, 'title') : activeCategoryName;
+        const localizedTitle = activeCategoryName.toLowerCase() === 'all'
+            ? categoryText('category_all', 'All')
+            : title || activeCategoryName;
+        document.getElementById('category-title-text').textContent = localizedTitle;
+        document.getElementById('breadcrumb-current').textContent = localizedTitle;
+        document.getElementById('page-title').textContent = `${localizedTitle} - Lorin`;
+        if (activeCategory) {
+            const description = categoryField(activeCategory, 'description');
+            const descriptionEl = document.getElementById('category-description-text');
+            if (descriptionEl && description) descriptionEl.textContent = description;
+        }
+    }
 
     async function initCategoryPage() {
         const urlParams = new URLSearchParams(window.location.search);
-        const categoryName = urlParams.get('name') || 'All';
-        
-        document.getElementById('category-title-text').textContent = categoryName;
-        document.getElementById('breadcrumb-current').textContent = categoryName;
-        document.getElementById('page-title').textContent = `${categoryName} - Lorin`;
+        activeCategoryName = urlParams.get('name') || 'All';
 
         let loadedSettings = null;
         if (window.LorinStoreSettings) {
             loadedSettings = await window.LorinStoreSettings.load(supabaseClient, true);
-            window.LorinStoreSettings.applyCategorySettings(categoryName, loadedSettings);
+            window.LorinStoreSettings.applyCategorySettings(activeCategoryName, loadedSettings);
         }
 
         const [{ data: prodData }, { data: catData }, { data: allImages }] = await Promise.all([
@@ -310,12 +326,19 @@
             return { ...p, image_url: firstImg };
         });
 
+        allStoreCategories = catData || [];
+        activeCategory = allStoreCategories.find(c =>
+            String(c.title || '').toLowerCase() === activeCategoryName.toLowerCase()
+            || String(categoryField(c, 'title') || '').toLowerCase() === activeCategoryName.toLowerCase()
+        ) || null;
+        renderCategoryHeading();
+
         const track = document.getElementById('sub-categories-track');
         if (catData && catData.length > 0) {
             track.innerHTML = catData.map(c => `
                 <a href="category.html?name=${encodeURIComponent(c.title)}" class="sub-pill-item">
-                    <img src="${c.image_url}" alt="${c.title}">
-                    <span>${c.title}</span>
+                    <img src="${c.image_url}" alt="${categoryField(c, 'title')}">
+                    <span>${categoryField(c, 'title')}</span>
                 </a>
             `).join('');
         }
@@ -324,27 +347,31 @@
         if (catData && catData.length > 0) {
             sidebarCat.innerHTML = catData.map(c => `
                 <label class="filter-label">
-                    <input type="checkbox" ${c.title.toLowerCase() === categoryName.toLowerCase() ? 'checked' : ''} onclick="window.location.href='category.html?name=${encodeURIComponent(c.title)}'"> 
-                    ${c.title}
+                    <input type="checkbox" ${String(c.title || '').toLowerCase() === activeCategoryName.toLowerCase() ? 'checked' : ''} onclick="window.location.href='category.html?name=${encodeURIComponent(c.title)}'"> 
+                    ${categoryField(c, 'title')}
                 </label>
             `).join('');
         }
 
-        renderFilteredCategoryProducts(categoryName);
-        bindCategoryPriceFilters(categoryName);
+        renderFilteredCategoryProducts(activeCategoryName);
+        bindCategoryPriceFilters(activeCategoryName);
 
         if (window.LorinStoreSettings) {
-            window.LorinStoreSettings.applyCategorySettings(categoryName, loadedSettings || window.LorinStoreSettings.get());
+            window.LorinStoreSettings.applyCategorySettings(activeCategoryName, loadedSettings || window.LorinStoreSettings.get());
         }
 
         updateCartBadge();
     }
 
     function renderFilteredCategoryProducts(categoryName) {
-        const isAll = categoryName.toLowerCase().includes('all');
+        const isAll = categoryName.toLowerCase() === 'all' || categoryName.toLowerCase() === 'الكل';
+        const categoryBase = activeCategory ? String(activeCategory.title || categoryName).toLowerCase() : categoryName.toLowerCase();
         let filteredProducts = isAll
             ? allStoreProducts
-            : allStoreProducts.filter(p => p.category && p.category.toLowerCase().includes(categoryName.toLowerCase()));
+            : allStoreProducts.filter(p =>
+                String(p.category || '').toLowerCase().includes(categoryBase)
+                || String(p.category_ar || '').toLowerCase().includes(categoryName.toLowerCase())
+            );
 
         const priceChecks = Array.from(document.querySelectorAll('.filters-sidebar .filter-options input[type="checkbox"]')).slice(-3);
         const activeRanges = [];
@@ -356,21 +383,21 @@
             filteredProducts = filteredProducts.filter(p => activeRanges.some(fn => fn(p)));
         }
 
-        document.getElementById('category-count-badge').textContent = `/ ${filteredProducts.length} Products`;
+        document.getElementById('category-count-badge').textContent = `/ ${filteredProducts.length} ${categoryText('category_count_suffix', 'Products')}`;
         const gridContainer = document.getElementById('category-products-grid');
 
         if (filteredProducts.length === 0) {
-            gridContainer.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#888; padding: 40px;">لا توجد منتجات مطابقة لهذا التصنيف.</p>';
+            gridContainer.textContent = categoryText('category_empty_results', 'No products match this category.');
             return;
         }
 
         gridContainer.innerHTML = filteredProducts.map(p => `
             <a href="product.html?id=${p.id}" class="floward-item-card">
                 <div class="floward-item-img">
-                    <img src="${p.image_url}" alt="${p.name}">
+                    <img src="${p.image_url}" alt="${categoryField(p, 'name')}">
                 </div>
                 <div class="floward-item-price">${p.price} JD</div>
-                <div class="floward-item-name">${p.name}</div>
+                <div class="floward-item-name">${categoryField(p, 'name')}</div>
             </a>
         `).join('');
     }
@@ -386,13 +413,13 @@
         const resultsContainer = document.getElementById('live-search-results');
         const q = query.trim().toLowerCase();
         if (!q) { resultsContainer.innerHTML = ''; return; }
-        const filtered = allStoreProducts.filter(p => p.name.toLowerCase().includes(q) || (p.category && p.category.toLowerCase().includes(q)));
-        if (filtered.length === 0) { resultsContainer.innerHTML = '<p style="text-align:center; color:#888; font-size:14px; padding:10px;">عذراً، لم نجد أي منتج يطابق بحثك.</p>'; return; }
+        const filtered = allStoreProducts.filter(p => [categoryField(p, 'name'), categoryField(p, 'category')].some(value => String(value || '').toLowerCase().includes(q)));
+        if (filtered.length === 0) { resultsContainer.textContent = categoryText('product_search_empty', 'No products matched your search.'); return; }
         resultsContainer.innerHTML = filtered.map(p => `
             <a href="product.html?id=${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
               <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
               <div style="flex: 1; text-align: right;">
-                <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${p.name}</div>
+                <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${categoryField(p, 'name')}</div>
                 <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${p.price} د.أ</div>
               </div>
             </a>`).join('');
@@ -461,6 +488,28 @@
     document.addEventListener('DOMContentLoaded', () => {
         updateCartBadge();
         initCategoryPage();
+    });
+
+    window.addEventListener('lorin:langchange', () => {
+        if (!allStoreCategories.length && !allStoreProducts.length) return;
+        renderCategoryHeading();
+        const track = document.getElementById('sub-categories-track');
+        track.innerHTML = allStoreCategories.map(c => `
+            <a href="category.html?name=${encodeURIComponent(c.title)}" class="sub-pill-item">
+                <img src="${c.image_url || ''}" alt="${categoryField(c, 'title')}">
+                <span>${categoryField(c, 'title')}</span>
+            </a>
+        `).join('');
+        const sidebar = document.getElementById('sidebar-categories-filter');
+        sidebar.innerHTML = allStoreCategories.map(c => `
+            <label class="filter-label">
+                <input type="checkbox" ${String(c.title || '').toLowerCase() === activeCategoryName.toLowerCase() ? 'checked' : ''} onclick="window.location.href='category.html?name=${encodeURIComponent(c.title)}'">
+                ${categoryField(c, 'title')}
+            </label>
+        `).join('');
+        renderFilteredCategoryProducts(activeCategoryName);
+        const search = document.getElementById('live-search-input');
+        if (search && search.value.trim()) performLiveSearch(search.value);
     });
 </script>
 
