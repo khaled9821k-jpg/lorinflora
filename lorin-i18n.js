@@ -105,6 +105,16 @@
       // Checkout Stepper
       step_delivery: 'تفاصيل التوصيل',
       step_payment: 'الدفع وتأكيد الطلب',
+      step_confirmed: 'تم تأكيد طلبك',
+      confirmation_heading: 'تم تأكيد طلبك',
+      confirmation_intro: 'شكراً لاختيارك Lorin. تم استلام طلبك بنجاح.',
+      confirmation_order_number: 'رقم الطلب',
+      confirmation_copy: 'نسخ الرقم',
+      confirmation_copied: 'تم نسخ رقم الطلب.',
+      confirmation_copy_failed: 'تعذر نسخ الرقم. يرجى نسخه يدوياً.',
+      confirmation_email_sent: 'تم إرسال رسالة تأكيد الطلب بكامل التفاصيل إلى بريدك الإلكتروني.',
+      confirmation_email_pending: 'تم تأكيد طلبك، لكن تعذر التحقق من إرسال البريد الإلكتروني. يرجى التحقق من بريدك أو التواصل معنا.',
+      confirmation_track: 'تتبع طلبك',
 
       // Step 1: Delivery Details
       collect_address_title: 'طلب العنوان من المستلم نيابة عنك',
@@ -291,6 +301,16 @@
       // Checkout Stepper
       step_delivery: 'Delivery Details',
       step_payment: 'Payment & Order Confirmation',
+      step_confirmed: 'Order Confirmed',
+      confirmation_heading: 'Your order is confirmed',
+      confirmation_intro: 'Thank you for choosing Lorin. We have received your order.',
+      confirmation_order_number: 'Order number',
+      confirmation_copy: 'Copy number',
+      confirmation_copied: 'Order number copied.',
+      confirmation_copy_failed: 'Could not copy the number. Please copy it manually.',
+      confirmation_email_sent: 'An order confirmation email with full details has been sent to your email address.',
+      confirmation_email_pending: 'Your order is confirmed, but we could not confirm the confirmation email delivery. Please check your inbox or contact us.',
+      confirmation_track: 'Track Your Order',
 
       // Step 1: Delivery Details
       collect_address_title: 'Collect the address',

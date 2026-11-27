@@ -152,7 +152,7 @@
     /* Step Indicator Bar (Screenshots 5, 6, 10) */
     .checkout-step-stepper {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr) 44px minmax(0, 1fr);
       align-items: center;
       gap: 10px;
       width: 100%;
@@ -186,6 +186,8 @@
       color: var(--lorin-brand);
       cursor: pointer;
     }
+    .checkout-step-stepper.is-confirmed .checkout-step-item { cursor: default; }
+    #step-indicator-confirmed { cursor: default; }
     .checkout-step-check {
       width: 18px;
       height: 18px;
@@ -214,6 +216,108 @@
       width: 100%;
       height: 1px;
       background: #D1D5DB;
+    }
+    .checkout-confirmation {
+      width: 100%;
+      max-width: 640px;
+      margin: 20px auto 48px;
+      padding: 32px;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      background: #FFFFFF;
+      box-shadow: 0 12px 32px rgba(0, 49, 60, 0.06);
+      text-align: center;
+    }
+    .checkout-confirmation-icon {
+      width: 64px;
+      height: 64px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 18px;
+      border: 1px solid #BBF7D0;
+      border-radius: 50%;
+      background: #F0FDF4;
+      color: #16A34A;
+    }
+    .checkout-confirmation-icon svg { width: 34px; height: 34px; }
+    .checkout-confirmation h1 {
+      margin: 0;
+      color: var(--lorin-brand);
+      font-family: 'Cormorant Garamond', 'Tajawal', serif;
+      font-size: 32px;
+      font-weight: 600;
+    }
+    .checkout-confirmation-intro {
+      margin: 10px 0 24px;
+      color: #6B7280;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .checkout-confirmation-order {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      border: 1px solid #E5E7EB;
+      border-radius: 10px;
+      background: #FBF8F1;
+      text-align: start;
+    }
+    .checkout-confirmation-order-label {
+      display: block;
+      margin-bottom: 4px;
+      color: #6B7280;
+      font-size: 12px;
+    }
+    .checkout-confirmation-order-number {
+      color: var(--lorin-brand);
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+    .checkout-confirmation-copy {
+      flex: 0 0 auto;
+      padding: 9px 14px;
+      border: 1px solid var(--lorin-brand);
+      border-radius: 7px;
+      background: #FFFFFF;
+      color: var(--lorin-brand);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .checkout-confirmation-copy:disabled { cursor: default; opacity: 0.55; }
+    .checkout-confirmation-email {
+      margin: 18px 0;
+      color: #4B5563;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .checkout-confirmation-track {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      border-radius: 8px;
+      background: var(--lorin-brand);
+      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.2s ease;
+    }
+    .checkout-confirmation-track:hover { background: var(--lorin-brand-hover); }
+    .checkout-confirmation-track svg { width: 18px; height: 18px; flex: 0 0 auto; }
+    .checkout-confirmation-copy-status {
+      min-height: 20px;
+      margin: 10px 0 0;
+      color: #166534;
+      font-size: 12px;
     }
 
     /* Cards & Containers */
@@ -864,6 +968,8 @@
       box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
       z-index: 999;
     }
+    .mobile-sticky-checkout.checkout-confirmed-hidden { display: none !important; }
+    body.checkout-order-confirmed { padding-bottom: 0 !important; }
     @media (max-width: 768px) {
       .mobile-sticky-checkout { display: flex; }
       body { padding-bottom: 80px; }
@@ -915,13 +1021,17 @@
       .floward-right-group > a[href="cart.html"] > span[data-i18n="nav_cart"] { display: none !important; }
       #cart-counter-badge { right: auto !important; inset-inline-end: -6px; top: -5px; }
       .checkout-step-stepper {
-        grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr);
-        gap: 6px;
+        grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr) 16px minmax(0, 1fr);
+        gap: 4px;
       }
       .checkout-step-item {
-        gap: 6px;
-        font-size: 13px;
+        gap: 4px;
+        font-size: 11px;
         line-height: 1.2;
+      }
+      .checkout-step-item [data-i18n] {
+        white-space: normal;
+        overflow-wrap: anywhere;
       }
       .checkout-step-check {
         width: 18px;
@@ -929,6 +1039,10 @@
         flex-basis: 18px;
       }
       .checkout-step-divider { min-width: 16px; }
+      .checkout-confirmation { padding: 24px 18px; }
+      .checkout-confirmation h1 { font-size: 27px; }
+      .checkout-confirmation-order { padding: 13px; gap: 10px; }
+      .checkout-confirmation-copy { padding: 8px 10px; }
     }
   </style>
 </head>
@@ -1000,7 +1114,7 @@
   <main class="max-w-[1300px] mx-auto px-4 py-8 w-full flex-1">
     
     <!-- Step Indicator Bar (Screenshots 5, 6, 10) -->
-    <div class="checkout-step-stepper" id="checkout-stepper">
+    <div class="checkout-step-stepper" id="checkout-stepper" aria-label="Checkout progress">
       <button type="button" class="checkout-step-item is-active" id="step-indicator-delivery" aria-current="step" onclick="goToStep(1)">
         <span id="step-check-delivery" class="checkout-step-check" aria-hidden="true">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 12 4.5 4.5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1014,10 +1128,17 @@
         </span>
         <span data-i18n="step_payment">الدفع وتأكيد الطلب</span>
       </button>
+      <span class="checkout-step-divider" aria-hidden="true"></span>
+      <div class="checkout-step-item" id="step-indicator-confirmed">
+        <span id="step-check-confirmed" class="checkout-step-check" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="m5 12 4.5 4.5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span data-i18n="step_confirmed">تم تأكيد طلبك</span>
+      </div>
     </div>
 
     <!-- شبكة من عمودين: العمود الرئيسي (62%) + الملخص الجانبي (38%) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div id="checkout-content-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       
       <!-- العمود الرئيسي (Step 1 & Step 2 Forms) -->
       <div class="lg:col-span-7 xl:col-span-8">
@@ -1379,12 +1500,39 @@
           </button>
         </div>
       </div>
-
     </div>
+
+    <section id="checkout-step-3" class="checkout-confirmation hidden" aria-labelledby="confirmation-heading">
+      <div class="checkout-confirmation-icon" aria-hidden="true">
+        <svg viewBox="0 0 36 36" fill="none">
+          <path d="m9 18.5 6 6L27.5 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 id="confirmation-heading" data-i18n="confirmation_heading">تم تأكيد طلبك</h1>
+      <p class="checkout-confirmation-intro" data-i18n="confirmation_intro">شكراً لاختيارك Lorin. تم استلام طلبك بنجاح.</p>
+
+      <div class="checkout-confirmation-order">
+        <div>
+          <span class="checkout-confirmation-order-label" data-i18n="confirmation_order_number">رقم الطلب</span>
+          <strong id="confirmation-order-number" class="checkout-confirmation-order-number" dir="ltr">#—</strong>
+        </div>
+        <button type="button" id="confirmation-copy-button" class="checkout-confirmation-copy" onclick="copyConfirmedOrderNumber()" data-i18n="confirmation_copy">نسخ الرقم</button>
+      </div>
+
+      <p id="confirmation-email-note" class="checkout-confirmation-email" aria-live="polite"></p>
+
+      <a id="confirmation-track-button" class="checkout-confirmation-track" href="track-order.html">
+        <span data-i18n="confirmation_track">تتبع طلبك</span>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 12h13m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <p id="confirmation-copy-status" class="checkout-confirmation-copy-status" role="status" aria-live="polite"></p>
+    </section>
   </main>
 
   <!-- Mobile Sticky Bottom Checkout Bar -->
-  <div class="mobile-sticky-checkout items-center justify-between">
+  <div id="mobile-sticky-checkout" class="mobile-sticky-checkout items-center justify-between">
     <div>
       <div class="text-[10px] text-gray-500 uppercase" data-i18n="total">Total</div>
       <div id="mobile-sticky-total" class="text-base font-bold text-[#00313C]">0.00 د.أ</div>
@@ -1461,6 +1609,7 @@
 
   let currentStep = 1;
   let checkoutOrderCompleted = false;
+  let confirmationEmailSent = false;
   let selectedSlotType = 'sameday';
   let selectedPayment = 'apple_pay';
   let modalLeafletMap = null;
@@ -2089,26 +2238,36 @@
   function updateCheckoutStepper() {
     const deliveryIndicator = document.getElementById('step-indicator-delivery');
     const paymentIndicator = document.getElementById('step-indicator-payment');
-    if (!deliveryIndicator || !paymentIndicator) return;
+    const confirmedIndicator = document.getElementById('step-indicator-confirmed');
+    if (!deliveryIndicator || !paymentIndicator || !confirmedIndicator) return;
 
-    const deliveryComplete = isDeliveryStepComplete();
+    const orderComplete = checkoutOrderCompleted;
+    const deliveryComplete = orderComplete || isDeliveryStepComplete();
     const paymentComplete = checkoutOrderCompleted;
+    document.getElementById('checkout-stepper').classList.toggle('is-confirmed', orderComplete);
     deliveryIndicator.classList.toggle('is-completed', deliveryComplete);
-    deliveryIndicator.classList.toggle('is-active', currentStep === 1 && !deliveryComplete);
+    deliveryIndicator.classList.toggle('is-active', currentStep === 1 && !orderComplete);
     paymentIndicator.classList.toggle('is-completed', paymentComplete);
-    paymentIndicator.classList.toggle('is-active', currentStep === 2 && !paymentComplete);
+    paymentIndicator.classList.toggle('is-active', currentStep === 2 && !orderComplete);
+    confirmedIndicator.classList.toggle('is-completed', orderComplete);
+    confirmedIndicator.classList.toggle('is-active', currentStep === 3 && !orderComplete);
 
-    if (currentStep === 1) {
-      deliveryIndicator.setAttribute('aria-current', 'step');
-      paymentIndicator.removeAttribute('aria-current');
-    } else {
-      paymentIndicator.setAttribute('aria-current', 'step');
-      deliveryIndicator.removeAttribute('aria-current');
-    }
+    [deliveryIndicator, paymentIndicator, confirmedIndicator].forEach((indicator) => {
+      indicator.removeAttribute('aria-current');
+    });
+    deliveryIndicator.setAttribute('aria-disabled', String(orderComplete));
+    paymentIndicator.setAttribute('aria-disabled', String(orderComplete));
+    const currentIndicator = currentStep === 1
+      ? deliveryIndicator
+      : currentStep === 2
+        ? paymentIndicator
+        : confirmedIndicator;
+    currentIndicator.setAttribute('aria-current', 'step');
   }
 
   // Step Navigation
   function goToStep(step) {
+    if (checkoutOrderCompleted || (step !== 1 && step !== 2)) return;
     if (step === 2) {
       const isValid = validateStep1();
       if (!isValid) return;
@@ -2133,6 +2292,97 @@
 
     updateCheckoutStepper();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function readOrderConfirmationSnapshot(orderNumber) {
+    for (const storageName of ['sessionStorage', 'localStorage']) {
+      try {
+        const storage = window[storageName];
+        const snapshot = JSON.parse(storage.getItem('lorin_order_confirmation') || 'null');
+        if (snapshot && typeof snapshot === 'object' &&
+            normalizeOrderNumber(snapshot.orderNumber) === orderNumber) {
+          return snapshot;
+        }
+      } catch (error) {
+        console.warn(`Order confirmation snapshot could not be read from ${storageName}:`, error);
+      }
+    }
+    return {};
+  }
+
+  function saveOrderConfirmationSnapshot(snapshot) {
+    const snapshotJson = JSON.stringify(snapshot);
+    for (const storageName of ['sessionStorage', 'localStorage']) {
+      try {
+        window[storageName].setItem('lorin_order_confirmation', snapshotJson);
+      } catch (error) {
+        console.warn(`Order confirmation snapshot could not be saved to ${storageName}:`, error);
+      }
+    }
+  }
+
+  function showOrderConfirmation(orderNumber, snapshot) {
+    currentStep = 3;
+    checkoutOrderCompleted = true;
+    confirmationEmailSent = snapshot.customerEmailSent === true;
+    const contentGrid = document.getElementById('checkout-content-grid');
+    const confirmationView = document.getElementById('checkout-step-3');
+    const stickyCheckout = document.getElementById('mobile-sticky-checkout');
+    if (contentGrid) contentGrid.classList.add('hidden');
+    if (confirmationView) confirmationView.classList.remove('hidden');
+    if (stickyCheckout) stickyCheckout.classList.add('checkout-confirmed-hidden');
+    document.body.classList.add('checkout-order-confirmed');
+
+    document.getElementById('confirmation-order-number').textContent = `#${orderNumber}`;
+    document.getElementById('confirmation-track-button').href =
+      `track-order.html?order=${encodeURIComponent(orderNumber)}`;
+    document.getElementById('confirmation-copy-button').disabled = !orderNumber;
+    updateConfirmationEmailNote();
+    updateCheckoutStepper();
+  }
+
+  function updateConfirmationEmailNote() {
+    const note = document.getElementById('confirmation-email-note');
+    if (!note) return;
+    note.textContent = confirmationEmailSent
+      ? t('confirmation_email_sent', 'An order confirmation email with full details has been sent to your email address.')
+      : t('confirmation_email_pending', 'Your order is confirmed, but we could not confirm the confirmation email delivery. Please check your inbox or contact us.');
+  }
+
+  async function copyConfirmedOrderNumber() {
+    const orderNumber = normalizeOrderNumber(
+      document.getElementById('confirmation-order-number').textContent
+    );
+    if (!orderNumber) return;
+
+    const copyStatus = document.getElementById('confirmation-copy-status');
+    const value = `#${orderNumber}`;
+    try {
+      await navigator.clipboard.writeText(value);
+      copyStatus.textContent = t('confirmation_copied', 'Order number copied.');
+      return;
+    } catch (error) {
+      console.warn('Order number clipboard API was unavailable:', error);
+    }
+
+    const field = document.createElement('textarea');
+    field.value = value;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.opacity = '0';
+    document.body.appendChild(field);
+    let copied = false;
+    try {
+      field.select();
+      copied = document.execCommand('copy');
+    } catch (error) {
+      console.warn('Order number could not be copied with the fallback method:', error);
+    } finally {
+      field.remove();
+    }
+    copyStatus.textContent = copied
+      ? t('confirmation_copied', 'Order number copied.')
+      : t('confirmation_copy_failed', 'Could not copy the number. Please copy it manually.');
   }
 
   function validateStep1() {
@@ -2655,27 +2905,28 @@
       order_data: trackingOrderData,
       prepared_photo_url: '',
       customerEmailSent,
+      customerEmail: String((emailData && emailData.customer && emailData.customer.email) || ''),
+      trackingUrl: `track-order.html?order=${encodeURIComponent(orderRecord.id)}`,
       total: totals.total,
       createdAt: orderRecord.created_at
     };
-    const snapshotJson = JSON.stringify(confirmationSnapshot);
-    try {
-      sessionStorage.setItem('lorin_order_confirmation', snapshotJson);
-    } catch (error) {
-      console.warn('Could not save the order confirmation in session storage:', error);
-      try {
-        localStorage.setItem('lorin_order_confirmation', snapshotJson);
-      } catch (fallbackError) {
-        console.warn('Could not save the order confirmation snapshot:', fallbackError);
-      }
-    }
+    saveOrderConfirmationSnapshot(confirmationSnapshot);
 
     localStorage.removeItem('lorin_cart');
     localStorage.removeItem(GIFT_KEY);
     localStorage.removeItem(PROMO_KEY);
     localStorage.removeItem(CHECKOUT_STATE_KEY);
 
-    window.location.href = `order-confirmed.html?order=${encodeURIComponent(orderRecord.id)}`;
+    updateCartBadges();
+    showOrderConfirmation(orderRecord.id, confirmationSnapshot);
+    try {
+      const confirmedUrl = new URL(window.location.href);
+      confirmedUrl.searchParams.set('confirmed', orderRecord.id);
+      window.history.replaceState(window.history.state, '', confirmedUrl);
+    } catch (error) {
+      console.warn('Confirmed checkout URL could not be updated:', error);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function isArabicLocale() {
@@ -3307,6 +3558,7 @@
 
   window.addEventListener('lorin:langchange', () => {
     updateMapPickerLabels();
+    if (checkoutOrderCompleted) updateConfirmationEmailNote();
     if (draftCoordinates && !document.getElementById('map-picker-overlay').classList.contains('hidden')) {
       scheduleReverseGeocode();
     }
@@ -3332,6 +3584,17 @@
 
   // Page Load
   document.addEventListener('DOMContentLoaded', async () => {
+    const confirmedOrderNumber = normalizeOrderNumber(
+      new URLSearchParams(window.location.search).get('confirmed')
+    );
+    if (/^(?:[A-Z]{3}[0-9]{3}|WEB-[A-Z0-9-]+)$/.test(confirmedOrderNumber)) {
+      showOrderConfirmation(
+        confirmedOrderNumber,
+        readOrderConfirmationSnapshot(confirmedOrderNumber)
+      );
+      return;
+    }
+
     initializeDeliverySchedule();
     const hasSavedCheckoutState = restoreCheckoutState();
 
