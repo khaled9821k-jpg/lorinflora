@@ -408,6 +408,14 @@
       background: #FFFFFF;
       box-shadow: 0 0 0 1px var(--lorin-brand);
     }
+    .lorin-slot-card.is-disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+    .lorin-slot-card.is-disabled:hover {
+      border-color: var(--lorin-border);
+      background: #FFFFFF;
+    }
     .lorin-radio-dot {
       width: 18px;
       height: 18px;
@@ -991,6 +999,9 @@
                     <option value="عمان - عبدون" data-area-en="Amman - Abdoun" data-area-aliases="عبدون|العبدون|abdoun|abdun|al abdoun|abdoun north">عمان - عبدون</option>
                     <option value="عمان - الصويفية" data-area-en="Amman - Sweifieh" data-area-aliases="الصويفية|الصويفيه|الصويفية الجنوبية|sweifieh|swaifieh|swaifyeh|swefieh|al sweifieh|al swaifyeh">عمان - الصويفية</option>
                     <option value="عمان - دير غبار" data-area-en="Amman - Deir Ghbar" data-area-aliases="دير غبار|ديرغبار|دير جبار|deir ghbar|dayr ghbar|dair ghbar|deir gbar|deirghbar">عمان - دير غبار</option>
+                    <option value="عمان - مرج الحمام" data-area-en="Amman - Marj Al Hamam" data-area-aliases="مرج الحمام|مرجالحمام|marj al hamam|marj al-hamam|marj al hammam|marj al-hammam">عمان - مرج الحمام</option>
+                    <option value="عمان - ناعور" data-area-en="Amman - Naour" data-area-aliases="ناعور|ناور|naour|na'our|naour district|naur">عمان - ناعور</option>
+                    <option value="عمان - سحاب" data-area-en="Amman - Sahab" data-area-aliases="سحاب|sahab|sahap">عمان - سحاب</option>
                     <option value="عمان - خلدا" data-area-en="Amman - Khalda" data-area-aliases="خلدا|خالدا|khalda|khaldeh|khilda|al khalda">عمان - خلدا</option>
                     <option value="عمان - الشميساني" data-area-en="Amman - Shmeisani" data-area-aliases="الشميساني|شميساني|shmeisani|shmaisani|shumaisani|al shmeisani">عمان - الشميساني</option>
                     <option value="عمان - الجبيهة" data-area-en="Amman - Jubaiha" data-area-aliases="الجبيهة|جبيهة|الجبيهه|jubaiha|jubeiha|jubayha|al jubeiha">عمان - الجبيهة</option>
@@ -1024,39 +1035,34 @@
           <div class="lorin-checkout-card">
             <h3 class="font-serif text-lg font-bold text-gray-900 mb-4" data-i18n="delivery_time_title">تاريخ ووقت التوصيل</h3>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="slot-cards-container">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="slot-cards-container">
               <!-- Express Card -->
-              <div class="lorin-slot-card is-selected" id="slot-express" onclick="selectSlot('express')">
+              <div class="lorin-slot-card" id="slot-express" onclick="selectSlot('express')" aria-disabled="true">
                 <div class="flex items-center justify-between mb-2">
                   <span class="text-xs font-bold text-gray-900" data-i18n="express_delivery">توصيل سريع</span>
                   <span class="lorin-radio-dot"></span>
                 </div>
                 <div class="text-[11px] text-gray-500 mb-3" data-i18n="express_delivery_sub">توصيل سريع خلال 120 دقيقة</div>
-                <div class="text-xs font-bold text-gray-900" id="slot-express-price">JOD 5</div>
+                <div class="text-xs font-bold text-gray-900" id="slot-express-price">8.00 د.أ</div>
+                <div id="express-amman-note" class="hidden text-[11px] text-red-700 mt-2" aria-live="polite"></div>
               </div>
 
-              <!-- Same Day Card -->
-              <div class="lorin-slot-card" id="slot-sameday" onclick="selectSlot('sameday')">
+              <!-- Unified same-day and scheduled delivery -->
+              <div class="lorin-slot-card is-selected" id="slot-sameday" onclick="selectSlot('sameday')">
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold text-gray-900" data-i18n="sameday_delivery">توصيل بنفس اليوم</span>
+                  <span id="standard-delivery-label" class="text-xs font-bold text-gray-900">توصيل في نفس اليوم أو تاريخ محدد</span>
                   <span class="lorin-radio-dot"></span>
                 </div>
-                <select id="sameday-slot-select" class="text-[11px] text-gray-600 border border-gray-200 rounded p-1 mb-2 w-full bg-white outline-none">
-                  <option value="1:00 PM - 4:00 PM">01:00 م - 04:00 م</option>
-                  <option value="5:00 PM - 9:00 PM">05:00 م - 09:00 م</option>
-                  <option value="9:00 PM - 12:00 AM">09:00 م - 12:00 ليلاً</option>
-                </select>
-                <div class="text-xs font-bold text-gray-900">JOD 0</div>
-              </div>
-
-              <!-- Custom Date & Time -->
-              <div class="lorin-slot-card" id="slot-custom" onclick="selectSlot('custom')">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold text-gray-900" data-i18n="choose_datetime">موعد مخصص</span>
-                  <span class="lorin-radio-dot"></span>
+                <div class="space-y-2 mt-2">
+                  <label for="custom-date-input" id="delivery-date-label" class="block text-[11px] text-gray-600">تاريخ التوصيل</label>
+                  <input type="date" id="custom-date-input" class="text-[11px] text-gray-600 border border-gray-200 rounded p-2 w-full bg-white outline-none">
+                  <label for="sameday-slot-select" id="delivery-time-label" class="block text-[11px] text-gray-600">الفترة الزمنية</label>
+                  <select id="sameday-slot-select" class="text-[11px] text-gray-600 border border-gray-200 rounded p-2 w-full bg-white outline-none">
+                    <option value="12:00 PM – 6:00 PM" data-time-en="12:00 PM – 6:00 PM" data-time-ar="12:00 م – 6:00 م">12:00 م – 6:00 م</option>
+                    <option value="7:00 PM – 11:00 PM" data-time-en="7:00 PM – 11:00 PM" data-time-ar="7:00 م – 11:00 م">7:00 م – 11:00 م</option>
+                  </select>
                 </div>
-                <input type="date" id="custom-date-input" class="text-[11px] text-gray-600 border border-gray-200 rounded p-1 mb-2 w-full bg-white outline-none">
-                <div class="text-xs font-bold text-gray-900">JOD 0</div>
+                <div class="text-xs font-bold text-gray-900 mt-3" id="slot-standard-price">تحدد حسب المنطقة</div>
               </div>
             </div>
 
@@ -1352,7 +1358,7 @@
   const NOMINATIM_MIN_INTERVAL_MS = 1100;
 
   let currentStep = 1;
-  let selectedSlotType = 'express';
+  let selectedSlotType = 'sameday';
   let selectedPayment = 'apple_pay';
   let modalLeafletMap = null;
   let previewLeafletMap = null;
@@ -1512,6 +1518,9 @@
         selectedSlotType,
         sameDaySlot: value('sameday-slot-select'),
         customDate: value('custom-date-input'),
+        deliveryDate: value('custom-date-input'),
+        deliveryTime: value('sameday-slot-select'),
+        deliveryType: selectedSlotType,
         selectedPayment,
         lat: Number(currentCoordinates.lat),
         lng: Number(currentCoordinates.lng),
@@ -1544,8 +1553,9 @@
     setValue('receiver-area', state.recipientArea);
     setValue('receiver-full-address', state.address);
     setValue('delivery-driver-note', state.deliveryNote);
-    setValue('sameday-slot-select', state.sameDaySlot);
-    setValue('custom-date-input', state.customDate);
+    setValue('sameday-slot-select', state.deliveryTime || state.sameDaySlot);
+    setValue('custom-date-input', state.deliveryDate || state.customDate);
+    initializeDeliverySchedule();
     setChecked('toggle-collect-address', state.collectAddress);
     setChecked('check-secret-identity', state.keepIdentitySecret);
 
@@ -1555,14 +1565,8 @@
     }
     selectedLocationAddress = typeof state.mapAddress === 'string' ? state.mapAddress : '';
     lastAutoFilledMapAddress = typeof state.mapAutoAddress === 'string' ? state.mapAutoAddress : '';
-    if (['express', 'sameday', 'custom'].includes(state.selectedSlotType)) {
-      selectedSlotType = state.selectedSlotType;
-      document.querySelectorAll('.lorin-slot-card').forEach((card) => card.classList.remove('is-selected'));
-      const selectedSlot = document.getElementById('slot-' + selectedSlotType);
-      if (selectedSlot) selectedSlot.classList.add('is-selected');
-      const expressBanner = document.getElementById('express-info-banner');
-      if (expressBanner) expressBanner.style.display = selectedSlotType === 'express' ? 'flex' : 'none';
-    }
+    selectedSlotType = state.selectedSlotType === 'express' ? 'express' : 'sameday';
+    updateExpressDeliveryAvailability();
     if (['apple_pay', 'google_pay', 'card', 'cliq', 'cod'].includes(state.selectedPayment)) {
       const paymentCard = Array.from(document.querySelectorAll('.lorin-payment-card')).find((card) => {
         const clickHandler = card.getAttribute('onclick') || '';
@@ -1585,7 +1589,11 @@
         field.addEventListener('input', persistCheckoutState);
         field.addEventListener('change', persistCheckoutState);
         if (id === 'receiver-area') {
-          field.addEventListener('change', renderOrderSummary);
+          field.addEventListener('change', () => {
+            updateExpressDeliveryAvailability();
+            renderOrderSummary();
+            persistCheckoutState();
+          });
         }
       }
     });
@@ -1621,6 +1629,130 @@
     }
   }
 
+  function localDateInputValue(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function initializeDeliverySchedule() {
+    const dateInput = document.getElementById('custom-date-input');
+    const timeSelect = document.getElementById('sameday-slot-select');
+    if (dateInput) {
+      const today = localDateInputValue(new Date());
+      dateInput.min = today;
+      if (!dateInput.value || dateInput.value < today) dateInput.value = today;
+    }
+    if (timeSelect && !Array.from(timeSelect.options).some((option) => option.value === timeSelect.value)) {
+      timeSelect.value = timeSelect.options.length ? timeSelect.options[0].value : '';
+    }
+  }
+
+  function getSelectedAreaOption() {
+    const select = document.getElementById('receiver-area');
+    return select && select.selectedIndex >= 0 ? select.options[select.selectedIndex] : null;
+  }
+
+  function isAmmanAreaSelected() {
+    const option = getSelectedAreaOption();
+    return !!(option && option.value && option.value.indexOf('عمان - ') === 0);
+  }
+
+  function selectedAreaMatches(aliases) {
+    const option = getSelectedAreaOption();
+    if (!option || !option.value) return false;
+    const names = [option.value, option.dataset.areaEn || '', ...(option.dataset.areaAliases || '').split('|')]
+      .map(normalizeAreaMatchText)
+      .filter(Boolean);
+    const normalizedAliases = aliases.map(normalizeAreaMatchText);
+    return names.some((name) => normalizedAliases.some((alias) =>
+      name === alias || ` ${name} `.includes(` ${alias} `)
+    ));
+  }
+
+  function getStandardDeliveryFee() {
+    const option = getSelectedAreaOption();
+    if (!option || !option.value) return 0;
+    if (selectedAreaMatches(['العقبة', 'aqaba', 'al aqabah'])) return 30;
+    if (isAmmanAreaSelected()) {
+      return selectedAreaMatches([
+        'مرج الحمام', 'marj al hamam', 'marj al-hamam',
+        'ناعور', 'naour', "na'our", 'na our',
+        'دير غبار', 'deir ghbar', 'deir gbar',
+        'سحاب', 'sahab'
+      ]) ? 5 : 3;
+    }
+    return 25;
+  }
+
+  function getDeliveryFee() {
+    if (selectedSlotType === 'express' && isAmmanAreaSelected()) return 8;
+    return getStandardDeliveryFee();
+  }
+
+  function updateDeliveryPriceLabels() {
+    const expressPrice = document.getElementById('slot-express-price');
+    if (expressPrice) {
+      expressPrice.textContent = isArabicLocale() ? '8.00 د.أ' : 'JOD 8.00';
+    }
+    const standardPrice = document.getElementById('slot-standard-price');
+    if (standardPrice) {
+      const fee = getStandardDeliveryFee();
+      standardPrice.textContent = fee
+        ? `${isArabicLocale() ? fee.toFixed(2) + ' د.أ' : 'JOD ' + fee.toFixed(2)}`
+        : mapText('delivery_fee_by_area', 'Based on delivery area', 'تحدد حسب المنطقة');
+    }
+  }
+
+  function updateExpressDeliveryAvailability() {
+    const isAvailable = isAmmanAreaSelected();
+    const expressCard = document.getElementById('slot-express');
+    const note = document.getElementById('express-amman-note');
+    if (!isAvailable && selectedSlotType === 'express') selectedSlotType = 'sameday';
+    if (expressCard) {
+      expressCard.classList.toggle('is-disabled', !isAvailable);
+      expressCard.setAttribute('aria-disabled', String(!isAvailable));
+    }
+    if (note) {
+      note.textContent = mapText(
+        'express_amman_only',
+        'Express Delivery is available in Amman only.',
+        'التوصيل السريع متاح في عمّان فقط.'
+      );
+      note.classList.toggle('hidden', isAvailable);
+    }
+    document.querySelectorAll('#slot-express, #slot-sameday').forEach((card) => {
+      card.classList.toggle('is-selected', card.id === `slot-${selectedSlotType}`);
+    });
+    const banner = document.getElementById('express-info-banner');
+    if (banner) banner.style.display = selectedSlotType === 'express' && isAvailable ? 'flex' : 'none';
+    updateDeliveryPriceLabels();
+    return isAvailable;
+  }
+
+  function updateDeliveryOptionLabels() {
+    const standardLabel = document.getElementById('standard-delivery-label');
+    if (standardLabel) {
+      standardLabel.textContent = mapText(
+        'standard_scheduled_delivery',
+        'Same-Day / Scheduled Delivery',
+        'توصيل في نفس اليوم أو تاريخ محدد'
+      );
+    }
+    const dateLabel = document.getElementById('delivery-date-label');
+    if (dateLabel) dateLabel.textContent = mapText('delivery_date', 'Delivery date', 'تاريخ التوصيل');
+    const timeLabel = document.getElementById('delivery-time-label');
+    if (timeLabel) timeLabel.textContent = mapText('delivery_time_slot', 'Time slot', 'الفترة الزمنية');
+    const timeSelect = document.getElementById('sameday-slot-select');
+    if (timeSelect) {
+      Array.from(timeSelect.options).forEach((option) => {
+        option.textContent = isArabicLocale() ? option.dataset.timeAr : option.dataset.timeEn;
+      });
+    }
+    updateExpressDeliveryAvailability();
+  }
+
   function computeTotals() {
     const cart = getCart();
     const subtotal = cart.reduce((sum, item) => sum + (Number(item.price || 0) * Math.max(1, Math.floor(Number(item.quantity) || 1))), 0);
@@ -1640,11 +1772,7 @@
       discount = Math.max(0, Math.min(discount, subtotal));
     }
 
-    const activeSettings = window.LorinStoreSettings ? window.LorinStoreSettings.get() : {};
-    let deliveryFee = window.LorinStoreSettings ? window.LorinStoreSettings.computeDeliveryFee(subtotal - discount, activeSettings) : 0;
-    if (selectedSlotType === 'express') {
-      deliveryFee += 5; // Express delivery fee
-    }
+    const deliveryFee = getDeliveryFee();
 
     const total = Math.max(0, subtotal - discount + photoFee + cardFee + deliveryFee);
 
@@ -1695,7 +1823,9 @@
             <img src="${item.image_url || 'https://via.placeholder.com/80'}" class="w-14 h-14 object-cover rounded-lg flex-shrink-0 border border-gray-100">
             <div class="flex-1 min-w-0">
               <div class="font-bold text-gray-900 truncate">${item.name}</div>
-              <div class="text-[11px] text-gray-400 mt-0.5">⚡ Express Delivery</div>
+            <div class="text-[11px] text-gray-400 mt-0.5">${selectedSlotType === 'express'
+              ? `⚡ ${mapText('express_delivery', 'Express Delivery', 'توصيل سريع')}`
+              : mapText('standard_scheduled_delivery', 'Same-Day / Scheduled Delivery', 'توصيل في نفس اليوم أو تاريخ محدد')}</div>
               <div class="lorin-qty-stepper mt-1.5">
                 <button type="button" class="lorin-qty-btn" onclick="updateItemQuantity(${idx}, -1)">${qty === 1 ? '🗑' : '-'}</button>
                 <span class="lorin-qty-val">${qty}</span>
@@ -1756,7 +1886,10 @@
 
     const deliveryEl = document.getElementById('summary-delivery-charge');
     if (deliveryEl) {
-      deliveryEl.textContent = totals.deliveryFee > 0 ? totals.deliveryFee.toFixed(2) + ' د.أ' : t('delivery_free', 'مجاناً 🌸');
+      const selectedArea = getSelectedAreaOption();
+      deliveryEl.textContent = selectedArea && selectedArea.value
+        ? totals.deliveryFee.toFixed(2) + ' د.أ'
+        : mapText('delivery_select_area', 'Select area', 'اختر المنطقة');
     }
 
     const grandTotalStr = totals.total.toFixed(2) + ' د.أ';
@@ -1795,18 +1928,11 @@
     persistCheckoutState();
   }
 
-  // Delivery Slots (Express, Same-Day, Custom)
+  // Delivery Slots (Express or Same-Day / Scheduled)
   function selectSlot(type) {
-    selectedSlotType = type;
-    document.querySelectorAll('.lorin-slot-card').forEach(c => c.classList.remove('is-selected'));
-    const target = document.getElementById('slot-' + type);
-    if (target) target.classList.add('is-selected');
-
-    const expressBanner = document.getElementById('express-info-banner');
-    if (expressBanner) {
-      expressBanner.style.display = type === 'express' ? 'flex' : 'none';
-    }
-
+    if (type !== 'express' && type !== 'sameday') return;
+    selectedSlotType = type === 'express' && !isAmmanAreaSelected() ? 'sameday' : type;
+    updateExpressDeliveryAvailability();
     renderOrderSummary();
     persistCheckoutState();
   }
@@ -1897,6 +2023,32 @@
       return false;
     }
 
+    if (selectedSlotType === 'express' && !isAmmanAreaSelected()) {
+      updateExpressDeliveryAvailability();
+      renderOrderSummary();
+      persistCheckoutState();
+    }
+
+    if (selectedSlotType === 'sameday') {
+      const dateInput = document.getElementById('custom-date-input');
+      const timeSelect = document.getElementById('sameday-slot-select');
+      const today = localDateInputValue(new Date());
+      const validTime = !!(timeSelect && Array.from(timeSelect.options).some((option) => option.value === timeSelect.value));
+      if (!dateInput || !dateInput.value || dateInput.value < today || !validTime) {
+        showToastNotification(mapText(
+          'delivery_schedule_invalid',
+          'Choose a valid delivery date and time slot.',
+          'يرجى اختيار تاريخ وفترة توصيل صحيحة.'
+        ), { type: 'warning' });
+        if (!dateInput || !dateInput.value || dateInput.value < today) {
+          if (dateInput) dateInput.focus();
+        } else if (timeSelect) {
+          timeSelect.focus();
+        }
+        return false;
+      }
+    }
+
     return true;
   }
 
@@ -1928,15 +2080,10 @@
     document.getElementById('summary-rec-name').textContent = name;
     document.getElementById('summary-rec-phone').textContent = selectedRecipientCountry.dial + ' ' + phone.replace(/\D/g, '');
 
-    // Date & Time Summary
-    let slotText = 'اليوم | توصيل سريع (120 دقيقة)';
-    if (selectedSlotType === 'sameday') {
-      const samedayVal = document.getElementById('sameday-slot-select').value;
-      slotText = 'اليوم | ' + samedayVal;
-    } else if (selectedSlotType === 'custom') {
-      const customDate = document.getElementById('custom-date-input').value;
-      slotText = (customDate || 'موعد مخصص') + ' | حسب الاختيار';
-    }
+    const schedule = getEmailSchedule();
+    const slotText = selectedSlotType === 'express'
+      ? `${schedule.deliveryType} | ${schedule.scheduleLabel}`
+      : `${formatDeliveryDateLabel(schedule.deliveryDate)} | ${schedule.deliveryTime}`;
     document.getElementById('summary-rec-datetime').textContent = slotText;
 
     // Address Summary
@@ -1981,22 +2128,39 @@
     renderOrderSummary();
   }
 
+  function formatDeliveryDateLabel(dateValue) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateValue || ''));
+    if (!match) return String(dateValue || '');
+    const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    return date.toLocaleDateString(isArabicLocale() ? 'ar-JO' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
   function getEmailSchedule() {
-    if (selectedSlotType === 'sameday') {
+    if (selectedSlotType === 'express') {
       return {
-        deliveryType: t('sameday_delivery', 'Same-day delivery'),
-        scheduleLabel: document.getElementById('sameday-slot-select').value
+        deliveryType: mapText('express_delivery', 'Express Delivery', 'توصيل سريع'),
+        deliveryDate: '',
+        deliveryTime: '',
+        deliverySlotType: 'express',
+        scheduleLabel: mapText('express_delivery_sub', 'Within 120 minutes', 'خلال 120 دقيقة')
       };
     }
-    if (selectedSlotType === 'custom') {
-      return {
-        deliveryType: t('choose_datetime', 'Scheduled delivery'),
-        scheduleLabel: document.getElementById('custom-date-input').value || t('choose_datetime', 'Scheduled delivery')
-      };
-    }
+    const deliveryDate = document.getElementById('custom-date-input').value;
+    const deliveryTime = document.getElementById('sameday-slot-select').value;
     return {
-      deliveryType: t('express_delivery', 'Express delivery'),
-      scheduleLabel: t('express_delivery_sub', 'Delivery within 120 minutes')
+      deliveryType: mapText(
+        'standard_scheduled_delivery',
+        'Same-Day / Scheduled Delivery',
+        'توصيل في نفس اليوم أو تاريخ محدد'
+      ),
+      deliveryDate,
+      deliveryTime,
+      deliverySlotType: 'standard',
+      scheduleLabel: `${deliveryDate} | ${deliveryTime}`
     };
   }
 
@@ -2139,6 +2303,9 @@
         lat: hasSelectedCoordinates ? currentCoordinates.lat : null,
         lng: hasSelectedCoordinates ? currentCoordinates.lng : null,
         deliveryType: schedule.deliveryType,
+        deliveryDate: schedule.deliveryDate,
+        deliveryTime: schedule.deliveryTime,
+        deliverySlotType: schedule.deliverySlotType,
         scheduleLabel: schedule.scheduleLabel,
         keepIdentitySecret: recipientData.keepIdentitySecret,
         deliveryNote: recipientData.deliveryNote
@@ -2185,6 +2352,7 @@
     const extras = getGiftExtras();
     const cardMsg = (extras.card && extras.card.message) || '';
     const mapUrl = currentMapUrl();
+    const schedule = getEmailSchedule();
     const recipientData = {
       collectAddressFromRecipient: isCollectAddress,
       name,
@@ -2195,9 +2363,11 @@
       deliveryNote: driverNote
     };
 
-    const shippingDesc = isCollectAddress
+    const shippingAddress = isCollectAddress
       ? 'طلب العنوان من المستلم نيابة عن المشتري'
       : `${area} - ${address}${mapUrl ? ` (Google Maps: ${mapUrl})` : ''}`;
+    const scheduleDescription = `${schedule.deliveryType} | ${schedule.scheduleLabel}`;
+    const shippingDesc = `${shippingAddress} [Delivery: ${scheduleDescription}]`;
 
     const totals = computeTotals();
 
@@ -2332,6 +2502,7 @@
     if (deliverLabel) deliverLabel.textContent = mapText('map_deliver_to', 'Deliver to:', 'التوصيل إلى:');
     if (confirm) confirm.textContent = mapText('map_confirm', 'CONFIRM', 'تأكيد');
     updateAreaOptionLabels();
+    updateDeliveryOptionLabels();
   }
 
   function addResilientTileLayer(map) {
@@ -2926,6 +3097,7 @@
 
   // Page Load
   document.addEventListener('DOMContentLoaded', async () => {
+    initializeDeliverySchedule();
     const hasSavedCheckoutState = restoreCheckoutState();
 
     if (window.LorinStoreSettings) {
