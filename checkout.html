@@ -563,12 +563,19 @@
     .map-search-result:focus { background: #FAF8F5; outline: none; }
 
     body.map-picker-open { overflow: hidden; }
+    #recipient-address-card {
+      background: #FFFBF6;
+      border-color: #F1ECE5;
+      border-radius: 2px;
+      box-shadow: none;
+      padding: 20px 16px;
+    }
     .recipient-map-preview {
       position: relative;
-      height: 156px;
+      height: 112px;
       overflow: hidden;
       border: 1px solid #E5E7EB;
-      border-radius: 12px;
+      border-radius: 2px;
       background: #E8ECE8;
       isolation: isolate;
     }
@@ -583,7 +590,7 @@
     }
     .map-preview-action {
       position: absolute;
-      z-index: 500;
+      z-index: 1100;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -591,23 +598,23 @@
       align-items: center;
       justify-content: center;
       gap: 9px;
-      min-height: 48px;
+      min-height: 36px;
       max-width: calc(100% - 32px);
-      padding: 0 22px;
+      padding: 0 16px;
       border: 1px solid rgba(0, 49, 60, 0.13);
-      border-radius: 8px;
+      border-radius: 2px;
       background: #FFFFFF;
-      box-shadow: 0 8px 24px rgba(17, 24, 39, 0.18);
+      box-shadow: 0 3px 12px rgba(17, 24, 39, 0.16);
       color: #00313C;
       font: inherit;
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 800;
       letter-spacing: 0.045em;
       cursor: pointer;
       white-space: nowrap;
     }
     .map-preview-action:hover { background: #FAFAF9; }
-    .map-preview-action svg { width: 18px; height: 18px; flex: 0 0 auto; }
+    .map-preview-action svg { width: 15px; height: 15px; flex: 0 0 auto; }
     .map-picker-overlay {
       position: fixed;
       inset: 0;
@@ -623,12 +630,13 @@
     .map-picker-overlay.hidden { display: none; }
     .map-picker-dialog {
       position: relative;
-      width: min(680px, 100%);
-      height: min(680px, 84vh);
-      min-height: 430px;
+      width: min(640px, 100%);
+      height: min(546px, calc(100vh - 40px));
+      height: min(546px, calc(100dvh - 40px));
+      min-height: 420px;
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, 0.7);
-      border-radius: 18px;
+      border-radius: 2px;
       background: #E8ECE8;
       box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
     }
@@ -640,9 +648,9 @@
     }
     .map-picker-toolbar {
       position: absolute;
-      top: 16px;
-      left: 16px;
-      right: 16px;
+      top: 24px;
+      left: 24px;
+      right: 24px;
       z-index: 500;
       display: flex;
       align-items: flex-start;
@@ -655,10 +663,10 @@
     }
     .map-picker-search {
       width: 100%;
-      height: 48px;
-      padding: 0 16px;
+      height: 42px;
+      padding: 0 42px;
       border: 1px solid rgba(17, 24, 39, 0.1);
-      border-radius: 9px;
+      border-radius: 2px;
       outline: none;
       background: #FFFFFF;
       box-shadow: 0 4px 18px rgba(17, 24, 39, 0.15);
@@ -667,15 +675,31 @@
       font-size: 14px;
     }
     .map-picker-search:focus { border-color: #00313C; }
+    .map-picker-search-submit {
+      position: absolute;
+      top: 1px;
+      inset-inline-start: 1px;
+      display: inline-flex;
+      width: 40px;
+      height: 40px;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      background: transparent;
+      color: #6B7280;
+      cursor: pointer;
+    }
+    .map-picker-search-submit:hover { color: #00313C; }
+    .map-picker-search-submit svg { width: 17px; height: 17px; }
     .map-picker-close {
       display: inline-flex;
-      width: 48px;
-      height: 48px;
-      flex: 0 0 48px;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
       align-items: center;
       justify-content: center;
       border: 1px solid rgba(17, 24, 39, 0.1);
-      border-radius: 9px;
+      border-radius: 2px;
       background: #FFFFFF;
       box-shadow: 0 4px 18px rgba(17, 24, 39, 0.15);
       color: #1F292E;
@@ -707,50 +731,36 @@
       filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.34));
       pointer-events: none;
     }
-    .map-picker-locate {
-      position: absolute;
-      right: 16px;
-      bottom: 194px;
-      z-index: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      min-height: 40px;
-      padding: 0 13px;
-      border: 1px solid #E5E7EB;
-      border-radius: 8px;
-      background: #FFFFFF;
-      box-shadow: 0 4px 16px rgba(17, 24, 39, 0.16);
-      color: #00313C;
-      font: inherit;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-    }
     .map-picker-bottom-card {
       position: absolute;
-      right: 16px;
-      bottom: 16px;
-      left: 16px;
+      right: 24px;
+      bottom: 20px;
+      left: 24px;
       z-index: 500;
       padding: 16px;
       border: 1px solid rgba(17, 24, 39, 0.08);
-      border-radius: 12px;
+      border-radius: 2px;
       background: #FFFFFF;
       box-shadow: 0 8px 30px rgba(17, 24, 39, 0.2);
     }
     .map-picker-deliver-label {
-      margin-bottom: 4px;
-      color: #6B7280;
-      font-size: 11px;
-      font-weight: 600;
-    }
-    .map-picker-address {
-      min-height: 36px;
-      margin-bottom: 12px;
+      flex: 0 0 auto;
       color: #1F292E;
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .map-picker-deliver-line {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .map-picker-address {
+      min-width: 0;
+      color: #1F292E;
+      font-size: 13px;
+      font-weight: 400;
       line-height: 1.45;
     }
     .map-picker-confirm {
@@ -758,7 +768,7 @@
       min-height: 48px;
       border: 0;
       border-radius: 8px;
-      background: #00313C;
+      background: #111111;
       color: #FFFFFF;
       font: inherit;
       font-size: 12px;
@@ -766,26 +776,29 @@
       letter-spacing: 0.06em;
       cursor: pointer;
     }
-    .map-picker-confirm:hover { background: #00222B; }
+    .map-picker-confirm:hover { background: #292929; }
     .map-picker-confirm:disabled { background: #9CA3AF; cursor: wait; }
     .map-picker-dialog .leaflet-control-attribution { font-size: 8px; }
-    .pac-container { z-index: 2100 !important; }
     @media (max-width: 640px) {
       .map-picker-overlay { padding: 0; }
       .map-picker-dialog {
         width: 100%;
-        height: 100%;
+        height: 100vh;
+        height: 100dvh;
         min-height: 0;
         border: 0;
         border-radius: 0;
       }
-      .map-picker-toolbar { top: max(14px, env(safe-area-inset-top)); }
-      .map-picker-bottom-card {
-        right: 12px;
-        bottom: max(12px, env(safe-area-inset-bottom));
-        left: 12px;
+      .map-picker-toolbar {
+        top: max(16px, env(safe-area-inset-top));
+        left: 16px;
+        right: 16px;
       }
-      .map-picker-locate { right: 12px; bottom: 200px; }
+      .map-picker-bottom-card {
+        right: 16px;
+        bottom: max(16px, env(safe-area-inset-bottom));
+        left: 16px;
+      }
     }
 
     /* Mobile Sticky Bar */
@@ -956,7 +969,7 @@
             <h3 class="font-serif text-lg font-bold text-gray-900 mb-1" data-i18n="recipient_address_title">عنوان التوصيل</h3>
             <p class="text-xs text-gray-500 mb-4" data-i18n="recipient_address_desc">حدد موقع التوصيل على الخريطة لمساعدتنا على الوصول بالموعد الدقيق</p>
 
-            <div class="space-y-4">
+            <div class="space-y-5">
               <div class="recipient-map-preview">
                 <div id="recipient-map-preview-map" aria-hidden="true"></div>
                 <button type="button" id="map-preview-action" class="map-preview-action" onclick="openMapLocationPicker()" aria-haspopup="dialog">
@@ -969,19 +982,20 @@
               </div>
               <input type="hidden" id="checkout-map-url" value="">
 
-              <div class="grid grid-cols-1 gap-4">
+              <div class="grid grid-cols-1 gap-5">
                 <div>
                   <label class="lorin-input-label" data-i18n="area_label">المنطقة *</label>
-                  <select id="receiver-area" class="lorin-input-field cursor-pointer">
-                    <option value="عمان - دابوق" data-area-en="Amman - Dabouq" data-area-aliases="دابوق|dabouq|dabuk">عمان - دابوق</option>
-                    <option value="عمان - عبدون" data-area-en="Amman - Abdoun" data-area-aliases="عبدون|abdoun|abdun">عمان - عبدون</option>
-                    <option value="عمان - الصويفية" data-area-en="Amman - Sweifieh" data-area-aliases="الصويفية|الصويفيه|sweifieh|swaifieh|swaifyeh|swefieh">عمان - الصويفية</option>
-                    <option value="عمان - دير غبار" data-area-en="Amman - Deir Ghbar" data-area-aliases="دير غبار|ديرغبار|deir ghbar|dayr ghbar|dair ghbar">عمان - دير غبار</option>
-                    <option value="عمان - خلدا" data-area-en="Amman - Khalda" data-area-aliases="خلدا|khalda|khaldeh">عمان - خلدا</option>
-                    <option value="عمان - الشميساني" data-area-en="Amman - Shmeisani" data-area-aliases="الشميساني|شميساني|shmeisani|shmaisani|shumaisani">عمان - الشميساني</option>
-                    <option value="عمان - الجبيهة" data-area-en="Amman - Jubaiha" data-area-aliases="الجبيهة|جبيهة|jubaiha|jubeiha">عمان - الجبيهة</option>
-                    <option value="عمان - تلاع العلي" data-area-en="Amman - Tlaa Al Ali" data-area-aliases="تلاع العلي|تلاعالعلي|tlaa al ali|tla al ali|tlaa al-ali">عمان - تلاع العلي</option>
-                    <option value="عمان - وادي السير" data-area-en="Amman - Wadi Al Seer" data-area-aliases="وادي السير|واد السير|wadi al seer|wadi seer|wadi as seer">عمان - وادي السير</option>
+                  <select id="receiver-area" class="lorin-input-field cursor-pointer" required>
+                    <option value="" data-area-en="Select Area" data-area-ar="اختر المنطقة" selected>اختر المنطقة</option>
+                    <option value="عمان - دابوق" data-area-en="Amman - Dabouq" data-area-aliases="دابوق|دابوق عمان|dabouq|dabuk|dabuq|dabouq village">عمان - دابوق</option>
+                    <option value="عمان - عبدون" data-area-en="Amman - Abdoun" data-area-aliases="عبدون|العبدون|abdoun|abdun|al abdoun|abdoun north">عمان - عبدون</option>
+                    <option value="عمان - الصويفية" data-area-en="Amman - Sweifieh" data-area-aliases="الصويفية|الصويفيه|الصويفية الجنوبية|sweifieh|swaifieh|swaifyeh|swefieh|al sweifieh|al swaifyeh">عمان - الصويفية</option>
+                    <option value="عمان - دير غبار" data-area-en="Amman - Deir Ghbar" data-area-aliases="دير غبار|ديرغبار|دير جبار|deir ghbar|dayr ghbar|dair ghbar|deir gbar|deirghbar">عمان - دير غبار</option>
+                    <option value="عمان - خلدا" data-area-en="Amman - Khalda" data-area-aliases="خلدا|خالدا|khalda|khaldeh|khilda|al khalda">عمان - خلدا</option>
+                    <option value="عمان - الشميساني" data-area-en="Amman - Shmeisani" data-area-aliases="الشميساني|شميساني|shmeisani|shmaisani|shumaisani|al shmeisani">عمان - الشميساني</option>
+                    <option value="عمان - الجبيهة" data-area-en="Amman - Jubaiha" data-area-aliases="الجبيهة|جبيهة|الجبيهه|jubaiha|jubeiha|jubayha|al jubeiha">عمان - الجبيهة</option>
+                    <option value="عمان - تلاع العلي" data-area-en="Amman - Tlaa Al Ali" data-area-aliases="تلاع العلي|تلاعالعلي|تلاع علي|tlaa al ali|tla al ali|tlaa al-ali|tlaa el ali|talat al ali">عمان - تلاع العلي</option>
+                    <option value="عمان - وادي السير" data-area-en="Amman - Wadi Al Seer" data-area-aliases="وادي السير|واد السير|wadi al seer|wadi seer|wadi as seer|wadi al-seer">عمان - وادي السير</option>
                     <option value="الزرقاء" data-area-en="Zarqa" data-area-aliases="الزرقاء|zarqa|az zarqa">الزرقاء</option>
                     <option value="إربد" data-area-en="Irbid" data-area-aliases="إربد|اربد|irbid">إربد</option>
                     <option value="السلط" data-area-en="Salt" data-area-aliases="السلط|salt|as salt">السلط</option>
@@ -1290,7 +1304,13 @@
     <div id="map-picker-map" aria-label="Interactive delivery location map"></div>
     <div class="map-picker-toolbar">
       <div class="map-picker-search-wrap">
-        <input type="search" id="map-picker-search" class="map-picker-search" dir="auto" autocomplete="off" placeholder="Search Location" aria-label="Search Location" oninput="onMapSearchInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();searchDeliveryLocation();}">
+        <input type="search" id="map-picker-search" class="map-picker-search" dir="auto" placeholder="Search Location" aria-label="Search Location" onkeydown="if(event.key==='Enter'){event.preventDefault();searchDeliveryLocation();}">
+        <button type="button" class="map-picker-search-submit" onclick="searchDeliveryLocation()" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/>
+            <path d="m16 16 4.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
         <div id="map-picker-search-results" class="map-picker-search-results hidden" role="listbox" aria-label="Search results"></div>
       </div>
       <button type="button" class="map-picker-close" onclick="closeMapLocationPicker()" aria-label="Close map picker">&times;</button>
@@ -1299,12 +1319,11 @@
       <path d="M20 1.8C10.7 1.8 3.2 9.3 3.2 18.6c0 12.1 16.8 27.1 16.8 27.1s16.8-15 16.8-27.1C36.8 9.3 29.3 1.8 20 1.8Z" fill="#00313C" stroke="white" stroke-width="2"/>
       <circle cx="20" cy="18.5" r="5.2" fill="white"/>
     </svg>
-    <button type="button" id="map-picker-locate" class="map-picker-locate" onclick="locateUserGps()">
-      <span aria-hidden="true">⌖</span><span id="map-picker-locate-label">Use my current location</span>
-    </button>
     <div class="map-picker-bottom-card">
-      <div class="map-picker-deliver-label" id="map-picker-deliver-label">Deliver to</div>
-      <div id="map-picker-address" class="map-picker-address" aria-live="polite">Amman, Jordan</div>
+      <div class="map-picker-deliver-line">
+        <span class="map-picker-deliver-label" id="map-picker-deliver-label">Deliver to:</span>
+        <span id="map-picker-address" class="map-picker-address" aria-live="polite">Amman, Jordan</span>
+      </div>
       <button type="button" id="map-picker-confirm" class="map-picker-confirm" onclick="confirmMapLocation()">CONFIRM</button>
     </div>
   </div>
@@ -1322,7 +1341,6 @@
   const CHECKOUT_STATE_KEY = 'lorin_checkout_state';
   const PHOTO_STICK_FEE = 2.5;
   const STORAGE_BUCKET = 'store-assets';
-  const GOOGLE_MAPS_API_KEY = window.LORIN_GOOGLE_MAPS_API_KEY || '';
   const NOMINATIM_MIN_INTERVAL_MS = 1100;
 
   let currentStep = 1;
@@ -1331,10 +1349,6 @@
   let modalLeafletMap = null;
   let previewLeafletMap = null;
   let previewLeafletMarker = null;
-  let modalGoogleMap = null;
-  let modalGoogleGeocoder = null;
-  let googleAutocomplete = null;
-  let mapProvider = '';
   let currentCoordinates = { lat: 31.9539, lng: 35.9106 };
   let hasSelectedCoordinates = false;
   let selectedLocationAddress = '';
@@ -1344,9 +1358,8 @@
   let mapSearchController = null;
   let reverseGeocodeController = null;
   let reverseGeocodeTimer = null;
-  let mapSearchTimer = null;
-  let googleMapsApiPromise = null;
   let mapGeocodeRequestId = 0;
+  let mapConfirmationInProgress = false;
   let nominatimRequestQueue = Promise.resolve();
   let nominatimLastRequestAt = 0;
 
@@ -1849,6 +1862,7 @@
     const name = document.getElementById('receiver-name').value.trim();
     const phone = document.getElementById('receiver-phone').value.trim();
     const isCollectAddress = document.getElementById('toggle-collect-address').checked;
+    const area = document.getElementById('receiver-area').value.trim();
     const address = document.getElementById('receiver-full-address').value.trim();
 
     if (!name) {
@@ -1860,6 +1874,12 @@
     if (!phone || phone.replace(/\D/g, '').length < 8) {
       showToastNotification(t('msg_invalid_phone', 'يرجى إدخال رقم هاتف صحيح للمستلم'), { type: 'warning' });
       document.getElementById('receiver-phone').focus();
+      return false;
+    }
+
+    if (!isCollectAddress && !area) {
+      showToastNotification(isArabicLocale() ? 'يرجى اختيار المنطقة' : 'Please select a delivery area.', { type: 'warning' });
+      document.getElementById('receiver-area').focus();
       return false;
     }
 
@@ -1891,7 +1911,10 @@
     const name = document.getElementById('receiver-name').value.trim();
     const phone = document.getElementById('receiver-phone').value.trim();
     const isCollectAddress = document.getElementById('toggle-collect-address').checked;
-    const area = document.getElementById('receiver-area').value;
+    const areaSelect = document.getElementById('receiver-area');
+    const area = areaSelect.value;
+    const selectedAreaOption = areaSelect.options[areaSelect.selectedIndex];
+    const areaLabel = selectedAreaOption ? selectedAreaOption.textContent : area;
     const address = document.getElementById('receiver-full-address').value.trim();
 
     document.getElementById('summary-rec-name').textContent = name;
@@ -1912,7 +1935,7 @@
     if (isCollectAddress) {
       document.getElementById('summary-rec-address').textContent = 'سوف يتم أخذ العنوان من المستلم مباشرة نيابة عنك 🌸';
     } else {
-      document.getElementById('summary-rec-address').textContent = `${area} - ${address}`;
+      document.getElementById('summary-rec-address').textContent = `${areaLabel} - ${address}`;
     }
     const mapLink = document.getElementById('summary-rec-map');
     const selectedMapUrl = currentMapUrl();
@@ -1921,7 +1944,8 @@
       mapLink.classList.toggle('hidden', isCollectAddress || !selectedMapUrl);
     }
 
-    document.getElementById('deliver-to-city-tag').textContent = area.split('-')[0].trim() || 'Amman';
+    document.getElementById('deliver-to-city-tag').textContent =
+      areaLabel.split('-')[0].trim() || mapText('checkout_city_amman', 'Amman', 'عمان');
     persistCheckoutState();
   }
 
@@ -2255,7 +2279,9 @@
     const select = document.getElementById('receiver-area');
     if (!select) return;
     Array.from(select.options).forEach((option) => {
-      option.textContent = isArabicLocale() ? option.value : (option.dataset.areaEn || option.value);
+      option.textContent = isArabicLocale()
+        ? (option.dataset.areaAr || option.value)
+        : (option.dataset.areaEn || option.value);
     });
   }
 
@@ -2263,12 +2289,12 @@
     const actionLabel = document.getElementById('map-preview-action-label');
     const action = document.getElementById('map-preview-action');
     const search = document.getElementById('map-picker-search');
+    const searchSubmit = document.querySelector('.map-picker-search-submit');
     const title = document.getElementById('map-picker-title');
     const closeButton = document.querySelector('.map-picker-close');
     const results = document.getElementById('map-picker-search-results');
     const map = document.getElementById('map-picker-map');
     const addressInput = document.getElementById('receiver-full-address');
-    const locateLabel = document.getElementById('map-picker-locate-label');
     const deliverLabel = document.getElementById('map-picker-deliver-label');
     const confirm = document.getElementById('map-picker-confirm');
     const isSelected = hasSelectedCoordinates;
@@ -2285,6 +2311,7 @@
     }
     if (title) title.textContent = mapText('map_search_location', 'Search Location', 'ابحث عن موقع');
     if (closeButton) closeButton.setAttribute('aria-label', mapText('map_close', 'Close map picker', 'إغلاق الخريطة'));
+    if (searchSubmit) searchSubmit.setAttribute('aria-label', mapText('map_search_button', 'Search', 'بحث'));
     if (results) results.setAttribute('aria-label', mapText('map_search_results', 'Location search results', 'نتائج البحث عن الموقع'));
     if (map) map.setAttribute('aria-label', mapText('map_picker_label', 'Interactive delivery location map', 'خريطة تفاعلية لموقع التوصيل'));
     if (addressInput) {
@@ -2294,8 +2321,7 @@
         'أدخل رقم الشقة أو الفيلا والطابق واسم المبنى والشارع'
       );
     }
-    if (locateLabel) locateLabel.textContent = mapText('map_use_current_location', 'Use my current location', 'استخدام موقعي الحالي');
-    if (deliverLabel) deliverLabel.textContent = mapText('map_deliver_to', 'Deliver to', 'التوصيل إلى');
+    if (deliverLabel) deliverLabel.textContent = mapText('map_deliver_to', 'Deliver to:', 'التوصيل إلى:');
     if (confirm) confirm.textContent = mapText('map_confirm', 'CONFIRM', 'تأكيد');
     updateAreaOptionLabels();
   }
@@ -2315,11 +2341,12 @@
         attributionControl: true
       }).setView(
         [currentCoordinates.lat, currentCoordinates.lng],
-        hasSelectedCoordinates ? 15 : 12
+        hasSelectedCoordinates ? 15 : 14
       );
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 20
       }).addTo(previewLeafletMap);
       updateMapPreview();
     } catch (error) {
@@ -2339,7 +2366,7 @@
     }
 
     const position = [currentCoordinates.lat, currentCoordinates.lng];
-    previewLeafletMap.setView(position, hasSelectedCoordinates ? 15 : 12, { animate: false });
+    previewLeafletMap.setView(position, hasSelectedCoordinates ? 15 : 14, { animate: false });
     if (hasSelectedCoordinates) {
       if (previewLeafletMarker) previewLeafletMarker.setLatLng(position);
       else previewLeafletMarker = L.marker(position).addTo(previewLeafletMap);
@@ -2352,98 +2379,24 @@
     }, 0);
   }
 
-  function loadGoogleMapsApi() {
-    if (window.google && window.google.maps && window.google.maps.places) return Promise.resolve();
-    if (!GOOGLE_MAPS_API_KEY) return Promise.reject(new Error('Google Maps API key is not configured.'));
-    if (googleMapsApiPromise) return googleMapsApiPromise;
-
-    googleMapsApiPromise = new Promise((resolve, reject) => {
-      window.lorinCheckoutGoogleMapsReady = resolve;
-      const script = document.createElement('script');
-      const language = isArabicLocale() ? 'ar' : 'en';
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}&libraries=places&language=${language}&callback=lorinCheckoutGoogleMapsReady`;
-      script.async = true;
-      script.defer = true;
-      script.onerror = () => reject(new Error('Google Maps JavaScript API failed to load.'));
-      document.head.appendChild(script);
-    });
-    return googleMapsApiPromise;
-  }
-
-  async function initializeMapPickerMap() {
-    if (mapProvider) {
-      if (mapProvider === 'leaflet' && modalLeafletMap) modalLeafletMap.invalidateSize();
-      if (mapProvider === 'google' && modalGoogleMap) {
-        window.google.maps.event.trigger(modalGoogleMap, 'resize');
-        modalGoogleMap.setCenter(draftCoordinates);
-      }
-      return;
-    }
-
-    if (GOOGLE_MAPS_API_KEY) {
-      try {
-        await loadGoogleMapsApi();
-        initializeGoogleMapPicker();
-        return;
-      } catch (error) {
-        console.warn('Google Maps unavailable; using the OpenStreetMap picker:', error);
-      }
-    }
-    initializeLeafletMapPicker();
-  }
-
-  function initializeGoogleMapPicker() {
-    const mapEl = document.getElementById('map-picker-map');
-    if (!mapEl || !window.google || !window.google.maps) throw new Error('Google Maps API is unavailable.');
-    mapProvider = 'google';
-    modalGoogleMap = new google.maps.Map(mapEl, {
-      center: draftCoordinates,
-      zoom: 15,
-      mapTypeControl: false,
-      streetViewControl: false,
-      fullscreenControl: false,
-      clickableIcons: false,
-      gestureHandling: 'greedy'
-    });
-    modalGoogleGeocoder = new google.maps.Geocoder();
-    modalGoogleMap.addListener('idle', updateDraftFromMapCenter);
-
-    const searchInput = document.getElementById('map-picker-search');
-    if (searchInput && google.maps.places && google.maps.places.Autocomplete) {
-      googleAutocomplete = new google.maps.places.Autocomplete(searchInput, {
-        componentRestrictions: { country: 'jo' },
-        fields: ['formatted_address', 'geometry', 'address_components']
-      });
-      googleAutocomplete.addListener('place_changed', () => {
-        const place = googleAutocomplete.getPlace();
-        if (!place.geometry || !place.geometry.location) return;
-        const location = place.geometry.location;
-        const lat = location.lat();
-        const lng = location.lng();
-        draftLocationDetails = googleAddressDetails(place, lat, lng);
-        updateMapPickerAddress(draftLocationDetails.formatted);
-        draftCoordinates = { lat, lng };
-        modalGoogleMap.setCenter(location);
-        modalGoogleMap.setZoom(16);
-        hideMapSearchResults();
-      });
-    }
-  }
-
-  function initializeLeafletMapPicker() {
+  function initializeMapPickerMap() {
     if (!window.L) throw new Error('Leaflet could not be loaded.');
     const mapEl = document.getElementById('map-picker-map');
     if (!mapEl) return;
+    if (modalLeafletMap) {
+      modalLeafletMap.invalidateSize();
+      return;
+    }
     mapEl.replaceChildren();
-    mapProvider = 'leaflet';
     modalLeafletMap = L.map(mapEl, {
       zoomControl: false,
       scrollWheelZoom: true,
       attributionControl: true
     }).setView([draftCoordinates.lat, draftCoordinates.lng], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-      maxZoom: 19
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 20
     }).addTo(modalLeafletMap);
     modalLeafletMap.on('moveend', updateDraftFromMapCenter);
     window.setTimeout(() => modalLeafletMap.invalidateSize(), 50);
@@ -2461,27 +2414,24 @@
     updateMapPickerLabels();
     updateMapPickerAddress(selectedLocationAddress || mapText('map_finding_address', 'Finding the address…', 'جارٍ تحديد العنوان…'));
     window.setTimeout(() => {
-      initializeMapPickerMap().then(() => {
-        if (mapProvider === 'leaflet' && modalLeafletMap) {
-          modalLeafletMap.setView([draftCoordinates.lat, draftCoordinates.lng], hasSelectedCoordinates ? 16 : 14);
+      try {
+        initializeMapPickerMap();
+        if (modalLeafletMap) {
+          modalLeafletMap.setView([draftCoordinates.lat, draftCoordinates.lng], hasSelectedCoordinates ? 16 : 15);
           modalLeafletMap.invalidateSize();
-        }
-        if (mapProvider === 'google' && modalGoogleMap) {
-          modalGoogleMap.setCenter(draftCoordinates);
-          modalGoogleMap.setZoom(hasSelectedCoordinates ? 16 : 14);
         }
         const search = document.getElementById('map-picker-search');
         if (search) search.focus();
-        if (!selectedLocationAddress || !hasSelectedCoordinates) scheduleReverseGeocode();
-        else scheduleReverseGeocode();
-      }).catch((error) => {
+        scheduleReverseGeocode();
+      } catch (error) {
         console.error('Map picker could not be initialized:', error);
         showToastNotification(mapText('map_unavailable', 'The map could not be loaded. Please try again.', 'تعذر تحميل الخريطة. يرجى المحاولة مرة أخرى.'), { type: 'warning' });
-      });
+      }
     }, 40);
   }
 
   function closeMapLocationPicker() {
+    if (mapConfirmationInProgress) return;
     const overlay = document.getElementById('map-picker-overlay');
     if (overlay) overlay.classList.add('hidden');
     document.body.classList.remove('map-picker-open');
@@ -2493,10 +2443,26 @@
       reverseGeocodeController.abort();
       reverseGeocodeController = null;
     }
-    clearTimeout(mapSearchTimer);
     clearTimeout(reverseGeocodeTimer);
     const action = document.getElementById('map-preview-action');
     if (action) action.focus();
+  }
+
+  function setMapPickerInteractionDisabled(disabled) {
+    if (modalLeafletMap) {
+      ['dragging', 'touchZoom', 'scrollWheelZoom', 'doubleClickZoom', 'boxZoom', 'keyboard'].forEach((interaction) => {
+        const handler = modalLeafletMap[interaction];
+        if (handler && typeof handler[disabled ? 'disable' : 'enable'] === 'function') {
+          handler[disabled ? 'disable' : 'enable']();
+        }
+      });
+    }
+    const search = document.getElementById('map-picker-search');
+    const searchButton = document.querySelector('.map-picker-search-submit');
+    const closeButton = document.querySelector('.map-picker-close');
+    if (search) search.disabled = disabled;
+    if (searchButton) searchButton.disabled = disabled;
+    if (closeButton) closeButton.disabled = disabled;
   }
 
   function updateMapPickerAddress(value) {
@@ -2539,13 +2505,7 @@
 
   function updateDraftFromMapCenter() {
     if (document.getElementById('map-picker-overlay').classList.contains('hidden')) return;
-    let center;
-    if (mapProvider === 'leaflet' && modalLeafletMap) {
-      center = modalLeafletMap.getCenter();
-    } else if (mapProvider === 'google' && modalGoogleMap) {
-      center = modalGoogleMap.getCenter();
-      if (center) center = { lat: center.lat(), lng: center.lng() };
-    }
+    const center = modalLeafletMap ? modalLeafletMap.getCenter() : null;
     if (!center || !isValidCoordinates(center.lat, center.lng)) return;
     draftCoordinates = { lat: Number(center.lat), lng: Number(center.lng) };
     draftLocationDetails = null;
@@ -2588,10 +2548,23 @@
       return '';
     };
     const street = uniqueAddressParts([address.house_number, address.road]).join(' ');
-    const neighborhood = value(['neighbourhood', 'suburb', 'quarter', 'city_district', 'district', 'borough']);
-    const city = value(['city', 'town', 'municipality', 'village', 'state_district']);
+    const neighborhoods = uniqueAddressParts([
+      address.neighbourhood,
+      address.suburb,
+      address.quarter,
+      address.city_district,
+      address.district,
+      address.borough,
+      address.residential
+    ]);
+    const city = value(['city', 'town', 'municipality', 'village', 'state_district', 'county']);
     const namedPlace = String(result.name || '');
-    const cleanAddress = uniqueAddressParts([street, neighborhood, city, !street && !neighborhood ? namedPlace : '']).join(', ') ||
+    const cleanAddress = uniqueAddressParts([
+      street,
+      neighborhoods[0],
+      city,
+      !street && !neighborhoods.length ? namedPlace : ''
+    ]).join(', ') ||
       String(result.display_name || '');
     return {
       lat,
@@ -2599,37 +2572,14 @@
       formatted: String(result.display_name || cleanAddress),
       cleanAddress,
       areaCandidates: uniqueAddressParts([
-        neighborhood,
-        ...Object.values(address),
-        result.name,
-        result.display_name
-      ])
-    };
-  }
-
-  function googleAddressDetails(result, lat, lng) {
-    const components = Array.isArray(result.address_components) ? result.address_components : [];
-    const getComponent = (types) => {
-      const found = components.find((component) => types.some((type) => component.types.includes(type)));
-      return found ? found.long_name : '';
-    };
-    const number = getComponent(['street_number']);
-    const route = getComponent(['route']);
-    const street = uniqueAddressParts([number, route]).join(' ');
-    const neighborhood = getComponent(['neighborhood', 'sublocality_level_1', 'sublocality', 'administrative_area_level_3']);
-    const city = getComponent(['locality', 'administrative_area_level_2', 'postal_town']);
-    const cleanAddress = uniqueAddressParts([street, neighborhood, city]).join(', ') ||
-      String(result.formatted_address || '');
-    return {
-      lat,
-      lng,
-      formatted: String(result.formatted_address || cleanAddress),
-      cleanAddress,
-      areaCandidates: uniqueAddressParts([
-        ...components.map((component) => component.long_name),
-        neighborhood,
-        city,
-        result.formatted_address
+        ...neighborhoods,
+        address.city,
+        address.town,
+        address.municipality,
+        address.village,
+        address.county,
+        address.state_district,
+        result.name
       ])
     };
   }
@@ -2639,33 +2589,20 @@
     const requestId = ++mapGeocodeRequestId;
     if (reverseGeocodeController) reverseGeocodeController.abort();
 
-    let details;
-    if (mapProvider === 'google' && modalGoogleGeocoder) {
-      details = await new Promise((resolve, reject) => {
-        modalGoogleGeocoder.geocode({ location: { lat: Number(lat), lng: Number(lng) } }, (results, status) => {
-          if (status === 'OK' && results && results[0]) {
-            resolve(googleAddressDetails(results[0], Number(lat), Number(lng)));
-          } else {
-            reject(new Error(`Google reverse geocoding returned ${status}.`));
-          }
-        });
-      });
-    } else {
-      const controller = new AbortController();
-      reverseGeocodeController = controller;
-      const url = new URL('https://nominatim.openstreetmap.org/reverse');
-      url.searchParams.set('format', 'jsonv2');
-      url.searchParams.set('addressdetails', '1');
-      url.searchParams.set('lat', String(lat));
-      url.searchParams.set('lon', String(lng));
-      const response = await fetchNominatim(url.toString(), {
-        headers: { 'Accept-Language': document.documentElement.lang || 'en' },
-        signal: controller.signal
-      });
-      if (!response.ok) throw new Error(`Reverse geocoding failed with status ${response.status}.`);
-      const result = await response.json();
-      details = formatNominatimDetails(result, Number(lat), Number(lng));
-    }
+    const controller = new AbortController();
+    reverseGeocodeController = controller;
+    const url = new URL('https://nominatim.openstreetmap.org/reverse');
+    url.searchParams.set('format', 'jsonv2');
+    url.searchParams.set('addressdetails', '1');
+    url.searchParams.set('lat', String(lat));
+    url.searchParams.set('lon', String(lng));
+    const response = await fetchNominatim(url.toString(), {
+      headers: { 'Accept-Language': document.documentElement.lang || 'en' },
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`Reverse geocoding failed with status ${response.status}.`);
+    const result = await response.json();
+    const details = formatNominatimDetails(result, Number(lat), Number(lng));
 
     if (requestId === mapGeocodeRequestId && !document.getElementById('map-picker-overlay').classList.contains('hidden')) {
       draftLocationDetails = details;
@@ -2674,21 +2611,10 @@
     return details;
   }
 
-  function updateDraftCoordinates(lat, lng, zoom) {
-    if (!isValidCoordinates(lat, lng)) return;
-    draftCoordinates = { lat: Number(lat), lng: Number(lng) };
-    draftLocationDetails = null;
-    if (mapProvider === 'leaflet' && modalLeafletMap) {
-      modalLeafletMap.setView([draftCoordinates.lat, draftCoordinates.lng], zoom || 16);
-    } else if (mapProvider === 'google' && modalGoogleMap) {
-      modalGoogleMap.setCenter(draftCoordinates);
-      modalGoogleMap.setZoom(zoom || 16);
-    }
-    scheduleReverseGeocode();
-  }
-
   function normalizeMapMatchText(value) {
     return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .replace(/[\u064B-\u065F\u0670]/g, '')
       .replace(/[أإآ]/g, 'ا')
@@ -2700,25 +2626,38 @@
   function matchAreaFromLocation(details) {
     const select = document.getElementById('receiver-area');
     if (!select || !details) return null;
-    const searchText = normalizeMapMatchText([
-      details.cleanAddress,
-      details.formatted,
-      ...(details.areaCandidates || [])
-    ].join(' '));
+    const candidates = uniqueAddressParts(details.areaCandidates || [])
+      .map(normalizeMapMatchText)
+      .filter(Boolean)
+      .map((text, index) => ({ text, priority: Math.max(0, 100 - index * 3) }));
+    [details.cleanAddress, details.formatted].forEach((value, index) => {
+      const text = normalizeMapMatchText(value);
+      if (text && !candidates.some((candidate) => candidate.text === text)) {
+        candidates.push({ text, priority: index === 0 ? 20 : 0 });
+      }
+    });
     const matches = [];
     Array.from(select.options).forEach((option) => {
+      if (!option.value) return;
       const aliases = (option.dataset.areaAliases || '')
         .split('|')
         .concat([option.value, option.dataset.areaEn || ''])
         .map(normalizeMapMatchText)
         .filter(Boolean);
       aliases.forEach((alias) => {
-        if (alias.length >= 3 && searchText.includes(alias)) {
-          matches.push({ option, aliasLength: alias.length });
-        }
+        if (alias.length < 3) return;
+        candidates.forEach((candidate) => {
+          const paddedCandidate = ` ${candidate.text} `;
+          if (paddedCandidate.includes(` ${alias} `)) {
+            matches.push({
+              option,
+              score: candidate.priority * 10 + alias.length + (candidate.text === alias ? 1000 : 0)
+            });
+          }
+        });
       });
     });
-    matches.sort((a, b) => b.aliasLength - a.aliasLength);
+    matches.sort((a, b) => b.score - a.score);
     return matches.length ? matches[0].option : null;
   }
 
@@ -2740,14 +2679,21 @@
 
   async function confirmMapLocation() {
     const button = document.getElementById('map-picker-confirm');
+    if (mapConfirmationInProgress) return;
     if (!draftCoordinates || !isValidCoordinates(draftCoordinates.lat, draftCoordinates.lng)) return;
+    mapConfirmationInProgress = true;
     if (button) button.disabled = true;
+    setMapPickerInteractionDisabled(true);
     try {
       clearTimeout(reverseGeocodeTimer);
+      const coordinates = { ...draftCoordinates };
       let details = draftLocationDetails;
-      if (!details || Math.abs(details.lat - draftCoordinates.lat) > 0.00001 || Math.abs(details.lng - draftCoordinates.lng) > 0.00001) {
+      if (details && (Math.abs(details.lat - coordinates.lat) > 0.00001 || Math.abs(details.lng - coordinates.lng) > 0.00001)) {
+        details = null;
+      }
+      if (!details) {
         try {
-          details = await reverseGeocodeCoordinates(draftCoordinates.lat, draftCoordinates.lng);
+          details = await reverseGeocodeCoordinates(coordinates.lat, coordinates.lng);
         } catch (error) {
           if (error.name !== 'AbortError') {
             console.warn('Location details could not be resolved before confirmation:', error);
@@ -2756,7 +2702,7 @@
         }
       }
 
-      currentCoordinates = { lat: Number(draftCoordinates.lat), lng: Number(draftCoordinates.lng) };
+      currentCoordinates = { lat: Number(coordinates.lat), lng: Number(coordinates.lng) };
       hasSelectedCoordinates = true;
       selectedLocationAddress = details ? (details.formatted || details.cleanAddress || '') : '';
 
@@ -2770,22 +2716,13 @@
 
       updateMapPreview();
       persistCheckoutState();
+      mapConfirmationInProgress = false;
       closeMapLocationPicker();
     } finally {
+      mapConfirmationInProgress = false;
+      setMapPickerInteractionDisabled(false);
       if (button) button.disabled = false;
     }
-  }
-
-  function onMapSearchInput() {
-    if (mapProvider === 'google' && googleAutocomplete) return;
-    clearTimeout(mapSearchTimer);
-    const input = document.getElementById('map-picker-search');
-    const query = input ? input.value.trim() : '';
-    if (query.length < 3) {
-      hideMapSearchResults();
-      return;
-    }
-    mapSearchTimer = window.setTimeout(() => searchDeliveryLocation(), 1100);
   }
 
   function hideMapSearchResults() {
@@ -2794,7 +2731,6 @@
   }
 
   async function searchDeliveryLocation() {
-    if (mapProvider === 'google' && googleAutocomplete) return;
     const input = document.getElementById('map-picker-search');
     const results = document.getElementById('map-picker-search-results');
     const query = input ? input.value.trim() : '';
@@ -2841,11 +2777,8 @@
           updateMapPickerAddress(draftLocationDetails.formatted);
           input.value = String(location.display_name || location.name || query);
           hideMapSearchResults();
-          if (mapProvider === 'leaflet' && modalLeafletMap) {
+          if (modalLeafletMap) {
             modalLeafletMap.setView([lat, lng], 16);
-          } else if (mapProvider === 'google' && modalGoogleMap) {
-            modalGoogleMap.setCenter(draftCoordinates);
-            modalGoogleMap.setZoom(16);
           }
         });
         results.appendChild(option);
@@ -2857,19 +2790,6 @@
     } finally {
       if (mapSearchController === controller) mapSearchController = null;
     }
-  }
-
-  function locateUserGps() {
-    if (!navigator.geolocation) {
-      showToastNotification(mapText('map_geolocation_unavailable', 'Location services are unavailable in this browser.', 'خدمة تحديد الموقع غير متاحة في متصفحك.'), { type: 'warning' });
-      return;
-    }
-    navigator.geolocation.getCurrentPosition((position) => {
-      updateDraftCoordinates(position.coords.latitude, position.coords.longitude, 16);
-    }, (error) => {
-      console.warn('Current location could not be read:', error);
-      showToastNotification(mapText('map_geolocation_error', 'Could not get your current location. You can move the map pin instead.', 'تعذر جلب موقعك الحالي. يمكنك تحريك الخريطة لتحديد الموقع.'), { type: 'warning' });
-    }, { enableHighAccuracy: true, timeout: 10000 });
   }
 
   window.addEventListener('lorin:langchange', () => {
