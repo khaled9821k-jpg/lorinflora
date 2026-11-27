@@ -55,6 +55,165 @@ function respond(res: ApiResponse, status: number, body: unknown): void {
   res.status(status).json(body);
 }
 
+function escapeHtml(value: unknown): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function getCustomerEmail(order: OrderEmailData): string | null {
+  const candidates = [order.customer?.email, order.email, order.sender.email];
+  return candidates.reduce<string | null>((validEmail, candidate) => {
+    if (validEmail || typeof candidate !== "string") return validEmail;
+    const email = candidate.trim();
+    return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
+  }, null);
+}
+
+function giftCardMessageSummary(order: OrderEmailData): string {
+  if (!order.card?.selected || !order.card.message) return "";
+  return order.card.message
+    .replace(/\bhttps?:\/\/\S+/gi, "")
+    .replace(/\bwww\.\S+/gi, "")
+    .trim();
+}
+
+function renderCustomerConfirmation(order: OrderEmailData): { subject: string; html: string; text: string } {
+  const isArabic = order.locale === "ar";
+  const dir = isArabic ? "rtl" : "ltr";
+  const orderNumber = `#${order.orderNumber}`;
+  const trackUrl = `https://www.lorinflora.com/track-order.html?order=${encodeURIComponent(order.orderNumber)}`;
+  const currency = order.currency || "JOD";
+  const money = (amount: number) => `${Number(amount || 0).toFixed(2)} ${currency}`;
+  const text = isArabic
+    ? {
+      subject: `تم تأكيد طلبك من Lorin — ${orderNumber}`,
+      heading: "شكراً لاختيارك Lorin",
+      intro: "تم تأكيد طلبك. إليك ملخص التفاصيل:",
+      order: "رقم الطلب",
+      items: "المنتجات",
+      quantity: "الكمية",
+      amount: "المبلغ",
+      delivery: "تفاصيل التوصيل",
+      area: "المنطقة والعنوان",
+      schedule: "موعد التوصيل",
+      giftMessage: "رسالة بطاقة الإهداء",
+      total: "الإجمالي",
+      track: "تتبع طلبك",
+      footer: "يسعدنا خدمتك. إذا كان لديك أي استفسار، يرجى الرد على هذا البريد."
+    }
+    : {
+      subject: `Your Lorin order is confirmed — ${orderNumber}`,
+      heading: "Thank you for choosing Lorin",
+      intro: "Your order is confirmed. Here is a summary:",
+      order: "Order number",
+      items: "Your items",
+      quantity: "Qty",
+      amount: "Amount",
+      delivery: "Delivery details",
+      area: "Area and address",
+      schedule: "Delivery date & time",
+      giftMessage: "Gift card message",
+      total: "Total",
+      track: "Track Your Order",
+      footer: "We’re happy to help. Reply to this email if you have any questions."
+    };
+
+  const itemRows = order.items.map((item) =>
+    `<tr>
+      <td style="padding:12px 0;border-bottom:1px solid #EEEAE4;color:#263438;font-size:14px;">${escapeHtml(item.name)}</td>
+      <td align="center" style="padding:12px 8px;border-bottom:1px solid #EEEAE4;color:#68777B;font-size:13px;">${Math.max(0, Math.floor(item.quantity))}</td>
+      <td align="right" style="padding:12px 0;border-bottom:1px solid #EEEAE4;color:#263438;font-size:14px;white-space:nowrap;">${escapeHtml(money(item.lineTotal))}</td>
+    </tr>`
+  ).join("");
+
+  const recipient = order.recipient;
+  const address = recipient.collectAddressFromRecipient
+    ? (isArabic ? "سيتم تأكيد العنوان مع المستلم." : "We’ll confirm the address with the recipient.")
+    : [recipient.area, recipient.address].filter(Boolean).join(" — ");
+  const schedule = [recipient.deliveryDate, recipient.deliveryTime].filter(Boolean).join(" | ") ||
+    recipient.scheduleLabel ||
+    recipient.deliveryType;
+  const giftMessage = giftCardMessageSummary(order);
+  const giftMessageHtml = giftMessage
+    ? `<tr><td style="padding-top:22px;">
+        <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8A806F;margin-bottom:8px;">${text.giftMessage}</div>
+        <div style="padding:16px 18px;background:#FBF8F1;border:1px solid #E8DFD0;border-radius:8px;color:#3E4545;font:15px/1.7 Georgia,'Times New Roman',serif;white-space:pre-wrap;">${escapeHtml(giftMessage)}</div>
+      </td></tr>`
+    : "";
+  const giftMessageText = giftMessage ? `\n${text.giftMessage}: ${giftMessage}\n` : "";
+  const plainItems = order.items.map((item) =>
+    `- ${item.name} × ${Math.max(0, Math.floor(item.quantity))}: ${money(item.lineTotal)}`
+  ).join("\n");
+  const plainText = [
+    text.heading,
+    text.intro,
+    `${text.order}: ${orderNumber}`,
+    "",
+    text.items,
+    plainItems,
+    "",
+    `${text.delivery}: ${address}`,
+    `${text.schedule}: ${schedule}`,
+    giftMessageText,
+    `${text.total}: ${money(order.summary.total)}`,
+    `${text.track}: ${trackUrl}`,
+    "",
+    text.footer
+  ].filter(Boolean).join("\n");
+
+  return {
+    subject: text.subject,
+    text: plainText,
+    html: `<!doctype html>
+<html lang="${isArabic ? "ar" : "en"}" dir="${dir}">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#FBF8F1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#263438;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#FBF8F1" style="background:#FBF8F1;padding:32px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#FFFFFF;border:1px solid #EAE5DC;border-radius:12px;overflow:hidden;">
+        <tr><td align="center" bgcolor="#00313C" style="padding:24px;background:#00313C;color:#FFFFFF;font-family:Georgia,'Times New Roman',serif;font-size:24px;letter-spacing:2px;">LORIN</td></tr>
+        <tr><td style="padding:34px 36px 36px;">
+          <div style="text-align:center;color:#8E805C;font-size:12px;letter-spacing:2px;text-transform:uppercase;">${escapeHtml(text.order)}</div>
+          <h1 style="margin:10px 0 8px;text-align:center;color:#00313C;font-family:Georgia,'Times New Roman',serif;font-size:27px;font-weight:500;">${escapeHtml(text.heading)}</h1>
+          <p style="margin:0 0 24px;text-align:center;color:#6B777A;font-size:14px;line-height:1.7;">${escapeHtml(text.intro)}</p>
+          <div style="padding:14px;text-align:center;background:#FBF8F1;border:1px solid #E8DFD0;border-radius:8px;color:#00313C;font-size:20px;font-weight:700;letter-spacing:1px;">${escapeHtml(orderNumber)}</div>
+          <h2 style="margin:28px 0 10px;color:#00313C;font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:500;">${escapeHtml(text.items)}</h2>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" dir="${dir}">
+            <thead><tr>
+              <th align="${isArabic ? "right" : "left"}" style="padding:8px 0;border-bottom:1px solid #DCD6CC;color:#758184;font-size:11px;font-weight:600;">${escapeHtml(text.items)}</th>
+              <th style="padding:8px;border-bottom:1px solid #DCD6CC;color:#758184;font-size:11px;font-weight:600;">${escapeHtml(text.quantity)}</th>
+              <th align="${isArabic ? "left" : "right"}" style="padding:8px 0;border-bottom:1px solid #DCD6CC;color:#758184;font-size:11px;font-weight:600;">${escapeHtml(text.amount)}</th>
+            </tr></thead>
+            <tbody>${itemRows}</tbody>
+          </table>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;background:#F7F5F0;border-radius:8px;">
+            <tr><td style="padding:18px 20px;">
+              <div style="color:#00313C;font-family:Georgia,'Times New Roman',serif;font-size:17px;margin-bottom:10px;">${escapeHtml(text.delivery)}</div>
+              <div style="color:#5E6A6D;font-size:13px;line-height:1.8;"><strong>${escapeHtml(text.area)}:</strong> ${escapeHtml(address || "—")}<br><strong>${escapeHtml(text.schedule)}:</strong> ${escapeHtml(schedule || "—")}</div>
+            </td></tr>
+          </table>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${giftMessageHtml}</table>
+          <div style="margin-top:24px;padding-top:18px;border-top:1px solid #EAE5DC;text-align:${isArabic ? "left" : "right"};">
+            <span style="color:#68777B;font-size:14px;">${escapeHtml(text.total)}</span>
+            <strong style="margin-inline-start:12px;color:#00313C;font-size:22px;">${escapeHtml(money(order.summary.total))}</strong>
+          </div>
+          <div style="margin:30px 0 22px;text-align:center;">
+            <a href="${escapeHtml(trackUrl)}" style="display:inline-block;padding:15px 32px;background:#00313C;border-radius:6px;color:#FFFFFF;font-size:14px;font-weight:700;text-decoration:none;">${escapeHtml(text.track)}</a>
+          </div>
+          <p style="margin:0;text-align:center;color:#8A9293;font-size:12px;line-height:1.7;">${escapeHtml(text.footer)}</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+  };
+}
+
 export default async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
   if (req.method === "OPTIONS") {
     res.setHeader("Allow", "POST, OPTIONS");
@@ -134,5 +293,40 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     return;
   }
 
-  respond(res, 200, { id: result.id });
+  let customerEmailSent = false;
+  const customerEmail = getCustomerEmail(order);
+  if (customerEmail) {
+    try {
+      const confirmation = renderCustomerConfirmation(order);
+      const customerResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from,
+          to: [customerEmail],
+          subject: confirmation.subject,
+          html: confirmation.html,
+          text: confirmation.text,
+          reply_to: supportEmail,
+        }),
+      });
+      if (customerResponse.ok) {
+        customerEmailSent = true;
+      } else {
+        console.warn("Customer order confirmation email failed:", customerResponse.status);
+      }
+    } catch (error) {
+      console.warn(
+        "Customer order confirmation email request failed:",
+        error instanceof Error ? error.name : "Unknown error",
+      );
+    }
+  } else {
+    console.warn("Customer order confirmation email skipped because no valid customer email was provided.");
+  }
+
+  respond(res, 200, { id: result.id, customerEmailSent });
 }

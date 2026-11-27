@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#FBF8F1">
+  <title>Order confirmed | Lorin</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: #233236;
+      background: #FBF8F1;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 28px 16px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(ellipse at 50% 5%, rgba(255,255,255,.9), transparent 58%),
+        #FBF8F1;
+    }
+
+    .confirmation {
+      width: min(100%, 520px);
+      padding: 42px 38px 40px;
+      text-align: center;
+      background: #FFFFFF;
+      border: 1px solid #E8E1D5;
+      border-radius: 16px;
+      box-shadow: 0 18px 55px rgba(0, 49, 60, .08);
+    }
+
+    .wordmark {
+      margin-bottom: 32px;
+      color: #00313C;
+      font: 600 19px/1 Georgia, "Times New Roman", serif;
+      letter-spacing: .22em;
+    }
+
+    .check-icon {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 22px;
+      display: grid;
+      place-items: center;
+      color: #FFFFFF;
+      background: #00313C;
+      border-radius: 50%;
+      box-shadow: 0 0 0 8px #F1EEE7;
+    }
+
+    .check-icon svg { width: 30px; height: 30px; }
+
+    h1 {
+      margin: 0;
+      color: #00313C;
+      font: 500 clamp(26px, 6vw, 34px)/1.25 Georgia, "Times New Roman", serif;
+    }
+
+    .intro {
+      margin: 12px auto 26px;
+      max-width: 390px;
+      color: #667477;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .order-box {
+      padding: 17px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #FBF8F1;
+      border: 1px solid #E7DECF;
+      border-radius: 10px;
+      text-align: start;
+    }
+
+    .order-label {
+      display: block;
+      margin-bottom: 5px;
+      color: #8A806F;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .order-number {
+      color: #00313C;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+
+    .copy-button {
+      flex: 0 0 auto;
+      min-height: 40px;
+      padding: 0 13px;
+      color: #00313C;
+      background: #FFFFFF;
+      border: 1px solid #D9D3C8;
+      border-radius: 7px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .copy-button:hover { border-color: #00313C; }
+    .copy-button:disabled { opacity: .5; cursor: not-allowed; }
+
+    .email-note {
+      min-height: 48px;
+      margin: 20px 0 24px;
+      color: #667477;
+      font-size: 13px;
+      line-height: 1.75;
+    }
+
+    .track-button {
+      min-height: 52px;
+      width: 100%;
+      padding: 14px 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #FFFFFF;
+      background: #00313C;
+      border: 1px solid #00313C;
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background .15s ease, transform .15s ease;
+    }
+
+    .track-button:hover { background: #064653; }
+    .track-button:active { transform: translateY(1px); }
+    .track-button svg { width: 17px; height: 17px; }
+    html[dir="rtl"] .track-button svg { transform: scaleX(-1); }
+
+    .copy-status {
+      min-height: 18px;
+      margin-top: 12px;
+      color: #37665D;
+      font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .confirmation { padding: 34px 22px 30px; }
+      .order-box { align-items: flex-start; }
+      .order-number { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="confirmation" aria-labelledby="confirmation-heading">
+    <div class="wordmark" aria-label="Lorin">LORIN</div>
+    <div class="check-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="m5 12.5 4.3 4.2L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1 id="confirmation-heading">تم تأكيد طلبك</h1>
+    <p class="intro" id="confirmation-intro">شكراً لاختيارك Lorin. تم استلام طلبك بنجاح.</p>
+
+    <section class="order-box" aria-label="Order number">
+      <div>
+        <span class="order-label" id="order-label">رقم الطلب</span>
+        <strong class="order-number" id="order-number">#—</strong>
+      </div>
+      <button class="copy-button" id="copy-order-button" type="button">نسخ الرقم</button>
+    </section>
+
+    <p class="email-note" id="email-note" aria-live="polite"></p>
+
+    <a class="track-button" id="track-order-button" href="track-order.html">
+      <span id="track-label">تتبع طلبك</span>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M5 12h13m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <div class="copy-status" id="copy-status" role="status"></div>
+  </main>
+
+  <script>
+    (() => {
+      const translations = {
+        ar: {
+          title: 'تم تأكيد طلبك | Lorin',
+          heading: 'تم تأكيد طلبك',
+          intro: 'شكراً لاختيارك Lorin. تم استلام طلبك بنجاح.',
+          order: 'رقم الطلب',
+          copy: 'نسخ الرقم',
+          copied: 'تم نسخ رقم الطلب',
+          copyFailed: 'تعذر نسخ الرقم. يرجى نسخه يدوياً.',
+          emailSent: 'تم إرسال رسالة تأكيد الطلب بكامل التفاصيل إلى بريدك الإلكتروني.',
+          emailPending: 'طلبك مؤكد. تعذر تأكيد إرسال البريد الإلكتروني؛ يرجى التحقق من بريدك أو التواصل معنا.',
+          track: 'تتبع طلبك'
+        },
+        en: {
+          title: 'Order confirmed | Lorin',
+          heading: 'Your order is confirmed',
+          intro: 'Thank you for choosing Lorin. We’ve received your order.',
+          order: 'Order number',
+          copy: 'Copy number',
+          copied: 'Order number copied',
+          copyFailed: 'Could not copy the number. Please copy it manually.',
+          emailSent: 'An order confirmation email with full details has been sent to your email address.',
+          emailPending: 'Your order is confirmed, but email delivery could not be confirmed. Please check your inbox or contact us.',
+          track: 'Track Your Order'
+        }
+      };
+
+      let snapshot = {};
+      try {
+        snapshot = JSON.parse(sessionStorage.getItem('lorin_order_confirmation') || 'null') || {};
+      } catch (_) {
+        snapshot = {};
+      }
+      if (!snapshot.orderNumber) {
+        try {
+          snapshot = JSON.parse(localStorage.getItem('lorin_order_confirmation') || 'null') || snapshot;
+        } catch (_) {
+          snapshot = {};
+        }
+      }
+
+      const queryOrder = new URLSearchParams(window.location.search).get('order') || '';
+      const rawOrderNumber = queryOrder || snapshot.orderNumber || '';
+      const orderNumber = String(rawOrderNumber).replace(/^#+/, '').slice(0, 100);
+      const snapshotOrderNumber = String(snapshot.orderNumber || '').replace(/^#+/, '');
+      const lang = (() => {
+        try {
+          return localStorage.getItem('lorin_lang') === 'en' ? 'en' : 'ar';
+        } catch (_) {
+          return 'ar';
+        }
+      })();
+      const copyButton = document.getElementById('copy-order-button');
+      const orderNumberElement = document.getElementById('order-number');
+      const trackButton = document.getElementById('track-order-button');
+      const emailNote = document.getElementById('email-note');
+      const t = translations[lang];
+
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.title = t.title;
+      document.getElementById('confirmation-heading').textContent = t.heading;
+      document.getElementById('confirmation-intro').textContent = t.intro;
+      document.getElementById('order-label').textContent = t.order;
+      document.getElementById('track-label').textContent = t.track;
+      copyButton.textContent = t.copy;
+      orderNumberElement.textContent = orderNumber ? `#${orderNumber}` : '#—';
+      copyButton.disabled = !orderNumber;
+      trackButton.href = orderNumber ? `track-order.html?order=${encodeURIComponent(orderNumber)}` : 'track-order.html';
+      emailNote.textContent = !!orderNumber && snapshotOrderNumber === orderNumber && snapshot.customerEmailSent === true
+        ? t.emailSent
+        : t.emailPending;
+
+      copyButton.addEventListener('click', async () => {
+        if (!orderNumber) return;
+        try {
+          await navigator.clipboard.writeText(`#${orderNumber}`);
+          document.getElementById('copy-status').textContent = t.copied;
+        } catch (_) {
+          const field = document.createElement('textarea');
+          field.value = `#${orderNumber}`;
+          field.setAttribute('readonly', '');
+          field.style.position = 'fixed';
+          field.style.opacity = '0';
+          document.body.appendChild(field);
+          field.select();
+          const copied = document.execCommand('copy');
+          field.remove();
+          document.getElementById('copy-status').textContent = copied ? t.copied : t.copyFailed;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

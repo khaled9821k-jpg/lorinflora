@@ -48,6 +48,9 @@ export interface OrderEmailData {
   recipient: {
     collectAddressFromRecipient: boolean;
     name?: string;
+    deliveryDate?: string;
+    deliveryTime?: string;
+    deliverySlotType?: string;
     phone?: string; // 07xxxxxxxx, 9627xxxxxxxx or +9627xxxxxxxx
     area?: string;
     address?: string;
@@ -60,6 +63,8 @@ export interface OrderEmailData {
     deliveryNote?: string;
   };
 
+  customer?: { email?: string; name?: string };
+  email?: string;
   sender: { name: string; email?: string; phone?: string };
   paymentMethod: string; // 'Apple Pay' | 'Google Pay' | 'Credit Card' | 'Cash on Delivery'
 

@@ -2232,6 +2232,7 @@
   async function buildOrderEmailData(cart, extras, totals, recipientData, orderRecord) {
     const user = window.LorinAuth ? await window.LorinAuth.getUser() : null;
     const metadata = user && user.user_metadata ? user.user_metadata : {};
+    const customerEmail = String((user && user.email) || metadata.email || '');
     const schedule = getEmailSchedule();
     const activeSettings = window.LorinStoreSettings ? window.LorinStoreSettings.get() : {};
     const mapUrl = currentMapUrl();
@@ -2265,6 +2266,10 @@
       currency: 'JOD',
       siteUrl: window.location.origin,
       supportEmail: activeSettings.support_email || activeSettings.contact_email || '',
+      customer: {
+        email: customerEmail,
+        name: String(metadata.full_name || metadata.name || '')
+      },
       items: cart.map((item) => {
         const quantity = Math.max(1, Math.floor(Number(item.quantity) || 1));
         const unitPrice = Number(item.price || 0);
@@ -2312,7 +2317,7 @@
       },
       sender: {
         name: String(metadata.full_name || metadata.name || (user && user.email) || t('account_guest', 'Guest')),
-        email: String((user && user.email) || ''),
+        email: customerEmail,
         phone: String(metadata.phone || metadata.jordanian_phone || '')
       },
       paymentMethod: t(`pay_${selectedPayment}`, selectedPayment),
@@ -2393,12 +2398,24 @@
         }]);
 
       if (dbError) {
-        console.warn('Orders db note:', dbError);
+        throw dbError;
       }
     } catch (err) {
-      console.warn('Orders insert error:', err);
+      console.error('Order could not be saved to Supabase:', err);
+      showToastNotification(mapText(
+        'order_save_failed',
+        'We could not save your order. Please try again.',
+        'تعذر حفظ طلبك. يرجى المحاولة مرة أخرى.'
+      ), { type: 'error' });
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = t('btn_place_order', 'تأكيد وإرسال الطلب');
+      }
+      if (sidebarBtn) sidebarBtn.disabled = false;
+      return;
     }
 
+    let customerEmailSent = false;
     try {
       const emailData = await buildOrderEmailData(cart, extras, totals, recipientData, orderRecord);
       const emailResponse = await fetch('/api/send-order-email', {
@@ -2409,39 +2426,37 @@
       if (!emailResponse.ok) {
         throw new Error(`Order email request failed with status ${emailResponse.status}`);
       }
+      const emailResult = await emailResponse.json();
+      customerEmailSent = emailResult && emailResult.customerEmailSent === true;
     } catch (error) {
       console.error('Order email notification failed:', error);
       showToastNotification(t('order_email_failed', 'The order was placed, but the store email notification could not be sent.'), { type: 'error' });
     }
 
-    // Build WhatsApp message
-    const activeSettings = window.LorinStoreSettings ? window.LorinStoreSettings.get() : {};
-    let wa = `🌸 *طلب جديد من متجر Lorin* 🌸%0A%0A`;
-    wa += `👤 *المستلم:* ${encodeURIComponent(name)}%0A`;
-    wa += `📞 *الهاتف:* ${encodeURIComponent(fullRecipientPhone)}%0A`;
-    wa += `📍 *العنوان:* ${encodeURIComponent(shippingDesc)}%0A`;
-    wa += `⏰ *الموعد:* ${encodeURIComponent(document.getElementById('summary-rec-datetime').textContent)}%0A`;
-    if (isSecretIdentity) wa += `🤫 *ملاحظة:* المشتري يرغب بإخفاء هويته عن المستلم (مفاجأة)%0A`;
-    if (driverNote) wa += `📝 *ملاحظة للمندوب:* ${encodeURIComponent(driverNote)}%0A`;
-    if (cardMsg) wa += `💌 *بطاقة الهدية:* ${encodeURIComponent(cardMsg)}%0A`;
-    wa += `%0A📦 *المنتجات المطلوبة:*%0A`;
-    cart.forEach((item, i) => {
-      const q = Math.max(1, Math.floor(Number(item.quantity) || 1));
-      wa += `${i + 1}. ${encodeURIComponent(item.name)} (x${q}) - ${(Number(item.price || 0) * q).toFixed(2)} د.أ%0A`;
-    });
-    wa += `------------------------%0A💰 *المجموع الكلي:* *${totals.total.toFixed(2)} د.أ*`;
+    const confirmationSnapshot = {
+      orderNumber: orderRecord.id,
+      customerEmailSent,
+      total: totals.total,
+      createdAt: orderRecord.created_at
+    };
+    const snapshotJson = JSON.stringify(confirmationSnapshot);
+    try {
+      sessionStorage.setItem('lorin_order_confirmation', snapshotJson);
+    } catch (error) {
+      console.warn('Could not save the order confirmation in session storage:', error);
+      try {
+        localStorage.setItem('lorin_order_confirmation', snapshotJson);
+      } catch (fallbackError) {
+        console.warn('Could not save the order confirmation snapshot:', fallbackError);
+      }
+    }
 
-    // Clear cart and redirect to WhatsApp
     localStorage.removeItem('lorin_cart');
     localStorage.removeItem(GIFT_KEY);
     localStorage.removeItem(PROMO_KEY);
     localStorage.removeItem(CHECKOUT_STATE_KEY);
 
-    const waNum = String(activeSettings.checkout_whatsapp || '962700000000').replace(/\D/g, '') || '962700000000';
-    window.open(`https://wa.me/${waNum}?text=${wa}`, '_blank');
-
-    showToastNotification(t('msg_order_success', 'تم تأكيد طلبك بنجاح! شكراً لاختيارك Lorin 🌸'));
-    window.setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+    window.location.href = `order-confirmed.html?order=${encodeURIComponent(orderRecord.id)}`;
   }
 
   function isArabicLocale() {
