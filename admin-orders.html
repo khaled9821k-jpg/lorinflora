@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#FBF8F1">
+  <title>Admin Orders | Lorin</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: #233236;
+      background: #FBF8F1;
+      --ink: #00313C;
+      --muted: #6C7879;
+      --line: #E8E1D5;
+      --paper: #FBF8F1;
+      --white: #FFFFFF;
+      --good: #286650;
+      --bad: #A13D32;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: radial-gradient(ellipse at 50% 0, rgba(255,255,255,.92), transparent 55%), var(--paper);
+    }
+    button, input, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    [hidden] { display: none !important; }
+
+    .topbar {
+      min-height: 72px;
+      padding: 14px max(20px, calc((100vw - 1180px) / 2));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: rgba(255,255,255,.84);
+      border-bottom: 1px solid rgba(0,49,60,.08);
+    }
+    .brand {
+      color: var(--ink);
+      font: 600 20px/1 Georgia, "Times New Roman", serif;
+      letter-spacing: .2em;
+      text-decoration: none;
+    }
+    .top-actions { display: flex; align-items: center; gap: 12px; }
+    .admin-email { max-width: 260px; color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+    main { width: min(100% - 32px, 1180px); margin: 34px auto 60px; }
+    .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+    h1 { margin: 0; color: var(--ink); font: 500 clamp(26px, 4vw, 34px)/1.2 Georgia, "Times New Roman", serif; }
+    .subtitle { margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+
+    .toolbar {
+      margin-bottom: 18px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,.9);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+    .search-input, .field-input, .status-select {
+      min-height: 42px;
+      padding: 9px 12px;
+      color: #263638;
+      background: #FFFEFC;
+      border: 1px solid #DCD6CB;
+      border-radius: 6px;
+      outline: none;
+    }
+    .search-input { width: 100%; max-width: 430px; }
+    .search-input:focus, .field-input:focus, .status-select:focus { border-color: #52777D; box-shadow: 0 0 0 3px rgba(0,49,60,.08); }
+
+    .button {
+      min-height: 40px;
+      padding: 9px 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--ink);
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .button:hover { border-color: var(--ink); }
+    .button-primary { color: white; background: var(--ink); border-color: var(--ink); }
+    .button-primary:hover { background: #064653; }
+    .button:disabled { opacity: .6; cursor: wait; }
+    .button-lock { color: #495658; }
+
+    .notice {
+      min-height: 20px;
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .notice[data-kind="success"] { color: var(--good); }
+    .notice[data-kind="error"] { color: var(--bad); }
+
+    .orders-list { display: grid; gap: 14px; }
+    .order-card {
+      padding: 19px;
+      background: rgba(255,255,255,.96);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 8px 26px rgba(0,49,60,.035);
+    }
+    .order-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #F0EDE7;
+    }
+    .order-number { color: var(--ink); font: 700 18px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .04em; }
+    .order-created { margin-top: 5px; color: #84908F; font-size: 11px; }
+    .status-badge {
+      padding: 6px 10px;
+      color: #345057;
+      background: #EDF4F3;
+      border: 1px solid #D5E4E1;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .order-grid {
+      padding: 16px 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .detail-label { display: block; margin-bottom: 5px; color: #87918F; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .detail-value { color: #344346; font-size: 12px; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-wrap; }
+    .order-total { color: var(--ink); font-weight: 800; direction: ltr; unicode-bidi: isolate; }
+    .controls {
+      padding-top: 14px;
+      display: grid;
+      grid-template-columns: minmax(180px, 230px) minmax(230px, 1fr) auto;
+      align-items: end;
+      gap: 12px;
+      border-top: 1px solid #F0EDE7;
+    }
+    .control-label { display: block; margin-bottom: 6px; color: #596768; font-size: 11px; font-weight: 700; }
+    .status-select { width: 100%; }
+    .photo-control { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+    .photo-input { width: min(100%, 260px); color: #697576; font-size: 11px; }
+    .photo-hint { color: #87918F; font-size: 10px; }
+    .photo-preview-wrap { margin-top: 12px; display: flex; align-items: center; gap: 10px; }
+    .photo-preview {
+      width: 76px;
+      height: 66px;
+      display: block;
+      object-fit: cover;
+      background: #F7F5EF;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+    .photo-link { color: var(--ink); font-size: 11px; font-weight: 700; text-decoration: none; }
+    .photo-link:hover { text-decoration: underline; }
+    .card-feedback { min-height: 17px; margin-top: 9px; font-size: 11px; }
+    .card-feedback[data-kind="success"] { color: var(--good); }
+    .card-feedback[data-kind="error"] { color: var(--bad); }
+    .empty-state {
+      padding: 44px 20px;
+      color: var(--muted);
+      background: rgba(255,255,255,.88);
+      border: 1px dashed #D8D2C7;
+      border-radius: 10px;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .gate {
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      padding: 18px;
+      display: grid;
+      place-items: center;
+      background: rgba(0,49,60,.95);
+    }
+    .gate-card {
+      width: min(100%, 420px);
+      padding: 30px;
+      background: white;
+      border: 1px solid #E8E1D5;
+      border-radius: 12px;
+      box-shadow: 0 20px 70px rgba(0,0,0,.24);
+    }
+    .gate-brand { margin-bottom: 22px; color: var(--ink); font: 600 19px/1 Georgia, "Times New Roman", serif; letter-spacing: .2em; text-align: center; }
+    .gate-title { margin: 0; color: var(--ink); font: 500 24px/1.3 Georgia, "Times New Roman", serif; text-align: center; }
+    .gate-copy { margin: 8px 0 20px; color: var(--muted); font-size: 12px; line-height: 1.65; text-align: center; }
+    .gate-field { margin-top: 13px; }
+    .gate-field label { display: block; margin-bottom: 6px; color: #596768; font-size: 11px; font-weight: 700; }
+    .field-input { width: 100%; }
+    .gate-warning { margin: 15px 0 0; color: #7D7061; font-size: 10px; line-height: 1.55; text-align: center; }
+
+    @media (max-width: 850px) {
+      .order-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .controls { grid-template-columns: 1fr 1fr; }
+      .controls .save-status { grid-column: 1 / -1; justify-self: start; }
+    }
+    @media (max-width: 560px) {
+      .topbar { padding-inline: 15px; }
+      main { width: min(100% - 24px, 1180px); margin-top: 24px; }
+      .page-heading { align-items: flex-start; flex-direction: column; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .search-input { max-width: none; }
+      .order-card { padding: 15px; }
+      .order-grid { grid-template-columns: 1fr 1fr; gap: 13px 10px; }
+      .controls { grid-template-columns: 1fr; }
+      .controls .save-status { grid-column: auto; }
+      .status-select, .save-status, .photo-control .button { width: 100%; }
+      .photo-control { align-items: stretch; flex-direction: column; }
+      .photo-input { width: 100%; }
+      .order-top { flex-direction: column; }
+      .admin-email { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="Lorin">LORIN</a>
+    <div class="top-actions">
+      <span class="admin-email" id="admin-email"></span>
+      <button class="button button-lock" id="lock-button" type="button" hidden>Lock / Sign out</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-heading">
+      <div>
+        <h1>Orders</h1>
+        <p class="subtitle">Review incoming orders, update progress, and add the prepared arrangement photo.</p>
+      </div>
+      <a class="button" href="track-order.html">Open customer tracker</a>
+    </div>
+    <div class="toolbar">
+      <input class="search-input" id="order-search" type="search" placeholder="Search order number or customer / recipient name" autocomplete="off">
+      <button class="button button-primary" id="refresh-button" type="button">Refresh orders</button>
+    </div>
+    <p class="notice" id="page-notice" role="status" aria-live="polite"></p>
+    <section class="orders-list" id="orders-list" aria-live="polite"></section>
+  </main>
+
+  <div class="gate" id="admin-gate">
+    <form class="gate-card" id="admin-login-form">
+      <div class="gate-brand">LORIN</div>
+      <h2 class="gate-title">Admin Orders</h2>
+      <p class="gate-copy">Sign in with your authorized Supabase admin account.</p>
+      <div class="gate-field">
+        <label for="admin-email-input">Admin email</label>
+        <input class="field-input" id="admin-email-input" type="email" autocomplete="username" required dir="ltr">
+      </div>
+      <div class="gate-field">
+        <label for="admin-password-input">Password</label>
+        <input class="field-input" id="admin-password-input" type="password" autocomplete="current-password" required dir="ltr">
+      </div>
+      <p class="notice" id="gate-notice" role="status" aria-live="polite"></p>
+      <button class="button button-primary" id="login-button" type="submit" style="width:100%">Sign in</button>
+      <p class="gate-warning">Supabase Auth and admin RLS policies authorize all data access.</p>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://dptincirgzfwrlrpxajl.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_DbYCExpNFypVQARATbdeVw_hipYS1Oa';
+      const PHOTO_BUCKET = 'prepared-arrangements';
+      const UNLOCK_KEY = 'lorin_admin_orders_unlocked';
+      const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
+      const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+      const STATUS_OPTIONS = [
+        ['confirmed', 'Order Confirmed'],
+        ['preparing', 'Crafting Your Arrangement'],
+        ['out_for_delivery', 'Out for Delivery'],
+        ['delivered', 'Delivered']
+      ];
+
+      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          storage: window.sessionStorage,
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      });
+
+      let orders = [];
+      const pendingFiles = new Map();
+      const previewUrls = new Map();
+      const $ = (id) => document.getElementById(id);
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[character]);
+      }
+
+      function normalizeOrderData(order) {
+        let value = order.order_data;
+        if (typeof value === 'string') {
+          try { value = JSON.parse(value); } catch (_) { value = {}; }
+        }
+        return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+      }
+
+      function safePhotoUrl(value) {
+        if (typeof value !== 'string') return '';
+        try {
+          const url = new URL(value);
+          return url.protocol === 'https:' ? url.href : '';
+        } catch (_) {
+          return '';
+        }
+      }
+
+      function setNotice(element, message, kind) {
+        element.textContent = message || '';
+        element.dataset.kind = kind || '';
+      }
+
+      function getStatus(order) {
+        const status = String(order.status || 'confirmed');
+        return STATUS_OPTIONS.some(([value]) => value === status) ? status : 'confirmed';
+      }
+
+      function formatDate(value) {
+        if (!value) return '—';
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+      }
+
+      function getOrderDetails(order) {
+        const data = normalizeOrderData(order);
+        const recipient = data.recipient && typeof data.recipient === 'object' ? data.recipient : {};
+        const area = String(recipient.area || '').trim();
+        const address = String(recipient.address || '').trim();
+        const deliveryAddress = [area, address].filter(Boolean).join(' — ') ||
+          String(order.shipping_address || order.address || '—');
+        const schedule = [recipient.deliveryDate, recipient.deliveryTime].filter(Boolean).join(' · ') ||
+          String(recipient.scheduleLabel || recipient.deliveryType || '—');
+        return {
+          recipientName: String(recipient.name || order.recipient_name || ''),
+          deliveryAddress,
+          schedule
+        };
+      }
+
+      function makeOrderCard(order) {
+        const details = getOrderDetails(order);
+        const recipientPhone = String(order.recipient_phone || '');
+        const customerPhone = String(order.customer_phone || '');
+        const currentPhoto = previewUrls.get(String(order.id)) || safePhotoUrl(order.prepared_photo_url || order.ready_photo_url);
+        const photoName = pendingFiles.get(String(order.id)) ? pendingFiles.get(String(order.id)).name : '';
+        const statusOptions = STATUS_OPTIONS.map(([value, label]) =>
+          `<option value="${value}"${getStatus(order) === value ? ' selected' : ''}>${label}</option>`
+        ).join('');
+        const orderNumber = String(order.order_number || '—').replace(/\s+/g, '').toUpperCase();
+        const numberText = `#${escapeHtml(orderNumber)}`;
+        const recipientLine = details.recipientName
+          ? `<div class="detail-value">${escapeHtml(details.recipientName)}</div>`
+          : '';
+        const photoMarkup = currentPhoto
+          ? `<img class="photo-preview" data-photo-preview="${escapeHtml(order.id)}" src="${escapeHtml(currentPhoto)}" alt="Prepared arrangement preview">`
+          : `<img class="photo-preview" data-photo-preview="${escapeHtml(order.id)}" alt="Prepared arrangement preview" hidden>`;
+        const photoLink = safePhotoUrl(order.prepared_photo_url || order.ready_photo_url)
+          ? `<a class="photo-link" href="${escapeHtml(safePhotoUrl(order.prepared_photo_url || order.ready_photo_url))}" target="_blank" rel="noopener noreferrer">Open saved photo</a>`
+          : '';
+        return `
+          <article class="order-card" data-order-card="${escapeHtml(order.id)}">
+            <div class="order-top">
+              <div>
+                <div class="order-number">${numberText}</div>
+                <div class="order-created">${escapeHtml(formatDate(order.created_at))}</div>
+              </div>
+              <span class="status-badge">${escapeHtml(STATUS_OPTIONS.find(([value]) => value === getStatus(order))[1])}</span>
+            </div>
+            <div class="order-grid">
+              <div>
+                <span class="detail-label">Customer / recipient</span>
+                <div class="detail-value">${escapeHtml(order.customer_name || order.recipient_name || '—')}</div>
+                ${recipientLine}
+                <div class="detail-value" dir="ltr">${escapeHtml(customerPhone || recipientPhone || '—')}</div>
+                ${customerPhone && recipientPhone && customerPhone !== recipientPhone ? `<div class="detail-value" dir="ltr">Recipient: ${escapeHtml(recipientPhone)}</div>` : ''}
+              </div>
+              <div>
+                <span class="detail-label">Delivery area &amp; address</span>
+                <div class="detail-value">${escapeHtml(details.deliveryAddress)}</div>
+              </div>
+              <div>
+                <span class="detail-label">Delivery date &amp; time</span>
+                <div class="detail-value">${escapeHtml(details.schedule)}</div>
+              </div>
+              <div>
+                <span class="detail-label">Total</span>
+                <div class="detail-value order-total">${Number(order.total_price || 0).toFixed(2)} JOD</div>
+              </div>
+            </div>
+            <div class="controls">
+              <div>
+                <label class="control-label" for="status-${escapeHtml(order.id)}">Order status</label>
+                <select class="status-select" id="status-${escapeHtml(order.id)}" data-status-select="${escapeHtml(order.id)}">${statusOptions}</select>
+              </div>
+              <div>
+                <span class="control-label">Prepared arrangement photo</span>
+                <div class="photo-control">
+                  <input class="photo-input" data-photo-input="${escapeHtml(order.id)}" type="file" accept="image/jpeg,image/png,image/webp">
+                  <button class="button" data-upload-photo="${escapeHtml(order.id)}" type="button">Upload photo</button>
+                  <span class="photo-hint">${escapeHtml(photoName || 'JPG, PNG or WebP; up to 10 MB')}</span>
+                </div>
+              </div>
+              <button class="button button-primary save-status" data-save-status="${escapeHtml(order.id)}" type="button">Save status</button>
+            </div>
+            <div class="photo-preview-wrap">${photoMarkup}${photoLink}</div>
+            <div class="card-feedback" data-card-feedback="${escapeHtml(order.id)}" role="status" aria-live="polite"></div>
+          </article>`;
+      }
+
+      function renderOrders() {
+        const query = $('order-search').value.trim().toLowerCase();
+        const filtered = orders.filter((order) => {
+          const details = getOrderDetails(order);
+          const values = [
+            order.order_number,
+            order.customer_name,
+            order.recipient_name,
+            details.recipientName
+          ].map((value) => String(value || '').toLowerCase());
+          return !query || values.some((value) => value.includes(query));
+        });
+        $('orders-list').innerHTML = filtered.length
+          ? filtered.map(makeOrderCard).join('')
+          : `<div class="empty-state">${orders.length ? 'No orders match your search.' : 'No orders found yet.'}</div>`;
+      }
+
+      async function verifyAdmin() {
+        const { data, error } = await supabaseClient.rpc('is_admin');
+        if (error) throw new Error(`Could not verify admin access: ${error.message}`);
+        if (data !== true) throw new Error('This account is not authorized to manage orders.');
+      }
+
+      function showUnlocked(session) {
+        $('admin-gate').hidden = true;
+        $('lock-button').hidden = false;
+        $('admin-email').textContent = session && session.user ? session.user.email || '' : '';
+        loadOrders();
+      }
+
+      function revokePreviewUrls() {
+        for (const url of previewUrls.values()) URL.revokeObjectURL(url);
+        previewUrls.clear();
+        pendingFiles.clear();
+      }
+
+      async function lockAdmin(signOut) {
+        sessionStorage.removeItem(UNLOCK_KEY);
+        $('admin-gate').hidden = false;
+        $('lock-button').hidden = true;
+        $('admin-email').textContent = '';
+        $('orders-list').replaceChildren();
+        orders = [];
+        revokePreviewUrls();
+        if (signOut) {
+          const { error } = await supabaseClient.auth.signOut();
+          if (error) setNotice($('gate-notice'), error.message, 'error');
+        }
+      }
+
+      async function restoreSession() {
+        if (sessionStorage.getItem(UNLOCK_KEY) !== '1') return;
+        try {
+          const { data, error } = await supabaseClient.auth.getSession();
+          if (error) throw error;
+          if (!data.session) throw new Error('Your admin session has expired. Please sign in again.');
+          await verifyAdmin();
+          showUnlocked(data.session);
+        } catch (error) {
+          sessionStorage.removeItem(UNLOCK_KEY);
+          setNotice($('gate-notice'), error.message || 'Could not restore the admin session.', 'error');
+        }
+      }
+
+      async function loadOrders() {
+        setNotice($('page-notice'), 'Loading orders…', '');
+        $('refresh-button').disabled = true;
+        try {
+          const { data, error } = await supabaseClient
+            .from('orders')
+            .select('id,order_number,customer_name,customer_phone,recipient_phone,shipping_address,total_price,created_at,status,prepared_photo_url,order_data')
+            .order('created_at', { ascending: false });
+          if (error) throw error;
+          orders = data || [];
+          setNotice($('page-notice'), `${orders.length} order${orders.length === 1 ? '' : 's'} loaded.`, 'success');
+          renderOrders();
+        } catch (error) {
+          console.error('Could not load admin orders:', error);
+          setNotice($('page-notice'), `Could not load orders: ${error.message || 'Unknown error'}`, 'error');
+        } finally {
+          $('refresh-button').disabled = false;
+        }
+      }
+
+      async function saveStatus(orderId) {
+        const order = orders.find((item) => String(item.id) === String(orderId));
+        const select = document.querySelector(`[data-status-select="${CSS.escape(String(orderId))}"]`);
+        const button = document.querySelector(`[data-save-status="${CSS.escape(String(orderId))}"]`);
+        const feedback = document.querySelector(`[data-card-feedback="${CSS.escape(String(orderId))}"]`);
+        if (!order || !select || !button || !feedback) return;
+        button.disabled = true;
+        setNotice(feedback, 'Saving status…', '');
+        try {
+          const { error } = await supabaseClient.from('orders').update({ status: select.value }).eq('id', order.id);
+          if (error) throw error;
+          order.status = select.value;
+          const badge = document.querySelector(`[data-order-card="${CSS.escape(String(orderId))}"] .status-badge`);
+          if (badge) badge.textContent = STATUS_OPTIONS.find(([value]) => value === select.value)[1];
+          setNotice(feedback, 'Status saved.', 'success');
+        } catch (error) {
+          console.error('Could not save order status:', error);
+          setNotice(feedback, `Could not save status: ${error.message || 'Unknown error'}`, 'error');
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      async function uploadPreparedPhoto(orderId) {
+        const order = orders.find((item) => String(item.id) === String(orderId));
+        const button = document.querySelector(`[data-upload-photo="${CSS.escape(String(orderId))}"]`);
+        const feedback = document.querySelector(`[data-card-feedback="${CSS.escape(String(orderId))}"]`);
+        if (!order || !button || !feedback) return;
+        const file = pendingFiles.get(String(orderId));
+        if (!file) {
+          setNotice(feedback, 'Choose an image before uploading.', 'error');
+          return;
+        }
+        if (!ALLOWED_PHOTO_TYPES.includes(file.type) || file.size > MAX_PHOTO_BYTES) {
+          setNotice(feedback, 'Choose a JPG, PNG or WebP image no larger than 10 MB.', 'error');
+          return;
+        }
+
+        button.disabled = true;
+        setNotice(feedback, 'Uploading photo…', '');
+        try {
+          const extension = file.type === 'image/jpeg' ? 'jpg' : file.type.split('/')[1];
+          const safeOrderPart = String(order.order_number || order.id).replace(/[^A-Za-z0-9_-]/g, '_');
+          const path = `orders/${safeOrderPart}/${crypto.randomUUID()}.${extension}`;
+          const bucket = supabaseClient.storage.from(PHOTO_BUCKET);
+          const { error: uploadError } = await bucket.upload(path, file, {
+            cacheControl: '3600',
+            upsert: false,
+            contentType: file.type
+          });
+          if (uploadError) throw uploadError;
+
+          const photoUrl = bucket.getPublicUrl(path).data.publicUrl;
+          const { error: updateError } = await supabaseClient
+            .from('orders')
+            .update({ prepared_photo_url: photoUrl })
+            .eq('id', order.id);
+          if (updateError) throw updateError;
+
+          order.prepared_photo_url = photoUrl;
+          pendingFiles.delete(String(orderId));
+          const previewUrl = previewUrls.get(String(orderId));
+          if (previewUrl) URL.revokeObjectURL(previewUrl);
+          previewUrls.delete(String(orderId));
+          renderOrders();
+          setNotice($('page-notice'), `Photo saved for order ${order.order_number}.`, 'success');
+        } catch (error) {
+          setNotice(feedback, `Photo upload failed: ${error.message || 'Unknown error'}`, 'error');
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      $('admin-login-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const button = $('login-button');
+        button.disabled = true;
+        setNotice($('gate-notice'), '', '');
+        try {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: $('admin-email-input').value.trim(),
+            password: $('admin-password-input').value
+          });
+          if (error) throw error;
+          await verifyAdmin();
+          sessionStorage.setItem(UNLOCK_KEY, '1');
+          $('admin-password-input').value = '';
+          showUnlocked(data.session);
+        } catch (error) {
+          await supabaseClient.auth.signOut();
+          setNotice($('gate-notice'), error.message || 'Admin sign-in failed.', 'error');
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      $('lock-button').addEventListener('click', () => lockAdmin(true));
+      $('refresh-button').addEventListener('click', loadOrders);
+      $('order-search').addEventListener('input', renderOrders);
+      $('orders-list').addEventListener('click', (event) => {
+        const saveButton = event.target.closest('[data-save-status]');
+        if (saveButton) saveStatus(saveButton.dataset.saveStatus);
+        const uploadButton = event.target.closest('[data-upload-photo]');
+        if (uploadButton) uploadPreparedPhoto(uploadButton.dataset.uploadPhoto);
+      });
+      $('orders-list').addEventListener('change', (event) => {
+        const input = event.target.closest('[data-photo-input]');
+        if (!input) return;
+        const orderId = String(input.dataset.photoInput);
+        const previousUrl = previewUrls.get(orderId);
+        if (previousUrl) URL.revokeObjectURL(previousUrl);
+        const file = input.files && input.files[0];
+        if (!file) {
+          pendingFiles.delete(orderId);
+          previewUrls.delete(orderId);
+          renderOrders();
+          return;
+        }
+        pendingFiles.set(orderId, file);
+        const previewUrl = URL.createObjectURL(file);
+        previewUrls.set(orderId, previewUrl);
+        const card = input.closest('[data-order-card]');
+        const preview = card && card.querySelector('[data-photo-preview]');
+        if (preview) {
+          preview.src = previewUrl;
+          preview.hidden = false;
+        }
+        const hint = input.parentElement.querySelector('.photo-hint');
+        if (hint) hint.textContent = file.name;
+      });
+
+      restoreSession();
+    })();
+  </script>
+</body>
+</html>
