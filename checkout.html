@@ -562,6 +562,232 @@
     .map-search-result:hover,
     .map-search-result:focus { background: #FAF8F5; outline: none; }
 
+    body.map-picker-open { overflow: hidden; }
+    .recipient-map-preview {
+      position: relative;
+      height: 156px;
+      overflow: hidden;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      background: #E8ECE8;
+      isolation: isolate;
+    }
+    #recipient-map-preview-map {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+    .recipient-map-preview .leaflet-control-attribution {
+      font-size: 8px;
+      opacity: 0.75;
+    }
+    .map-preview-action {
+      position: absolute;
+      z-index: 500;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 48px;
+      max-width: calc(100% - 32px);
+      padding: 0 22px;
+      border: 1px solid rgba(0, 49, 60, 0.13);
+      border-radius: 8px;
+      background: #FFFFFF;
+      box-shadow: 0 8px 24px rgba(17, 24, 39, 0.18);
+      color: #00313C;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.045em;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .map-preview-action:hover { background: #FAFAF9; }
+    .map-preview-action svg { width: 18px; height: 18px; flex: 0 0 auto; }
+    .map-picker-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(15, 23, 25, 0.44);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .map-picker-overlay.hidden { display: none; }
+    .map-picker-dialog {
+      position: relative;
+      width: min(680px, 100%);
+      height: min(680px, 84vh);
+      min-height: 430px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 18px;
+      background: #E8ECE8;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+    }
+    #map-picker-map {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: #E8ECE8;
+    }
+    .map-picker-toolbar {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      z-index: 500;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .map-picker-search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+    }
+    .map-picker-search {
+      width: 100%;
+      height: 48px;
+      padding: 0 16px;
+      border: 1px solid rgba(17, 24, 39, 0.1);
+      border-radius: 9px;
+      outline: none;
+      background: #FFFFFF;
+      box-shadow: 0 4px 18px rgba(17, 24, 39, 0.15);
+      color: #1F292E;
+      font: inherit;
+      font-size: 14px;
+    }
+    .map-picker-search:focus { border-color: #00313C; }
+    .map-picker-close {
+      display: inline-flex;
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(17, 24, 39, 0.1);
+      border-radius: 9px;
+      background: #FFFFFF;
+      box-shadow: 0 4px 18px rgba(17, 24, 39, 0.15);
+      color: #1F292E;
+      font-size: 23px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .map-picker-search-results {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      max-height: 240px;
+      overflow: auto;
+      border: 1px solid #E5E7EB;
+      border-radius: 9px;
+      background: #FFFFFF;
+      box-shadow: 0 8px 24px rgba(17, 24, 39, 0.16);
+    }
+    .map-picker-center-pin {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 450;
+      width: 38px;
+      height: 46px;
+      transform: translate(-50%, -100%);
+      color: #00313C;
+      filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.34));
+      pointer-events: none;
+    }
+    .map-picker-locate {
+      position: absolute;
+      right: 16px;
+      bottom: 194px;
+      z-index: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 40px;
+      padding: 0 13px;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      background: #FFFFFF;
+      box-shadow: 0 4px 16px rgba(17, 24, 39, 0.16);
+      color: #00313C;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .map-picker-bottom-card {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      left: 16px;
+      z-index: 500;
+      padding: 16px;
+      border: 1px solid rgba(17, 24, 39, 0.08);
+      border-radius: 12px;
+      background: #FFFFFF;
+      box-shadow: 0 8px 30px rgba(17, 24, 39, 0.2);
+    }
+    .map-picker-deliver-label {
+      margin-bottom: 4px;
+      color: #6B7280;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .map-picker-address {
+      min-height: 36px;
+      margin-bottom: 12px;
+      color: #1F292E;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+    .map-picker-confirm {
+      width: 100%;
+      min-height: 48px;
+      border: 0;
+      border-radius: 8px;
+      background: #00313C;
+      color: #FFFFFF;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+    }
+    .map-picker-confirm:hover { background: #00222B; }
+    .map-picker-confirm:disabled { background: #9CA3AF; cursor: wait; }
+    .map-picker-dialog .leaflet-control-attribution { font-size: 8px; }
+    .pac-container { z-index: 2100 !important; }
+    @media (max-width: 640px) {
+      .map-picker-overlay { padding: 0; }
+      .map-picker-dialog {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        border: 0;
+        border-radius: 0;
+      }
+      .map-picker-toolbar { top: max(14px, env(safe-area-inset-top)); }
+      .map-picker-bottom-card {
+        right: 12px;
+        bottom: max(12px, env(safe-area-inset-bottom));
+        left: 12px;
+      }
+      .map-picker-locate { right: 12px; bottom: 200px; }
+    }
+
     /* Mobile Sticky Bar */
     .mobile-sticky-checkout {
       display: none;
@@ -731,48 +957,42 @@
             <p class="text-xs text-gray-500 mb-4" data-i18n="recipient_address_desc">حدد موقع التوصيل على الخريطة لمساعدتنا على الوصول بالموعد الدقيق</p>
 
             <div class="space-y-4">
-              <!-- Interactive Map Picker -->
-              <div class="flex items-center gap-2">
-                <input type="search" id="delivery-map-search" class="lorin-input-field min-w-0 flex-1" dir="auto" placeholder="Search for an address or place..." data-i18n-placeholder="map_search_placeholder" aria-label="ابحث عن موقع التوصيل" onkeydown="if(event.key==='Enter'){event.preventDefault();searchDeliveryLocation();}">
-                <button type="button" id="delivery-map-search-button" onclick="searchDeliveryLocation()" class="shrink-0 rounded-lg bg-[#00313C] px-4 py-3 text-xs font-bold text-white hover:bg-[#00222B]" data-i18n="map_search_button">Search</button>
+              <div class="recipient-map-preview">
+                <div id="recipient-map-preview-map" aria-hidden="true"></div>
+                <button type="button" id="map-preview-action" class="map-preview-action" onclick="openMapLocationPicker()" aria-haspopup="dialog">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 10.1c0 5.2-8 11.4-8 11.4S4 15.3 4 10.1a8 8 0 1 1 16 0Z" stroke="currentColor" stroke-width="1.8"/>
+                    <circle cx="12" cy="10" r="2.6" stroke="currentColor" stroke-width="1.8"/>
+                  </svg>
+                  <span id="map-preview-action-label">إضافة موقع على الخريطة</span>
+                </button>
               </div>
-              <div id="map-search-results" class="hidden max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-white" role="listbox" aria-label="نتائج البحث عن الموقع"></div>
               <input type="hidden" id="checkout-map-url" value="">
-              <div class="relative border border-gray-200 rounded-xl overflow-hidden bg-gray-50">
-                <div id="leaflet-map-container" style="height: 180px; width: 100%; z-index: 1;"></div>
-                <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between pointer-events-none z-[400]">
-                  <span class="bg-white/95 text-[11px] font-semibold text-gray-700 px-2.5 py-1 rounded shadow-sm" id="map-status-pill" data-i18n="map_pin_instruction">انقر على الخريطة أو اسحب المؤشر</span>
-                  <button type="button" onclick="locateUserGps()" class="pointer-events-auto bg-[#00313C] text-white text-[11px] font-bold px-3 py-1 rounded shadow hover:bg-black transition flex items-center gap-1.5" data-i18n="btn_use_current_location">
-                    موقعي الحالي 📍
-                  </button>
-                </div>
-              </div>
-              <a id="checkout-map-link" class="hidden text-xs font-semibold text-[#00313C] underline underline-offset-2" href="#" target="_blank" rel="noopener noreferrer" data-i18n="map_open_link">Open selected location in Google Maps</a>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 gap-4">
                 <div>
                   <label class="lorin-input-label" data-i18n="area_label">المنطقة *</label>
                   <select id="receiver-area" class="lorin-input-field cursor-pointer">
-                    <option value="عمان - دابوق">عمان - دابوق</option>
-                    <option value="عمان - عبدون">عمان - عبدون</option>
-                    <option value="عمان - الصويفية">عمان - الصويفية</option>
-                    <option value="عمان - دير غبار">عمان - دير غبار</option>
-                    <option value="عمان - خلدا">عمان - خلدا</option>
-                    <option value="عمان - الشميساني">عمان - الشميساني</option>
-                    <option value="عمان - الجبيهة">عمان - الجبيهة</option>
-                    <option value="عمان - تلاع العلي">عمان - تلاع العلي</option>
-                    <option value="عمان - وادي السير">عمان - وادي السير</option>
-                    <option value="الزرقاء">الزرقاء</option>
-                    <option value="إربد">إربد</option>
-                    <option value="السلط">السلط</option>
-                    <option value="العقبة">العقبة</option>
-                    <option value="مادبا">مادبا</option>
+                    <option value="عمان - دابوق" data-area-en="Amman - Dabouq" data-area-aliases="دابوق|dabouq|dabuk">عمان - دابوق</option>
+                    <option value="عمان - عبدون" data-area-en="Amman - Abdoun" data-area-aliases="عبدون|abdoun|abdun">عمان - عبدون</option>
+                    <option value="عمان - الصويفية" data-area-en="Amman - Sweifieh" data-area-aliases="الصويفية|الصويفيه|sweifieh|swaifieh|swaifyeh|swefieh">عمان - الصويفية</option>
+                    <option value="عمان - دير غبار" data-area-en="Amman - Deir Ghbar" data-area-aliases="دير غبار|ديرغبار|deir ghbar|dayr ghbar|dair ghbar">عمان - دير غبار</option>
+                    <option value="عمان - خلدا" data-area-en="Amman - Khalda" data-area-aliases="خلدا|khalda|khaldeh">عمان - خلدا</option>
+                    <option value="عمان - الشميساني" data-area-en="Amman - Shmeisani" data-area-aliases="الشميساني|شميساني|shmeisani|shmaisani|shumaisani">عمان - الشميساني</option>
+                    <option value="عمان - الجبيهة" data-area-en="Amman - Jubaiha" data-area-aliases="الجبيهة|جبيهة|jubaiha|jubeiha">عمان - الجبيهة</option>
+                    <option value="عمان - تلاع العلي" data-area-en="Amman - Tlaa Al Ali" data-area-aliases="تلاع العلي|تلاعالعلي|tlaa al ali|tla al ali|tlaa al-ali">عمان - تلاع العلي</option>
+                    <option value="عمان - وادي السير" data-area-en="Amman - Wadi Al Seer" data-area-aliases="وادي السير|واد السير|wadi al seer|wadi seer|wadi as seer">عمان - وادي السير</option>
+                    <option value="الزرقاء" data-area-en="Zarqa" data-area-aliases="الزرقاء|zarqa|az zarqa">الزرقاء</option>
+                    <option value="إربد" data-area-en="Irbid" data-area-aliases="إربد|اربد|irbid">إربد</option>
+                    <option value="السلط" data-area-en="Salt" data-area-aliases="السلط|salt|as salt">السلط</option>
+                    <option value="العقبة" data-area-en="Aqaba" data-area-aliases="العقبة|aqaba|al aqabah">العقبة</option>
+                    <option value="مادبا" data-area-en="Madaba" data-area-aliases="مادبا|madaba">مادبا</option>
                   </select>
                 </div>
 
                 <div>
                   <label class="lorin-input-label" data-i18n="full_address_label">العنوان بالتفصيل *</label>
-                  <input type="text" id="receiver-full-address" required placeholder="اسم الشارع، رقم البناية، الشقة أو المعلم..." class="lorin-input-field" data-i18n-placeholder="full_address_placeholder">
+                  <textarea id="receiver-full-address" rows="3" required placeholder="أدخل رقم الشقة أو الفيلا والطابق واسم المبنى والشارع" class="lorin-input-field resize-y" data-i18n-placeholder="full_address_placeholder"></textarea>
                 </div>
               </div>
             </div>
@@ -1064,6 +1284,32 @@
   </div>
 </footer>
 
+<div id="map-picker-overlay" class="map-picker-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="map-picker-title" onclick="if(event.target===this) closeMapLocationPicker()">
+  <div class="map-picker-dialog">
+    <h2 id="map-picker-title" class="sr-only">Search Location</h2>
+    <div id="map-picker-map" aria-label="Interactive delivery location map"></div>
+    <div class="map-picker-toolbar">
+      <div class="map-picker-search-wrap">
+        <input type="search" id="map-picker-search" class="map-picker-search" dir="auto" autocomplete="off" placeholder="Search Location" aria-label="Search Location" oninput="onMapSearchInput()" onkeydown="if(event.key==='Enter'){event.preventDefault();searchDeliveryLocation();}">
+        <div id="map-picker-search-results" class="map-picker-search-results hidden" role="listbox" aria-label="Search results"></div>
+      </div>
+      <button type="button" class="map-picker-close" onclick="closeMapLocationPicker()" aria-label="Close map picker">&times;</button>
+    </div>
+    <svg class="map-picker-center-pin" viewBox="0 0 40 48" fill="none" aria-hidden="true">
+      <path d="M20 1.8C10.7 1.8 3.2 9.3 3.2 18.6c0 12.1 16.8 27.1 16.8 27.1s16.8-15 16.8-27.1C36.8 9.3 29.3 1.8 20 1.8Z" fill="#00313C" stroke="white" stroke-width="2"/>
+      <circle cx="20" cy="18.5" r="5.2" fill="white"/>
+    </svg>
+    <button type="button" id="map-picker-locate" class="map-picker-locate" onclick="locateUserGps()">
+      <span aria-hidden="true">⌖</span><span id="map-picker-locate-label">Use my current location</span>
+    </button>
+    <div class="map-picker-bottom-card">
+      <div class="map-picker-deliver-label" id="map-picker-deliver-label">Deliver to</div>
+      <div id="map-picker-address" class="map-picker-address" aria-live="polite">Amman, Jordan</div>
+      <button type="button" id="map-picker-confirm" class="map-picker-confirm" onclick="confirmMapLocation()">CONFIRM</button>
+    </div>
+  </div>
+</div>
+
 <script>
   // 1. Supabase Initialization
   const SUPABASE_URL = 'https://dptincirgzfwrlrpxajl.supabase.co';
@@ -1076,15 +1322,33 @@
   const CHECKOUT_STATE_KEY = 'lorin_checkout_state';
   const PHOTO_STICK_FEE = 2.5;
   const STORAGE_BUCKET = 'store-assets';
+  const GOOGLE_MAPS_API_KEY = window.LORIN_GOOGLE_MAPS_API_KEY || '';
+  const NOMINATIM_MIN_INTERVAL_MS = 1100;
 
   let currentStep = 1;
   let selectedSlotType = 'express';
   let selectedPayment = 'apple_pay';
-  let activeMap = null;
-  let activeMarker = null;
+  let modalLeafletMap = null;
+  let previewLeafletMap = null;
+  let previewLeafletMarker = null;
+  let modalGoogleMap = null;
+  let modalGoogleGeocoder = null;
+  let googleAutocomplete = null;
+  let mapProvider = '';
   let currentCoordinates = { lat: 31.9539, lng: 35.9106 };
   let hasSelectedCoordinates = false;
+  let selectedLocationAddress = '';
+  let lastAutoFilledMapAddress = '';
+  let draftCoordinates = null;
+  let draftLocationDetails = null;
   let mapSearchController = null;
+  let reverseGeocodeController = null;
+  let reverseGeocodeTimer = null;
+  let mapSearchTimer = null;
+  let googleMapsApiPromise = null;
+  let mapGeocodeRequestId = 0;
+  let nominatimRequestQueue = Promise.resolve();
+  let nominatimLastRequestAt = 0;
 
   // Recipient Country Code Selector
   let selectedRecipientCountry = (window.LORIN_COUNTRIES && window.LORIN_COUNTRIES[0]) || { code: 'JO', nameAr: 'الأردن', nameEn: 'Jordan', dial: '+962', flag: '🇯🇴', placeholder: '7XXXXXXXX' };
@@ -1231,6 +1495,8 @@
         lat: Number(currentCoordinates.lat),
         lng: Number(currentCoordinates.lng),
         hasSelectedCoordinates,
+        mapAddress: selectedLocationAddress,
+        mapAutoAddress: lastAutoFilledMapAddress,
         mapUrl
       }));
     } catch (error) {
@@ -1266,6 +1532,8 @@
       currentCoordinates = { lat: Number(state.lat), lng: Number(state.lng) };
       hasSelectedCoordinates = state.hasSelectedCoordinates === true;
     }
+    selectedLocationAddress = typeof state.mapAddress === 'string' ? state.mapAddress : '';
+    lastAutoFilledMapAddress = typeof state.mapAutoAddress === 'string' ? state.mapAutoAddress : '';
     if (['express', 'sameday', 'custom'].includes(state.selectedSlotType)) {
       selectedSlotType = state.selectedSlotType;
       document.querySelectorAll('.lorin-slot-card').forEach((card) => card.classList.remove('is-selected'));
@@ -1283,7 +1551,7 @@
     }
 
     toggleCollectAddress(state.collectAddress === true);
-    updateMapLink();
+    updateMapPreview();
     return true;
   }
 
@@ -1295,6 +1563,9 @@
       if (field) {
         field.addEventListener('input', persistCheckoutState);
         field.addEventListener('change', persistCheckoutState);
+        if (id === 'receiver-area') {
+          field.addEventListener('change', renderOrderSummary);
+        }
       }
     });
   }
@@ -1499,6 +1770,7 @@
     if (notice) {
       notice.classList.toggle('hidden', enabled);
     }
+    if (!enabled) window.setTimeout(updateMapPreview, 0);
     persistCheckoutState();
   }
 
@@ -1970,166 +2242,648 @@
     window.setTimeout(() => { window.location.href = 'index.html'; }, 3000);
   }
 
-  // Map Initialization (Leaflet)
-  function initMap() {
-    const mapEl = document.getElementById('leaflet-map-container');
-    if (!mapEl || activeMap) return;
+  function isArabicLocale() {
+    return (window.LorinI18n && window.LorinI18n.getLang() === 'ar') ||
+      document.documentElement.lang === 'ar';
+  }
 
+  function mapText(key, english, arabic) {
+    return t(key, isArabicLocale() ? arabic : english);
+  }
+
+  function updateAreaOptionLabels() {
+    const select = document.getElementById('receiver-area');
+    if (!select) return;
+    Array.from(select.options).forEach((option) => {
+      option.textContent = isArabicLocale() ? option.value : (option.dataset.areaEn || option.value);
+    });
+  }
+
+  function updateMapPickerLabels() {
+    const actionLabel = document.getElementById('map-preview-action-label');
+    const action = document.getElementById('map-preview-action');
+    const search = document.getElementById('map-picker-search');
+    const title = document.getElementById('map-picker-title');
+    const closeButton = document.querySelector('.map-picker-close');
+    const results = document.getElementById('map-picker-search-results');
+    const map = document.getElementById('map-picker-map');
+    const addressInput = document.getElementById('receiver-full-address');
+    const locateLabel = document.getElementById('map-picker-locate-label');
+    const deliverLabel = document.getElementById('map-picker-deliver-label');
+    const confirm = document.getElementById('map-picker-confirm');
+    const isSelected = hasSelectedCoordinates;
+
+    if (actionLabel) {
+      actionLabel.textContent = isSelected
+        ? mapText('map_change_location', 'CHANGE MAP LOCATION', 'تغيير الموقع على الخريطة')
+        : mapText('map_add_location', 'ADD MAP LOCATION', 'إضافة موقع على الخريطة');
+    }
+    if (action) action.setAttribute('aria-label', actionLabel ? actionLabel.textContent : '');
+    if (search) {
+      search.placeholder = mapText('map_search_location', 'Search Location', 'ابحث عن موقع');
+      search.setAttribute('aria-label', search.placeholder);
+    }
+    if (title) title.textContent = mapText('map_search_location', 'Search Location', 'ابحث عن موقع');
+    if (closeButton) closeButton.setAttribute('aria-label', mapText('map_close', 'Close map picker', 'إغلاق الخريطة'));
+    if (results) results.setAttribute('aria-label', mapText('map_search_results', 'Location search results', 'نتائج البحث عن الموقع'));
+    if (map) map.setAttribute('aria-label', mapText('map_picker_label', 'Interactive delivery location map', 'خريطة تفاعلية لموقع التوصيل'));
+    if (addressInput) {
+      addressInput.placeholder = mapText(
+        'map_full_address_placeholder',
+        'Enter your apartment/villa number, floor, building name and street',
+        'أدخل رقم الشقة أو الفيلا والطابق واسم المبنى والشارع'
+      );
+    }
+    if (locateLabel) locateLabel.textContent = mapText('map_use_current_location', 'Use my current location', 'استخدام موقعي الحالي');
+    if (deliverLabel) deliverLabel.textContent = mapText('map_deliver_to', 'Deliver to', 'التوصيل إلى');
+    if (confirm) confirm.textContent = mapText('map_confirm', 'CONFIRM', 'تأكيد');
+    updateAreaOptionLabels();
+  }
+
+  function initMapPreview() {
+    const mapEl = document.getElementById('recipient-map-preview-map');
+    if (!mapEl || previewLeafletMap || !window.L) return;
     try {
-      activeMap = L.map('leaflet-map-container', { zoomControl: false }).setView([currentCoordinates.lat, currentCoordinates.lng], 13);
+      previewLeafletMap = L.map(mapEl, {
+        zoomControl: false,
+        dragging: false,
+        touchZoom: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        attributionControl: true
+      }).setView(
+        [currentCoordinates.lat, currentCoordinates.lng],
+        hasSelectedCoordinates ? 15 : 12
+      );
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(activeMap);
-
-      activeMarker = L.marker([currentCoordinates.lat, currentCoordinates.lng], { draggable: true }).addTo(activeMap);
-
-      activeMarker.on('dragend', function (e) {
-        const pos = e.target.getLatLng();
-        setDeliveryLocation(pos.lat, pos.lng);
-      });
-
-      activeMap.on('click', function (e) {
-        setDeliveryLocation(e.latlng.lat, e.latlng.lng);
-      });
-      updateMapPill();
-      updateMapLink();
-    } catch (e) {
-      console.warn('Map initialization note:', e);
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(previewLeafletMap);
+      updateMapPreview();
+    } catch (error) {
+      console.warn('Checkout map preview could not be initialized:', error);
     }
   }
 
-  function setDeliveryLocation(lat, lng, zoom) {
+  function updateMapPreview() {
+    const urlInput = document.getElementById('checkout-map-url');
+    if (urlInput) urlInput.value = currentMapUrl();
+    updateMapPickerLabels();
+    const addressCard = document.getElementById('recipient-address-card');
+    if (addressCard && addressCard.style.display === 'none') return;
+    if (!previewLeafletMap) {
+      initMapPreview();
+      if (!previewLeafletMap) return;
+    }
+
+    const position = [currentCoordinates.lat, currentCoordinates.lng];
+    previewLeafletMap.setView(position, hasSelectedCoordinates ? 15 : 12, { animate: false });
+    if (hasSelectedCoordinates) {
+      if (previewLeafletMarker) previewLeafletMarker.setLatLng(position);
+      else previewLeafletMarker = L.marker(position).addTo(previewLeafletMap);
+    } else if (previewLeafletMarker) {
+      previewLeafletMap.removeLayer(previewLeafletMarker);
+      previewLeafletMarker = null;
+    }
+    window.setTimeout(() => {
+      if (previewLeafletMap) previewLeafletMap.invalidateSize();
+    }, 0);
+  }
+
+  function loadGoogleMapsApi() {
+    if (window.google && window.google.maps && window.google.maps.places) return Promise.resolve();
+    if (!GOOGLE_MAPS_API_KEY) return Promise.reject(new Error('Google Maps API key is not configured.'));
+    if (googleMapsApiPromise) return googleMapsApiPromise;
+
+    googleMapsApiPromise = new Promise((resolve, reject) => {
+      window.lorinCheckoutGoogleMapsReady = resolve;
+      const script = document.createElement('script');
+      const language = isArabicLocale() ? 'ar' : 'en';
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}&libraries=places&language=${language}&callback=lorinCheckoutGoogleMapsReady`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = () => reject(new Error('Google Maps JavaScript API failed to load.'));
+      document.head.appendChild(script);
+    });
+    return googleMapsApiPromise;
+  }
+
+  async function initializeMapPickerMap() {
+    if (mapProvider) {
+      if (mapProvider === 'leaflet' && modalLeafletMap) modalLeafletMap.invalidateSize();
+      if (mapProvider === 'google' && modalGoogleMap) {
+        window.google.maps.event.trigger(modalGoogleMap, 'resize');
+        modalGoogleMap.setCenter(draftCoordinates);
+      }
+      return;
+    }
+
+    if (GOOGLE_MAPS_API_KEY) {
+      try {
+        await loadGoogleMapsApi();
+        initializeGoogleMapPicker();
+        return;
+      } catch (error) {
+        console.warn('Google Maps unavailable; using the OpenStreetMap picker:', error);
+      }
+    }
+    initializeLeafletMapPicker();
+  }
+
+  function initializeGoogleMapPicker() {
+    const mapEl = document.getElementById('map-picker-map');
+    if (!mapEl || !window.google || !window.google.maps) throw new Error('Google Maps API is unavailable.');
+    mapProvider = 'google';
+    modalGoogleMap = new google.maps.Map(mapEl, {
+      center: draftCoordinates,
+      zoom: 15,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false,
+      clickableIcons: false,
+      gestureHandling: 'greedy'
+    });
+    modalGoogleGeocoder = new google.maps.Geocoder();
+    modalGoogleMap.addListener('idle', updateDraftFromMapCenter);
+
+    const searchInput = document.getElementById('map-picker-search');
+    if (searchInput && google.maps.places && google.maps.places.Autocomplete) {
+      googleAutocomplete = new google.maps.places.Autocomplete(searchInput, {
+        componentRestrictions: { country: 'jo' },
+        fields: ['formatted_address', 'geometry', 'address_components']
+      });
+      googleAutocomplete.addListener('place_changed', () => {
+        const place = googleAutocomplete.getPlace();
+        if (!place.geometry || !place.geometry.location) return;
+        const location = place.geometry.location;
+        const lat = location.lat();
+        const lng = location.lng();
+        draftLocationDetails = googleAddressDetails(place, lat, lng);
+        updateMapPickerAddress(draftLocationDetails.formatted);
+        draftCoordinates = { lat, lng };
+        modalGoogleMap.setCenter(location);
+        modalGoogleMap.setZoom(16);
+        hideMapSearchResults();
+      });
+    }
+  }
+
+  function initializeLeafletMapPicker() {
+    if (!window.L) throw new Error('Leaflet could not be loaded.');
+    const mapEl = document.getElementById('map-picker-map');
+    if (!mapEl) return;
+    mapEl.replaceChildren();
+    mapProvider = 'leaflet';
+    modalLeafletMap = L.map(mapEl, {
+      zoomControl: false,
+      scrollWheelZoom: true,
+      attributionControl: true
+    }).setView([draftCoordinates.lat, draftCoordinates.lng], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(modalLeafletMap);
+    modalLeafletMap.on('moveend', updateDraftFromMapCenter);
+    window.setTimeout(() => modalLeafletMap.invalidateSize(), 50);
+  }
+
+  function openMapLocationPicker() {
+    const overlay = document.getElementById('map-picker-overlay');
+    if (!overlay) return;
+    draftCoordinates = hasSelectedCoordinates
+      ? { lat: Number(currentCoordinates.lat), lng: Number(currentCoordinates.lng) }
+      : { lat: 31.9539, lng: 35.9106 };
+    draftLocationDetails = null;
+    overlay.classList.remove('hidden');
+    document.body.classList.add('map-picker-open');
+    updateMapPickerLabels();
+    updateMapPickerAddress(selectedLocationAddress || mapText('map_finding_address', 'Finding the address…', 'جارٍ تحديد العنوان…'));
+    window.setTimeout(() => {
+      initializeMapPickerMap().then(() => {
+        if (mapProvider === 'leaflet' && modalLeafletMap) {
+          modalLeafletMap.setView([draftCoordinates.lat, draftCoordinates.lng], hasSelectedCoordinates ? 16 : 14);
+          modalLeafletMap.invalidateSize();
+        }
+        if (mapProvider === 'google' && modalGoogleMap) {
+          modalGoogleMap.setCenter(draftCoordinates);
+          modalGoogleMap.setZoom(hasSelectedCoordinates ? 16 : 14);
+        }
+        const search = document.getElementById('map-picker-search');
+        if (search) search.focus();
+        if (!selectedLocationAddress || !hasSelectedCoordinates) scheduleReverseGeocode();
+        else scheduleReverseGeocode();
+      }).catch((error) => {
+        console.error('Map picker could not be initialized:', error);
+        showToastNotification(mapText('map_unavailable', 'The map could not be loaded. Please try again.', 'تعذر تحميل الخريطة. يرجى المحاولة مرة أخرى.'), { type: 'warning' });
+      });
+    }, 40);
+  }
+
+  function closeMapLocationPicker() {
+    const overlay = document.getElementById('map-picker-overlay');
+    if (overlay) overlay.classList.add('hidden');
+    document.body.classList.remove('map-picker-open');
+    if (mapSearchController) {
+      mapSearchController.abort();
+      mapSearchController = null;
+    }
+    if (reverseGeocodeController) {
+      reverseGeocodeController.abort();
+      reverseGeocodeController = null;
+    }
+    clearTimeout(mapSearchTimer);
+    clearTimeout(reverseGeocodeTimer);
+    const action = document.getElementById('map-preview-action');
+    if (action) action.focus();
+  }
+
+  function updateMapPickerAddress(value) {
+    const addressEl = document.getElementById('map-picker-address');
+    if (addressEl) addressEl.textContent = value || mapText('map_move_to_select', 'Move the map to choose a delivery point', 'حرّك الخريطة لاختيار موقع التوصيل');
+  }
+
+  function waitForNominatimSlot(signal) {
+    return new Promise((resolve, reject) => {
+      if (signal && signal.aborted) {
+        reject(new DOMException('Request was cancelled.', 'AbortError'));
+        return;
+      }
+      const delay = Math.max(0, NOMINATIM_MIN_INTERVAL_MS - (Date.now() - nominatimLastRequestAt));
+      let timer;
+      const onAbort = () => {
+        window.clearTimeout(timer);
+        reject(new DOMException('Request was cancelled.', 'AbortError'));
+      };
+      if (signal) signal.addEventListener('abort', onAbort, { once: true });
+      timer = window.setTimeout(() => {
+        if (signal) signal.removeEventListener('abort', onAbort);
+        resolve();
+      }, delay);
+    });
+  }
+
+  function fetchNominatim(url, options) {
+    const request = nominatimRequestQueue.then(async () => {
+      await waitForNominatimSlot(options.signal);
+      if (options.signal && options.signal.aborted) {
+        throw new DOMException('Request was cancelled.', 'AbortError');
+      }
+      nominatimLastRequestAt = Date.now();
+      return fetch(url, options);
+    });
+    nominatimRequestQueue = request.then(() => undefined, () => undefined);
+    return request;
+  }
+
+  function updateDraftFromMapCenter() {
+    if (document.getElementById('map-picker-overlay').classList.contains('hidden')) return;
+    let center;
+    if (mapProvider === 'leaflet' && modalLeafletMap) {
+      center = modalLeafletMap.getCenter();
+    } else if (mapProvider === 'google' && modalGoogleMap) {
+      center = modalGoogleMap.getCenter();
+      if (center) center = { lat: center.lat(), lng: center.lng() };
+    }
+    if (!center || !isValidCoordinates(center.lat, center.lng)) return;
+    draftCoordinates = { lat: Number(center.lat), lng: Number(center.lng) };
+    draftLocationDetails = null;
+    scheduleReverseGeocode();
+  }
+
+  function scheduleReverseGeocode() {
+    clearTimeout(reverseGeocodeTimer);
+    if (reverseGeocodeController) {
+      reverseGeocodeController.abort();
+      reverseGeocodeController = null;
+    }
+    updateMapPickerAddress(mapText('map_finding_address', 'Finding the address…', 'جارٍ تحديد العنوان…'));
+    const coordinates = { ...draftCoordinates };
+    reverseGeocodeTimer = window.setTimeout(() => {
+      reverseGeocodeCoordinates(coordinates.lat, coordinates.lng).catch((error) => {
+        if (error.name === 'AbortError') return;
+        console.warn('Reverse geocoding failed:', error);
+        updateMapPickerAddress(mapText('map_reverse_error', 'Address details are unavailable. You can still confirm the pin.', 'تعذر تحديد تفاصيل العنوان. يمكنك تأكيد الموقع على الخريطة.'));
+      });
+    }, 650);
+  }
+
+  function uniqueAddressParts(parts) {
+    const seen = new Set();
+    return parts.map((part) => String(part || '').trim()).filter((part) => {
+      const key = part.toLowerCase();
+      if (!part || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function formatNominatimDetails(result, lat, lng) {
+    const address = result.address || {};
+    const value = (keys) => {
+      for (const key of keys) {
+        if (address[key]) return String(address[key]);
+      }
+      return '';
+    };
+    const street = uniqueAddressParts([address.house_number, address.road]).join(' ');
+    const neighborhood = value(['neighbourhood', 'suburb', 'quarter', 'city_district', 'district', 'borough']);
+    const city = value(['city', 'town', 'municipality', 'village', 'state_district']);
+    const namedPlace = String(result.name || '');
+    const cleanAddress = uniqueAddressParts([street, neighborhood, city, !street && !neighborhood ? namedPlace : '']).join(', ') ||
+      String(result.display_name || '');
+    return {
+      lat,
+      lng,
+      formatted: String(result.display_name || cleanAddress),
+      cleanAddress,
+      areaCandidates: uniqueAddressParts([
+        neighborhood,
+        ...Object.values(address),
+        result.name,
+        result.display_name
+      ])
+    };
+  }
+
+  function googleAddressDetails(result, lat, lng) {
+    const components = Array.isArray(result.address_components) ? result.address_components : [];
+    const getComponent = (types) => {
+      const found = components.find((component) => types.some((type) => component.types.includes(type)));
+      return found ? found.long_name : '';
+    };
+    const number = getComponent(['street_number']);
+    const route = getComponent(['route']);
+    const street = uniqueAddressParts([number, route]).join(' ');
+    const neighborhood = getComponent(['neighborhood', 'sublocality_level_1', 'sublocality', 'administrative_area_level_3']);
+    const city = getComponent(['locality', 'administrative_area_level_2', 'postal_town']);
+    const cleanAddress = uniqueAddressParts([street, neighborhood, city]).join(', ') ||
+      String(result.formatted_address || '');
+    return {
+      lat,
+      lng,
+      formatted: String(result.formatted_address || cleanAddress),
+      cleanAddress,
+      areaCandidates: uniqueAddressParts([
+        ...components.map((component) => component.long_name),
+        neighborhood,
+        city,
+        result.formatted_address
+      ])
+    };
+  }
+
+  async function reverseGeocodeCoordinates(lat, lng) {
+    if (!isValidCoordinates(lat, lng)) throw new Error('Cannot reverse-geocode invalid coordinates.');
+    const requestId = ++mapGeocodeRequestId;
+    if (reverseGeocodeController) reverseGeocodeController.abort();
+
+    let details;
+    if (mapProvider === 'google' && modalGoogleGeocoder) {
+      details = await new Promise((resolve, reject) => {
+        modalGoogleGeocoder.geocode({ location: { lat: Number(lat), lng: Number(lng) } }, (results, status) => {
+          if (status === 'OK' && results && results[0]) {
+            resolve(googleAddressDetails(results[0], Number(lat), Number(lng)));
+          } else {
+            reject(new Error(`Google reverse geocoding returned ${status}.`));
+          }
+        });
+      });
+    } else {
+      const controller = new AbortController();
+      reverseGeocodeController = controller;
+      const url = new URL('https://nominatim.openstreetmap.org/reverse');
+      url.searchParams.set('format', 'jsonv2');
+      url.searchParams.set('addressdetails', '1');
+      url.searchParams.set('lat', String(lat));
+      url.searchParams.set('lon', String(lng));
+      const response = await fetchNominatim(url.toString(), {
+        headers: { 'Accept-Language': document.documentElement.lang || 'en' },
+        signal: controller.signal
+      });
+      if (!response.ok) throw new Error(`Reverse geocoding failed with status ${response.status}.`);
+      const result = await response.json();
+      details = formatNominatimDetails(result, Number(lat), Number(lng));
+    }
+
+    if (requestId === mapGeocodeRequestId && !document.getElementById('map-picker-overlay').classList.contains('hidden')) {
+      draftLocationDetails = details;
+      updateMapPickerAddress(details.formatted || details.cleanAddress);
+    }
+    return details;
+  }
+
+  function updateDraftCoordinates(lat, lng, zoom) {
     if (!isValidCoordinates(lat, lng)) return;
-    currentCoordinates = { lat: Number(lat), lng: Number(lng) };
-    hasSelectedCoordinates = true;
-    if (activeMap && activeMarker) {
-      activeMarker.setLatLng([currentCoordinates.lat, currentCoordinates.lng]);
-      if (zoom) activeMap.setView([currentCoordinates.lat, currentCoordinates.lng], zoom);
+    draftCoordinates = { lat: Number(lat), lng: Number(lng) };
+    draftLocationDetails = null;
+    if (mapProvider === 'leaflet' && modalLeafletMap) {
+      modalLeafletMap.setView([draftCoordinates.lat, draftCoordinates.lng], zoom || 16);
+    } else if (mapProvider === 'google' && modalGoogleMap) {
+      modalGoogleMap.setCenter(draftCoordinates);
+      modalGoogleMap.setZoom(zoom || 16);
     }
-    updateMapPill();
-    updateMapLink();
-    persistCheckoutState();
+    scheduleReverseGeocode();
   }
 
-  function updateMapPill() {
-    const pill = document.getElementById('map-status-pill');
-    if (pill) {
-      pill.textContent = hasSelectedCoordinates
-        ? `${t('map_location_selected', 'Location selected')} (${currentCoordinates.lat.toFixed(4)}, ${currentCoordinates.lng.toFixed(4)}) ✓`
-        : t('map_pin_instruction', 'Click the map or search for a delivery location.');
-      pill.style.color = hasSelectedCoordinates ? '#10B981' : '';
+  function normalizeMapMatchText(value) {
+    return String(value || '')
+      .toLowerCase()
+      .replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/[^\w\u0600-\u06FF]+/g, ' ')
+      .trim();
+  }
+
+  function matchAreaFromLocation(details) {
+    const select = document.getElementById('receiver-area');
+    if (!select || !details) return null;
+    const searchText = normalizeMapMatchText([
+      details.cleanAddress,
+      details.formatted,
+      ...(details.areaCandidates || [])
+    ].join(' '));
+    const matches = [];
+    Array.from(select.options).forEach((option) => {
+      const aliases = (option.dataset.areaAliases || '')
+        .split('|')
+        .concat([option.value, option.dataset.areaEn || ''])
+        .map(normalizeMapMatchText)
+        .filter(Boolean);
+      aliases.forEach((alias) => {
+        if (alias.length >= 3 && searchText.includes(alias)) {
+          matches.push({ option, aliasLength: alias.length });
+        }
+      });
+    });
+    matches.sort((a, b) => b.aliasLength - a.aliasLength);
+    return matches.length ? matches[0].option : null;
+  }
+
+  function applyMapAddressToInput(address) {
+    const input = document.getElementById('receiver-full-address');
+    const cleanAddress = String(address || '').trim();
+    if (!input || !cleanAddress) return;
+    const currentValue = input.value.trim();
+    if (!currentValue) {
+      input.value = cleanAddress;
+    } else if (lastAutoFilledMapAddress && currentValue.includes(lastAutoFilledMapAddress)) {
+      input.value = currentValue.replace(lastAutoFilledMapAddress, cleanAddress);
+    } else if (!normalizeMapMatchText(currentValue).includes(normalizeMapMatchText(cleanAddress))) {
+      input.value = `${currentValue}, ${cleanAddress}`;
+    }
+    lastAutoFilledMapAddress = cleanAddress;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  async function confirmMapLocation() {
+    const button = document.getElementById('map-picker-confirm');
+    if (!draftCoordinates || !isValidCoordinates(draftCoordinates.lat, draftCoordinates.lng)) return;
+    if (button) button.disabled = true;
+    try {
+      clearTimeout(reverseGeocodeTimer);
+      let details = draftLocationDetails;
+      if (!details || Math.abs(details.lat - draftCoordinates.lat) > 0.00001 || Math.abs(details.lng - draftCoordinates.lng) > 0.00001) {
+        try {
+          details = await reverseGeocodeCoordinates(draftCoordinates.lat, draftCoordinates.lng);
+        } catch (error) {
+          if (error.name !== 'AbortError') {
+            console.warn('Location details could not be resolved before confirmation:', error);
+            showToastNotification(mapText('map_reverse_error', 'Address details are unavailable. You can still confirm the pin.', 'تعذر تحديد تفاصيل العنوان. يمكنك تأكيد الموقع على الخريطة.'), { type: 'warning' });
+          }
+        }
+      }
+
+      currentCoordinates = { lat: Number(draftCoordinates.lat), lng: Number(draftCoordinates.lng) };
+      hasSelectedCoordinates = true;
+      selectedLocationAddress = details ? (details.formatted || details.cleanAddress || '') : '';
+
+      const matchingArea = matchAreaFromLocation(details);
+      const areaSelect = document.getElementById('receiver-area');
+      if (matchingArea && areaSelect) {
+        areaSelect.value = matchingArea.value;
+        areaSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      if (details) applyMapAddressToInput(details.cleanAddress || details.formatted);
+
+      updateMapPreview();
+      persistCheckoutState();
+      closeMapLocationPicker();
+    } finally {
+      if (button) button.disabled = false;
     }
   }
 
-  function updateMapLink() {
-    const url = currentMapUrl();
-    const hiddenInput = document.getElementById('checkout-map-url');
-    const link = document.getElementById('checkout-map-link');
-    if (hiddenInput) hiddenInput.value = url;
-    if (link) {
-      link.href = url || '#';
-      link.classList.toggle('hidden', !url);
+  function onMapSearchInput() {
+    if (mapProvider === 'google' && googleAutocomplete) return;
+    clearTimeout(mapSearchTimer);
+    const input = document.getElementById('map-picker-search');
+    const query = input ? input.value.trim() : '';
+    if (query.length < 3) {
+      hideMapSearchResults();
+      return;
     }
+    mapSearchTimer = window.setTimeout(() => searchDeliveryLocation(), 1100);
   }
 
-  window.addEventListener('lorin:langchange', () => {
-    updateMapPill();
-    updateMapSearchLabels();
-  });
-
-  function updateMapSearchLabels() {
-    const searchInput = document.getElementById('delivery-map-search');
-    const results = document.getElementById('map-search-results');
-    const button = document.getElementById('delivery-map-search-button');
-    if (searchInput) searchInput.setAttribute('aria-label', t('map_search_label', 'Search for a delivery location'));
-    if (results) results.setAttribute('aria-label', t('map_search_results', 'Location search results'));
-    if (button && !button.disabled) button.textContent = t('map_search_button', 'Search');
+  function hideMapSearchResults() {
+    const results = document.getElementById('map-picker-search-results');
+    if (results) results.classList.add('hidden');
   }
 
   async function searchDeliveryLocation() {
-    const input = document.getElementById('delivery-map-search');
-    const results = document.getElementById('map-search-results');
-    const button = document.getElementById('delivery-map-search-button');
+    if (mapProvider === 'google' && googleAutocomplete) return;
+    const input = document.getElementById('map-picker-search');
+    const results = document.getElementById('map-picker-search-results');
     const query = input ? input.value.trim() : '';
-    if (!query || !results || !button) return;
-
+    if (!query || !results) return;
     if (mapSearchController) mapSearchController.abort();
     const controller = new AbortController();
     mapSearchController = controller;
-    button.disabled = true;
-    button.textContent = t('map_searching', 'Searching for the location...');
-    input.setAttribute('aria-label', t('map_search_label', 'Search for a delivery location'));
-    results.textContent = t('map_searching', 'Searching for the location...');
+    results.textContent = mapText('map_searching', 'Searching for locations…', 'جارٍ البحث عن مواقع…');
     results.classList.remove('hidden');
 
     const url = new URL('https://nominatim.openstreetmap.org/search');
     url.searchParams.set('format', 'jsonv2');
     url.searchParams.set('addressdetails', '1');
     url.searchParams.set('limit', '5');
+    url.searchParams.set('countrycodes', 'jo');
     url.searchParams.set('q', query);
-
     try {
-      const response = await fetch(url.toString(), {
+      const response = await fetchNominatim(url.toString(), {
         headers: { 'Accept-Language': document.documentElement.lang || 'en' },
         signal: controller.signal
       });
-      if (!response.ok) throw new Error(`Location search failed with status ${response.status}`);
+      if (!response.ok) throw new Error(`Location search failed with status ${response.status}.`);
       const locations = await response.json();
       results.replaceChildren();
-
       const validLocations = Array.isArray(locations)
         ? locations.filter((location) => isValidCoordinates(location.lat, location.lon))
         : [];
       if (!validLocations.length) {
-        results.textContent = t('map_search_empty', 'No locations found.');
+        results.textContent = mapText('map_search_empty', 'No locations found.', 'لم يتم العثور على مواقع.');
         return;
       }
 
       validLocations.forEach((location) => {
-        const address = String(location.display_name || location.name || query);
         const option = document.createElement('button');
         option.type = 'button';
         option.className = 'map-search-result';
         option.setAttribute('role', 'option');
-        option.textContent = address;
+        option.textContent = String(location.display_name || location.name || query);
         option.addEventListener('click', () => {
-          setDeliveryLocation(location.lat, location.lon, 16);
-          const addressInput = document.getElementById('receiver-full-address');
-          if (addressInput) addressInput.value = address;
-          results.classList.add('hidden');
-          input.value = address;
-          persistCheckoutState();
+          const lat = Number(location.lat);
+          const lng = Number(location.lon);
+          draftLocationDetails = formatNominatimDetails(location, lat, lng);
+          draftCoordinates = { lat, lng };
+          updateMapPickerAddress(draftLocationDetails.formatted);
+          input.value = String(location.display_name || location.name || query);
+          hideMapSearchResults();
+          if (mapProvider === 'leaflet' && modalLeafletMap) {
+            modalLeafletMap.setView([lat, lng], 16);
+          } else if (mapProvider === 'google' && modalGoogleMap) {
+            modalGoogleMap.setCenter(draftCoordinates);
+            modalGoogleMap.setZoom(16);
+          }
         });
         results.appendChild(option);
       });
     } catch (error) {
       if (error.name === 'AbortError') return;
       console.warn('Map location search failed:', error);
-      results.textContent = t('map_search_error', 'Unable to search for this location. Please try again.');
+      results.textContent = mapText('map_search_error', 'Unable to search for this location. Please try again.', 'تعذر البحث عن الموقع. يرجى المحاولة مرة أخرى.');
     } finally {
-      if (mapSearchController === controller) {
-        mapSearchController = null;
-        button.disabled = false;
-        button.textContent = t('map_search_button', 'Search');
-      }
+      if (mapSearchController === controller) mapSearchController = null;
     }
   }
 
   function locateUserGps() {
     if (!navigator.geolocation) {
-      showToastNotification('خدمة تحديد الموقع غير مفعلة في متصفحك.', { type: 'warning' });
+      showToastNotification(mapText('map_geolocation_unavailable', 'Location services are unavailable in this browser.', 'خدمة تحديد الموقع غير متاحة في متصفحك.'), { type: 'warning' });
       return;
     }
-    navigator.geolocation.getCurrentPosition((pos) => {
-      if (activeMap && activeMarker) {
-        setDeliveryLocation(pos.coords.latitude, pos.coords.longitude, 15);
-      } else {
-        setDeliveryLocation(pos.coords.latitude, pos.coords.longitude);
-      }
-    }, () => {
-      showToastNotification('تعذر جلب موقعك الحالي تلقائياً. يمكنك النقر على الخريطة لتحديده.', { type: 'warning' });
-    });
+    navigator.geolocation.getCurrentPosition((position) => {
+      updateDraftCoordinates(position.coords.latitude, position.coords.longitude, 16);
+    }, (error) => {
+      console.warn('Current location could not be read:', error);
+      showToastNotification(mapText('map_geolocation_error', 'Could not get your current location. You can move the map pin instead.', 'تعذر جلب موقعك الحالي. يمكنك تحريك الخريطة لتحديد الموقع.'), { type: 'warning' });
+    }, { enableHighAccuracy: true, timeout: 10000 });
   }
+
+  window.addEventListener('lorin:langchange', () => {
+    updateMapPickerLabels();
+    if (draftCoordinates && !document.getElementById('map-picker-overlay').classList.contains('hidden')) {
+      scheduleReverseGeocode();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !document.getElementById('map-picker-overlay').classList.contains('hidden')) {
+      closeMapLocationPicker();
+    }
+  });
 
   // Utility bar dropdown
   function togglePillDropdown(id) {
@@ -2179,10 +2933,8 @@
     }
 
     bindCheckoutStatePersistence();
-    initMap();
-    updateMapSearchLabels();
-    updateMapPill();
-    updateMapLink();
+    updateMapPickerLabels();
+    updateMapPreview();
     renderOrderSummary();
     updateCartBadges();
     persistCheckoutState();
