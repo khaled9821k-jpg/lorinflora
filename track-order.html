@@ -82,31 +82,17 @@
     .page-heading { margin: 0 0 8px; color: var(--ink); font: 500 31px/1.3 Georgia, "Times New Roman", serif; }
     .page-intro { margin: 0 0 30px; color: var(--muted); font-size: 14px; line-height: 1.8; }
 
-    .lookup-card, .panel {
+    .access-card, .panel {
       background: rgba(255,255,255,.94);
       border: 1px solid var(--line);
       border-radius: 13px;
       box-shadow: 0 12px 38px rgba(0,49,60,.045);
     }
 
-    .lookup-card { max-width: 580px; margin: 0 auto; padding: 30px; }
-    .lookup-card h1 { margin: 0 0 7px; color: var(--ink); font: 500 26px/1.35 Georgia, "Times New Roman", serif; }
-    .lookup-card > p { margin: 0 0 23px; color: var(--muted); font-size: 13px; line-height: 1.7; }
-    .field { margin-top: 15px; }
-    .field label { display: block; margin-bottom: 7px; color: #415153; font-size: 12px; font-weight: 700; }
-    .field input {
-      width: 100%;
-      min-height: 47px;
-      padding: 10px 13px;
-      color: #263638;
-      background: #FFFEFC;
-      border: 1px solid #DCD6CB;
-      border-radius: 7px;
-      outline: none;
-    }
-
-    .field input:focus { border-color: #52777D; box-shadow: 0 0 0 3px rgba(0,49,60,.08); }
-    .ltr-input { direction: ltr; text-align: start; }
+    .access-card { max-width: 580px; margin: 0 auto; padding: 30px; }
+    .access-card h1 { margin: 0 0 18px; color: var(--ink); font: 500 26px/1.35 Georgia, "Times New Roman", serif; }
+    .access-card > p { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .access-card .primary-button { margin-top: 10px; }
 
     .primary-button, .secondary-button, .support-button {
       min-height: 47px;
@@ -123,9 +109,8 @@
       transition: background .15s ease, border-color .15s ease, transform .15s ease;
     }
 
-    .primary-button { width: 100%; margin-top: 21px; color: white; background: var(--ink); border: 1px solid var(--ink); }
+    .primary-button { color: white; background: var(--ink); border: 1px solid var(--ink); }
     .primary-button:hover { background: #064653; }
-    .primary-button:disabled { opacity: .65; cursor: wait; }
     .secondary-button { color: var(--ink); background: white; border: 1px solid var(--line); }
     .secondary-button:hover { border-color: var(--ink); }
     .support-button { color: var(--ink); background: white; border: 1px solid #D8E2DF; }
@@ -282,7 +267,7 @@
       .top-actions { gap: 11px; }
       .back-link { font-size: 11px; }
       main { width: min(100% - 24px, 900px); margin-top: 25px; }
-      .lookup-card { padding: 23px 19px; }
+      .access-card { padding: 23px 19px; }
       .order-header { padding: 18px; align-items: flex-start; flex-direction: column; }
       .order-header-actions { width: 100%; justify-content: flex-end; }
       .step-dot { width: 30px; height: 30px; }
@@ -303,17 +288,12 @@
   </header>
 
   <main>
-    <section class="lookup-card" id="lookup-panel" hidden aria-labelledby="lookup-heading">
-      <h1 id="lookup-heading">Track your order</h1>
-      <p id="lookup-description">Enter your order number to view its status.</p>
-      <form id="lookup-form">
-        <div class="field">
-          <label for="lookup-order" id="order-field-label">Order Number</label>
-          <input class="ltr-input" id="lookup-order" name="order" type="text" autocomplete="off" required maxlength="100" placeholder="AAA001 or WEB-..." dir="ltr">
-        </div>
-        <button class="primary-button" id="lookup-submit" type="submit">Find my order</button>
-      </form>
-      <p class="message" id="lookup-message" role="status" aria-live="polite"></p>
+    <section class="access-card" id="access-panel" hidden aria-labelledby="access-heading">
+      <h1 id="access-heading">Track your order</h1>
+      <p lang="ar" dir="rtl">يمكنك تتبع طلبك مباشرةً من زر «تتبع طلبك» في صفحة تأكيد الطلب أو رسالة التأكيد الإلكترونية.</p>
+      <p lang="en" dir="ltr">Order tracking is available directly from the “Track Your Order” button on your order confirmation or confirmation email.</p>
+      <p class="message" id="access-error" role="status" aria-live="polite" hidden></p>
+      <a class="primary-button" id="return-to-store" href="https://lorinflora.com">Return to Store</a>
     </section>
 
     <section id="order-view" hidden aria-live="polite">
@@ -327,7 +307,6 @@
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 7v5h-5M4.6 9a7.5 7.5 0 0 1 12.7-2L20 12M4 17v-5h5m10.4 3a7.5 7.5 0 0 1-12.7 2L4 12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span id="refresh-label">Refresh status</span>
           </button>
-          <a class="secondary-button" id="change-order" href="track-order.html">Look up another</a>
         </div>
       </div>
       <p class="message" id="order-message" role="status" aria-live="polite"></p>
@@ -386,14 +365,11 @@
         ar: {
           title: 'تتبع طلبك | Lorin',
           back: 'العودة إلى المتجر',
-          lookupHeading: 'تتبع طلبك',
-          lookupDescription: 'أدخل رقم الطلب لعرض حالته.',
+          accessHeading: 'تتبع طلبك',
+          returnToStore: 'العودة إلى المتجر',
           orderNumber: 'رقم الطلب',
-          findOrder: 'بحث عن الطلب',
-          finding: 'جارٍ البحث...',
           refresh: 'تحديث الحالة',
           refreshing: 'جارٍ التحديث...',
-          another: 'البحث عن طلب آخر',
           progress: 'مراحل طلبك',
           itemSummary: 'ملخص الطلب',
           delivery: 'التوصيل',
@@ -405,10 +381,8 @@
           giftCard: 'بطاقة الإهداء',
           photoTitle: 'باقتك جاهزة الآن',
           support: 'الدعم عبر واتساب',
-          notFound: 'لم نعثر على هذا الطلب. تحقق من رقم الطلب وحاول مرة أخرى.',
           loadError: 'تعذر تحميل حالة الطلب الآن. يرجى المحاولة مرة أخرى.',
           configError: 'خدمة التتبع غير مهيأة بعد. يرجى التواصل مع المتجر.',
-          missingOrder: 'رقم الطلب غير متوفر.',
           fallbackNotice: 'نعرض نسخة محفوظة من الطلب إلى أن تتوفر بيانات التتبع المباشرة.',
           lastUpdated: 'آخر تحديث',
           steps: ['تم تأكيد الطلب', 'جاري تنسيق الباقة', 'خرج للتوصيل', 'تم التوصيل'],
@@ -422,14 +396,11 @@
         en: {
           title: 'Track your order | Lorin',
           back: 'Back to Store',
-          lookupHeading: 'Track your order',
-          lookupDescription: 'Enter your order number to view its status.',
+          accessHeading: 'Track your order',
+          returnToStore: 'Return to Store',
           orderNumber: 'Order Number',
-          findOrder: 'Find my order',
-          finding: 'Looking up order...',
           refresh: 'Refresh status',
           refreshing: 'Refreshing...',
-          another: 'Look up another',
           progress: 'Your order progress',
           itemSummary: 'Order summary',
           delivery: 'Delivery',
@@ -441,10 +412,8 @@
           giftCard: 'Your gift card',
           photoTitle: 'Your Arrangement Is Ready',
           support: 'WhatsApp support',
-          notFound: 'We could not find that order. Check the order number and try again.',
           loadError: 'We could not load the order status. Please try again.',
           configError: 'Order tracking is not configured yet. Please contact the store.',
-          missingOrder: 'The order number is missing.',
           fallbackNotice: 'Showing a saved order summary while live tracking is unavailable.',
           lastUpdated: 'Last updated',
           steps: ['Order Confirmed', 'Crafting Your Arrangement', 'Out for Delivery', 'Delivered'],
@@ -520,9 +489,29 @@
         return null;
       }
 
+      function getLatestSnapshot() {
+        for (const getStorage of [() => sessionStorage, () => localStorage]) {
+          try {
+            const snapshot = JSON.parse(getStorage().getItem(ORDER_SNAPSHOT_KEY) || 'null');
+            if (snapshot && normalizeOrderNumber(snapshot.orderNumber)) return snapshot;
+          } catch (_) {
+            continue;
+          }
+        }
+        return null;
+      }
+
       function setMessage(element, text, kind) {
         element.textContent = text || '';
         element.dataset.kind = kind || '';
+      }
+
+      function showAccessPanel(errorMessage) {
+        activeOrderNumber = '';
+        $('order-view').hidden = true;
+        $('access-panel').hidden = false;
+        setMessage($('access-error'), errorMessage || '', errorMessage ? 'error' : '');
+        $('access-error').hidden = !errorMessage;
       }
 
       function setLanguage(nextLanguage) {
@@ -533,13 +522,10 @@
         $('back-to-store').textContent = t('back');
         $('language-toggle').textContent = language === 'ar' ? 'EN' : 'عربي';
         $('language-toggle').setAttribute('aria-label', language === 'ar' ? 'Switch language to English' : 'التبديل إلى العربية');
-        $('lookup-heading').textContent = t('lookupHeading');
-        $('lookup-description').textContent = t('lookupDescription');
-        $('order-field-label').textContent = t('orderNumber');
-        $('lookup-submit').textContent = t('findOrder');
+        $('access-heading').textContent = t('accessHeading');
+        $('return-to-store').textContent = t('returnToStore');
         $('order-overline').textContent = t('orderNumber');
         $('refresh-label').textContent = t('refresh');
-        $('change-order').textContent = t('another');
         $('progress-heading').textContent = t('progress');
         $('items-heading').textContent = t('itemSummary');
         $('total-label').textContent = t('total');
@@ -718,54 +704,44 @@
         return data && typeof data === 'object' ? data : null;
       }
 
-      async function fetchOrder(orderNumber, isAutomatic) {
+      async function fetchOrder(orderNumber) {
         const orderMessage = $('order-message');
-        setMessage(orderMessage, isAutomatic ? '' : t('finding'), '');
+        setMessage(orderMessage, '', '');
         try {
           const liveOrder = await loadLiveOrder(orderNumber);
           if (!liveOrder) {
             const fallback = readSnapshotOrder(getSnapshot(orderNumber));
             if (fallback) {
-              $('lookup-panel').hidden = true;
+              $('access-panel').hidden = true;
               $('order-view').hidden = false;
               renderOrder(fallback);
               setMessage(orderMessage, t('fallbackNotice'), '');
               return true;
             }
-            if (!isAutomatic) {
-              setMessage($('lookup-message'), t('notFound'), 'error');
-              return false;
-            }
-            $('lookup-panel').hidden = true;
-            $('order-view').hidden = false;
-            $('order-id').textContent = `#${orderNumber}`;
-            setMessage(orderMessage, t('loadError'), 'error');
+            showAccessPanel();
             return false;
           }
-          $('lookup-panel').hidden = true;
+          $('access-panel').hidden = true;
           $('order-view').hidden = false;
           setMessage(orderMessage, '', '');
           renderOrder(liveOrder);
           return true;
         } catch (error) {
-          console.error('Order tracking lookup failed:', error);
+          console.error('Order tracking request failed:', error);
           const fallback = readSnapshotOrder(getSnapshot(orderNumber));
           if (fallback) {
-            $('lookup-panel').hidden = true;
+            $('access-panel').hidden = true;
             $('order-view').hidden = false;
             renderOrder(fallback);
             setMessage(orderMessage, t('fallbackNotice'), '');
             return true;
           }
-          if (error && (
+          const errorMessage = error && (
             error.message === 'tracking_not_configured' ||
             error.code === 'PGRST202' ||
             String(error.message || '').includes('track_order_public')
-          )) {
-            setMessage(isAutomatic ? orderMessage : $('lookup-message'), t('configError'), 'error');
-          } else {
-            setMessage(isAutomatic ? orderMessage : $('lookup-message'), isAutomatic ? t('loadError') : t('notFound'), 'error');
-          }
+          ) ? t('configError') : t('loadError');
+          showAccessPanel(errorMessage);
           return false;
         }
       }
@@ -773,33 +749,16 @@
       function startPolling() {
         if (pollTimer) window.clearInterval(pollTimer);
         pollTimer = window.setInterval(() => {
-          if (activeOrderNumber && !document.hidden) fetchOrder(activeOrderNumber, true);
+          if (activeOrderNumber && !document.hidden) fetchOrder(activeOrderNumber);
         }, POLL_INTERVAL_MS);
       }
-
-      $('lookup-form').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const orderNumber = normalizeOrderNumber($('lookup-order').value);
-        if (!orderNumber) {
-          setMessage($('lookup-message'), t('notFound'), 'error');
-          return;
-        }
-        const button = $('lookup-submit');
-        button.disabled = true;
-        button.textContent = t('finding');
-        setMessage($('lookup-message'), '', '');
-        const found = await fetchOrder(orderNumber, false);
-        button.disabled = false;
-        button.textContent = t('findOrder');
-        if (found) startPolling();
-      });
 
       $('refresh-order').addEventListener('click', async () => {
         if (!activeOrderNumber) return;
         const button = $('refresh-order');
         button.disabled = true;
         $('refresh-label').textContent = t('refreshing');
-        await fetchOrder(activeOrderNumber, true);
+        await fetchOrder(activeOrderNumber);
         button.disabled = false;
         $('refresh-label').textContent = t('refresh');
       });
@@ -822,23 +781,27 @@
       });
 
       setLanguage(language);
-      const queryOrder = normalizeOrderNumber(new URLSearchParams(window.location.search).get('order'));
-      if (queryOrder) {
-        activeOrderNumber = queryOrder;
-        $('lookup-panel').hidden = true;
+      const searchParams = new URLSearchParams(window.location.search);
+      const hasOrderParameter = searchParams.has('order');
+      const queryOrder = normalizeOrderNumber(searchParams.get('order'));
+      const initialSnapshot = hasOrderParameter ? null : getLatestSnapshot();
+      const initialOrderNumber = queryOrder ||
+        (!hasOrderParameter && initialSnapshot ? normalizeOrderNumber(initialSnapshot.orderNumber) : '');
+      if (initialOrderNumber) {
+        activeOrderNumber = initialOrderNumber;
+        $('access-panel').hidden = true;
         $('order-view').hidden = false;
-        $('order-id').textContent = `#${queryOrder}`;
-        const snapshotOrder = readSnapshotOrder(getSnapshot(queryOrder));
+        $('order-id').textContent = `#${initialOrderNumber}`;
+        const snapshotOrder = readSnapshotOrder(getSnapshot(initialOrderNumber));
         if (snapshotOrder) renderOrder(snapshotOrder);
         if (window.supabase && typeof window.supabase.createClient === 'function') {
           supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
-        fetchOrder(queryOrder, true).finally(startPolling);
+        fetchOrder(initialOrderNumber).finally(() => {
+          if (activeOrderNumber) startPolling();
+        });
       } else {
-        $('lookup-panel').hidden = false;
-        if (window.supabase && typeof window.supabase.createClient === 'function') {
-          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
+        showAccessPanel();
       }
     })();
   </script>
