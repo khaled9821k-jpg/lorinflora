@@ -547,7 +547,7 @@
     </div>
 
     <div class="pill-language-wrapper">
-      <button type="button" class="pill-btn pill-btn--lang" data-i18n-aria="switch_lang_aria">
+      <button type="button" class="pill-btn pill-btn--lang" data-i18n-aria-label="switch_lang_aria">
         <span>English</span>
       </button>
     </div>
@@ -733,7 +733,12 @@
       setting_value: {
         'best sellers': 'home_section_best_sellers',
         'something precious': 'home_section_something_precious',
-        'order by occasion': 'home_section_order_by_occasion'
+        'order by occasion': 'home_section_order_by_occasion',
+        'gifts for every moment': 'home_primary_categories_title',
+        'order by category': 'home_subcategories_title'
+      },
+      button_text: {
+        'choose gifts now': 'home_choose_gifts'
       },
       title: {
         'happy birthday': 'home_category_happy_birthday',
@@ -772,59 +777,24 @@
       }
     };
 
-    function getHomeTranslationPair(record, field, fallbackKey) {
+    function homeLocalizedText(record, field, fallbackKey) {
       const source = record || {};
-      const translations = window.LorinI18n && window.LorinI18n.translations;
       const base = String(source[field] || source[`${field}_en`] || source[`${field}En`] || '').trim();
       const curatedKey = homeCuratedKeys[field] && homeCuratedKeys[field][base.toLowerCase()];
-      const resolvedFallbackKey = curatedKey || fallbackKey;
-      const englishFallback = resolvedFallbackKey && translations ? translations.en[resolvedFallbackKey] || '' : '';
-      const arabicFallback = resolvedFallbackKey && translations ? translations.ar[resolvedFallbackKey] || '' : '';
-      const englishValue = String(source[`${field}_en`] || source[`${field}En`] || '');
-      const arabicValue = String(source[`${field}_ar`] || source[`${field}Ar`] || '');
-      const normalizedBase = base.toLowerCase();
-      const english = englishValue ||
-        (normalizedBase === arabicFallback.toLowerCase() ? englishFallback : base) || englishFallback;
-      const arabic = (arabicValue && arabicValue.toLowerCase() !== normalizedBase ? arabicValue : '') ||
-        (normalizedBase === englishFallback.toLowerCase() ? arabicFallback : base) || arabicFallback;
-      return { en: english, ar: arabic };
-    }
-
-    function homeLocalizedText(record, field, fallbackKey) {
-      const pair = getHomeTranslationPair(record, field, fallbackKey);
-      return window.LorinI18n && window.LorinI18n.getLang() === 'ar' ? pair.ar : pair.en;
-    }
-
-    function homeTranslationAttributes(record, field, fallbackKey) {
-      const pair = getHomeTranslationPair(record, field, fallbackKey);
-      return `data-i18n-en="${escapeHomeHtml(pair.en)}" data-i18n-ar="${escapeHomeHtml(pair.ar)}"`;
+      const key = curatedKey || fallbackKey;
+      const value = window.LorinI18n.pick(source, field);
+      const arabicValue = source[`${field}_ar`] || source[`${field}Ar`];
+      if (window.LorinI18n.getLang() === 'ar' && !arabicValue && base && curatedKey) return homeText(curatedKey);
+      return value || (key ? homeText(key) : '');
     }
 
     function setHomeLocalizedText(element, record, field, fallbackKey) {
       if (!element) return;
-      const pair = getHomeTranslationPair(record, field, fallbackKey);
-      element.setAttribute('data-i18n-en', pair.en);
-      element.setAttribute('data-i18n-ar', pair.ar);
-      window.LorinI18n.applyLang(window.LorinI18n.getLang(), element);
-    }
-
-    function homeAltTranslationAttributes(record, field, fallbackKey) {
-      const pair = getHomeTranslationPair(record, field, fallbackKey);
-      return `data-i18n-alt-en="${escapeHomeHtml(pair.en)}" data-i18n-alt-ar="${escapeHomeHtml(pair.ar)}"`;
-    }
-
-    function homeAriaTranslationAttributes(record, field, fallbackKey) {
-      const pair = getHomeTranslationPair(record, field, fallbackKey);
-      return `data-i18n-aria-en="${escapeHomeHtml(pair.en)}" data-i18n-aria-ar="${escapeHomeHtml(pair.ar)}"`;
+      element.textContent = homeLocalizedText(record, field, fallbackKey);
     }
 
     function homeMoney(value) {
       return `${value} ${homeText('currency_code')}`;
-    }
-
-    function homeMoneyAttributes(value) {
-      const translations = window.LorinI18n.translations;
-      return `data-i18n-en="${escapeHomeHtml(`${value} ${translations.en.currency_code}`)}" data-i18n-ar="${escapeHomeHtml(`${value} ${translations.ar.currency_code}`)}"`;
     }
 
     async function loadCustomMediaSection() {
@@ -855,35 +825,31 @@
           const mediaLabelKey = isVideo ? 'home_promo_video_aria' : 'home_promo_image_aria';
           const mediaLabel = homeLocalizedText(item, 'heading', mediaLabelKey);
           const mediaHtml = isVideo
-            ? `<video ${index === 0 ? 'autoplay' : ''} muted loop playsinline preload="${index === 0 ? 'auto' : 'metadata'}" ${homeAriaTranslationAttributes(item, 'heading', mediaLabelKey)} aria-label="${escapeHomeHtml(mediaLabel)}"><source src="${escapedUrl}"></video>`
-            : `<img src="${escapedUrl}" ${homeAltTranslationAttributes(item, 'heading', mediaLabelKey)} alt="${escapeHomeHtml(mediaLabel)}" ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>`;
+            ? `<video ${index === 0 ? 'autoplay' : ''} muted loop playsinline preload="${index === 0 ? 'auto' : 'metadata'}" aria-label="${escapeHomeHtml(mediaLabel)}"><source src="${escapedUrl}"></video>`
+            : `<img src="${escapedUrl}" alt="${escapeHomeHtml(mediaLabel)}" ${index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>`;
 
           const heading = homeLocalizedText(item, 'heading');
           const subheading = homeLocalizedText(item, 'subheading');
           const buttonLabel = homeLocalizedText(item, 'button_label');
           const buttonHtml = buttonLabel
-            ? `<a ${homeTranslationAttributes(item, 'button_label')} href="${escapeHomeHtml(item.button_link || '#')}" style="display:inline-block;background:#fff;color:#00313C;padding:13px 34px;border-radius:32px;font-weight:700;font-size:15px;text-decoration:none;margin-top:16px;box-shadow:0 4px 15px rgba(0,0,0,.15);">${escapeHomeHtml(buttonLabel)}</a>`
+            ? `<a href="${escapeHomeHtml(item.button_link || '#')}" style="display:inline-block;background:#fff;color:#00313C;padding:13px 34px;border-radius:32px;font-weight:700;font-size:15px;text-decoration:none;margin-top:16px;box-shadow:0 4px 15px rgba(0,0,0,.15);">${escapeHomeHtml(buttonLabel)}</a>`
             : '';
 
           return `
             <div class="promo-slide ${index === 0 ? 'is-active' : ''}" data-slide="${index}" aria-hidden="${index === 0 ? 'false' : 'true'}">
               ${mediaHtml}
               <div class="promo-content-box">
-                ${heading ? `<h2 class="promo-heading-el" ${homeTranslationAttributes(item, 'heading')}>${escapeHomeHtml(heading)}</h2>` : ''}
-                ${subheading ? `<p class="promo-subtext-el" ${homeTranslationAttributes(item, 'subheading')}>${escapeHomeHtml(subheading)}</p>` : ''}
+                ${heading ? `<h2 class="promo-heading-el">${escapeHomeHtml(heading)}</h2>` : ''}
+                ${subheading ? `<p class="promo-subtext-el">${escapeHomeHtml(subheading)}</p>` : ''}
                 ${buttonHtml}
               </div>
             </div>`;
         }).join('');
 
-        const englishSlideLabel = window.LorinI18n.translations.en.home_promo_slide_aria;
-        const arabicSlideLabel = window.LorinI18n.translations.ar.home_promo_slide_aria;
         const currentSlideLabel = homeText('home_promo_slide_aria');
-        const englishIndicatorsLabel = window.LorinI18n.translations.en.home_promo_indicators_aria;
-        const arabicIndicatorsLabel = window.LorinI18n.translations.ar.home_promo_indicators_aria;
         const indicatorsHtml = mediaItems.length > 0
-          ? `<div class="promo-indicators" data-i18n-aria-en="${escapeHomeHtml(englishIndicatorsLabel)}" data-i18n-aria-ar="${escapeHomeHtml(arabicIndicatorsLabel)}" aria-label="${escapeHomeHtml(homeText('home_promo_indicators_aria'))}">${mediaItems.map((_, i) =>
-              `<button type="button" class="promo-indicator ${i === 0 ? 'is-active' : ''}" data-promo-index="${i}" data-i18n-aria-en="${escapeHomeHtml(englishSlideLabel)} ${i + 1}" data-i18n-aria-ar="${escapeHomeHtml(arabicSlideLabel)} ${i + 1}" aria-label="${escapeHomeHtml(currentSlideLabel)} ${i + 1}" aria-pressed="${i === 0 ? 'true' : 'false'}"></button>`
+          ? `<div class="promo-indicators" aria-label="${escapeHomeHtml(homeText('home_promo_indicators_aria'))}">${mediaItems.map((_, i) =>
+              `<button type="button" class="promo-indicator" data-promo-index="${i}" aria-label="${escapeHomeHtml(currentSlideLabel)} ${i + 1}" aria-pressed="${i === 0 ? 'true' : 'false'}"></button>`
             ).join('')}</div>`
           : '';
 
@@ -948,9 +914,9 @@
       container.innerHTML = data.map(cat => `
         <a href="category.html?name=${encodeURIComponent(cat.title)}">
           <div>
-            <img src="${escapeHomeHtml(cat.image_url)}" ${homeAltTranslationAttributes(cat, 'title')} alt="${escapeHomeHtml(homeLocalizedText(cat, 'title'))}">
+            <img src="${escapeHomeHtml(cat.image_url)}" alt="${escapeHomeHtml(homeLocalizedText(cat, 'title'))}">
           </div>
-          <span ${homeTranslationAttributes(cat, 'title')}>${escapeHomeHtml(homeLocalizedText(cat, 'title'))}</span>
+          <span>${escapeHomeHtml(homeLocalizedText(cat, 'title'))}</span>
         </a>`).join('');
       setupScrollIndicator(container, document.getElementById('thumb-categories'));
     }
@@ -965,9 +931,9 @@
       container.innerHTML = data.map(sub => `
         <a href="category.html?name=${encodeURIComponent(sub.title)}">
           <div>
-            <img src="${escapeHomeHtml(sub.image_url)}" ${homeAltTranslationAttributes(sub, 'title')} alt="${escapeHomeHtml(homeLocalizedText(sub, 'title'))}">
+            <img src="${escapeHomeHtml(sub.image_url)}" alt="${escapeHomeHtml(homeLocalizedText(sub, 'title'))}">
           </div>
-          <span ${homeTranslationAttributes(sub, 'title')}>${escapeHomeHtml(homeLocalizedText(sub, 'title'))}</span>
+          <span>${escapeHomeHtml(homeLocalizedText(sub, 'title'))}</span>
         </a>`).join('');
       setupScrollIndicator(container, document.getElementById('thumb-subcategories'));
     }
@@ -1026,18 +992,18 @@
             const itemsHtml = filtered.map(p => `
                 <a href="product.html?slug=${encodeURIComponent(p.slug || '')}" class="floward-item-card">
                     <div class="floward-item-img">
-                        <img src="${escapeHomeHtml(p.image_url)}" ${homeAltTranslationAttributes(p, 'name')} alt="${escapeHomeHtml(homeLocalizedText(p, 'name'))}">
+                        <img src="${escapeHomeHtml(p.image_url)}" alt="${escapeHomeHtml(homeLocalizedText(p, 'name'))}">
                     </div>
-                    <div class="floward-item-price" ${homeMoneyAttributes(p.price)}>${escapeHomeHtml(homeMoney(p.price))}</div>
-                    <div class="floward-item-name" ${homeTranslationAttributes(p, 'name')}>${escapeHomeHtml(homeLocalizedText(p, 'name'))}</div>
+                    <div class="floward-item-price">${escapeHomeHtml(homeMoney(p.price))}</div>
+                    <div class="floward-item-name">${escapeHomeHtml(homeLocalizedText(p, 'name'))}</div>
                 </a>
             `).join('');
 
             return `
                 <div class="floward-section-box">
                     <div class="floward-section-top">
-                        <h2 class="floward-sec-title" ${homeTranslationAttributes(sec, 'section_title')} style="color: ${sec.title_color || '#07515b'}; font-family: ${sec.title_font || '"Cormorant Garamond", Georgia, serif'}; font-size: ${sec.title_size || '34px'};">${escapeHomeHtml(homeLocalizedText(sec, 'section_title'))}</h2>
-                        <a href="category.html?name=${encodeURIComponent(sec.category_filter)}" class="floward-sec-btn" ${homeTranslationAttributes(sec, 'button_text', 'home_choose_gifts')}>${escapeHomeHtml(homeLocalizedText(sec, 'button_text', 'home_choose_gifts'))}</a>
+                        <h2 class="floward-sec-title" style="color: ${sec.title_color || '#07515b'}; font-family: ${sec.title_font || '"Cormorant Garamond", Georgia, serif'}; font-size: ${sec.title_size || '34px'};">${escapeHomeHtml(homeLocalizedText(sec, 'section_title'))}</h2>
+                        <a href="category.html?name=${encodeURIComponent(sec.category_filter)}" class="floward-sec-btn">${escapeHomeHtml(homeLocalizedText(sec, 'button_text', 'home_choose_gifts'))}</a>
                     </div>
                     <div class="floward-horizontal-track">
                         ${itemsHtml}
@@ -1108,10 +1074,10 @@
       }
       resultsContainer.innerHTML = filtered.map(p => `
         <a href="product.html?slug=${encodeURIComponent(p.slug || '')}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb; transition: background 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
-          <img src="${escapeHomeHtml(p.image_url)}" ${homeAltTranslationAttributes(p, 'name')} style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;" alt="${escapeHomeHtml(homeLocalizedText(p, 'name'))}">
+          <img src="${escapeHomeHtml(p.image_url)}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;" alt="${escapeHomeHtml(homeLocalizedText(p, 'name'))}">
           <div style="flex: 1; text-align: right;">
-            <div ${homeTranslationAttributes(p, 'name')} style="font-size: 14px; font-weight: bold; color: #2c3e50;">${escapeHomeHtml(homeLocalizedText(p, 'name'))}</div>
-            <div ${homeMoneyAttributes(p.price)} style="font-size: 12px; color: #e74c3c; font-weight: bold;">${escapeHomeHtml(homeMoney(p.price))}</div>
+            <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${escapeHomeHtml(homeLocalizedText(p, 'name'))}</div>
+            <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${escapeHomeHtml(homeMoney(p.price))}</div>
           </div>
         </a>`).join('');
     }
@@ -1199,6 +1165,16 @@
       loadSiteSettings();
       updateCartBadge();
     };
+
+    window.addEventListener('lorin:langchange', () => {
+      loadCustomMediaSection();
+      loadCircularCategories();
+      loadSubCategories();
+      loadFlowardDynamicSections();
+      loadSiteSettings();
+      const searchInput = document.getElementById('live-search-input');
+      if (searchInput && searchInput.value.trim()) performLiveSearch(searchInput.value);
+    });
 </script>
 
 <!-- Footer الفاخر -->

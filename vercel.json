@@ -1,12 +1,6 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/ar", "destination": "/index.html" },
-    { "source": "/ar/", "destination": "/index.html" },
-    { "source": "/ar/product", "destination": "/product.html" },
-    { "source": "/ar/product.html", "destination": "/product.html" },
-    { "source": "/ar/product/", "destination": "/product.html" },
-    { "source": "/ar/:path*", "destination": "/:path*" },
     { "source": "/product", "destination": "/product.html" },
     { "source": "/product/", "destination": "/product.html" }
   ]

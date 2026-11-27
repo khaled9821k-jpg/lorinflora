@@ -1,5 +1,5 @@
 // lorin-i18n.js
-// Lorin Flora bilingual localization and language routing.
+// Lorin Flora explicit bilingual localization.
 
 (function () {
   if (window.LorinI18n) return;
@@ -708,100 +708,77 @@
     }
   };
 
-  function isArabicPath(pathname = window.location.pathname) {
-    return /^\/ar(?:\/|$)/.test(pathname);
-  }
-
-  let localPreviewLang = '';
-
-  function isLocalPreview() {
-    const hostname = window.location.hostname.toLowerCase();
-    return window.location.protocol === 'file:' ||
-      hostname === 'localhost' ||
-      hostname === '127.0.0.1';
-  }
-
   function getLang() {
-    if (isLocalPreview()) {
-      if (localPreviewLang) return localPreviewLang;
-      try {
-        const storedLang = localStorage.getItem(LANG_STORAGE_KEY);
-        if (storedLang === 'ar' || storedLang === 'en') return storedLang;
-      } catch (_) {}
-      return new URLSearchParams(window.location.search).get('lang') === 'ar' ? 'ar' : 'en';
+    try {
+      const storedLang = localStorage.getItem(LANG_STORAGE_KEY);
+      return storedLang === 'ar' ? 'ar' : 'en';
+    } catch (error) {
+      console.error('Unable to read the saved language preference:', error);
+      return 'en';
     }
-    return isArabicPath() ? 'ar' : 'en';
   }
 
   function storeLang(lang) {
-    try { localStorage.setItem(LANG_STORAGE_KEY, lang); } catch (_) {}
-  }
-
-  function routePathForLanguage(lang) {
-    const pathname = window.location.pathname;
-    const arabicPath = isArabicPath(pathname);
-    let pagePath = arabicPath ? pathname.replace(/^\/ar(?=\/|$)/, '') : pathname;
-    if (!pagePath) pagePath = '/';
-    if (pagePath === '/index.html' || pagePath === '/index') pagePath = '/';
-    if (pagePath === '/product.html' || pagePath === '/product/') pagePath = '/product';
-    if (lang === 'ar') return pagePath === '/' ? '/ar' : `/ar${pagePath}`;
-    return pagePath;
+    try {
+      localStorage.setItem(LANG_STORAGE_KEY, lang);
+    } catch (error) {
+      console.error('Unable to save the language preference:', error);
+    }
   }
 
   function setLang(lang) {
     if (lang !== 'ar' && lang !== 'en') lang = 'en';
     storeLang(lang);
-    if (isLocalPreview()) {
-      localPreviewLang = lang;
-      applyLang(lang);
-      window.dispatchEvent(new CustomEvent('lorin:langchange', { detail: { lang } }));
-      return;
-    }
-    const targetPath = routePathForLanguage(lang);
-    const targetUrl = `${targetPath}${window.location.search}${window.location.hash}`;
-    if (targetUrl !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {
-      window.location.assign(targetUrl);
-      return;
-    }
     applyLang(lang);
     window.dispatchEvent(new CustomEvent('lorin:langchange', { detail: { lang } }));
-  }
-
-  function toggleLang() {
-    setLang(getLang() === 'ar' ? 'en' : 'ar');
   }
 
   function t(key, fallback = '') {
     const lang = getLang();
     const dict = translations[lang] || translations.en;
     if (dict[key] !== undefined) return dict[key];
-    if (lang === 'ar' && translations.en[key] !== undefined) return translations.en[key];
-    if (fallback) return fallback;
-    return key;
+    if (translations.en[key] !== undefined) return translations.en[key];
+    return fallback || key;
+  }
+
+  function pick(item, field) {
+    if (!item || typeof item !== 'object' || typeof field !== 'string') return '';
+
+    const lang = getLang();
+    const localizedValues = lang === 'ar'
+      ? [item[`${field}_ar`], item[`${field}Ar`]]
+      : [item[`${field}_en`], item[`${field}En`]];
+    const localized = localizedValues.find(value =>
+      value !== null && value !== undefined && String(value).trim() !== ''
+    );
+    if (localized !== undefined) return localized;
+
+    const base = item[field];
+    if (base !== null && base !== undefined && String(base).trim() !== '') return base;
+
+    if (lang === 'ar') {
+      const english = [item[`${field}_en`], item[`${field}En`]].find(value =>
+        value !== null && value !== undefined && String(value).trim() !== ''
+      );
+      if (english !== undefined) return english;
+    }
+    return '';
   }
 
   function translateElement(el) {
     if (!(el instanceof Element)) return;
-    const lang = getLang();
-    const localizedText = el.getAttribute(`data-i18n-${lang}`);
     const textKey = el.getAttribute('data-i18n');
-    if (localizedText !== null && localizedText !== '') {
-      if (el.textContent !== localizedText) el.textContent = localizedText;
-    } else if (textKey) {
-      const translated = t(textKey);
+    if (textKey) {
+      const translated = t(textKey, el.textContent || '');
       if (el.textContent !== translated) el.textContent = translated;
     }
     const placeholderKey = el.getAttribute('data-i18n-placeholder');
     if (placeholderKey) el.setAttribute('placeholder', t(placeholderKey));
-    const localizedAria = el.getAttribute(`data-i18n-aria-${lang}`);
-    const ariaKey = el.getAttribute('data-i18n-aria');
-    if (localizedAria !== null && localizedAria !== '') {
-      el.setAttribute('aria-label', localizedAria);
-    } else if (ariaKey) {
-      el.setAttribute('aria-label', t(ariaKey));
-    }
-    const localizedAlt = el.getAttribute(`data-i18n-alt-${lang}`);
-    if (localizedAlt !== null && localizedAlt !== '') el.setAttribute('alt', localizedAlt);
+    const ariaLabelKey = el.getAttribute('data-i18n-aria-label');
+    if (ariaLabelKey) el.setAttribute('aria-label', t(ariaLabelKey));
+    const titleKey = el.getAttribute('data-i18n-title');
+    if (titleKey) el.setAttribute('title', t(titleKey));
+
     if (el.matches('.pill-btn--lang')) {
       const label = t('switch_lang_label');
       const span = el.querySelector('span');
@@ -820,60 +797,36 @@
     document.documentElement.lang = isAr ? 'ar' : 'en';
     document.documentElement.dir = isAr ? 'rtl' : 'ltr';
 
-    const base = document.querySelector('base');
-    if (!isLocalPreview() && isAr && window.location.pathname === '/ar' && !base) {
-      const pageBase = document.createElement('base');
-      pageBase.href = '/ar/';
-      document.head.insertBefore(pageBase, document.head.firstChild);
-    }
-
     if (root instanceof Element) translateElement(root);
-    root.querySelectorAll('[data-i18n], [data-i18n-en], [data-i18n-ar], [data-i18n-placeholder], [data-i18n-aria], [data-i18n-aria-en], [data-i18n-aria-ar], [data-i18n-alt-en], [data-i18n-alt-ar], .pill-btn--lang')
+    root.querySelectorAll('[data-i18n], [data-i18n-placeholder], [data-i18n-aria-label], [data-i18n-title], .pill-btn--lang')
       .forEach(translateElement);
 
     const title = document.querySelector('title[data-i18n]');
     if (title) document.title = title.textContent;
   }
 
-  const initialLang = getLang();
-  if (isLocalPreview()) localPreviewLang = initialLang;
-  storeLang(initialLang);
-  applyLang(initialLang);
+  storeLang(getLang());
+  applyLang(getLang());
 
   document.addEventListener('click', (event) => {
     const target = event.target instanceof Element ? event.target.closest('.pill-btn--lang, [data-lorin-language-toggle]') : null;
     if (!target) return;
     event.preventDefault();
-    toggleLang();
+    window.LorinI18n.setLang(window.LorinI18n.getLang() === 'ar' ? 'en' : 'ar');
   });
 
-  const observeTranslations = () => {
-    if (!document.body || !window.MutationObserver) return;
-    const observer = new MutationObserver((records) => {
-      records.forEach((record) => {
-        record.addedNodes.forEach((node) => {
-          if (node instanceof Element) applyLang(getLang(), node);
-        });
-      });
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-  };
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       applyLang(getLang());
-      observeTranslations();
     }, { once: true });
   } else {
     applyLang(getLang());
-    observeTranslations();
   }
 
   window.LorinI18n = {
     getLang,
     setLang,
-    toggleLang,
     t,
-    applyLang,
-    translations
+    pick
   };
 })();
