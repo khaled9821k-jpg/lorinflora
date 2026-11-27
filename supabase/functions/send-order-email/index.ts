@@ -99,6 +99,14 @@ const esc = (v: unknown): string =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
+function normalizeOrderNumber(value: string): string {
+  return value.replace(/\s+/g, "").replace(/^#+/, "").toUpperCase().slice(0, 100);
+}
+
+function isSupportedOrderNumber(value: string): boolean {
+  return /^[A-Z]{3}[0-9]{3}$/.test(value) || /^WEB-[A-Z0-9-]+$/.test(value);
+}
+
 /** Only allow http(s) URLs into href/src attributes. */
 const validUrl = (u?: string): string => {
   if (!u) return "";
@@ -517,14 +525,15 @@ function senderAndSummaryHtml(o: OrderEmailData, cur: string, dir: "ltr" | "rtl"
 /* ------------------------------ main render ------------------------------ */
 
 export function renderOrderEmail(o: OrderEmailData): { subject: string; html: string; text: string } {
+  const orderNumber = normalizeOrderNumber(o.orderNumber);
   const locale = o.locale ?? "en";
   const dir = isArabic(locale) ? "rtl" : "ltr";
   const text = labels(locale);
   const cur = o.currency ?? "JOD";
   const site = safeUrl(o.siteUrl);
   const subject = isArabic(locale)
-    ? `طلب جديد #${o.orderNumber} — لورين`
-    : `New order #${o.orderNumber} — Lorin`;
+    ? `طلب جديد #${orderNumber} — لورين`
+    : `New order #${orderNumber} — Lorin`;
   const photoUrl = validUrl(o.photoStickIn?.imageUrl) || validUrl(o.photoStickIn?.downloadUrl);
   const hasPhoto = !!(o.photoStickIn?.selected && photoUrl);
   const card = o.card;
@@ -558,7 +567,7 @@ export function renderOrderEmail(o: OrderEmailData): { subject: string; html: st
   </style>
 </head>
 <body dir="${dir}" style="margin:0;padding:0;background:${PAPER};-webkit-text-size-adjust:100%;">
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(text.newOrder)} #${esc(o.orderNumber)} · ${esc(money(o.summary.total, cur))}</div>
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(text.newOrder)} #${esc(orderNumber)} · ${esc(money(o.summary.total, cur))}</div>
   <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${PAPER}" style="background:${PAPER};">
     <tr><td class="outer" align="center" style="padding:28px 12px;">
       <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" style="width:600px;max-width:600px;background:#FFFFFF;border-radius:10px;overflow:hidden;">
@@ -572,7 +581,7 @@ export function renderOrderEmail(o: OrderEmailData): { subject: string; html: st
         </td></tr>
         <tr><td class="px" align="center" style="padding:30px 40px 6px 40px;">
           <div dir="${dir}" style="font-family:${SANS};font-size:11px;letter-spacing:2.2px;text-transform:uppercase;color:${MUTED};">${esc(text.newOrder)}</div>
-          <div style="font-family:${SERIF};font-size:26px;color:${BRAND};padding-top:8px;">${esc(text.order)} #${esc(o.orderNumber)}</div>
+          <div style="font-family:${SERIF};font-size:26px;color:${BRAND};padding-top:8px;">${esc(text.order)} #${esc(orderNumber)}</div>
           <div dir="${dir}" style="font-family:${SANS};font-size:13px;color:${MUTED};padding-top:6px;">${esc(formatDate(o.createdAt, locale))}</div>
         </td></tr>
 
@@ -596,7 +605,7 @@ export function renderOrderEmail(o: OrderEmailData): { subject: string; html: st
 
   const r = o.recipient;
   const plainText = [
-    `LORIN — Order #${o.orderNumber}`,
+    `LORIN — Order #${orderNumber}`,
     formatDate(o.createdAt, locale),
     "",
     text.items,
@@ -740,9 +749,14 @@ export async function sendOrderEmailHandler(request: Request): Promise<Response>
     return jsonResponse({ error: "Order email payload is incomplete." }, 400, origin);
   }
 
+  const orderNumber = normalizeOrderNumber(order.orderNumber);
+  if (!isSupportedOrderNumber(orderNumber)) {
+    return jsonResponse({ error: "Order number must be a 6-character code or a legacy WEB-... code." }, 400, origin);
+  }
+  const normalizedOrder = { ...order, orderNumber };
   const email = renderOrderEmail({
-    ...order,
-    supportEmail: order.supportEmail || Deno.env.get("SUPPORT_EMAIL") || undefined,
+    ...normalizedOrder,
+    supportEmail: normalizedOrder.supportEmail || Deno.env.get("SUPPORT_EMAIL") || undefined,
   });
   const resendResponse = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -756,7 +770,7 @@ export async function sendOrderEmailHandler(request: Request): Promise<Response>
       subject: email.subject,
       html: email.html,
       text: email.text,
-      reply_to: order.sender.email || Deno.env.get("SUPPORT_EMAIL") || undefined,
+      reply_to: normalizedOrder.sender.email || Deno.env.get("SUPPORT_EMAIL") || undefined,
     }),
   });
 

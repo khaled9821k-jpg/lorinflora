@@ -1,4 +1,9 @@
-import { renderOrderEmail, type OrderEmailData } from "../supabase/functions/_shared/order-email";
+import {
+  isSupportedOrderNumber,
+  normalizeOrderNumber,
+  renderOrderEmail,
+  type OrderEmailData,
+} from "../supabase/functions/_shared/order-email";
 
 interface ApiRequest {
   method?: string;
@@ -233,11 +238,17 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     return;
   }
 
-  const order = parseOrderPayload(req.body);
-  if (!order) {
+  const parsedOrder = parseOrderPayload(req.body);
+  if (!parsedOrder) {
     respond(res, 400, { error: "Order email payload is incomplete or invalid." });
     return;
   }
+  const orderNumber = normalizeOrderNumber(parsedOrder.orderNumber);
+  if (!isSupportedOrderNumber(orderNumber)) {
+    respond(res, 400, { error: "Order number must be a 6-character code or a legacy WEB-... code." });
+    return;
+  }
+  const order: OrderEmailData = { ...parsedOrder, orderNumber };
 
   const recipients = (process.env.ORDER_NOTIFICATION_EMAIL || "")
     .split(",")

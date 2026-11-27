@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#FBF8F1">
+  <title>Track your order | Lorin</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: #233236;
+      background: #FBF8F1;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --ink: #00313C;
+      --muted: #6C7879;
+      --line: #E8E1D5;
+      --paper: #FBF8F1;
+      --white: #FFFFFF;
+      --success: #456D5F;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 50% 0, rgba(255,255,255,.92), transparent 55%),
+        var(--paper);
+    }
+
+    button, input { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    .topbar {
+      min-height: 76px;
+      padding: 14px max(22px, calc((100vw - 1060px) / 2));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid rgba(0,49,60,.08);
+    }
+
+    .brand {
+      color: var(--ink);
+      font: 600 20px/1 Georgia, "Times New Roman", serif;
+      letter-spacing: .22em;
+      text-decoration: none;
+    }
+
+    .top-actions { display: flex; align-items: center; gap: 18px; }
+
+    .back-link {
+      color: #586668;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .back-link:hover { color: var(--ink); }
+
+    .language-button {
+      min-width: 46px;
+      min-height: 36px;
+      padding: 6px 10px;
+      color: var(--ink);
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    main {
+      width: min(100% - 32px, 900px);
+      margin: 50px auto 64px;
+    }
+
+    .page-heading { margin: 0 0 8px; color: var(--ink); font: 500 31px/1.3 Georgia, "Times New Roman", serif; }
+    .page-intro { margin: 0 0 30px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+
+    .lookup-card, .panel {
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      box-shadow: 0 12px 38px rgba(0,49,60,.045);
+    }
+
+    .lookup-card { max-width: 580px; margin: 0 auto; padding: 30px; }
+    .lookup-card h1 { margin: 0 0 7px; color: var(--ink); font: 500 26px/1.35 Georgia, "Times New Roman", serif; }
+    .lookup-card > p { margin: 0 0 23px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .field { margin-top: 15px; }
+    .field label { display: block; margin-bottom: 7px; color: #415153; font-size: 12px; font-weight: 700; }
+    .field input {
+      width: 100%;
+      min-height: 47px;
+      padding: 10px 13px;
+      color: #263638;
+      background: #FFFEFC;
+      border: 1px solid #DCD6CB;
+      border-radius: 7px;
+      outline: none;
+    }
+
+    .field input:focus { border-color: #52777D; box-shadow: 0 0 0 3px rgba(0,49,60,.08); }
+    .ltr-input { direction: ltr; text-align: start; }
+
+    .primary-button, .secondary-button, .support-button {
+      min-height: 47px;
+      padding: 11px 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, transform .15s ease;
+    }
+
+    .primary-button { width: 100%; margin-top: 21px; color: white; background: var(--ink); border: 1px solid var(--ink); }
+    .primary-button:hover { background: #064653; }
+    .primary-button:disabled { opacity: .65; cursor: wait; }
+    .secondary-button { color: var(--ink); background: white; border: 1px solid var(--line); }
+    .secondary-button:hover { border-color: var(--ink); }
+    .support-button { color: var(--ink); background: white; border: 1px solid #D8E2DF; }
+    .support-button:hover { border-color: var(--ink); }
+    button:active, .support-button:active { transform: translateY(1px); }
+
+    .message {
+      min-height: 20px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .message[data-kind="error"] { color: #A13D32; }
+    .message[data-kind="success"] { color: var(--success); }
+
+    [hidden] { display: none !important; }
+
+    .order-header {
+      margin-bottom: 22px;
+      padding: 23px 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      background: var(--ink);
+      border-radius: 13px;
+      color: white;
+    }
+
+    .order-overline { display: block; margin-bottom: 6px; color: #BFD1D0; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .order-id { color: white; font-size: 20px; font-weight: 700; letter-spacing: .04em; direction: ltr; unicode-bidi: isolate; }
+    .order-header-actions { display: flex; align-items: center; gap: 9px; }
+    .order-header .secondary-button { min-height: 39px; padding: 8px 12px; font-size: 12px; }
+    .order-header .secondary-button svg { width: 15px; height: 15px; }
+
+    .panel { margin-top: 18px; padding: 24px; }
+    .panel-heading { margin: 0 0 18px; color: var(--ink); font-size: 16px; font-weight: 700; }
+
+    .tracker {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      position: relative;
+      gap: 12px;
+    }
+
+    .tracker::before {
+      content: "";
+      height: 2px;
+      position: absolute;
+      inset-inline: 8%;
+      top: 16px;
+      background: #E6E4DC;
+    }
+
+    .step { position: relative; z-index: 1; text-align: center; }
+    .step-dot {
+      width: 34px;
+      height: 34px;
+      margin: 0 auto 10px;
+      display: grid;
+      place-items: center;
+      color: #87918F;
+      background: #F7F6F1;
+      border: 2px solid #E1DFD7;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .step.is-complete .step-dot, .step.is-current .step-dot { color: white; background: var(--ink); border-color: var(--ink); }
+    .step-title { min-height: 36px; display: block; color: #697576; font-size: 12px; font-weight: 700; line-height: 1.45; }
+    .step.is-complete .step-title, .step.is-current .step-title { color: var(--ink); }
+    .step-time { display: block; margin-top: 5px; color: #8A9291; font-size: 10px; line-height: 1.45; }
+
+    .content-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; align-items: start; }
+    .panel h2 { margin: 0 0 15px; color: var(--ink); font-size: 15px; }
+    .item-list { margin: 0; padding: 0; list-style: none; }
+    .item-row { padding: 12px 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; border-bottom: 1px solid #F0EDE7; }
+    .item-row:last-child { border-bottom: 0; }
+    .item-name { color: #344346; font-size: 13px; line-height: 1.55; }
+    .item-quantity { display: block; margin-top: 3px; color: #858E8D; font-size: 11px; }
+    .item-price { flex: 0 0 auto; color: #344346; font-size: 12px; font-weight: 700; direction: ltr; }
+
+    .detail-list { margin: 0; display: grid; gap: 14px; }
+    .detail-row { display: grid; grid-template-columns: minmax(95px, .7fr) 1.3fr; gap: 10px; font-size: 12px; line-height: 1.6; }
+    .detail-row dt { color: #89918F; }
+    .detail-row dd { margin: 0; color: #344346; overflow-wrap: anywhere; }
+    .total-row { margin-top: 16px; padding-top: 15px; display: flex; justify-content: space-between; gap: 14px; border-top: 1px solid var(--line); color: var(--ink); font-size: 14px; font-weight: 700; }
+    .ltr-value { direction: ltr; unicode-bidi: isolate; }
+
+    .gift-card {
+      position: relative;
+      min-height: 220px;
+      padding: 25px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      color: #343A36;
+      background: #FBF8F1;
+      border: 1px solid #E4DCCF;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .gift-recipient { min-height: 26px; font: 500 16px/1.4 Georgia, "Times New Roman", serif; }
+    .gift-message { margin: auto; padding: 16px 0; font: 500 20px/1.5 Georgia, "Times New Roman", serif; overflow-wrap: anywhere; white-space: pre-wrap; }
+    .gift-signature { min-height: 24px; color: #58605B; font: italic 15px/1.4 Georgia, "Times New Roman", serif; overflow-wrap: anywhere; }
+    .gift-recipient:empty, .gift-message:empty, .gift-signature:empty { display: none; }
+    .gift-signature-image { max-width: 150px; max-height: 46px; margin: 3px auto 0; object-fit: contain; }
+
+    .ready-photo {
+      width: 100%;
+      max-height: 470px;
+      display: block;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: zoom-in;
+    }
+
+    .photo-title { margin: 0 0 14px; color: var(--ink); font: 500 21px/1.3 Georgia, "Times New Roman", serif; }
+    .support-row { margin-top: 24px; display: flex; justify-content: center; }
+    .support-button svg { width: 17px; height: 17px; }
+
+    .lightbox {
+      position: fixed;
+      z-index: 10;
+      inset: 0;
+      padding: 26px;
+      display: grid;
+      place-items: center;
+      background: rgba(9,22,24,.88);
+      cursor: zoom-out;
+    }
+    .lightbox img { max-width: min(100%, 1100px); max-height: 90vh; object-fit: contain; }
+    .lightbox-close { position: absolute; top: 18px; inset-inline-end: 20px; width: 42px; height: 42px; color: white; background: transparent; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; font-size: 25px; cursor: pointer; }
+
+    html[dir="ltr"] .topbar { direction: ltr; }
+    html[dir="ltr"] .order-header { direction: ltr; }
+    html[dir="ltr"] .tracker::before { direction: ltr; }
+
+    @media (max-width: 700px) {
+      main { margin-top: 32px; }
+      .content-grid { grid-template-columns: 1fr; }
+      .panel { padding: 20px; }
+      .tracker { gap: 5px; }
+      .step-title { font-size: 10px; }
+      .step-time { font-size: 9px; }
+    }
+
+    @media (max-width: 480px) {
+      .topbar { min-height: 66px; padding-inline: 16px; }
+      .top-actions { gap: 11px; }
+      .back-link { font-size: 11px; }
+      main { width: min(100% - 24px, 900px); margin-top: 25px; }
+      .lookup-card { padding: 23px 19px; }
+      .order-header { padding: 18px; align-items: flex-start; flex-direction: column; }
+      .order-header-actions { width: 100%; justify-content: flex-end; }
+      .step-dot { width: 30px; height: 30px; }
+      .tracker::before { top: 14px; }
+      .step-title { min-height: 45px; font-size: 9px; }
+      .step-time { font-size: 8px; }
+      .detail-row { grid-template-columns: 90px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="Lorin">LORIN</a>
+    <nav class="top-actions" aria-label="Page actions">
+      <a class="back-link" id="back-to-store" href="index.html">Back to Store</a>
+      <button class="language-button" id="language-toggle" type="button" aria-label="Switch language">EN</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="lookup-card" id="lookup-panel" hidden aria-labelledby="lookup-heading">
+      <h1 id="lookup-heading">Track your order</h1>
+      <p id="lookup-description">Enter your order number to view its status.</p>
+      <form id="lookup-form">
+        <div class="field">
+          <label for="lookup-order" id="order-field-label">Order Number</label>
+          <input class="ltr-input" id="lookup-order" name="order" type="text" autocomplete="off" required maxlength="100" placeholder="AAA001 or WEB-..." dir="ltr">
+        </div>
+        <button class="primary-button" id="lookup-submit" type="submit">Find my order</button>
+      </form>
+      <p class="message" id="lookup-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="order-view" hidden aria-live="polite">
+      <div class="order-header">
+        <div>
+          <span class="order-overline" id="order-overline">Order number</span>
+          <strong class="order-id" id="order-id">#—</strong>
+        </div>
+        <div class="order-header-actions">
+          <button class="secondary-button" id="refresh-order" type="button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 7v5h-5M4.6 9a7.5 7.5 0 0 1 12.7-2L20 12M4 17v-5h5m10.4 3a7.5 7.5 0 0 1-12.7 2L4 12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="refresh-label">Refresh status</span>
+          </button>
+          <a class="secondary-button" id="change-order" href="track-order.html">Look up another</a>
+        </div>
+      </div>
+      <p class="message" id="order-message" role="status" aria-live="polite"></p>
+
+      <section class="panel">
+        <h2 class="panel-heading" id="progress-heading">Your order progress</h2>
+        <div class="tracker" id="status-tracker"></div>
+      </section>
+
+      <div class="content-grid">
+        <section class="panel" aria-labelledby="items-heading">
+          <h2 id="items-heading">Order summary</h2>
+          <ul class="item-list" id="item-list"></ul>
+          <dl class="detail-list" id="order-details"></dl>
+          <div class="total-row"><span id="total-label">Total</span><strong class="ltr-value" id="order-total">—</strong></div>
+        </section>
+
+        <section class="panel" id="gift-panel" hidden aria-labelledby="gift-heading">
+          <h2 id="gift-heading">Your gift card</h2>
+          <div class="gift-card">
+            <div class="gift-recipient" id="gift-recipient"></div>
+            <div class="gift-message" id="gift-message"></div>
+            <div class="gift-signature" id="gift-signature"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel" id="photo-panel" hidden>
+        <h2 class="photo-title" id="photo-title">Your Arrangement Is Ready</h2>
+        <img class="ready-photo" id="ready-photo" alt="Your completed arrangement" loading="lazy">
+      </section>
+
+      <div class="support-row">
+        <a class="support-button" id="support-link" href="https://wa.me/" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.2 11.7a8.3 8.3 0 0 1-12.3 7.2L3 20l1.2-4.7a8.3 8.3 0 1 1 16-3.6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8.5 8.3c.2-.4.4-.4.7-.4h.4c.2 0 .3.1.4.4l.6 1.4c.1.2.1.4 0 .5l-.5.6c-.1.1-.2.3 0 .5.3.6.9 1.2 1.5 1.5.2.1.4.1.5-.1l.6-.7c.2-.2.3-.2.5-.1l1.4.7c.2.1.3.2.3.4 0 .3-.2 1.1-.8 1.4-.5.4-1.1.5-1.8.3-.7-.2-1.6-.6-2.6-1.6-1.2-1.1-1.8-2.4-2-3.1-.2-.7 0-1.3.3-1.7Z" fill="currentColor"/></svg>
+          <span id="support-label">WhatsApp support</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <div class="lightbox" id="photo-lightbox" hidden role="dialog" aria-modal="true" aria-label="Arrangement photo preview">
+    <button class="lightbox-close" id="close-lightbox" type="button" aria-label="Close preview">&times;</button>
+    <img id="lightbox-image" alt="Your completed arrangement">
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://dptincirgzfwrlrpxajl.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_DbYCExpNFypVQARATbdeVw_hipYS1Oa';
+      const ORDER_SNAPSHOT_KEY = 'lorin_order_confirmation';
+      const POLL_INTERVAL_MS = 60000;
+      const STATUS_STEPS = ['confirmed', 'preparing', 'out_for_delivery', 'delivered'];
+      const translations = {
+        ar: {
+          title: 'تتبع طلبك | Lorin',
+          back: 'العودة إلى المتجر',
+          lookupHeading: 'تتبع طلبك',
+          lookupDescription: 'أدخل رقم الطلب لعرض حالته.',
+          orderNumber: 'رقم الطلب',
+          findOrder: 'بحث عن الطلب',
+          finding: 'جارٍ البحث...',
+          refresh: 'تحديث الحالة',
+          refreshing: 'جارٍ التحديث...',
+          another: 'البحث عن طلب آخر',
+          progress: 'مراحل طلبك',
+          itemSummary: 'ملخص الطلب',
+          delivery: 'التوصيل',
+          area: 'المنطقة',
+          address: 'العنوان',
+          dateTime: 'موعد التوصيل',
+          total: 'الإجمالي',
+          quantity: 'الكمية',
+          giftCard: 'بطاقة الإهداء',
+          photoTitle: 'باقتك جاهزة الآن',
+          support: 'الدعم عبر واتساب',
+          notFound: 'لم نعثر على هذا الطلب. تحقق من رقم الطلب وحاول مرة أخرى.',
+          loadError: 'تعذر تحميل حالة الطلب الآن. يرجى المحاولة مرة أخرى.',
+          configError: 'خدمة التتبع غير مهيأة بعد. يرجى التواصل مع المتجر.',
+          missingOrder: 'رقم الطلب غير متوفر.',
+          fallbackNotice: 'نعرض نسخة محفوظة من الطلب إلى أن تتوفر بيانات التتبع المباشرة.',
+          lastUpdated: 'آخر تحديث',
+          steps: ['تم تأكيد الطلب', 'جاري تنسيق الباقة', 'خرج للتوصيل', 'تم التوصيل'],
+          stepDescriptions: ['تم استلام طلبك', 'يتم تجهيز باقتك بعناية', 'الباقة في طريقها إليك', 'تم تسليم الطلب'],
+          email: 'سيصلك تحديث عند انتقال طلبك إلى المرحلة التالية.',
+          placeholderItem: 'منتج',
+          dateUnknown: 'سيتم تأكيده قريباً',
+          noItems: 'تفاصيل المنتجات غير متاحة.',
+          noAddress: 'سيتم تنسيق العنوان مع المستلم',
+        },
+        en: {
+          title: 'Track your order | Lorin',
+          back: 'Back to Store',
+          lookupHeading: 'Track your order',
+          lookupDescription: 'Enter your order number to view its status.',
+          orderNumber: 'Order Number',
+          findOrder: 'Find my order',
+          finding: 'Looking up order...',
+          refresh: 'Refresh status',
+          refreshing: 'Refreshing...',
+          another: 'Look up another',
+          progress: 'Your order progress',
+          itemSummary: 'Order summary',
+          delivery: 'Delivery',
+          area: 'Area',
+          address: 'Address',
+          dateTime: 'Delivery date & time',
+          total: 'Total',
+          quantity: 'Qty',
+          giftCard: 'Your gift card',
+          photoTitle: 'Your Arrangement Is Ready',
+          support: 'WhatsApp support',
+          notFound: 'We could not find that order. Check the order number and try again.',
+          loadError: 'We could not load the order status. Please try again.',
+          configError: 'Order tracking is not configured yet. Please contact the store.',
+          missingOrder: 'The order number is missing.',
+          fallbackNotice: 'Showing a saved order summary while live tracking is unavailable.',
+          lastUpdated: 'Last updated',
+          steps: ['Order Confirmed', 'Crafting Your Arrangement', 'Out for Delivery', 'Delivered'],
+          stepDescriptions: ['Your order has been received', 'Your arrangement is being prepared', 'Your order is on its way', 'Your order has been delivered'],
+          email: 'We’ll update your order here as it moves to the next stage.',
+          placeholderItem: 'Product',
+          dateUnknown: 'To be confirmed',
+          noItems: 'Product details are not available.',
+          noAddress: 'The delivery address will be coordinated with the recipient',
+        }
+      };
+
+      let language = (() => {
+        try { return localStorage.getItem('lorin_lang') === 'en' ? 'en' : 'ar'; }
+        catch (_) { return 'ar'; }
+      })();
+      let activeOrderNumber = '';
+      let pollTimer = null;
+      let supabaseClient = null;
+
+      const $ = (id) => document.getElementById(id);
+      const t = (key) => translations[language][key];
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[character]);
+      }
+
+      function safeHttpsUrl(value) {
+        if (typeof value !== 'string') return '';
+        try {
+          const parsed = new URL(value);
+          return parsed.protocol === 'https:' ? parsed.href : '';
+        } catch (_) {
+          return '';
+        }
+      }
+
+      function normalizeOrderNumber(value) {
+        return String(value || '').replace(/\s+/g, '').replace(/^#+/, '').toUpperCase().slice(0, 100);
+      }
+
+      function formatMoney(value) {
+        const amount = Number(value);
+        if (!Number.isFinite(amount)) return '—';
+        return `${amount.toFixed(2)} JOD`;
+      }
+
+      function formatDate(value) {
+        if (!value) return '';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return String(value);
+        try {
+          return new Intl.DateTimeFormat(language === 'ar' ? 'ar-JO' : 'en-GB', {
+            dateStyle: 'medium',
+            timeStyle: 'short'
+          }).format(date);
+        } catch (_) {
+          return date.toLocaleString();
+        }
+      }
+
+      function getSnapshot(orderNumber) {
+        for (const getStorage of [() => sessionStorage, () => localStorage]) {
+          try {
+            const snapshot = JSON.parse(getStorage().getItem(ORDER_SNAPSHOT_KEY) || 'null');
+            if (snapshot && normalizeOrderNumber(snapshot.orderNumber) === orderNumber) return snapshot;
+          } catch (_) {
+            continue;
+          }
+        }
+        return null;
+      }
+
+      function setMessage(element, text, kind) {
+        element.textContent = text || '';
+        element.dataset.kind = kind || '';
+      }
+
+      function setLanguage(nextLanguage) {
+        language = nextLanguage === 'en' ? 'en' : 'ar';
+        document.documentElement.lang = language;
+        document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+        document.title = t('title');
+        $('back-to-store').textContent = t('back');
+        $('language-toggle').textContent = language === 'ar' ? 'EN' : 'عربي';
+        $('language-toggle').setAttribute('aria-label', language === 'ar' ? 'Switch language to English' : 'التبديل إلى العربية');
+        $('lookup-heading').textContent = t('lookupHeading');
+        $('lookup-description').textContent = t('lookupDescription');
+        $('order-field-label').textContent = t('orderNumber');
+        $('lookup-submit').textContent = t('findOrder');
+        $('order-overline').textContent = t('orderNumber');
+        $('refresh-label').textContent = t('refresh');
+        $('change-order').textContent = t('another');
+        $('progress-heading').textContent = t('progress');
+        $('items-heading').textContent = t('itemSummary');
+        $('total-label').textContent = t('total');
+        $('gift-heading').textContent = t('giftCard');
+        $('photo-title').textContent = t('photoTitle');
+        $('support-label').textContent = t('support');
+        if (activeOrderNumber) {
+          const current = window.__lorinTrackedOrder;
+          if (current) renderOrder(current);
+        }
+      }
+
+      function getStatus(order) {
+        const value = String(order.status || 'confirmed').toLowerCase();
+        return STATUS_STEPS.includes(value) ? value : 'confirmed';
+      }
+
+      function getStatusTimestamp(order, status) {
+        const property = {
+          confirmed: order.confirmed_at || order.created_at,
+          preparing: order.preparing_at,
+          out_for_delivery: order.out_for_delivery_at,
+          delivered: order.delivered_at
+        }[status];
+        return formatDate(property);
+      }
+
+      function renderTracker(order) {
+        const currentStatus = getStatus(order);
+        const currentIndex = STATUS_STEPS.indexOf(currentStatus);
+        $('status-tracker').innerHTML = STATUS_STEPS.map((status, index) => {
+          const state = index < currentIndex ? 'is-complete' : index === currentIndex ? 'is-current' : '';
+          const timestamp = getStatusTimestamp(order, status);
+          return `<div class="step ${state}">
+            <span class="step-dot" aria-hidden="true">${index < currentIndex ? '&#10003;' : index + 1}</span>
+            <span class="step-title">${escapeHtml(t('steps')[index])}</span>
+            <span class="step-time">${escapeHtml(timestamp || t('stepDescriptions')[index])}</span>
+          </div>`;
+        }).join('');
+      }
+
+      function parseOrderData(order) {
+        let data = order.order_data;
+        if (typeof data === 'string') {
+          try { data = JSON.parse(data); } catch (_) { data = null; }
+        }
+        return data && typeof data === 'object' ? data : {};
+      }
+
+      function getItemFields(item) {
+        const quantity = Math.max(1, Math.floor(Number(item && item.quantity) || 1));
+        const total = item && item.lineTotal != null
+          ? Number(item.lineTotal)
+          : item && item.total_price != null
+            ? Number(item.total_price)
+            : Number(item && item.price || 0) * quantity;
+        return {
+          name: String((item && (item.name || item.product_name || item.title)) || t('placeholderItem')),
+          quantity,
+          total: Number.isFinite(total) ? total : 0
+        };
+      }
+
+      function getDisplayAddress(order, recipient) {
+        const address = String(recipient.address || '').trim();
+        const area = String(recipient.area || '').trim();
+        if (address && area) return `${area} - ${address}`;
+        if (address || area) return address || area;
+        const shipping = String(order.shipping_address || '').replace(/\s*\[(Delivery|التوصيل):.*$/i, '').trim();
+        return shipping || t('noAddress');
+      }
+
+      function renderItems(order) {
+        const items = Array.isArray(order.items) ? order.items : [];
+        if (!items.length) {
+          $('item-list').innerHTML = `<li class="item-row"><span class="item-name">${escapeHtml(t('noItems'))}</span></li>`;
+          return;
+        }
+        $('item-list').innerHTML = items.map((item) => {
+          const value = getItemFields(item || {});
+          return `<li class="item-row">
+            <span class="item-name">${escapeHtml(value.name)}<span class="item-quantity">${escapeHtml(t('quantity'))}: ${value.quantity}</span></span>
+            <span class="item-price">${escapeHtml(formatMoney(value.total))}</span>
+          </li>`;
+        }).join('');
+      }
+
+      function renderDetails(order, recipient) {
+        const deliveryParts = [recipient.deliveryDate, recipient.deliveryTime].filter(Boolean);
+        const deliveryValue = deliveryParts.length
+          ? deliveryParts.join(' · ')
+          : recipient.scheduleLabel || t('dateUnknown');
+        const rows = [
+          [t('area'), recipient.area || ''],
+          [t('address'), getDisplayAddress(order, recipient)],
+          [t('dateTime'), deliveryValue]
+        ].filter((row) => row[1]);
+        $('order-details').innerHTML = rows.map(([label, value]) => `<div class="detail-row"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('');
+        $('order-total').textContent = formatMoney(order.total_price != null ? order.total_price : order.total);
+      }
+
+      function renderGiftCard(order, card) {
+        const legacyMessage = String(order.gift_card_message || '').trim();
+        const hasGiftCard = !!(card && card.selected) || !!legacyMessage;
+        $('gift-panel').hidden = !hasGiftCard;
+        if (!hasGiftCard) return;
+
+        $('gift-recipient').textContent = String((card && card.recipientName) || '');
+        $('gift-message').textContent = String((card && card.message) || legacyMessage);
+        const signature = card && card.signature && typeof card.signature === 'object' ? card.signature : null;
+        const signatureValue = signature && typeof signature.value === 'string' ? signature.value.trim() : '';
+        const signatureUrl = signature && signature.type === 'handwritten' ? safeHttpsUrl(signatureValue) : '';
+        const signatureText = signature && signature.type === 'text' ? signatureValue : '';
+        const senderName = String((card && card.senderName) || '');
+        $('gift-signature').replaceChildren();
+        if (signatureUrl) {
+          const image = document.createElement('img');
+          image.className = 'gift-signature-image';
+          image.src = signatureUrl;
+          image.alt = '';
+          $('gift-signature').appendChild(image);
+        } else {
+          $('gift-signature').textContent = senderName || signatureText;
+        }
+      }
+
+      function renderPhoto(order) {
+        const photoUrl = safeHttpsUrl(order.prepared_photo_url || order.ready_photo_url || '');
+        $('photo-panel').hidden = !photoUrl;
+        if (!photoUrl) return;
+        $('ready-photo').src = photoUrl;
+        $('lightbox-image').src = photoUrl;
+      }
+
+      function renderOrder(order) {
+        const recipient = parseOrderData(order).recipient || {};
+        const card = parseOrderData(order).card || null;
+        const orderNumber = normalizeOrderNumber(order.order_number || order.orderNumber || activeOrderNumber);
+        activeOrderNumber = orderNumber;
+        window.__lorinTrackedOrder = order;
+        $('order-id').textContent = `#${orderNumber}`;
+        renderTracker(order);
+        renderItems(order);
+        renderDetails(order, recipient);
+        renderGiftCard(order, card);
+        renderPhoto(order);
+        const supportMessage = language === 'ar'
+          ? `مرحباً، أحتاج مساعدة بخصوص الطلب رقم #${orderNumber}`
+          : `Hello, I need help with order #${orderNumber}`;
+        $('support-link').href = `https://wa.me/?text=${encodeURIComponent(supportMessage)}`;
+      }
+
+      function readSnapshotOrder(snapshot) {
+        if (!snapshot) return null;
+        return {
+          order_number: snapshot.orderNumber,
+          status: snapshot.status || 'confirmed',
+          created_at: snapshot.created_at || snapshot.createdAt,
+          items: snapshot.items || [],
+          shipping_address: snapshot.shipping_address || '',
+          total_price: snapshot.total_price != null ? snapshot.total_price : snapshot.total,
+          gift_card_message: snapshot.gift_card_message || '',
+          order_data: snapshot.order_data || {},
+          prepared_photo_url: snapshot.prepared_photo_url || ''
+        };
+      }
+
+      async function loadLiveOrder(orderNumber) {
+        if (!supabaseClient) throw new Error('tracking_not_configured');
+        const { data, error } = await supabaseClient.rpc('track_order_public', {
+          p_order_number: orderNumber
+        });
+        if (error) throw error;
+        return data && typeof data === 'object' ? data : null;
+      }
+
+      async function fetchOrder(orderNumber, isAutomatic) {
+        const orderMessage = $('order-message');
+        setMessage(orderMessage, isAutomatic ? '' : t('finding'), '');
+        try {
+          const liveOrder = await loadLiveOrder(orderNumber);
+          if (!liveOrder) {
+            const fallback = readSnapshotOrder(getSnapshot(orderNumber));
+            if (fallback) {
+              $('lookup-panel').hidden = true;
+              $('order-view').hidden = false;
+              renderOrder(fallback);
+              setMessage(orderMessage, t('fallbackNotice'), '');
+              return true;
+            }
+            if (!isAutomatic) {
+              setMessage($('lookup-message'), t('notFound'), 'error');
+              return false;
+            }
+            $('lookup-panel').hidden = true;
+            $('order-view').hidden = false;
+            $('order-id').textContent = `#${orderNumber}`;
+            setMessage(orderMessage, t('loadError'), 'error');
+            return false;
+          }
+          $('lookup-panel').hidden = true;
+          $('order-view').hidden = false;
+          setMessage(orderMessage, '', '');
+          renderOrder(liveOrder);
+          return true;
+        } catch (error) {
+          console.error('Order tracking lookup failed:', error);
+          const fallback = readSnapshotOrder(getSnapshot(orderNumber));
+          if (fallback) {
+            $('lookup-panel').hidden = true;
+            $('order-view').hidden = false;
+            renderOrder(fallback);
+            setMessage(orderMessage, t('fallbackNotice'), '');
+            return true;
+          }
+          if (error && (
+            error.message === 'tracking_not_configured' ||
+            error.code === 'PGRST202' ||
+            String(error.message || '').includes('track_order_public')
+          )) {
+            setMessage(isAutomatic ? orderMessage : $('lookup-message'), t('configError'), 'error');
+          } else {
+            setMessage(isAutomatic ? orderMessage : $('lookup-message'), isAutomatic ? t('loadError') : t('notFound'), 'error');
+          }
+          return false;
+        }
+      }
+
+      function startPolling() {
+        if (pollTimer) window.clearInterval(pollTimer);
+        pollTimer = window.setInterval(() => {
+          if (activeOrderNumber && !document.hidden) fetchOrder(activeOrderNumber, true);
+        }, POLL_INTERVAL_MS);
+      }
+
+      $('lookup-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const orderNumber = normalizeOrderNumber($('lookup-order').value);
+        if (!orderNumber) {
+          setMessage($('lookup-message'), t('notFound'), 'error');
+          return;
+        }
+        const button = $('lookup-submit');
+        button.disabled = true;
+        button.textContent = t('finding');
+        setMessage($('lookup-message'), '', '');
+        const found = await fetchOrder(orderNumber, false);
+        button.disabled = false;
+        button.textContent = t('findOrder');
+        if (found) startPolling();
+      });
+
+      $('refresh-order').addEventListener('click', async () => {
+        if (!activeOrderNumber) return;
+        const button = $('refresh-order');
+        button.disabled = true;
+        $('refresh-label').textContent = t('refreshing');
+        await fetchOrder(activeOrderNumber, true);
+        button.disabled = false;
+        $('refresh-label').textContent = t('refresh');
+      });
+
+      $('language-toggle').addEventListener('click', () => {
+        const nextLanguage = language === 'ar' ? 'en' : 'ar';
+        try { localStorage.setItem('lorin_lang', nextLanguage); } catch (_) {}
+        setLanguage(nextLanguage);
+      });
+
+      $('ready-photo').addEventListener('click', () => {
+        if (!$('photo-panel').hidden) $('photo-lightbox').hidden = false;
+      });
+      $('close-lightbox').addEventListener('click', () => { $('photo-lightbox').hidden = true; });
+      $('photo-lightbox').addEventListener('click', (event) => {
+        if (event.target === $('photo-lightbox')) $('photo-lightbox').hidden = true;
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') $('photo-lightbox').hidden = true;
+      });
+
+      setLanguage(language);
+      const queryOrder = normalizeOrderNumber(new URLSearchParams(window.location.search).get('order'));
+      if (queryOrder) {
+        activeOrderNumber = queryOrder;
+        $('lookup-panel').hidden = true;
+        $('order-view').hidden = false;
+        $('order-id').textContent = `#${queryOrder}`;
+        const snapshotOrder = readSnapshotOrder(getSnapshot(queryOrder));
+        if (snapshotOrder) renderOrder(snapshotOrder);
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+        fetchOrder(queryOrder, true).finally(startPolling);
+      } else {
+        $('lookup-panel').hidden = false;
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

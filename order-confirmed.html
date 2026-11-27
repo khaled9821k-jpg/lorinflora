@@ -241,8 +241,13 @@
 
       const queryOrder = new URLSearchParams(window.location.search).get('order') || '';
       const rawOrderNumber = queryOrder || snapshot.orderNumber || '';
-      const orderNumber = String(rawOrderNumber).replace(/^#+/, '').slice(0, 100);
-      const snapshotOrderNumber = String(snapshot.orderNumber || '').replace(/^#+/, '');
+      const normalizeOrderNumber = (value) => String(value || '')
+        .replace(/\s+/g, '')
+        .replace(/^#+/, '')
+        .toUpperCase()
+        .slice(0, 100);
+      const orderNumber = normalizeOrderNumber(rawOrderNumber);
+      const snapshotOrderNumber = normalizeOrderNumber(snapshot.orderNumber);
       const lang = (() => {
         try {
           return localStorage.getItem('lorin_lang') === 'en' ? 'en' : 'ar';

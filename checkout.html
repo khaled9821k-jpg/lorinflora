@@ -2260,7 +2260,7 @@
       : '';
 
     return {
-      orderNumber: String((orderRecord && orderRecord.id) || `WEB-${Date.now()}`),
+      orderNumber: String((orderRecord && orderRecord.id) || ''),
       createdAt: (orderRecord && orderRecord.created_at) || new Date().toISOString(),
       locale: currencyLocale,
       currency: 'JOD',
@@ -2333,7 +2333,22 @@
     };
   }
 
-  // Final Order Submission to Supabase & WhatsApp (Preserved)
+  function normalizeOrderNumber(value) {
+    return String(value || '').replace(/\s+/g, '').replace(/^#+/, '').toUpperCase().slice(0, 100);
+  }
+
+  function createFallbackOrderNumber() {
+    const random = new Uint32Array(2);
+    crypto.getRandomValues(random);
+    const letters = random[0] % 17576;
+    const first = Math.floor(letters / 676);
+    const second = Math.floor((letters % 676) / 26);
+    const third = letters % 26;
+    const digits = (random[1] % 999) + 1;
+    return String.fromCharCode(65 + first, 65 + second, 65 + third) + String(digits).padStart(3, '0');
+  }
+
+  // Final Order Submission to Supabase
   async function submitFinalOrder() {
     const cart = getCart();
     if (cart.length === 0) {
@@ -2379,27 +2394,74 @@
     const cleanPhone = phone.replace(/\D/g, '');
     const fullRecipientPhone = selectedRecipientCountry.dial + cleanPhone;
     const orderRecord = {
-      id: `WEB-${Date.now().toString(36).toUpperCase()}`,
+      id: '',
       created_at: new Date().toISOString()
     };
 
-    // Prepare clean Supabase insert (strictly matching table schema)
+    let emailData = null;
     try {
-      const { error: dbError } = await supabaseClient
-        .from('orders')
-        .insert([{
-          customer_name: isSecretIdentity ? 'عميل سري (مفاجأة 🤫)' : name,
-          customer_phone: fullRecipientPhone,
-          shipping_address: shippingDesc + (driverNote ? ` [ملاحظة للمندوب: ${driverNote}]` : ''),
-          total_price: totals.total,
-          items: cart,
-          recipient_phone: fullRecipientPhone,
-          gift_card_message: cardMsg
-        }]);
+      emailData = await buildOrderEmailData(cart, extras, totals, recipientData, orderRecord);
+    } catch (error) {
+      console.error('Order email payload could not be prepared:', error);
+    }
+
+    const trackingCard = (emailData && emailData.card) || extras.card || null;
+    const sourceSignature = trackingCard && trackingCard.signature;
+    let trackingSignature = null;
+    if (sourceSignature && typeof sourceSignature.value === 'string') {
+      const signatureValue = sourceSignature.value.trim();
+      if (sourceSignature.type === 'text' && signatureValue) {
+        trackingSignature = { type: 'text', value: signatureValue };
+      } else if (sourceSignature.type === 'handwritten' && isPublicSignatureUrl(signatureValue)) {
+        trackingSignature = { type: 'handwritten', value: signatureValue };
+      }
+    }
+    const trackingOrderData = {
+      recipient: {
+        name,
+        area,
+        address,
+        deliveryType: schedule.deliveryType,
+        deliveryDate: schedule.deliveryDate,
+        deliveryTime: schedule.deliveryTime,
+        deliverySlotType: schedule.deliverySlotType,
+        scheduleLabel: schedule.scheduleLabel
+      },
+      card: trackingCard && trackingCard.selected ? {
+        selected: true,
+        designName: String(trackingCard.designName || ''),
+        recipientName: String(trackingCard.recipientName || name),
+        message: String(trackingCard.message || ''),
+        senderName: String(trackingCard.senderName || ''),
+        signature: trackingSignature
+      } : null
+    };
+
+    try {
+      const { data: generatedOrderNumber, error: dbError } = await supabaseClient
+        .rpc('create_order_with_number', {
+          p_order: {
+            customer_name: isSecretIdentity ? 'عميل سري (مفاجأة 🤫)' : name,
+            customer_phone: fullRecipientPhone,
+            shipping_address: shippingDesc + (driverNote ? ` [ملاحظة للمندوب: ${driverNote}]` : ''),
+            total_price: totals.total,
+            items: cart,
+            recipient_phone: fullRecipientPhone,
+            gift_card_message: cardMsg,
+            sender_phone: String((emailData && emailData.sender && emailData.sender.phone) || ''),
+            order_data: trackingOrderData
+          }
+        });
 
       if (dbError) {
         throw dbError;
       }
+      const returnedOrderNumber = normalizeOrderNumber(generatedOrderNumber);
+      // Fallback only for a successful insert whose RPC response omitted a valid generated code.
+      orderRecord.id = /^[A-Z]{3}[0-9]{3}$/.test(returnedOrderNumber)
+        ? returnedOrderNumber
+        : createFallbackOrderNumber();
+      if (emailData) emailData.orderNumber = orderRecord.id;
     } catch (err) {
       console.error('Order could not be saved to Supabase:', err);
       showToastNotification(mapText(
@@ -2417,7 +2479,7 @@
 
     let customerEmailSent = false;
     try {
-      const emailData = await buildOrderEmailData(cart, extras, totals, recipientData, orderRecord);
+      if (!emailData) throw new Error('Order email payload is unavailable.');
       const emailResponse = await fetch('/api/send-order-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2435,6 +2497,18 @@
 
     const confirmationSnapshot = {
       orderNumber: orderRecord.id,
+      status: 'confirmed',
+      created_at: orderRecord.created_at,
+      items: cart.map((item) => ({
+        name: String(item.name || item.product_name || 'Product'),
+        quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
+        lineTotal: Number(item.price || 0) * Math.max(1, Math.floor(Number(item.quantity) || 1))
+      })),
+      shipping_address: shippingDesc,
+      total_price: totals.total,
+      gift_card_message: cardMsg,
+      order_data: trackingOrderData,
+      prepared_photo_url: '',
       customerEmailSent,
       total: totals.total,
       createdAt: orderRecord.created_at
