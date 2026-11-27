@@ -89,8 +89,9 @@ function giftCardMessageSummary(order: OrderEmailData): string {
 function renderCustomerConfirmation(order: OrderEmailData): { subject: string; html: string; text: string } {
   const isArabic = order.locale === "ar";
   const dir = isArabic ? "rtl" : "ltr";
-  const orderNumber = `#${order.orderNumber}`;
+  const orderNumber = order.orderNumber;
   const trackUrl = `https://www.lorinflora.com/track-order.html?order=${encodeURIComponent(order.orderNumber)}`;
+  const orderConfirmedUrl = `https://www.lorinflora.com/order-confirmed.html?order=${encodeURIComponent(order.orderNumber)}`;
   const currency = order.currency || "JOD";
   const money = (amount: number) => `${Number(amount || 0).toFixed(2)} ${currency}`;
   const text = isArabic
@@ -107,6 +108,8 @@ function renderCustomerConfirmation(order: OrderEmailData): { subject: string; h
       schedule: "موعد التوصيل",
       giftMessage: "رسالة بطاقة الإهداء",
       total: "الإجمالي",
+      viewOrder: "عرض / نسخ رقم الطلب",
+      trackFallback: "إذا لم يعمل الزر، افتح رابط التتبع:",
       track: "تتبع طلبك",
       footer: "يسعدنا خدمتك. إذا كان لديك أي استفسار، يرجى الرد على هذا البريد."
     }
@@ -123,15 +126,17 @@ function renderCustomerConfirmation(order: OrderEmailData): { subject: string; h
       schedule: "Delivery date & time",
       giftMessage: "Gift card message",
       total: "Total",
+      viewOrder: "Copy / View Order #",
+      trackFallback: "If the button doesn’t open, use this tracking link:",
       track: "Track Your Order",
       footer: "We’re happy to help. Reply to this email if you have any questions."
     };
 
   const itemRows = order.items.map((item) =>
     `<tr>
-      <td style="padding:12px 0;border-bottom:1px solid #EEEAE4;color:#263438;font-size:14px;">${escapeHtml(item.name)}</td>
-      <td align="center" style="padding:12px 8px;border-bottom:1px solid #EEEAE4;color:#68777B;font-size:13px;">${Math.max(0, Math.floor(item.quantity))}</td>
-      <td align="right" style="padding:12px 0;border-bottom:1px solid #EEEAE4;color:#263438;font-size:14px;white-space:nowrap;">${escapeHtml(money(item.lineTotal))}</td>
+      <td style="padding:12px 0;border-bottom:1px solid #EEEAE4;color:#263438;font-size:14px;-webkit-user-select:text;user-select:text;">${escapeHtml(item.name)}</td>
+      <td align="center" style="padding:12px 8px;border-bottom:1px solid #EEEAE4;color:#68777B;font-size:13px;-webkit-user-select:text;user-select:text;">${Math.max(0, Math.floor(item.quantity))}</td>
+      <td align="${isArabic ? "left" : "right"}" style="padding:12px 0;border-bottom:1px solid #EEEAE4;color:#263438;font-size:14px;white-space:nowrap;-webkit-user-select:text;user-select:text;">${escapeHtml(money(item.lineTotal))}</td>
     </tr>`
   ).join("");
 
@@ -144,9 +149,11 @@ function renderCustomerConfirmation(order: OrderEmailData): { subject: string; h
     recipient.deliveryType;
   const giftMessage = giftCardMessageSummary(order);
   const giftMessageHtml = giftMessage
-    ? `<tr><td style="padding-top:22px;">
-        <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8A806F;margin-bottom:8px;">${text.giftMessage}</div>
-        <div style="padding:16px 18px;background:#FBF8F1;border:1px solid #E8DFD0;border-radius:8px;color:#3E4545;font:15px/1.7 Georgia,'Times New Roman',serif;white-space:pre-wrap;">${escapeHtml(giftMessage)}</div>
+    ? `<tr><td style="padding-top:22px;-webkit-user-select:text;user-select:text;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="padding-bottom:8px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8A806F;-webkit-user-select:text;user-select:text;">${escapeHtml(text.giftMessage)}</td></tr>
+          <tr><td style="padding:16px 18px;background:#FBF8F1;border:1px solid #E8DFD0;border-radius:8px;color:#3E4545;font:15px/1.7 Georgia,'Times New Roman',serif;white-space:pre-wrap;-webkit-user-select:text;user-select:text;">${escapeHtml(giftMessage)}</td></tr>
+        </table>
       </td></tr>`
     : "";
   const giftMessageText = giftMessage ? `\n${text.giftMessage}: ${giftMessage}\n` : "";
@@ -157,6 +164,7 @@ function renderCustomerConfirmation(order: OrderEmailData): { subject: string; h
     text.heading,
     text.intro,
     `${text.order}: ${orderNumber}`,
+    `${text.viewOrder}: ${orderConfirmedUrl}`,
     "",
     text.items,
     plainItems,
@@ -166,6 +174,7 @@ function renderCustomerConfirmation(order: OrderEmailData): { subject: string; h
     giftMessageText,
     `${text.total}: ${money(order.summary.total)}`,
     `${text.track}: ${trackUrl}`,
+    `${text.trackFallback} ${trackUrl}`,
     "",
     text.footer
   ].filter(Boolean).join("\n");
@@ -175,41 +184,60 @@ function renderCustomerConfirmation(order: OrderEmailData): { subject: string; h
     text: plainText,
     html: `<!doctype html>
 <html lang="${isArabic ? "ar" : "en"}" dir="${dir}">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#FBF8F1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#263438;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#FBF8F1" style="background:#FBF8F1;padding:32px 12px;">
-    <tr><td align="center">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#FFFFFF;border:1px solid #EAE5DC;border-radius:12px;overflow:hidden;">
-        <tr><td align="center" bgcolor="#00313C" style="padding:24px;background:#00313C;color:#FFFFFF;font-family:Georgia,'Times New Roman',serif;font-size:24px;letter-spacing:2px;">LORIN</td></tr>
-        <tr><td style="padding:34px 36px 36px;">
-          <div style="text-align:center;color:#8E805C;font-size:12px;letter-spacing:2px;text-transform:uppercase;">${escapeHtml(text.order)}</div>
-          <h1 style="margin:10px 0 8px;text-align:center;color:#00313C;font-family:Georgia,'Times New Roman',serif;font-size:27px;font-weight:500;">${escapeHtml(text.heading)}</h1>
-          <p style="margin:0 0 24px;text-align:center;color:#6B777A;font-size:14px;line-height:1.7;">${escapeHtml(text.intro)}</p>
-          <div style="padding:14px;text-align:center;background:#FBF8F1;border:1px solid #E8DFD0;border-radius:8px;color:#00313C;font-size:20px;font-weight:700;letter-spacing:1px;">${escapeHtml(orderNumber)}</div>
-          <h2 style="margin:28px 0 10px;color:#00313C;font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:500;">${escapeHtml(text.items)}</h2>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#FBF8F1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#263438;-webkit-user-select:text;user-select:text;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#FBF8F1" style="width:100%;background-color:#FBF8F1;">
+    <tr><td align="center" style="padding:24px 12px;-webkit-user-select:text;user-select:text;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background-color:#FFFFFF;border:1px solid #EAE5DC;border-radius:12px;border-collapse:separate;">
+        <tr><td align="center" bgcolor="#00313C" style="padding:24px;background-color:#00313C;color:#FFFFFF;font-family:Georgia,'Times New Roman',serif;font-size:24px;letter-spacing:2px;">LORIN</td></tr>
+        <tr><td style="padding:28px 20px 32px;-webkit-user-select:text;user-select:text;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr><td align="center" style="padding-bottom:8px;color:#8E805C;font-size:12px;letter-spacing:2px;text-transform:uppercase;">${escapeHtml(text.order)}</td></tr>
+            <tr><td align="center" style="padding:0 0 8px;color:#00313C;font-family:Georgia,'Times New Roman',serif;font-size:27px;font-weight:500;line-height:1.3;">${escapeHtml(text.heading)}</td></tr>
+            <tr><td align="center" style="padding:0 0 22px;color:#6B777A;font-size:14px;line-height:1.7;">${escapeHtml(text.intro)}</td></tr>
+            <tr><td align="center" bgcolor="#FBF8F1" style="padding:14px;background-color:#FBF8F1;border:1px solid #E8DFD0;border-radius:8px;color:#00313C;font-size:22px;font-weight:700;letter-spacing:1px;-webkit-user-select:text;user-select:text;">${escapeHtml(orderNumber)}</td></tr>
+            <tr><td align="center" style="padding:10px 0 24px;font-size:13px;line-height:1.6;">
+              <a href="${escapeHtml(orderConfirmedUrl)}" target="_blank" rel="noopener noreferrer" style="color:#00313C;text-decoration:underline;">${escapeHtml(text.viewOrder)}</a>
+            </td></tr>
+            <tr><td style="padding:0 0 10px;color:#00313C;font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:500;">${escapeHtml(text.items)}</td></tr>
+          </table>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" dir="${dir}">
             <thead><tr>
               <th align="${isArabic ? "right" : "left"}" style="padding:8px 0;border-bottom:1px solid #DCD6CC;color:#758184;font-size:11px;font-weight:600;">${escapeHtml(text.items)}</th>
-              <th style="padding:8px;border-bottom:1px solid #DCD6CC;color:#758184;font-size:11px;font-weight:600;">${escapeHtml(text.quantity)}</th>
+              <th align="center" style="padding:8px;border-bottom:1px solid #DCD6CC;color:#758184;font-size:11px;font-weight:600;">${escapeHtml(text.quantity)}</th>
               <th align="${isArabic ? "left" : "right"}" style="padding:8px 0;border-bottom:1px solid #DCD6CC;color:#758184;font-size:11px;font-weight:600;">${escapeHtml(text.amount)}</th>
             </tr></thead>
             <tbody>${itemRows}</tbody>
           </table>
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;background:#F7F5F0;border-radius:8px;">
-            <tr><td style="padding:18px 20px;">
-              <div style="color:#00313C;font-family:Georgia,'Times New Roman',serif;font-size:17px;margin-bottom:10px;">${escapeHtml(text.delivery)}</div>
-              <div style="color:#5E6A6D;font-size:13px;line-height:1.8;"><strong>${escapeHtml(text.area)}:</strong> ${escapeHtml(address || "—")}<br><strong>${escapeHtml(text.schedule)}:</strong> ${escapeHtml(schedule || "—")}</div>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;background-color:#F7F5F0;border-radius:8px;">
+            <tr><td style="padding:18px 20px;color:#5E6A6D;font-size:13px;line-height:1.8;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr><td style="padding-bottom:8px;color:#00313C;font-family:Georgia,'Times New Roman',serif;font-size:17px;">${escapeHtml(text.delivery)}</td></tr>
+                <tr><td><strong>${escapeHtml(text.area)}:</strong> ${escapeHtml(address || "—")}</td></tr>
+                <tr><td><strong>${escapeHtml(text.schedule)}:</strong> ${escapeHtml(schedule || "—")}</td></tr>
+              </table>
             </td></tr>
           </table>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${giftMessageHtml}</table>
-          <div style="margin-top:24px;padding-top:18px;border-top:1px solid #EAE5DC;text-align:${isArabic ? "left" : "right"};">
-            <span style="color:#68777B;font-size:14px;">${escapeHtml(text.total)}</span>
-            <strong style="margin-inline-start:12px;color:#00313C;font-size:22px;">${escapeHtml(money(order.summary.total))}</strong>
-          </div>
-          <div style="margin:30px 0 22px;text-align:center;">
-            <a href="${escapeHtml(trackUrl)}" style="display:inline-block;padding:15px 32px;background:#00313C;border-radius:6px;color:#FFFFFF;font-size:14px;font-weight:700;text-decoration:none;">${escapeHtml(text.track)}</a>
-          </div>
-          <p style="margin:0;text-align:center;color:#8A9293;font-size:12px;line-height:1.7;">${escapeHtml(text.footer)}</p>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;border-top:1px solid #EAE5DC;">
+            <tr><td align="${isArabic ? "left" : "right"}" style="padding-top:18px;color:#68777B;font-size:14px;">
+              ${escapeHtml(text.total)}&nbsp;&nbsp;<strong style="color:#00313C;font-size:22px;">${escapeHtml(money(order.summary.total))}</strong>
+            </td></tr>
+          </table>
+          <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:28px auto 10px;">
+            <tr><td align="center" bgcolor="#00313C" style="background-color:#00313C;border-radius:8px;">
+              <a href="${escapeHtml(trackUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:14px 28px;color:#FFFFFF;text-decoration:none;font-size:15px;font-weight:600;line-height:1.4;border-radius:8px;">${escapeHtml(text.track)}</a>
+            </td></tr>
+          </table>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr><td align="center" style="padding:0 0 18px;color:#6B777A;font-size:12px;line-height:1.6;">${escapeHtml(text.trackFallback)}<br>
+              <a href="${escapeHtml(trackUrl)}" target="_blank" rel="noopener noreferrer" style="color:#00313C;text-decoration:underline;word-break:break-all;">${escapeHtml(trackUrl)}</a>
+            </td></tr>
+            <tr><td align="center" style="color:#8A9293;font-size:12px;line-height:1.7;">${escapeHtml(text.footer)}</td></tr>
+          </table>
         </td></tr>
       </table>
     </td></tr>
