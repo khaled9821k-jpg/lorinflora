@@ -7,6 +7,7 @@
   <script src="lorin-notifications.js"></script>
   <script src="lorin-preloader.js"></script>
   <meta charset="UTF-8">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title data-i18n="checkout_title">Checkout | Lorin</title>
 
@@ -1611,6 +1612,7 @@
 
   let currentStep = 1;
   let checkoutOrderCompleted = false;
+  let orderSubmitInFlight = false;
   let confirmationEmailSent = false;
   let selectedSlotType = 'sameday';
   let selectedPayment = 'apple_pay';
@@ -2511,14 +2513,14 @@
 
     if (val === 'LORIN10') {
       localStorage.setItem(PROMO_KEY, JSON.stringify({ code: 'LORIN10', type: 'percent', value: 10, status: 'applied' }));
-      msg.textContent = 'تم تطبيق خصم 10% بنجاح.';
+      msg.textContent = t('checkout_promo_percent_applied', 'تم تطبيق خصم 10% بنجاح.');
       msg.className = 'text-[11px] mt-2 text-emerald-700 font-bold block';
     } else if (val === 'WELCOME2') {
       localStorage.setItem(PROMO_KEY, JSON.stringify({ code: 'WELCOME2', type: 'fixed', value: 2, status: 'applied' }));
-      msg.textContent = 'تم تطبيق خصم 2 د.أ بنجاح.';
+      msg.textContent = t('checkout_promo_fixed_applied', 'تم تطبيق خصم 2 د.أ بنجاح.');
       msg.className = 'text-[11px] mt-2 text-emerald-700 font-bold block';
     } else {
-      msg.textContent = 'عذراً، كود الخصم غير صالح.';
+      msg.textContent = t('checkout_promo_invalid', 'عذراً، كود الخصم غير صالح.');
       msg.className = 'text-[11px] mt-2 text-red-600 font-bold block';
     }
 
@@ -2737,17 +2739,6 @@
     return String(value || '').replace(/\s+/g, '').replace(/^#+/, '').toUpperCase().slice(0, 100);
   }
 
-  function createFallbackOrderNumber() {
-    const random = new Uint32Array(2);
-    crypto.getRandomValues(random);
-    const letters = random[0] % 17576;
-    const first = Math.floor(letters / 676);
-    const second = Math.floor((letters % 676) / 26);
-    const third = letters % 26;
-    const digits = (random[1] % 999) + 1;
-    return String.fromCharCode(65 + first, 65 + second, 65 + third) + String(digits).padStart(3, '0');
-  }
-
   function createTrackingToken() {
     if (!window.crypto || typeof window.crypto.getRandomValues !== 'function') {
       throw new Error('Secure order tracking is unavailable in this browser.');
@@ -2759,12 +2750,21 @@
 
   // Final Order Submission to Supabase
   async function submitFinalOrder() {
+    if (orderSubmitInFlight || checkoutOrderCompleted) return;
     const cart = getCart();
     if (cart.length === 0) {
       showToastNotification(t('cart_empty', 'سلة المشتريات فارغة!'), { type: 'warning' });
       return;
     }
+    orderSubmitInFlight = true;
+    try {
+      await submitFinalOrderInner(cart);
+    } finally {
+      orderSubmitInFlight = false;
+    }
+  }
 
+  async function submitFinalOrderInner(cart) {
     const submitBtn = document.getElementById('btn-final-place-order');
     const sidebarBtn = document.getElementById('sidebar-cta-btn');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = t('loading_wait', 'جاري حفظ الطلب...'); }
@@ -2871,10 +2871,10 @@
         throw dbError;
       }
       const returnedOrderNumber = normalizeOrderNumber(generatedOrderNumber);
-      // Fallback only for a successful insert whose RPC response omitted a valid generated code.
-      orderRecord.id = /^[A-Z]{3}[0-9]{3}$/.test(returnedOrderNumber)
-        ? returnedOrderNumber
-        : createFallbackOrderNumber();
+      if (!/^[A-Z]{3}[0-9]{3}$/.test(returnedOrderNumber)) {
+        throw new Error('Order service did not return a valid order number.');
+      }
+      orderRecord.id = returnedOrderNumber;
       if (emailData) {
         emailData.orderNumber = orderRecord.id;
         emailData.trackingToken = trackingToken;

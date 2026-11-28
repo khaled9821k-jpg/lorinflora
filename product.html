@@ -299,6 +299,19 @@
     let selectedCustomizations = {};
     let baseProductPrice = 0;
     const productText = (key, fallback) => window.LorinI18n ? window.LorinI18n.t(key, fallback) : fallback;
+    const escapeHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
+    const safeUrl = (value) => {
+        try {
+            const parsed = new URL(String(value || ''), window.location.href);
+            return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? String(value) : '';
+        } catch (_) {
+            return '';
+        }
+    };
+    const FALLBACK_IMG = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
+    const IMG_ONERROR = `this.onerror=null;this.style.visibility='hidden'`;
     const productField = (item, field) => {
         if (!item || typeof item !== 'object' || typeof field !== 'string') return '';
 
@@ -456,10 +469,10 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
             container.innerHTML = `
                 <div class="product-images-wrapper">
                     <div class="thumbs-col">
-                        ${images.map((img, idx) => `<img src="${img}" class="thumb-img ${idx === 0 ? 'active' : ''}" onclick="changeMainImage('${img}', this)" alt="${productName}">`).join('')}
+                        ${images.map((img, idx) => `<img src="${escapeHtml(safeUrl(img))}" class="thumb-img ${idx === 0 ? 'active' : ''}" data-src="${escapeHtml(safeUrl(img))}" onclick="changeMainImage(this.dataset.src, this)" onerror="${IMG_ONERROR}" alt="${escapeHtml(productName)}">`).join('')}
                     </div>
                     <div class="main-img-container">
-                        <img id="main-product-img" src="${mainImage}" alt="${productName}">
+                        <img id="main-product-img" src="${escapeHtml(safeUrl(mainImage) || FALLBACK_IMG)}" onerror="${IMG_ONERROR}" alt="${escapeHtml(productName)}">
                     </div>
                 </div>
 
@@ -469,7 +482,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                         <div class="product-tax-note">الأسعار شاملة الضرائب</div>
                     </div>
 
-                    <h1 class="product-title-text">${productName}</h1>
+                    <h1 class="product-title-text">${escapeHtml(productName)}</h1>
                     
                     <div class="floward-notice-box">
                         <svg style="width:20px; height:20px; color:#00313C; flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -541,14 +554,14 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
             groupDiv.dataset.groupName = groupName;
             groupDiv.style.marginBottom = '12px';
             groupDiv.innerHTML = `
-                <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">${groupName} *</label>
+                <label style="display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 5px;">${escapeHtml(groupName)} *</label>
                 <div style="display: grid; grid-template-columns: repeat(${Math.min(optionsList.length, 3)}, 1fr); gap: 8px;">
                     ${optionsList.map((opt, idx) => {
                         const optionName = productField(opt, 'name') || opt.name || '';
                         return `
-                            <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}" onclick="selectCustomOption('${groupName}', '${opt.name}', ${opt.price}, this)">
-                                <div class="opt-title">${optionName}</div>
-                                <div class="opt-price">${opt.price > 0 ? '+' + opt.price + ' JOD' : productText('product_option_included', 'Included')}</div>
+                            <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}"                             onclick="selectCustomOption(this.dataset.group, this.dataset.opt, ${Number(opt.price) || 0}, this)" data-group="${escapeHtml(groupName)}" data-opt="${escapeHtml(opt.name)}">
+                                                            <div class="opt-title">${escapeHtml(optionName)}</div>
+                                                            <div class="opt-price">${opt.price > 0 ? '+' + (Number(opt.price) || 0) + ' JOD' : productText('product_option_included', 'Included')}</div>
                             </div>
                         `;
                     }).join('')}
@@ -623,7 +636,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                     const fImg = allProductImages.find(img => String(img.product_id) === String(addon.id));
                     if (fImg) addonImg = fImg.image_url || fImg.url || '';
                 }
-                if (!addonImg) addonImg = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
+                addonImg = safeUrl(addonImg) || FALLBACK_IMG;
 
                 const addonPrice = parseFloat(addon.price) || 15;
                 const bundlePrice = (baseProductPrice + addonPrice).toFixed(2);
@@ -631,22 +644,22 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                 const bundleObj = JSON.stringify({
                     main: { id: currentProd.id, name: currentProd.name, name_ar: currentProd.name_ar, description_ar: currentProd.description_ar, category_ar: currentProd.category_ar, price: baseProductPrice, image_url: currentProd.image_url },
                     addon: { id: addon.id, name: addon.name, name_ar: addon.name_ar, description_ar: addon.description_ar, category_ar: addon.category_ar, price: addonPrice, image_url: addonImg }
-                }).replace(/"/g, '&quot;');
+                });
 
                 return `
                     <div class="fbt-card">
                         <div class="fbt-items-row">
                             <div class="fbt-item">
-                                <img src="${currentProd.image_url}" alt="${productField(currentProd, 'name')}">
-                                <div class="fbt-item-name">${productField(currentProd, 'name')}</div>
+                                <img src="${escapeHtml(safeUrl(currentProd.image_url) || FALLBACK_IMG)}" onerror="${IMG_ONERROR}" alt="${escapeHtml(productField(currentProd, 'name'))}">
+                                <div class="fbt-item-name">${escapeHtml(productField(currentProd, 'name'))}</div>
                             </div>
                             <div class="fbt-plus">+</div>
                             <div class="fbt-item">
-                                <img src="${addonImg}" alt="${productField(addon, 'name')}">
-                                <div class="fbt-item-name">${productField(addon, 'name')}</div>
+                                <img src="${escapeHtml(addonImg)}" onerror="${IMG_ONERROR}" alt="${escapeHtml(productField(addon, 'name'))}">
+                                <div class="fbt-item-name">${escapeHtml(productField(addon, 'name'))}</div>
                             </div>
                         </div>
-                        <button class="fbt-btn" onclick='addBundleToCart(${bundleObj})'>${productText('product_bundle_add', 'Add both items to cart for')} ${bundlePrice} JOD</button>
+                        <button class="fbt-btn" onclick="addBundleToCart(JSON.parse(this.dataset.bundle))" data-bundle="${escapeHtml(bundleObj)}">${productText('product_bundle_add', 'Add both items to cart for')} ${bundlePrice} JOD</button>
                     </div>
                 `;
             }).join('');
@@ -699,11 +712,19 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
     function adjustQty(change) {
         const input = document.getElementById('product-qty');
         let val = parseInt(input.value) + change;
-        if (val < 1) val = 1;
+        if (!(val >= 1)) val = 1;
+        if (val > 99) val = 99;
         input.value = val;
     }
 
-    function getCart() { return JSON.parse(localStorage.getItem('lorin_cart')) || []; }
+    function getCart() {
+        try {
+            const cart = JSON.parse(localStorage.getItem('lorin_cart'));
+            return Array.isArray(cart) ? cart : [];
+        } catch (_) {
+            return [];
+        }
+    }
     function saveCart(cart) { localStorage.setItem('lorin_cart', JSON.stringify(cart)); updateCartBadge(); }
 
     function updateCartBadge() {
@@ -716,7 +737,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
     }
 
     function addToCart(product) {
-        const qty = parseInt(document.getElementById('product-qty').value) || 1;
+        const qty = Math.min(99, Math.max(1, parseInt(document.getElementById('product-qty').value) || 1));
         let cart = getCart();
         // التأكد من حساب السعر النهائي بدقة وتمريره كرقم
         let finalItemPrice = baseProductPrice + (selectedCustomizations.additionalPrice || 0);
@@ -766,7 +787,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                     const foundImg = allProductImages.find(img => String(img.product_id) === String(item.id));
                     if (foundImg) itemImage = foundImg.image_url || foundImg.url || '';
                 }
-                if (!itemImage) itemImage = 'https://dptincirgzfwrlrpxajl.supabase.co/storage/v1/object/public/store-assets/categories/lll.png';
+                itemImage = safeUrl(itemImage) || FALLBACK_IMG;
 
                 const existingCartItem = currentCart.find(cartItem => String(cartItem.id) === String(item.id));
                 const qty = existingCartItem ? existingCartItem.quantity : 0;
@@ -775,11 +796,11 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                 return `
                     <div style="min-width: 160px; max-width: 160px; border: 1px solid #eee; border-radius: 12px; padding: 10px; text-align: center; background: #fff; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
-                            <img src="${itemImage}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" alt="${productField(item, 'name')}">
-                            <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px;">${productField(item, 'name')}</div>
+                            <img src="${escapeHtml(itemImage)}" onerror="${IMG_ONERROR}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" alt="${escapeHtml(productField(item, 'name'))}">
+                            <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px;">${escapeHtml(productField(item, 'name'))}</div>
                             <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">JOD ${itemPriceNum.toFixed(2)}</div>
                         </div>
-                        <div id="upsell-action-area-${item.id}">
+                        <div id="upsell-action-area-${escapeHtml(item.id)}">
                             ${qty > 0 ? renderQuantityControls(item.id, qty) : renderAddButton(item, itemPriceNum, itemImage)}
                         </div>
                     </div>
@@ -791,16 +812,16 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
     }
 
     function renderAddButton(item, price, image_url) {
-        const itemObj = JSON.stringify({id: item.id, name: item.name, name_ar: item.name_ar, description_ar: item.description_ar, category_ar: item.category_ar, price: price, image_url: image_url}).replace(/"/g, '&quot;');
-        return `<button onclick='handleInitialUpsellAdd(${itemObj})' style="width: 100%; padding: 8px; background: #fff; color: #00313C; border: 1px solid #00313C; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">${productText('product_upsell_add', 'Add')}</button>`;
+        const itemObj = JSON.stringify({id: item.id, name: item.name, name_ar: item.name_ar, description_ar: item.description_ar, category_ar: item.category_ar, price: price,         image_url: image_url});
+                return `<button onclick="handleInitialUpsellAdd(JSON.parse(this.dataset.item))" data-item="${escapeHtml(itemObj)}" style="width: 100%; padding: 8px; background: #fff; color: #00313C; border: 1px solid #00313C; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer;">${productText('product_upsell_add', 'Add')}</button>`;
     }
 
     function renderQuantityControls(itemId, qty) {
         return `
             <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #00313C; border-radius: 6px; background: #f4f8f9; padding: 2px 6px;">
-                <button onclick="updateUpsellQuantity('${itemId}', -1)" style="background: transparent; border: none; padding: 4px 6px; font-weight: bold; cursor: pointer; color: #00313C;">-</button>
+                <button data-id="${escapeHtml(itemId)}" onclick="updateUpsellQuantity(this.dataset.id, -1)" style="background: transparent; border: none; padding: 4px 6px; font-weight: bold; cursor: pointer; color: #00313C;">-</button>
                 <span style="font-size: 13px; font-weight: 700; color: #00313C;">${qty}</span>
-                <button onclick="updateUpsellQuantity('${itemId}', 1)" style="background: transparent; border: none; padding: 4px 6px; font-weight: bold; cursor: pointer; color: #00313C;">+</button>
+                <button data-id="${escapeHtml(itemId)}" onclick="updateUpsellQuantity(this.dataset.id, 1)" style="background: transparent; border: none; padding: 4px 6px; font-weight: bold; cursor: pointer; color: #00313C;">+</button>
             </div>
         `;
     }
@@ -839,11 +860,11 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
         if (!q) { resultsContainer.innerHTML = ''; return; }
         const filtered = allStoreProducts.filter(p => [productField(p, 'name'), productField(p, 'category')].some(value => String(value || '').toLowerCase().includes(q)));
         resultsContainer.innerHTML = filtered.map(p => `
-            <a href="product.html?id=${p.id}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;">
-              <img src="${p.image_url}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
+            <a href="product.html?id=${encodeURIComponent(p.id)}" style="display: flex; align-items: center; gap: 12px; padding: 8px; border-radius: 8px; text-decoration: none; background: #f9fafb;">
+              <img src="${escapeHtml(safeUrl(p.image_url))}" onerror="${IMG_ONERROR}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
               <div style="flex: 1; text-align: right;">
-                <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${productField(p, 'name')}</div>
-                <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${p.price} د.أ</div>
+                <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">                ${escapeHtml(productField(p, 'name'))}</div>
+                                <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${escapeHtml(p.price)} د.أ</div>
               </div>
             </a>`).join('');
     }

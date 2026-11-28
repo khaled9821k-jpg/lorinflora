@@ -722,7 +722,11 @@ export async function sendOrderEmailHandler(request: Request): Promise<Response>
     return jsonResponse({ error: "Method not allowed." }, 405, origin);
   }
 
-  const apiKey = Deno.env.get("RESEND_API_KEY");
+  // Order email is served only by the verified /api/send-order-email endpoint.
+  return jsonResponse({ error: "This endpoint has been retired. Use /api/send-order-email." }, 410, origin);
+}
+
+async function legacySendOrderEmail(request: Request, origin: string | null): Promise<Response> {
   const from = Deno.env.get("RESEND_FROM_EMAIL") || "Lorin <orders@lorinflora.com>";
   const recipients = (Deno.env.get("ORDER_NOTIFICATION_EMAIL") || "")
     .split(",")

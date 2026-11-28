@@ -8,6 +8,61 @@ import {
 interface ApiRequest {
   method?: string;
   body?: unknown;
+  headers?: Record<string, string | string[] | undefined>;
+  socket?: { remoteAddress?: string };
+}
+
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://dptincirgzfwrlrpxajl.supabase.co";
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "sb_publishable_DbYCExpNFypVQARATbdeVw_hipYS1Oa";
+const MAX_BODY_CHARS = 100_000;
+const MAX_ITEMS = 50;
+const IP_LIMIT = 10;
+const ORDER_LIMIT = 3;
+const WINDOW_MS = 60 * 60 * 1000;
+
+// Best-effort limiter: state lives per serverless instance only.
+const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+
+function rateLimited(key: string, limit: number): boolean {
+  const now = Date.now();
+  if (rateBuckets.size > 5000) {
+    for (const [bucketKey, bucket] of rateBuckets) {
+      if (bucket.resetAt <= now) rateBuckets.delete(bucketKey);
+    }
+  }
+  const bucket = rateBuckets.get(key);
+  if (!bucket || bucket.resetAt <= now) {
+    rateBuckets.set(key, { count: 1, resetAt: now + WINDOW_MS });
+    return false;
+  }
+  bucket.count += 1;
+  return bucket.count > limit;
+}
+
+function clientIp(req: ApiRequest): string {
+  const forwarded = req.headers?.["x-forwarded-for"];
+  const first = (Array.isArray(forwarded) ? forwarded[0] : forwarded || "").split(",")[0].trim();
+  return first || req.socket?.remoteAddress || "unknown";
+}
+
+async function orderMatchesToken(orderNumber: string, trackingToken: string): Promise<boolean | null> {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/track_order_by_token`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ p_tracking_token: trackingToken }),
+    });
+    if (!response.ok) return null;
+    const record: unknown = await response.json();
+    if (!isRecord(record) || typeof record.order_number !== "string") return false;
+    return normalizeOrderNumber(record.order_number) === orderNumber;
+  } catch {
+    return null;
+  }
 }
 
 interface ApiResponse {
@@ -27,14 +82,20 @@ function isOrderPayload(value: unknown): value is OrderEmailData {
   const sender = isRecord(value.sender) ? value.sender : null;
   const summary = isRecord(value.summary) ? value.summary : null;
   return typeof value.orderNumber === "string" &&
+    value.orderNumber.length <= 100 &&
     typeof value.trackingToken === "string" &&
     /^[a-f0-9]{64}$/i.test(value.trackingToken) &&
     typeof value.createdAt === "string" &&
     Array.isArray(value.items) &&
+    value.items.length > 0 &&
+    value.items.length <= MAX_ITEMS &&
     value.items.every((item: unknown) => isRecord(item) &&
       typeof item.name === "string" &&
+      item.name.length <= 300 &&
       typeof item.quantity === "number" &&
-      typeof item.lineTotal === "number") &&
+      Number.isFinite(item.quantity) &&
+      typeof item.lineTotal === "number" &&
+      Number.isFinite(item.lineTotal)) &&
     !!recipient &&
     typeof recipient.deliveryType === "string" &&
     typeof recipient.collectAddressFromRecipient === "boolean" &&
@@ -42,14 +103,25 @@ function isOrderPayload(value: unknown): value is OrderEmailData {
     !!sender &&
     typeof sender.name === "string" &&
     !!summary &&
+    Number.isFinite(summary.subtotal) &&
     typeof summary.subtotal === "number" &&
     typeof summary.deliveryCharges === "number" &&
+    Number.isFinite(summary.deliveryCharges) &&
     typeof summary.total === "number" &&
+    Number.isFinite(summary.total) &&
     typeof value.paymentMethod === "string";
 }
 
 function parseOrderPayload(body: unknown): OrderEmailData | null {
-  if (typeof body !== "string") return isOrderPayload(body) ? body : null;
+  if (typeof body !== "string") {
+    try {
+      if (JSON.stringify(body).length > MAX_BODY_CHARS) return null;
+    } catch {
+      return null;
+    }
+    return isOrderPayload(body) ? body : null;
+  }
+  if (body.length > MAX_BODY_CHARS) return null;
   try {
     const parsed: unknown = JSON.parse(body);
     return isOrderPayload(parsed) ? parsed : null;
@@ -69,6 +141,12 @@ function escapeHtml(value: unknown): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function validEmail(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const email = value.trim();
+  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : undefined;
 }
 
 function getCustomerEmail(order: OrderEmailData): string | null {
@@ -268,6 +346,12 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     return;
   }
 
+  if (rateLimited(`ip:${clientIp(req)}`, IP_LIMIT)) {
+    res.setHeader("Retry-After", "3600");
+    respond(res, 429, { error: "Too many requests. Please try again later." });
+    return;
+  }
+
   const parsedOrder = parseOrderPayload(req.body);
   if (!parsedOrder) {
     respond(res, 400, { error: "Order email payload is incomplete or invalid." });
@@ -276,6 +360,20 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
   const orderNumber = normalizeOrderNumber(parsedOrder.orderNumber);
   if (!isSupportedOrderNumber(orderNumber)) {
     respond(res, 400, { error: "Order number must be a 6-character code or a legacy WEB-... code." });
+    return;
+  }
+
+  const verified = await orderMatchesToken(orderNumber, parsedOrder.trackingToken.toLowerCase());
+  if (verified === null) {
+    respond(res, 502, { error: "Order could not be verified right now." });
+    return;
+  }
+  if (!verified) {
+    respond(res, 403, { error: "Order could not be verified." });
+    return;
+  }
+  if (rateLimited(`order:${orderNumber}`, ORDER_LIMIT)) {
+    respond(res, 429, { error: "Too many requests. Please try again later." });
     return;
   }
   const order: OrderEmailData = {
@@ -308,7 +406,7 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
         subject: email.subject,
         html: email.html,
         text: email.text,
-        reply_to: order.sender.email || supportEmail,
+        reply_to: validEmail(order.sender.email) || supportEmail,
       }),
     });
   } catch (error) {

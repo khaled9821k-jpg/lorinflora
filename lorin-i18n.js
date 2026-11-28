@@ -272,6 +272,13 @@
       msg_order_success: 'تم تأكيد طلبك بنجاح! شكرًا لاختيارك Lorin.',
       msg_auth_required_checkout: 'يرجى تسجيل الدخول أو إنشاء حساب لمتابعة طلبك وحفظ بياناتك بأمان.',
       msg_signed_out: 'تم تسجيل الخروج بنجاح.',
+      account_orders_empty: 'لم تقم بأي طلبات بعد.',
+      account_order_label: 'طلب',
+      account_order_address_fallback: 'عنوان التوصيل',
+      account_order_completed: 'مكتمل',
+      checkout_promo_percent_applied: 'تم تطبيق خصم 10% بنجاح.',
+      checkout_promo_fixed_applied: 'تم تطبيق خصم 2 د.أ بنجاح.',
+      checkout_promo_invalid: 'عذراً، كود الخصم غير صالح.',
 
       // Order tracking
       tracker_title: 'تتبع طلبك',
@@ -802,6 +809,13 @@
       msg_order_success: 'Your order has been confirmed successfully! Thank you for choosing Lorin.',
       msg_auth_required_checkout: 'Please sign in or create an account to proceed with your order securely.',
       msg_signed_out: 'Signed out successfully.',
+      account_orders_empty: 'You have not placed any orders yet.',
+      account_order_label: 'Order',
+      account_order_address_fallback: 'Delivery address',
+      account_order_completed: 'Completed',
+      checkout_promo_percent_applied: '10% discount applied successfully.',
+      checkout_promo_fixed_applied: 'JOD 2 discount applied successfully.',
+      checkout_promo_invalid: 'Sorry, this discount code is not valid.',
 
       // Order tracking
       tracker_title: 'Track your order',

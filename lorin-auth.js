@@ -78,6 +78,12 @@
     return fallback || key;
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
+  }
+
   function isRtl() {
     if (window.LorinI18n && typeof window.LorinI18n.getLang === 'function') {
       return window.LorinI18n.getLang() === 'ar';
@@ -702,7 +708,7 @@
         <form id="lorin-step1-form" onsubmit="LorinAuth.handleStep1Submit(event)">
           <div class="lorin-field-group">
             <label class="lorin-field-label">${t('auth_email_label', 'Email address')}</label>
-            <input type="email" id="auth-email-input" class="lorin-text-input" placeholder="${t('auth_email_placeholder', 'Enter your email address')}" value="${pendingEmail}" required autocomplete="email">
+            <input type="email" id="auth-email-input" class="lorin-text-input" placeholder="${t('auth_email_placeholder', 'Enter your email address')}" value="${escapeHtml(pendingEmail)}" required autocomplete="email">
           </div>
           <button type="submit" class="lorin-btn-primary" id="btn-auth-step1">${t('auth_continue', 'CONTINUE')}</button>
         </form>
@@ -791,7 +797,7 @@
                 <span id="sender-dial" dir="ltr">${c.dial}</span>
                 <span class="country-selector-chevron" aria-hidden="true"></span>
               </button>
-              <input type="tel" id="auth-phone-input" class="lorin-phone-input" placeholder="${c.placeholder || '7XXXXXXXX'}" value="${pendingPhone}" required dir="ltr">
+              <input type="tel" id="auth-phone-input" class="lorin-phone-input" placeholder="${c.placeholder || '7XXXXXXXX'}" value="${escapeHtml(pendingPhone)}" required dir="ltr">
 
               <!-- Country Dropdown Menu -->
               <div id="sender-country-dropdown" class="lorin-country-menu" style="display: none;">
@@ -821,7 +827,7 @@
         </button>
 
         <h2 class="lorin-auth-title">${t('auth_login_tab', 'Sign In')}</h2>
-        <p class="lorin-auth-subtitle">${t('auth_enter_pwd_prompt', 'Enter password for your registered account')}<br><b style="color: #111;">${pendingEmail}</b></p>
+        <p class="lorin-auth-subtitle">${t('auth_enter_pwd_prompt', 'Enter password for your registered account')}<br><b style="color: #111;">${escapeHtml(pendingEmail)}</b></p>
 
         <form id="lorin-signin-form" onsubmit="LorinAuth.handleSignInSubmit(event)">
           <div class="lorin-field-group">
@@ -1441,8 +1447,8 @@
 
     dropdown.innerHTML = `
       <div class="lorin-acc-header">
-        <p class="lorin-acc-greeting">${t('account_greeting_prefix', 'Hi')} ${name}</p>
-        <p class="lorin-acc-email">${email}</p>
+        <p class="lorin-acc-greeting">${t('account_greeting_prefix', 'Hi')} ${escapeHtml(name)}</p>
+        <p class="lorin-acc-email">${escapeHtml(email)}</p>
       </div>
 
       <button type="button" class="lorin-acc-item" onclick="LorinAuth.openAccountView('profile')">
@@ -1555,15 +1561,15 @@
         <form onsubmit="LorinAuth.saveProfile(event)" style="display: flex; flex-direction: column; gap: 16px;">
           <div>
             <label class="lorin-field-label">${t('auth_fullname_label', 'Full Name')}</label>
-            <input type="text" id="edit-profile-name" class="lorin-text-input" value="${meta.full_name || ''}" required>
+            <input type="text" id="edit-profile-name" class="lorin-text-input" value="${escapeHtml(meta.full_name)}" required>
           </div>
           <div>
             <label class="lorin-field-label">${t('auth_phone_label', 'Phone Number')}</label>
-            <input type="tel" id="edit-profile-phone" class="lorin-text-input" value="${meta.phone || ''}" dir="ltr">
+            <input type="tel" id="edit-profile-phone" class="lorin-text-input" value="${escapeHtml(meta.phone)}" dir="ltr">
           </div>
           <div>
             <label class="lorin-field-label">${t('auth_email_label', 'Email address')}</label>
-            <input type="email" class="lorin-text-input" value="${currentUser ? currentUser.email : ''}" disabled style="background: #F3F4F6;">
+            <input type="email" class="lorin-text-input" value="${escapeHtml(currentUser ? currentUser.email : '')}" disabled style="background: #F3F4F6;">
           </div>
           <button type="submit" class="lorin-btn-primary" style="margin-top: 10px;">${t('auth_done', 'Save Changes')}</button>
         </form>
@@ -1777,30 +1783,36 @@
   }
 
   async function loadUserOrders(container) {
-    container.innerHTML = `<p style="text-align: center; color: #9CA3AF; padding: 20px;">${t('loading_wait', 'جاري جلب الطلبات...')}</p>`;
+    const emptyHtml = () => `<p style="text-align: center; color: #9CA3AF; padding: 30px;">${escapeHtml(t('account_orders_empty', 'لم تقم بأي طلبات بعد.'))}</p>`;
+    container.innerHTML = `<p style="text-align: center; color: #9CA3AF; padding: 20px;">${escapeHtml(t('loading_wait', 'جاري جلب الطلبات...'))}</p>`;
     if (!client) return;
 
     try {
-      let query = client.from('orders').select('*').order('created_at', { ascending: false }).limit(10);
-      const { data: orders, error } = await query;
+      const { data: orders, error } = await client
+        .from('orders')
+        .select('id,order_number,total_price,shipping_address,created_at')
+        .order('created_at', { ascending: false })
+        .limit(10);
 
       if (error || !orders || orders.length === 0) {
-        container.innerHTML = `<p style="text-align: center; color: #9CA3AF; padding: 30px;">لم تقم بأي طلبات بعد.</p>`;
+        container.innerHTML = emptyHtml();
         return;
       }
 
+      const locale = isRtl() ? 'ar-JO' : 'en-GB';
+      const currency = t('currency_code', 'د.أ');
       container.innerHTML = orders.map((o) => `
         <div style="background: #FAF8F5; border: 1px solid #E5E7EB; border-radius: 10px; padding: 14px; margin-bottom: 12px; font-size: 13px;">
           <div style="display: flex; justify-content: space-between; font-weight: 700; color: #00313C; margin-bottom: 6px;">
-            <span>طلب #${o.id || 'N/A'}</span>
-            <span style="color: #DC2626;">${Number(o.total_price || 0).toFixed(2)} د.أ</span>
+            <span>${escapeHtml(t('account_order_label', 'طلب'))} #${escapeHtml(o.order_number || o.id || 'N/A')}</span>
+            <span style="color: #DC2626;">${escapeHtml(Number(o.total_price || 0).toFixed(2))} ${escapeHtml(currency)}</span>
           </div>
-          <div style="color: #4B5563; font-size: 12px; line-height: 1.5;">${o.shipping_address || 'عنوان التوصيل'}</div>
-          <div style="color: #9CA3AF; font-size: 11px; margin-top: 6px;">${o.created_at ? new Date(o.created_at).toLocaleDateString() : 'مكتمل'}</div>
+          <div style="color: #4B5563; font-size: 12px; line-height: 1.5;">${escapeHtml(o.shipping_address || t('account_order_address_fallback', 'عنوان التوصيل'))}</div>
+          <div style="color: #9CA3AF; font-size: 11px; margin-top: 6px;">${o.created_at ? escapeHtml(new Date(o.created_at).toLocaleDateString(locale)) : escapeHtml(t('account_order_completed', 'مكتمل'))}</div>
         </div>
       `).join('');
     } catch (_) {
-      container.innerHTML = `<p style="text-align: center; color: #9CA3AF; padding: 30px;">لم تقم بأي طلبات بعد.</p>`;
+      container.innerHTML = emptyHtml();
     }
   }
 
