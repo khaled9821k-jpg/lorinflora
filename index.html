@@ -554,12 +554,13 @@
     </div>
 
     <div class="pill-dropdown-wrapper" style="position: relative;">
-      <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
-        <span data-i18n="currency_code">JOD</span>
+      <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')" data-i18n-aria-label="currency_switch_aria">
+        <span data-currency-label>JOD</span>
         <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
       </button>
       <div id="currency-dropdown" class="pill-dropdown-menu">
-        <button type="button" class="pill-dropdown-item active"><span data-i18n="currency_code">JOD</span></button>
+        <button type="button" class="pill-dropdown-item" data-currency-option="JOD"><span data-i18n="currency_name_JOD">Jordanian Dinar</span><span class="currency-code">JOD</span></button>
+        <button type="button" class="pill-dropdown-item" data-currency-option="USD"><span data-i18n="currency_name_USD">US Dollar</span><span class="currency-code">USD</span></button>
       </div>
     </div>
 
@@ -811,7 +812,7 @@
     }
 
     function homeMoney(value) {
-      return `${value} ${homeText('currency_code')}`;
+      return window.LorinCurrency ? window.LorinCurrency.format(value) : `${value} ${homeText('currency_code')}`;
     }
 
     async function loadCustomMediaSection() {
@@ -1182,6 +1183,12 @@
       loadSiteSettings();
       updateCartBadge();
     };
+
+    window.addEventListener('lorin:currencychange', () => {
+      loadFlowardDynamicSections();
+      const searchInput = document.getElementById('live-search-input');
+      if (searchInput && searchInput.value.trim()) performLiveSearch(searchInput.value);
+    });
 
     window.addEventListener('lorin:langchange', () => {
       loadCustomMediaSection();

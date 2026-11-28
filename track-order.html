@@ -77,6 +77,13 @@
       cursor: pointer;
     }
 
+    .currency-toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--white); }
+    .currency-toggle button {
+      min-width: 44px; min-height: 36px; padding: 6px 10px; border: 0; background: transparent;
+      color: var(--ink); font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .currency-toggle button.active { background: var(--ink); color: var(--white); }
+
     main {
       width: min(100% - 32px, 900px);
       margin: 50px auto 64px;
@@ -286,6 +293,10 @@
     <a class="brand" href="index.html" aria-label="Lorin">LORIN</a>
     <nav class="top-actions" aria-label="Page actions" data-i18n-aria-label="tracker_page_actions">
       <a class="back-link" id="back-to-store" href="index.html" data-i18n="tracker_back">Back to Store</a>
+      <div class="currency-toggle" role="group" data-i18n-aria-label="currency_switch_aria">
+        <button type="button" data-currency-option="JOD" aria-pressed="true">JOD</button>
+        <button type="button" data-currency-option="USD" aria-pressed="false">USD</button>
+      </div>
       <button class="language-button pill-btn--lang" id="language-toggle" type="button" data-i18n-aria-label="switch_lang_aria"><span>العربية</span></button>
     </nav>
   </header>
@@ -430,7 +441,7 @@
       function formatMoney(value) {
         const amount = Number(value);
         if (!Number.isFinite(amount)) return '—';
-        return `${amount.toFixed(2)} ${t('currency_code')}`;
+        return window.LorinCurrency ? window.LorinCurrency.format(amount) : `${amount.toFixed(2)} ${t('currency_code')}`;
       }
 
       function formatDate(value) {
@@ -760,6 +771,11 @@
 
       window.addEventListener('lorin:langchange', (event) => {
         setLanguage(event.detail && event.detail.lang ? event.detail.lang : window.LorinI18n.getLang());
+      });
+
+      window.addEventListener('lorin:currencychange', () => {
+        const current = window.__lorinTrackedOrder;
+        if (current) renderOrder(current);
       });
 
       $('ready-photo').addEventListener('click', () => {

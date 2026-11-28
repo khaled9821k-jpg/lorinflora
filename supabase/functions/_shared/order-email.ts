@@ -25,6 +25,9 @@ export interface OrderEmailData {
   createdAt: Date | string;
   locale?: "ar" | "en";
   currency?: string; // default 'JOD'
+  displayCurrency?: "JOD" | "USD"; // currency the customer viewed; amounts stay in JOD
+  exchangeRate?: number; // USD per 1 JOD
+  displayTotal?: number; // total in displayCurrency
   items: OrderItem[];
 
   photoStickIn?: {
@@ -499,6 +502,15 @@ function deliveryHtml(o: OrderEmailData, dir: "ltr" | "rtl", text: ReturnType<ty
   </td></tr>`;
 }
 
+function usdDisplayNote(o: OrderEmailData): string {
+  if (o.displayCurrency !== "USD") return "";
+  const rate = Number.isFinite(o.exchangeRate) && Number(o.exchangeRate) > 0 ? Number(o.exchangeRate) : 1.41;
+  const shown = Number.isFinite(o.displayTotal) ? Number(o.displayTotal) : o.summary.total * rate;
+  return isArabic(o.locale ?? "en")
+    ? `عُرض للعميل بالدولار: ${shown.toFixed(2)} USD (1 JOD = ${rate} USD). تتم المعالجة بالدينار الأردني.`
+    : `Customer viewed prices in USD: USD ${shown.toFixed(2)} (1 JOD = ${rate} USD). Order processed in JOD.`;
+}
+
 function senderAndSummaryHtml(o: OrderEmailData, cur: string, dir: "ltr" | "rtl", text: ReturnType<typeof labels>): string {
   const s = o.sender;
   const sRows = [kv(text.name, esc(s.name), dir)];
@@ -516,6 +528,7 @@ function senderAndSummaryHtml(o: OrderEmailData, cur: string, dir: "ltr" | "rtl"
     giftCardFee > 0 ? summaryRow(text.cardFee, money(giftCardFee, cur), dir) : "",
     summaryRow(text.deliveryCharges, delivery > 0 ? money(delivery, cur) : text.free, dir),
     summaryRow(text.total, money(o.summary.total, cur), dir, true),
+    usdDisplayNote(o) ? summaryRow(usdDisplayNote(o), "", dir) : "",
   ].join("");
 
   return `${sectionTitle(text.senderSection, dir)}
@@ -654,6 +667,7 @@ export function renderOrderEmail(o: OrderEmailData): { subject: string; html: st
     o.summary.giftCardFee ? `${text.cardFee}: ${money(o.summary.giftCardFee, cur)}` : "",
     `${text.deliveryCharges}: ${money(o.summary.deliveryCharges, cur)}`,
     `${text.total}: ${money(o.summary.total, cur)}`,
+    usdDisplayNote(o),
   ]
     .filter((l) => l !== "")
     .join("\n");

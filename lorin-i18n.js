@@ -272,12 +272,21 @@
       msg_order_success: 'تم تأكيد طلبك بنجاح! شكرًا لاختيارك Lorin.',
       msg_auth_required_checkout: 'يرجى تسجيل الدخول أو إنشاء حساب لمتابعة طلبك وحفظ بياناتك بأمان.',
       msg_signed_out: 'تم تسجيل الخروج بنجاح.',
+      currency_name_JOD: 'دينار أردني',
+      currency_name_USD: 'دولار أمريكي',
+      currency_switch_aria: 'العملة',
+      currency_unit_JOD: 'د.أ',
+      currency_unit_USD: 'دولار',
+      checkout_currency_note: 'تُعرض المبالغ بالدولار الأمريكي للاطلاع فقط (1 دينار = 1.41 دولار). تتم معالجة الطلب وتأكيده بالدينار الأردني.',
+      category_price_under_fmt: 'أقل من {price}',
+      category_price_between_fmt: 'من {from} إلى {to}',
+      category_price_over_fmt: 'أكثر من {price}',
       account_orders_empty: 'لم تقم بأي طلبات بعد.',
       account_order_label: 'طلب',
       account_order_address_fallback: 'عنوان التوصيل',
       account_order_completed: 'مكتمل',
       checkout_promo_percent_applied: 'تم تطبيق خصم 10% بنجاح.',
-      checkout_promo_fixed_applied: 'تم تطبيق خصم 2 د.أ بنجاح.',
+      checkout_promo_fixed_applied: 'تم تطبيق خصم {amount} بنجاح.',
       checkout_promo_invalid: 'عذراً، كود الخصم غير صالح.',
 
       // Order tracking
@@ -809,12 +818,21 @@
       msg_order_success: 'Your order has been confirmed successfully! Thank you for choosing Lorin.',
       msg_auth_required_checkout: 'Please sign in or create an account to proceed with your order securely.',
       msg_signed_out: 'Signed out successfully.',
+      currency_name_JOD: 'Jordanian Dinar',
+      currency_name_USD: 'US Dollar',
+      currency_switch_aria: 'Currency',
+      currency_unit_JOD: 'JOD',
+      currency_unit_USD: 'USD',
+      checkout_currency_note: 'Amounts are shown in US dollars for reference only (1 JOD = 1.41 USD). Your order is processed and confirmed in Jordanian Dinars.',
+      category_price_under_fmt: 'Under {price}',
+      category_price_between_fmt: '{from} to {to}',
+      category_price_over_fmt: 'Over {price}',
       account_orders_empty: 'You have not placed any orders yet.',
       account_order_label: 'Order',
       account_order_address_fallback: 'Delivery address',
       account_order_completed: 'Completed',
       checkout_promo_percent_applied: '10% discount applied successfully.',
-      checkout_promo_fixed_applied: 'JOD 2 discount applied successfully.',
+      checkout_promo_fixed_applied: '{amount} discount applied successfully.',
       checkout_promo_invalid: 'Sorry, this discount code is not valid.',
 
       // Order tracking
@@ -1202,5 +1220,113 @@
     setLang,
     t,
     pick
+  };
+
+  const CURRENCY_STORAGE_KEY = 'lorin_currency';
+  const BASE_CURRENCY = 'JOD';
+  const SUPPORTED_CURRENCIES = ['JOD', 'USD'];
+  const USD_PER_JOD = 1.41;
+
+  function getCurrency() {
+    try {
+      const stored = localStorage.getItem(CURRENCY_STORAGE_KEY);
+      return SUPPORTED_CURRENCIES.includes(stored) ? stored : BASE_CURRENCY;
+    } catch (error) {
+      return BASE_CURRENCY;
+    }
+  }
+
+  function getRate(currency = getCurrency()) {
+    return currency === 'USD' ? USD_PER_JOD : 1;
+  }
+
+  function roundMoney(value) {
+    return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+  }
+
+  // Converts a JOD amount into the selected display currency (rounded to 2 decimals).
+  function convertCurrency(jodAmount, currency = getCurrency()) {
+    const amount = Number(jodAmount);
+    return roundMoney((Number.isFinite(amount) ? amount : 0) * getRate(currency));
+  }
+
+  function currencyUnit(currency = getCurrency()) {
+    return t(`currency_unit_${currency}`, currency);
+  }
+
+  function formatCurrency(jodAmount, options = {}) {
+    const currency = SUPPORTED_CURRENCIES.includes(options.currency) ? options.currency : getCurrency();
+    const converted = convertCurrency(jodAmount, currency);
+    const number = Math.abs(converted).toFixed(2);
+    const sign = options.sign || (converted < 0 ? '-' : '');
+    const unit = currencyUnit(currency);
+    return getLang() === 'ar' ? `${sign}${number} ${unit}` : `${sign}${unit} ${number}`;
+  }
+
+  function syncCurrencyControls(root = document) {
+    const current = getCurrency();
+    root.querySelectorAll('[data-currency-label]').forEach((el) => {
+      if (el.textContent !== current) el.textContent = current;
+    });
+    root.querySelectorAll('[data-currency-option]').forEach((el) => {
+      const active = el.getAttribute('data-currency-option') === current;
+      el.classList.toggle('active', active);
+      el.setAttribute('aria-pressed', String(active));
+    });
+    root.querySelectorAll('[data-lorin-price]').forEach((el) => {
+      const value = Number(el.getAttribute('data-lorin-price'));
+      if (!Number.isFinite(value)) return;
+      const text = formatCurrency(value, { sign: el.getAttribute('data-lorin-price-sign') || '' });
+      if (el.textContent !== text) el.textContent = text;
+    });
+  }
+
+  function setCurrency(currency) {
+    if (!SUPPORTED_CURRENCIES.includes(currency)) currency = BASE_CURRENCY;
+    if (currency === getCurrency()) {
+      syncCurrencyControls();
+      return;
+    }
+    try {
+      localStorage.setItem(CURRENCY_STORAGE_KEY, currency);
+    } catch (error) {
+      console.error('Unable to save the currency preference:', error);
+    }
+    syncCurrencyControls();
+    window.dispatchEvent(new CustomEvent('lorin:currencychange', { detail: { currency } }));
+  }
+
+  document.addEventListener('click', (event) => {
+    const option = event.target instanceof Element ? event.target.closest('[data-currency-option]') : null;
+    if (!option) return;
+    event.preventDefault();
+    setCurrency(option.getAttribute('data-currency-option'));
+    document.querySelectorAll('.pill-dropdown-menu').forEach((menu) => menu.classList.remove('show'));
+  });
+
+  window.addEventListener('storage', (event) => {
+    if (event.key !== CURRENCY_STORAGE_KEY) return;
+    syncCurrencyControls();
+    window.dispatchEvent(new CustomEvent('lorin:currencychange', { detail: { currency: getCurrency() } }));
+  });
+
+  window.addEventListener('lorin:langchange', () => syncCurrencyControls());
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => syncCurrencyControls(), { once: true });
+  } else {
+    syncCurrencyControls();
+  }
+
+  window.LorinCurrency = {
+    BASE_CURRENCY,
+    SUPPORTED_CURRENCIES,
+    USD_PER_JOD,
+    getCurrency,
+    setCurrency,
+    getRate,
+    convert: convertCurrency,
+    format: formatCurrency,
+    refresh: syncCurrencyControls
   };
 })();

@@ -1801,11 +1801,12 @@
 
       const locale = isRtl() ? 'ar-JO' : 'en-GB';
       const currency = t('currency_code', 'د.أ');
+      const orderMoney = (v) => window.LorinCurrency ? window.LorinCurrency.format(Number(v || 0)) : `${Number(v || 0).toFixed(2)} ${currency}`;
       container.innerHTML = orders.map((o) => `
         <div style="background: #FAF8F5; border: 1px solid #E5E7EB; border-radius: 10px; padding: 14px; margin-bottom: 12px; font-size: 13px;">
           <div style="display: flex; justify-content: space-between; font-weight: 700; color: #00313C; margin-bottom: 6px;">
             <span>${escapeHtml(t('account_order_label', 'طلب'))} #${escapeHtml(o.order_number || o.id || 'N/A')}</span>
-            <span style="color: #DC2626;">${escapeHtml(Number(o.total_price || 0).toFixed(2))} ${escapeHtml(currency)}</span>
+            <span style="color: #DC2626;">${escapeHtml(orderMoney(o.total_price))}</span>
           </div>
           <div style="color: #4B5563; font-size: 12px; line-height: 1.5;">${escapeHtml(o.shipping_address || t('account_order_address_fallback', 'عنوان التوصيل'))}</div>
           <div style="color: #9CA3AF; font-size: 11px; margin-top: 6px;">${o.created_at ? escapeHtml(new Date(o.created_at).toLocaleDateString(locale)) : escapeHtml(t('account_order_completed', 'مكتمل'))}</div>

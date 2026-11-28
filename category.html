@@ -139,12 +139,13 @@
         </div>
       </div>
       <div class="pill-dropdown-wrapper" style="position: relative;">
-        <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
-          <span>JOD (د.أ)</span>
+        <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')" data-i18n-aria-label="currency_switch_aria">
+          <span data-currency-label>JOD</span>
           <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
         </button>
         <div id="currency-dropdown" class="pill-dropdown-menu">
-          <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
+          <button type="button" class="pill-dropdown-item" data-currency-option="JOD"><span data-i18n="currency_name_JOD">Jordanian Dinar</span><span class="currency-code">JOD</span></button>
+          <button type="button" class="pill-dropdown-item" data-currency-option="USD"><span data-i18n="currency_name_USD">US Dollar</span><span class="currency-code">USD</span></button>
         </div>
       </div>
       <div class="pill-language-wrapper">
@@ -255,11 +256,11 @@
               <div id="sidebar-categories-filter" class="filter-options"></div>
           </div>
           <div class="filter-group">
-              <div class="filter-group-title"><span data-i18n="category_price_title">Price (JD)</span> <span aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span></div>
+              <div class="filter-group-title"><span data-i18n="category_price_title">Price</span> <span aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span></div>
               <div class="filter-options">
-                      <label class="filter-label"><input type="checkbox" data-price-range="under-25"><span data-i18n="category_price_under_25">Under JOD 25</span></label>
-                      <label class="filter-label"><input type="checkbox" data-price-range="25-50"><span data-i18n="category_price_25_50">JOD 25 to 50</span></label>
-                      <label class="filter-label"><input type="checkbox" data-price-range="over-50"><span data-i18n="category_price_over_50">Over JOD 50</span></label>
+                      <label class="filter-label"><input type="checkbox" data-price-range="under-25"><span data-price-label="under-25">Under JOD 25</span></label>
+                      <label class="filter-label"><input type="checkbox" data-price-range="25-50"><span data-price-label="25-50">JOD 25 to 50</span></label>
+                      <label class="filter-label"><input type="checkbox" data-price-range="over-50"><span data-price-label="over-50">Over JOD 50</span></label>
               </div>
           </div>
       </aside>
@@ -377,7 +378,25 @@
         updateCartBadge();
     }
 
+    function categoryMoney(jodAmount) {
+        return window.LorinCurrency ? window.LorinCurrency.format(jodAmount) : `${jodAmount} JOD`;
+    }
+
+    // Filter thresholds stay 25 / 50 JOD; labels show them in the selected currency.
+    function updatePriceFilterLabels() {
+        const labels = {
+            'under-25': categoryText('category_price_under_fmt', 'Under {price}').replace('{price}', categoryMoney(25)),
+            '25-50': categoryText('category_price_between_fmt', '{from} to {to}').replace('{from}', categoryMoney(25)).replace('{to}', categoryMoney(50)),
+            'over-50': categoryText('category_price_over_fmt', 'Over {price}').replace('{price}', categoryMoney(50))
+        };
+        document.querySelectorAll('[data-price-label]').forEach(el => {
+            const text = labels[el.getAttribute('data-price-label')];
+            if (text && el.textContent !== text) el.textContent = text;
+        });
+    }
+
     function renderFilteredCategoryProducts(categoryName) {
+        updatePriceFilterLabels();
         const isAll = categoryName.toLowerCase() === 'all' || categoryName.toLowerCase() === 'الكل';
         const categoryBase = activeCategory ? String(activeCategory.title || categoryName).toLowerCase() : categoryName.toLowerCase();
         let filteredProducts = isAll
@@ -410,7 +429,7 @@
                 <div class="floward-item-img">
                     <img src="${escapeHtml(safeUrl(p.image_url))}" alt="${escapeHtml(categoryField(p, 'name'))}">
                 </div>
-                <div class="floward-item-price">${escapeHtml(p.price)} JD</div>
+                <div class="floward-item-price">${escapeHtml(categoryMoney(parseFloat(p.price) || 0))}</div>
                 <div class="floward-item-name">${escapeHtml(categoryField(p, 'name'))}</div>
             </a>
         `).join('');
@@ -434,7 +453,7 @@
               <img src="${escapeHtml(safeUrl(p.image_url))}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
               <div style="flex: 1; text-align: right;">
                 <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${escapeHtml(categoryField(p, 'name'))}</div>
-                <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${escapeHtml(p.price)} د.أ</div>
+                <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${escapeHtml(categoryMoney(parseFloat(p.price) || 0))}</div>
               </div>
             </a>`).join('');
     }
@@ -509,7 +528,16 @@
         initCategoryPage();
     });
 
+    window.addEventListener('lorin:currencychange', () => {
+        updatePriceFilterLabels();
+        if (!allStoreProducts.length) return;
+        renderFilteredCategoryProducts(activeCategoryName);
+        const search = document.getElementById('live-search-input');
+        if (search && search.value.trim()) performLiveSearch(search.value);
+    });
+
     window.addEventListener('lorin:langchange', () => {
+        updatePriceFilterLabels();
         if (!allStoreCategories.length && !allStoreProducts.length) return;
         renderCategoryHeading();
         const track = document.getElementById('sub-categories-track');

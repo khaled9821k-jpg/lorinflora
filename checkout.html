@@ -1065,12 +1065,13 @@
       </div>
 
       <div class="pill-dropdown-wrapper" style="position: relative;">
-        <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
-          <span>JOD (د.أ)</span>
+        <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')" data-i18n-aria-label="currency_switch_aria">
+          <span data-currency-label>JOD</span>
           <span class="country-selector-chevron" aria-hidden="true"></span>
         </button>
         <div id="currency-dropdown" class="pill-dropdown-menu">
-          <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span style="font-size: 11px; color: #868e96;">(JOD)</span></button>
+          <button type="button" class="pill-dropdown-item" data-currency-option="JOD"><span data-i18n="currency_name_JOD">Jordanian Dinar</span><span style="font-size: 11px; color: #868e96;">JOD</span></button>
+          <button type="button" class="pill-dropdown-item" data-currency-option="USD"><span data-i18n="currency_name_USD">US Dollar</span><span style="font-size: 11px; color: #868e96;">USD</span></button>
         </div>
       </div>
 
@@ -1469,7 +1470,7 @@
 
             <div id="row-photo-stick" class="hidden justify-between text-gray-600">
               <span data-i18n="photo_stick_title">صورة إضافية:</span>
-              <span class="font-semibold text-gray-800">+2.50 د.أ</span>
+              <span id="summary-photo-fee" class="font-semibold text-gray-800">+2.50 د.أ</span>
             </div>
 
             <div id="row-card-fee" class="hidden justify-between text-gray-600">
@@ -1495,6 +1496,8 @@
               <span id="summary-final-total" class="text-lg text-red-600">0.00 د.أ</span>
             </div>
           </div>
+
+          <p id="checkout-currency-note" class="hidden text-[10px] text-gray-400 leading-tight mt-3" data-i18n="checkout_currency_note"></p>
 
           <!-- Primary CTA Button in Sidebar -->
           <button type="button" id="sidebar-cta-btn" onclick="onSidebarCtaClick()" class="btn-checkout-cta mt-4">
@@ -1952,16 +1955,26 @@
     return getStandardDeliveryFee();
   }
 
+  function checkoutMoney(jodAmount, sign) {
+    if (window.LorinCurrency) return window.LorinCurrency.format(jodAmount, sign ? { sign } : {});
+    return (sign || '') + Number(jodAmount || 0).toFixed(2) + ' د.أ';
+  }
+
+  function updateCheckoutCurrencyNote() {
+    const note = document.getElementById('checkout-currency-note');
+    if (note) note.classList.toggle('hidden', !window.LorinCurrency || window.LorinCurrency.getCurrency() === window.LorinCurrency.BASE_CURRENCY);
+  }
+
   function updateDeliveryPriceLabels() {
     const expressPrice = document.getElementById('slot-express-price');
     if (expressPrice) {
-      expressPrice.textContent = isArabicLocale() ? '8.00 د.أ' : 'JOD 8.00';
+      expressPrice.textContent = checkoutMoney(8);
     }
     const standardPrice = document.getElementById('slot-standard-price');
     if (standardPrice) {
       const fee = getStandardDeliveryFee();
       standardPrice.textContent = fee
-        ? `${isArabicLocale() ? fee.toFixed(2) + ' د.أ' : 'JOD ' + fee.toFixed(2)}`
+        ? checkoutMoney(fee)
         : mapText('delivery_fee_by_area', 'Based on delivery area', 'تحدد حسب المنطقة');
     }
   }
@@ -2078,7 +2091,7 @@
     } else {
       container.innerHTML = cart.map((item, idx) => {
         const qty = Math.max(1, Math.floor(Number(item.quantity) || 1));
-        const lineTotal = (Number(item.price || 0) * qty).toFixed(2);
+        const lineTotal = checkoutMoney(Number(item.price || 0) * qty);
         return `
           <div class="flex items-center gap-3 text-xs border-b border-gray-100 pb-3">
             <img src="${item.image_url || 'https://via.placeholder.com/80'}" alt="${window.LorinI18n.pick(item, 'name') || t('tracker_placeholder_item', 'Product')}" class="w-14 h-14 object-cover rounded-lg flex-shrink-0 border border-gray-100">
@@ -2093,7 +2106,7 @@
                 <button type="button" class="lorin-qty-btn" onclick="updateItemQuantity(${idx}, 1)">+</button>
               </div>
             </div>
-            <div class="font-bold text-gray-900 text-sm whitespace-nowrap">${lineTotal} د.أ</div>
+            <div class="font-bold text-gray-900 text-sm whitespace-nowrap">${lineTotal}</div>
           </div>
         `;
       }).join('');
@@ -2103,10 +2116,10 @@
     const extras = getGiftExtras();
     const detailLines = [];
     if (totals.hasPhoto) {
-      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>${t('checkout_photo_attached', 'Photo stick-in')}</span><span>+${totals.photoFee.toFixed(2)} د.أ</span></div>`);
+      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>${t('checkout_photo_attached', 'Photo stick-in')}</span><span>${checkoutMoney(totals.photoFee, '+')}</span></div>`);
     }
     if (totals.cardObj && totals.cardObj.selected) {
-      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>${window.LorinI18n.pick(totals.cardObj, 'designName') || t('checkout_gift_card', 'Gift card')}</span><span>${totals.cardFee > 0 ? '+' + totals.cardFee.toFixed(2) + ' د.أ' : t('delivery_free', 'Free')}</span></div>`);
+      detailLines.push(`<div class="flex justify-between text-[#00313C] font-semibold"><span>${window.LorinI18n.pick(totals.cardObj, 'designName') || t('checkout_gift_card', 'Gift card')}</span><span>${totals.cardFee > 0 ? checkoutMoney(totals.cardFee, '+') : t('delivery_free', 'Free')}</span></div>`);
       if (totals.cardObj.message) {
         detailLines.push(`<div class="text-gray-600 bg-white p-2 rounded border border-gray-100">"${totals.cardObj.message}"</div>`);
       }
@@ -2122,7 +2135,9 @@
     }
 
     // Price breakdowns
-    document.getElementById('summary-subtotal').textContent = totals.subtotal.toFixed(2) + ' د.أ';
+    document.getElementById('summary-subtotal').textContent = checkoutMoney(totals.subtotal);
+    const photoFeeEl = document.getElementById('summary-photo-fee');
+    if (photoFeeEl) photoFeeEl.textContent = checkoutMoney(totals.photoFee, '+');
     
     const rowPhoto = document.getElementById('row-photo-stick');
     if (rowPhoto) rowPhoto.classList.toggle('hidden', !totals.hasPhoto);
@@ -2130,7 +2145,7 @@
     const rowCard = document.getElementById('row-card-fee');
     if (rowCard) {
       rowCard.classList.toggle('hidden', !(totals.cardObj && totals.cardObj.selected));
-      document.getElementById('summary-card-fee').textContent = '+' + totals.cardFee.toFixed(2) + ' د.أ';
+      document.getElementById('summary-card-fee').textContent = checkoutMoney(totals.cardFee, '+');
     }
 
     const rowDisc = document.getElementById('row-discount');
@@ -2138,7 +2153,7 @@
       if (totals.discount > 0) {
         rowDisc.classList.remove('hidden');
         rowDisc.classList.add('flex');
-        document.getElementById('summary-discount-val').textContent = '- ' + totals.discount.toFixed(2) + ' د.أ';
+        document.getElementById('summary-discount-val').textContent = '- ' + checkoutMoney(totals.discount);
       } else {
         rowDisc.classList.add('hidden');
         rowDisc.classList.remove('flex');
@@ -2149,11 +2164,12 @@
     if (deliveryEl) {
       const selectedArea = getSelectedAreaOption();
       deliveryEl.textContent = selectedArea && selectedArea.value
-        ? totals.deliveryFee.toFixed(2) + ' د.أ'
+        ? checkoutMoney(totals.deliveryFee)
         : mapText('delivery_select_area', 'Select area', 'اختر المنطقة');
     }
 
-    const grandTotalStr = totals.total.toFixed(2) + ' د.أ';
+    const grandTotalStr = checkoutMoney(totals.total);
+    updateCheckoutCurrencyNote();
     document.getElementById('summary-final-total').textContent = grandTotalStr;
 
     // Update all CTA labels
@@ -2287,11 +2303,11 @@
     if (step === 1) {
       step1El.classList.remove('hidden');
       step2El.classList.add('hidden');
-      if (sidebarCta) sidebarCta.innerHTML = `${t('btn_proceed_to_payment', 'المتابعة إلى الدفع')} · <span class="cta-price-holder">${computeTotals().total.toFixed(2)} د.أ</span>`;
+      if (sidebarCta) sidebarCta.innerHTML = `${t('btn_proceed_to_payment', 'المتابعة إلى الدفع')} · <span class="cta-price-holder">${checkoutMoney(computeTotals().total)}</span>`;
     } else {
       step1El.classList.add('hidden');
       step2El.classList.remove('hidden');
-      if (sidebarCta) sidebarCta.innerHTML = `${t('btn_place_order', 'تأكيد وإرسال الطلب')} · <span class="cta-price-holder">${computeTotals().total.toFixed(2)} د.أ</span>`;
+      if (sidebarCta) sidebarCta.innerHTML = `${t('btn_place_order', 'تأكيد وإرسال الطلب')} · <span class="cta-price-holder">${checkoutMoney(computeTotals().total)}</span>`;
     }
 
     updateCheckoutStepper();
@@ -2503,6 +2519,10 @@
     persistCheckoutState();
   }
 
+  function promoFixedMessage(jodAmount) {
+    return t('checkout_promo_fixed_applied', 'تم تطبيق خصم {amount} بنجاح.').replace('{amount}', checkoutMoney(jodAmount));
+  }
+
   // Apply Promo Code
   function applyPromoCode() {
     const input = document.getElementById('checkout-promo-input');
@@ -2510,6 +2530,7 @@
     const val = (input.value || '').trim().toUpperCase();
 
     if (!val) return;
+    msg.dataset.promoState = '';
 
     if (val === 'LORIN10') {
       localStorage.setItem(PROMO_KEY, JSON.stringify({ code: 'LORIN10', type: 'percent', value: 10, status: 'applied' }));
@@ -2517,7 +2538,8 @@
       msg.className = 'text-[11px] mt-2 text-emerald-700 font-bold block';
     } else if (val === 'WELCOME2') {
       localStorage.setItem(PROMO_KEY, JSON.stringify({ code: 'WELCOME2', type: 'fixed', value: 2, status: 'applied' }));
-      msg.textContent = t('checkout_promo_fixed_applied', 'تم تطبيق خصم 2 د.أ بنجاح.');
+      msg.dataset.promoState = 'fixed';
+      msg.textContent = promoFixedMessage(2);
       msg.className = 'text-[11px] mt-2 text-emerald-700 font-bold block';
     } else {
       msg.textContent = t('checkout_promo_invalid', 'عذراً، كود الخصم غير صالح.');
@@ -2628,6 +2650,16 @@
     return { ...signature, value: publicUrl };
   }
 
+  function orderCurrencyMeta(totals) {
+    const lorinCurrency = window.LorinCurrency;
+    const displayCurrency = lorinCurrency ? lorinCurrency.getCurrency() : 'JOD';
+    return {
+      display_currency: displayCurrency,
+      exchange_rate: lorinCurrency ? lorinCurrency.USD_PER_JOD : 1.41,
+      display_total: lorinCurrency ? lorinCurrency.convert(totals.total, displayCurrency) : Number(totals.total)
+    };
+  }
+
   async function buildOrderEmailData(cart, extras, totals, recipientData, orderRecord) {
     const user = window.LorinAuth ? await window.LorinAuth.getUser() : null;
     const metadata = user && user.user_metadata ? user.user_metadata : {};
@@ -2663,6 +2695,9 @@
       createdAt: (orderRecord && orderRecord.created_at) || new Date().toISOString(),
       locale: currencyLocale,
       currency: 'JOD',
+      displayCurrency: orderCurrencyMeta(totals).display_currency,
+      exchangeRate: orderCurrencyMeta(totals).exchange_rate,
+      displayTotal: orderCurrencyMeta(totals).display_total,
       siteUrl: window.location.origin,
       supportEmail: activeSettings.support_email || activeSettings.contact_email || '',
       customer: {
@@ -2827,6 +2862,7 @@
       }
     }
     const trackingOrderData = {
+      ...orderCurrencyMeta(totals),
       recipient: {
         name,
         area,
@@ -3583,6 +3619,14 @@
       if (mapSearchController === controller) mapSearchController = null;
     }
   }
+
+  window.addEventListener('lorin:currencychange', () => {
+    renderOrderSummary();
+    updateDeliveryPriceLabels();
+    updateCheckoutCurrencyNote();
+    const promoMessage = document.getElementById('promo-feedback-msg');
+    if (promoMessage && promoMessage.dataset.promoState === 'fixed') promoMessage.textContent = promoFixedMessage(2);
+  });
 
   window.addEventListener('lorin:langchange', () => {
     renderOrderSummary();

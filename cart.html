@@ -368,12 +368,13 @@
         </div>
       </div>
       <div class="pill-dropdown-wrapper" style="position: relative;">
-        <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
-          <span>JOD (د.أ)</span>
+        <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')" data-i18n-aria-label="currency_switch_aria">
+          <span data-currency-label>JOD</span>
           <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
         </button>
         <div id="currency-dropdown" class="pill-dropdown-menu">
-          <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
+          <button type="button" class="pill-dropdown-item" data-currency-option="JOD"><span data-i18n="currency_name_JOD">Jordanian Dinar</span><span class="currency-code">JOD</span></button>
+          <button type="button" class="pill-dropdown-item" data-currency-option="USD"><span data-i18n="currency_name_USD">US Dollar</span><span class="currency-code">USD</span></button>
         </div>
       </div>
       <div class="pill-language-wrapper">
@@ -905,9 +906,7 @@
     return Object.keys(values).reduce((text, name) => text.replace('{' + name + '}', String(values[name])), cartText(key, fallback));
   }
   function num(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; }
-  function money(n) { return 'JOD ' + num(n).toFixed(2); }
-  function shortMoney(n) { const v = num(n); return 'JOD' + (Number.isInteger(v) ? String(v) : v.toFixed(2)); }
-  function feeShort() { const v = Math.round(num(PHOTO_FEE) * 100) / 100; return String(v); }
+  function money(n, sign) { return window.LorinCurrency ? window.LorinCurrency.format(num(n), sign ? { sign } : {}) : 'JOD ' + num(n).toFixed(2); }
   function readJSON(key, fallback) {
     try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; }
     catch (e) { return fallback; }
@@ -1157,7 +1156,7 @@
     const ta = document.getElementById('card-modal-message');
     if (ta) ta.setAttribute('maxlength', String(MESSAGE_MAX));
     const desc = document.getElementById('photo-modal-desc');
-    if (desc) desc.textContent = cartText('cart_photo_description', 'Upload a photo to be printed and placed with your gift.') + ' + JOD ' + num(PHOTO_FEE).toFixed(2);
+    if (desc) desc.textContent = cartText('cart_photo_description', 'Upload a photo to be printed and placed with your gift.') + ' + money(PHOTO_FEE);
     const ptitle = document.getElementById('photo-modal-title');
     if (ptitle) ptitle.textContent = cartConfiguredText(CART_CFG.photoTitle, 'Add a Photo Stick-In', 'cart_photo_modal_title');
     setHidden(document.getElementById('promo-card'), !CART_CFG.promoEnabled);
@@ -1367,7 +1366,7 @@
     if (!p) {
       el.innerHTML = `
         <div class="lc-dashed">
-          <span class="lc-fee">+ JOD ${esc(feeShort())}</span>
+          <span class="lc-fee">+ ${esc(money(PHOTO_FEE))}</span>
           <div class="lc-dashed-text">
             <h3>${esc(cartConfiguredText(CART_CFG.photoTitle, 'Add a Photo Stick-In', 'cart_photo_title'))}</h3>
             <p>${esc(cartConfiguredText(CART_CFG.photoSubtitle, 'Make this gift unforgettable', 'cart_photo_subtitle'))}</p>
@@ -1381,14 +1380,14 @@
     } else {
       el.innerHTML = `
         <div class="lc-dashed">
-          <span class="lc-fee">+ JOD ${esc(feeShort())}</span>
+          <span class="lc-fee">+ ${esc(money(PHOTO_FEE))}</span>
           <div class="lc-dashed-text">
             <h3>${esc(cartText('cart_photo_title', 'Photo Stick-In'))}</h3>
             <div class="lc-status">${esc(cartText('cart_photo_added', 'Photo added'))}</div>
             <div class="lc-file">${esc(p.fileName || '')}</div>
             <div class="lc-btnrow">
               <button type="button" id="btn-change-photo" class="btn-outline">${esc(cartText('cart_photo_change', 'Change photo'))}</button>
-              <button type="button" id="btn-remove-photo" class="btn-outline danger">${esc(cartText('cart_photo_remove', 'Remove photo'))} (-${esc(num(PHOTO_FEE).toFixed(2))} JOD)</button>
+              <button type="button" id="btn-remove-photo" class="btn-outline danger">${esc(cartText('cart_photo_remove', 'Remove photo'))} (-${esc(money(PHOTO_FEE))})</button>
             </div>
           </div>
           <div class="polaroid"><img src="${esc(p.imageUrl || p.downloadUrl)}" alt="${esc(cartText('cart_photo_label', 'Photo'))}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'"></div>
@@ -1507,7 +1506,7 @@
 
   function deliveryDisplay(afterDiscount) {
     const fee = num(CART_CFG.deliveryFee);
-    if (!(fee > 0)) return 'JOD 0.00';
+    if (!(fee > 0)) return money(0);
     if (num(CART_CFG.freeThreshold) > 0 && afterDiscount >= num(CART_CFG.freeThreshold)) return 'Free';
     return money(fee) + ' (added at checkout)';
   }
@@ -1688,7 +1687,7 @@
                   <span class="ft-info-badge" title="${esc(cartField(p, 'category') || p.category)}">i</span>
                 </div>
                 <div class="ft-name" dir="auto">${esc(cartField(p, 'name'))}</div>
-                <div class="ft-price">${esc(shortMoney(p.price))}</div>
+                <div class="ft-price">${esc(money(p.price))}</div>
                 ${qty > 0
                   ? `<div class="ft-qty-ctrl">
                        <button type="button" data-ft-dec="${esc(p.id)}" aria-label="${esc(cartText('cart_finishing_quantity_decrease', 'Decrease quantity'))}">−</button>
@@ -1824,7 +1823,7 @@
       uploading = false;
       closeModals();
       renderPhotoCard(); renderSummary();
-      toast(cartText('cart_photo_added_toast', 'Photo added') + ': + JOD ' + num(PHOTO_FEE).toFixed(2));
+      toast(cartText('cart_photo_added_toast', 'Photo added') + ': + ' + money(PHOTO_FEE));
     } catch (e) {
       const m = errMsg(e);
       console.warn('Photo upload failed: ' + m);
@@ -1845,7 +1844,7 @@
     saveExtras(extras);
     if (old && old.path && supabaseClient) { supabaseClient.storage.from(STORAGE_BUCKET).remove([old.path]).catch(() => {}); }
     renderPhotoCard(); renderSummary();
-    toast(cartText('cart_photo_removed_toast', 'Photo removed') + ': -' + num(PHOTO_FEE).toFixed(2) + ' JOD');
+    toast(cartText('cart_photo_removed_toast', 'Photo removed') + ': -' + money(PHOTO_FEE));
   }
 
   /* ---- Floward Card Modal State ---- */
@@ -1893,7 +1892,7 @@
     container.innerHTML = CARD_DESIGNS.map(d => {
       const pVal = num(d.price);
       const isSel = selected && d.name === selected.name;
-      const priceText = pVal > 0 ? shortMoney(pVal).replace('JOD', 'JOD ') : 'Free';
+      const priceText = pVal > 0 ? money(pVal) : 'Free';
       return `
         <div class="fw-card-item ${isSel ? 'is-selected' : ''}" data-design-name="${esc(d.name)}">
           <div class="fw-card-thumb">
@@ -2396,7 +2395,7 @@
         <img src="${esc(p.image_url || PLACEHOLDER_IMG)}" alt="" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}'" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
         <div style="flex: 1; text-align: right;">
           <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">${esc(cartField(p, 'name'))}</div>
-          <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${esc(p.price)} د.أ</div>
+          <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${esc(money(num(p.price)))}</div>
         </div>
       </a>`).join('');
   }
@@ -2568,7 +2567,7 @@
     });
   });
 
-  window.addEventListener('lorin:langchange', () => {
+  function refreshCartForDisplay() {
     applyCartConfigToDom();
     renderAll();
     renderPromoState();
@@ -2587,7 +2586,10 @@
     }
     const search = document.getElementById('live-search-input');
     if (search && search.value.trim()) performLiveSearch(search.value);
-  });
+  }
+
+  window.addEventListener('lorin:langchange', refreshCartForDisplay);
+  window.addEventListener('lorin:currencychange', refreshCartForDisplay);
 </script>
 
 <div class="mobile-bar-spacer"></div>

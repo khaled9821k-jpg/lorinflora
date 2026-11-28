@@ -174,6 +174,11 @@ function renderCustomerConfirmation(order: OrderEmailData): { subject: string; h
   const orderConfirmedUrl = `https://www.lorinflora.com/order-confirmed.html?order=${encodeURIComponent(order.orderNumber)}&token=${encodeURIComponent(order.trackingToken)}`;
   const currency = order.currency || "JOD";
   const money = (amount: number) => `${Number(amount || 0).toFixed(2)} ${currency}`;
+  const usdNote = order.displayCurrency === "USD"
+    ? (order.locale === "ar"
+      ? `عُرضت الأسعار بالدولار: ${Number(order.displayTotal ?? order.summary.total * 1.41).toFixed(2)} USD (1 JOD = 1.41 USD). تتم المعالجة بالدينار الأردني.`
+      : `Prices were shown in USD: USD ${Number(order.displayTotal ?? order.summary.total * 1.41).toFixed(2)} (1 JOD = 1.41 USD). Your order is processed in JOD.`)
+    : "";
   const text = isArabic
     ? {
       subject: `تم تأكيد طلبك من Lorin — ${orderNumber}`,
@@ -253,6 +258,7 @@ function renderCustomerConfirmation(order: OrderEmailData): { subject: string; h
     `${text.schedule}: ${schedule}`,
     giftMessageText,
     `${text.total}: ${money(order.summary.total)}`,
+    usdNote,
     `${text.track}: ${trackUrl}`,
     `${text.trackFallback} ${trackUrl}`,
     "",
@@ -306,6 +312,7 @@ function renderCustomerConfirmation(order: OrderEmailData): { subject: string; h
             <tr><td align="${isArabic ? "left" : "right"}" style="padding-top:18px;color:#68777B;font-size:14px;">
               ${escapeHtml(text.total)}&nbsp;&nbsp;<strong style="color:#00313C;font-size:22px;">${escapeHtml(money(order.summary.total))}</strong>
             </td></tr>
+            ${usdNote ? `<tr><td align="${isArabic ? "left" : "right"}" style="padding-top:8px;color:#68777B;font-size:12px;">${escapeHtml(usdNote)}</td></tr>` : ""}
           </table>
           <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:28px auto 10px;">
             <tr><td align="center" bgcolor="#00313C" style="background-color:#00313C;border-radius:8px;">
@@ -380,6 +387,11 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     ...parsedOrder,
     orderNumber,
     trackingToken: parsedOrder.trackingToken.toLowerCase(),
+    displayCurrency: parsedOrder.displayCurrency === "USD" ? "USD" : "JOD",
+    exchangeRate: 1.41,
+    displayTotal: Number.isFinite(parsedOrder.displayTotal) && Number(parsedOrder.displayTotal) >= 0
+      ? Math.round(Number(parsedOrder.displayTotal) * 100) / 100
+      : undefined,
   };
 
   const recipients = (process.env.ORDER_NOTIFICATION_EMAIL || "")

@@ -133,12 +133,13 @@
       </div>
 
       <div class="pill-dropdown-wrapper" style="position: relative;">
-        <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')">
-          <span>JOD (د.أ)</span>
+        <button type="button" class="pill-btn" onclick="togglePillDropdown('currency-dropdown')" data-i18n-aria-label="currency_switch_aria">
+          <span data-currency-label>JOD</span>
           <span class="pill-arrow" aria-hidden="true"><svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="m1 2.5 3 3 3-3" stroke="currentColor" stroke-width="1.2"/></svg></span>
         </button>
         <div id="currency-dropdown" class="pill-dropdown-menu">
-          <button type="button" class="pill-dropdown-item active"><span>دينار أردني</span><span class="currency-code">(JOD)</span></button>
+          <button type="button" class="pill-dropdown-item" data-currency-option="JOD"><span data-i18n="currency_name_JOD">Jordanian Dinar</span><span class="currency-code">JOD</span></button>
+          <button type="button" class="pill-dropdown-item" data-currency-option="USD"><span data-i18n="currency_name_USD">US Dollar</span><span class="currency-code">USD</span></button>
         </div>
       </div>
 
@@ -267,7 +268,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
             <div>
                 <h3 style="font-size: 20px; font-weight: 700; color: #111; margin: 0 0 4px 0;" data-i18n="product_modal_added">Items added to your cart</h3>
-                    <div id="modal-subtotal-text" style="font-size: 13px; color: #666;"><span data-i18n="product_modal_subtotal">Cart Subtotal</span>: JOD 0</div>
+                    <div id="modal-subtotal-text" style="font-size: 13px; color: #666;"><span data-i18n="product_modal_subtotal">Cart Subtotal</span>: <span id="modal-subtotal-value">JOD 0.00</span></div>
             </div>
                 <button onclick="closeUpsellModal()" aria-label="Close" data-i18n-aria-label="checkout_map_close" style="background: none; border: none; font-size: 22px; cursor: pointer; color: #666;">x</button>
         </div>
@@ -299,6 +300,15 @@
     let selectedCustomizations = {};
     let baseProductPrice = 0;
     const productText = (key, fallback) => window.LorinI18n ? window.LorinI18n.t(key, fallback) : fallback;
+    const productMoney = (jodAmount, sign) => window.LorinCurrency
+        ? window.LorinCurrency.format(jodAmount, sign ? { sign } : {})
+        : `JOD ${(Number(jodAmount) || 0).toFixed(2)}`;
+    function updateModalSubtotal() {
+        const target = document.getElementById('modal-subtotal-value');
+        if (!target) return;
+        const subtotal = getCart().reduce((sum, item) => sum + (Number(item.price) || 0) * Math.max(1, Math.floor(Number(item.quantity) || 1)), 0);
+        target.textContent = productMoney(subtotal);
+    }
     const escapeHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (character) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     })[character]);
@@ -478,7 +488,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
 
                 <div class="product-info-col">
                     <div>
-                        <div id="displayed-price-box" class="product-price-box">JOD ${baseProductPrice.toFixed(2)}</div>
+                        <div id="displayed-price-box" class="product-price-box">${productMoney(baseProductPrice)}</div>
                         <div class="product-tax-note">الأسعار شاملة الضرائب</div>
                     </div>
 
@@ -561,7 +571,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                         return `
                             <div class="custom-opt-card ${idx === 0 ? 'selected' : ''}"                             onclick="selectCustomOption(this.dataset.group, this.dataset.opt, ${Number(opt.price) || 0}, this)" data-group="${escapeHtml(groupName)}" data-opt="${escapeHtml(opt.name)}">
                                                             <div class="opt-title">${escapeHtml(optionName)}</div>
-                                                            <div class="opt-price">${opt.price > 0 ? '+' + (Number(opt.price) || 0) + ' JOD' : productText('product_option_included', 'Included')}</div>
+                                                            <div class="opt-price"${opt.price > 0 ? ` data-lorin-price="${Number(opt.price) || 0}" data-lorin-price-sign="+"` : ''}>${opt.price > 0 ? productMoney(Number(opt.price) || 0, '+') : productText('product_option_included', 'Included')}</div>
                             </div>
                         `;
                     }).join('')}
@@ -601,7 +611,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
         const priceBox = document.getElementById('displayed-price-box');
         if (priceBox) {
             let finalPrice = baseProductPrice + selectedCustomizations.additionalPrice;
-            priceBox.textContent = `JOD ${finalPrice.toFixed(2)}`;
+            priceBox.textContent = productMoney(finalPrice);
         }
     }
 
@@ -639,7 +649,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                 addonImg = safeUrl(addonImg) || FALLBACK_IMG;
 
                 const addonPrice = parseFloat(addon.price) || 15;
-                const bundlePrice = (baseProductPrice + addonPrice).toFixed(2);
+                const bundlePrice = baseProductPrice + addonPrice;
 
                 const bundleObj = JSON.stringify({
                     main: { id: currentProd.id, name: currentProd.name, name_ar: currentProd.name_ar, description_ar: currentProd.description_ar, category_ar: currentProd.category_ar, price: baseProductPrice, image_url: currentProd.image_url },
@@ -659,7 +669,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                                 <div class="fbt-item-name">${escapeHtml(productField(addon, 'name'))}</div>
                             </div>
                         </div>
-                        <button class="fbt-btn" onclick="addBundleToCart(JSON.parse(this.dataset.bundle))" data-bundle="${escapeHtml(bundleObj)}">${productText('product_bundle_add', 'Add both items to cart for')} ${bundlePrice} JOD</button>
+                        <button class="fbt-btn" onclick="addBundleToCart(JSON.parse(this.dataset.bundle))" data-bundle="${escapeHtml(bundleObj)}">${productText('product_bundle_add', 'Add both items to cart for')} ${productMoney(bundlePrice)}</button>
                     </div>
                 `;
             }).join('');
@@ -725,7 +735,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
             return [];
         }
     }
-    function saveCart(cart) { localStorage.setItem('lorin_cart', JSON.stringify(cart)); updateCartBadge(); }
+    function saveCart(cart) { localStorage.setItem('lorin_cart', JSON.stringify(cart)); updateCartBadge(); updateModalSubtotal(); }
 
     function updateCartBadge() {
         const cart = getCart();
@@ -798,7 +808,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
                         <div>
                             <img src="${escapeHtml(itemImage)}" onerror="${IMG_ONERROR}" style="width: 100%; height: 130px; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" alt="${escapeHtml(productField(item, 'name'))}">
                             <div style="font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px;">${escapeHtml(productField(item, 'name'))}</div>
-                            <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">JOD ${itemPriceNum.toFixed(2)}</div>
+                            <div style="font-size: 12px; font-weight: 700; color: #00313C; margin-bottom: 10px;">${productMoney(itemPriceNum)}</div>
                         </div>
                         <div id="upsell-action-area-${escapeHtml(item.id)}">
                             ${qty > 0 ? renderQuantityControls(item.id, qty) : renderAddButton(item, itemPriceNum, itemImage)}
@@ -847,6 +857,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
     }
 
     function openUpsellModal() {
+        updateModalSubtotal();
         document.getElementById('upsell-modal-backdrop').classList.add('is-open');
     }
 
@@ -864,7 +875,7 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
               <img src="${escapeHtml(safeUrl(p.image_url))}" onerror="${IMG_ONERROR}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
               <div style="flex: 1; text-align: right;">
                 <div style="font-size: 14px; font-weight: bold; color: #2c3e50;">                ${escapeHtml(productField(p, 'name'))}</div>
-                                <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${escapeHtml(p.price)} د.أ</div>
+                                <div style="font-size: 12px; color: #e74c3c; font-weight: bold;">${escapeHtml(productMoney(parseFloat(p.price) || 0))}</div>
               </div>
             </a>`).join('');
     }
@@ -884,8 +895,19 @@ LorinStoreSettings.applyProductSettings(lorinSettings);
         if (btnSearch) btnSearch.addEventListener('click', () => searchOverlay.classList.toggle('is-open'));
     });
 
+    window.addEventListener('lorin:currencychange', () => {
+        if (!currentProduct) return;
+        updatePriceDisplay();
+        updateModalSubtotal();
+        loadFrequentBoughtTogether(currentProduct);
+        loadUpsellsForModal(currentProduct.id);
+        const search = document.getElementById('live-search-input');
+        if (search && search.value.trim()) performLiveSearch(search.value);
+    });
+
     window.addEventListener('lorin:langchange', () => {
         if (!currentProduct) return;
+        updateModalSubtotal();
         applyProductLanguage();
         loadFrequentBoughtTogether(currentProduct);
         loadUpsellsForModal(currentProduct.id);
