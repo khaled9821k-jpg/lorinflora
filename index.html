@@ -72,8 +72,16 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 10px;
+        }
+        .floward-sec-title {
+            min-width: 0;
+            text-align: start;
+        }
+        .floward-sec-btn {
+            flex-shrink: 0;
+            white-space: nowrap;
         }
         .floward-sec-title {
             font-family: "Cormorant Garamond", Georgia, serif !important;
@@ -513,7 +521,16 @@
             text-align: start;
         }
         html[dir="rtl"] .floward-section-top {
-            flex-direction: row-reverse;
+            flex-direction: row;
+            direction: rtl;
+        }
+        html[dir="rtl"] .floward-sec-title,
+        html[dir="rtl"] .section-header-left {
+            text-align: start;
+        }
+        html[dir="rtl"] .floward-sec-btn {
+            margin-inline-start: auto;
+            white-space: nowrap;
         }
         html[dir="rtl"] .promo-content-box {
             direction: rtl;
